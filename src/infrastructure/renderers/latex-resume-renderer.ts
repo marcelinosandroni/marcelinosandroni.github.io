@@ -3,13 +3,14 @@ import type { ResumeDocumentInput, ResumeDocument, ResumeDocumentRenderer } from
 export class LaTeXResumeRenderer implements ResumeDocumentRenderer {
   async render(input: ResumeDocumentInput): Promise<ResumeDocument> {
     const { version, locale, content } = input;
+    const isEn = locale === "en-US";
 
     const header = this.renderHeader(content.name, version.toString());
-    const summary = this.renderSection("Resumo", content.summary);
-    const experiences = this.renderExperiences(content.experiences);
-    const skills = this.renderSkills(content.skillGroups);
-    const education = this.renderEducation(content.education);
-    const languages = this.renderLanguages(content.languages);
+    const summary = this.renderSection(isEn ? "Summary" : "Resumo", content.summary);
+    const experiences = this.renderExperiences(content.experiences, isEn ? "Experience" : "Experiência");
+    const skills = this.renderSkills(content.skillGroups, isEn ? "Skills" : "Habilidades");
+    const education = this.renderEducation(content.education, isEn ? "Education" : "Formação");
+    const languages = this.renderLanguages(content.languages, isEn ? "Languages" : "Idiomas");
 
     const body = [header, summary, experiences, skills, education, languages].filter(Boolean).join("\n\n");
 
@@ -28,13 +29,13 @@ export class LaTeXResumeRenderer implements ResumeDocumentRenderer {
 
 \\title{${this.escapeLatex(content.name)}}
 \\author{}
-\\date{Versão ${version.toString()}}
+\\date{${isEn ? "Version" : "Versão"} ${version.toString()}}
 
 \\begin{document}
 
 \\maketitle
 
-\\section*{Perfil}
+\\section*{${isEn ? "Profile" : "Perfil"}}
 ${this.escapeLatex(content.title)} \\\\
 ${this.escapeLatex(content.location)}
 
@@ -43,7 +44,8 @@ ${body}
 \\end{document}
 `;
 
-    const filename = `resume-${content.name.toLowerCase().replace(/\\s+/g, "-")}-${version.toString()}-${locale}.tex`;
+    const sanitizedName = content.name.toLowerCase().replace(/\s+/g, "-");
+    const filename = `resume-${sanitizedName}-${version.toString()}-${locale}.tex`;
 
     return {
       filename,
@@ -60,7 +62,10 @@ ${body}
 ${this.escapeLatex(content)}`;
   }
 
-  private renderExperiences(experiences: Array<{ company: string; role: string; period: string; summary: string; highlights: string[] }>): string {
+  private renderExperiences(
+    experiences: Array<{ company: string; role: string; period: string; summary: string; highlights: string[] }>,
+    sectionTitle: string
+  ): string {
     if (!experiences || experiences.length === 0) return "";
 
     const items = experiences
@@ -76,11 +81,11 @@ ${exp.highlights.map((h: string) => `\\item ${this.escapeLatex(h)}`).join("\n")}
       )
       .join("\n");
 
-    return `\\section{Experiência}
+    return `\\section{${sectionTitle}}
 ${items}`;
   }
 
-  private renderSkills(skillGroups: Array<{ label: string; skills: string[] }>): string {
+  private renderSkills(skillGroups: Array<{ label: string; skills: string[] }>, sectionTitle: string): string {
     if (!skillGroups || skillGroups.length === 0) return "";
 
     const items = skillGroups
@@ -92,11 +97,14 @@ ${group.skills.map((s: string) => this.escapeLatex(s)).join(", ")}
       )
       .join("\n");
 
-    return `\\section{Habilidades}
+    return `\\section{${sectionTitle}}
 ${items}`;
   }
 
-  private renderEducation(education: Array<{ title: string; institution: string; period: string; description: string }>): string {
+  private renderEducation(
+    education: Array<{ title: string; institution: string; period: string; description: string }>,
+    sectionTitle: string
+  ): string {
     if (!education || education.length === 0) return "";
 
     const items = education
@@ -109,21 +117,21 @@ ${this.escapeLatex(edu.description)}
       )
       .join("\n");
 
-    return `\\section{Formação}
+    return `\\section{${sectionTitle}}
 ${items}`;
   }
 
-  private renderLanguages(languages: string[]): string {
+  private renderLanguages(languages: string[], sectionTitle: string): string {
     if (!languages || languages.length === 0) return "";
 
-    return `\\section{Idiomas}
+    return `\\section{${sectionTitle}}
 ${languages.map((l) => `\\item ${this.escapeLatex(l)}`).join("\n")}`;
   }
 
   private escapeLatex(text: string): string {
     return text
       .replace(/\\/g, "\\textbackslash{}")
-      .replace(/[{}/]/g, (m) => `\\${m}`)
+      .replace(/[{}]/g, (m) => `\\${m}`)
       .replace(/&/g, "\\&")
       .replace(/%/g, "\\%")
       .replace(/\$/g, "\\$")

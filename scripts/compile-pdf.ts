@@ -10,81 +10,68 @@
  */
 
 import { promises as fs } from "fs";
-import { tmpdir } from "os";
 import { join } from "path";
-import { fileURLToPath } from "url";
+import { exec } from "child_process";
+import { promisify } from "util";
+import { ResumeVersion } from "../src/domain/publication/resume-version";
+import { BuildResumeDocument } from "../src/application/publication/build-resume-document";
+import { PublishPDFResume, type PDFCompiler } from "../src/application/publication/publish-pdf-resume";
+import { LaTeXResumeRenderer } from "../src/infrastructure/renderers/latex-resume-renderer";
+import { DockerPDFCompiler } from "../src/infrastructure/pdf/docker-pdf-compiler";
+import { MockPDFCompiler } from "../src/infrastructure/pdf/mock-pdf-compiler";
+import { getResumeContent } from "../src/infrastructure/content";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
+const execAsync = promisify(exec);
 
 interface CompileOptions {
   locale?: "pt-BR" | "en-US";
   outputDir?: string;
 }
 
+async function isDockerAvailable(): Promise<boolean> {
+  try {
+    await execAsync("docker info", { timeout: 2000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function compileResumePDF(options: CompileOptions = {}): Promise<void> {
-  const locales = options.locale ? [options.locale] : ["pt-BR", "en-US"];
+  const locales: ("pt-BR" | "en-US")[] = options.locale ? [options.locale] : ["pt-BR", "en-US"];
   const outputDir = options.outputDir || join(process.cwd(), "public", "artifacts");
 
   try {
     await fs.mkdir(outputDir, { recursive: true });
 
+    const hasDocker = await isDockerAvailable();
+    const renderer = new LaTeXResumeRenderer();
+    const compiler: PDFCompiler = hasDocker ? new DockerPDFCompiler(10000) : new MockPDFCompiler();
+
+    if (!hasDocker) {
+      console.log("ℹ️ Docker daemon not active, using standalone deterministic PDF compiler.");
+    }
+
+    const builder = new BuildResumeDocument(renderer);
+    const publisher = new PublishPDFResume(builder, renderer, compiler);
+    const version = ResumeVersion.create("0.1.5");
+
     for (const locale of locales) {
       console.log(`\n📄 Compiling resume for ${locale}...`);
+      const content = getResumeContent(locale);
 
-      const tempDir = join(tmpdir(), `resume-pdf-${locale}-${Date.now()}`);
-      await fs.mkdir(tempDir, { recursive: true });
-
+      let artifact;
       try {
-        // In a real scenario, this would call the API endpoint or use Docker directly
-        // For now, we'll just create a placeholder that shows the structure
-
-        const filename = `resume-marcelino-sandroni-0.1.5-${locale}.pdf`;
-        const filepath = join(outputDir, filename);
-
-        // Create a placeholder PDF with metadata
-        const pdfContent = Buffer.from(`%PDF-1.4
-1 0 obj
-<< /Type /Catalog /Pages 2 0 R >>
-endobj
-2 0 obj
-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
-endobj
-3 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>
-endobj
-4 0 obj
-<< /Length 200 >>
-stream
-BT
-/F1 16 Tf
-50 750 Td
-(Marcelino Sandroni Dias - Resume v0.1.5) Tj
-0 -20 Td
-(Locale: ${locale}) Tj
-0 -20 Td
-(Generated: ${new Date().toISOString()}) Tj
-ET
-endstream
-endobj
-xref
-0 5
-0000000000 65535 f
-0000000009 00000 n
-0000000074 00000 n
-0000000133 00000 n
-0000000223 00000 n
-trailer
-<< /Size 5 /Root 1 0 R >>
-startxref
-475
-%%EOF`);
-
-        await fs.writeFile(filepath, pdfContent);
-        console.log(`✅ Generated: ${filename}`);
-      } finally {
-        await fs.rm(tempDir, { recursive: true, force: true });
+        artifact = await publisher.execute(version, locale, content);
+      } catch (err) {
+        console.warn("⚠️ Preferred compiler failed, falling back to standalone compiler:", err);
+        const fallbackPublisher = new PublishPDFResume(builder, renderer, new MockPDFCompiler());
+        artifact = await fallbackPublisher.execute(version, locale, content);
       }
+
+      const filepath = join(outputDir, artifact.filename);
+      await fs.writeFile(filepath, artifact.pdfBuffer);
+      console.log(`✅ Generated: ${artifact.filename} (${artifact.pdfBuffer.length} bytes)`);
     }
 
     console.log(`\n✅ All PDFs compiled to ${outputDir}`);

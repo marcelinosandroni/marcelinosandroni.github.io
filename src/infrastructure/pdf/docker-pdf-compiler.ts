@@ -9,6 +9,11 @@ import type { PDFCompiler } from "@/application/publication/publish-pdf-resume";
 const execAsync = promisify(exec);
 
 export class DockerPDFCompiler implements PDFCompiler {
+  constructor(
+    private readonly timeoutMs: number = 15000,
+    private readonly imageName: string = process.env.DOCKER_LATEX_IMAGE || "marcelino-pdf-compiler:latest"
+  ) {}
+
   async compile(texSource: string, filename: string): Promise<Buffer> {
     const tempDir = await mkdtemp(join(tmpdir(), "resume-pdf-"));
 
@@ -20,14 +25,9 @@ export class DockerPDFCompiler implements PDFCompiler {
 
       await writeFile(texPath, texSource);
 
-      const command = `docker run --rm -v ${tempDir}:/workspace mcr.microsoft.com/devcontainers/base:alpine-3.20 pdflatex -interaction=nonstopmode -output-directory=/workspace ${texFilename}`;
+      const command = `docker run --rm -v "${tempDir}:/workspace" ${this.imageName} pdflatex -interaction=nonstopmode -output-directory=/workspace "${texFilename}"`;
 
-      try {
-        await execAsync(command);
-      } catch (error) {
-        console.error("LaTeX compilation error:", error);
-      }
-
+      await execAsync(command, { timeout: this.timeoutMs });
       const pdfBuffer = await readFile(pdfPath);
       return pdfBuffer;
     } finally {
