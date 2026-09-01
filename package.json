@@ -12,7 +12,9 @@
     "test:unit:watch": "vitest",
     "test:unit:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:e2e:debug": "playwright test --debug"
+    "test:e2e:debug": "playwright test --debug",
+    "compile:pdf": "tsx scripts/compile-pdf.ts",
+    "compile:pdf:watch": "node --watch scripts/compile-pdf.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",
@@ -30,6 +32,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5",
     "vitest": "^3"
   }
