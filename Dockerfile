@@ -1,4 +1,4 @@
-ARG NODE_VERSION=22-alpine
+ARG NODE_VERSION=22-slim
 
 FROM node:${NODE_VERSION} AS base
 WORKDIR /app
@@ -6,7 +6,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 FROM base AS dependencies
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts --no-audit --no-fund
+RUN npm ci --no-audit --no-fund
 
 FROM base AS development
 COPY --from=dependencies /app/node_modules ./node_modules
