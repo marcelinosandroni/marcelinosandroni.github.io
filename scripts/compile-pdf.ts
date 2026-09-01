@@ -12,11 +12,9 @@
 import { promises as fs } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { exec } from "child_process";
-import { promisify } from "util";
 import { fileURLToPath } from "url";
 
-const execAsync = promisify(exec);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 interface CompileOptions {
