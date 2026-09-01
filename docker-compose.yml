@@ -4,7 +4,7 @@ services:
     build:
       context: .
       target: development
-    pull_policy: if-not-present
+    pull_policy: if_not_present
     ports:
       - "3000:3000"
     volumes:
@@ -20,7 +20,7 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    pull_policy: if-not-present
+    pull_policy: if_not_present
     environment:
       POSTGRES_DB: resume
       POSTGRES_USER: resume
@@ -36,7 +36,7 @@ services:
     build:
       context: .
       target: development
-    pull_policy: if-not-present
+    pull_policy: if_not_present
     environment:
       BASE_URL: http://app:3000
     depends_on:
