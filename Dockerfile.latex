@@ -1,0 +1,16 @@
+ARG NODE_VERSION=22-alpine
+ARG LATEX_BASE_IMAGE=mcr.microsoft.com/devcontainers/base:alpine-3.20
+
+FROM ${LATEX_BASE_IMAGE} AS latex-base
+RUN apk add --no-cache texlive texlive-latex-extra texlive-fonts-recommended
+
+FROM latex-base AS pdf-builder
+WORKDIR /workspace
+VOLUME ["/workspace/input", "/workspace/output"]
+ENTRYPOINT ["pdflatex", "-interaction=nonstopmode", "-output-directory=/workspace/output"]
+
+FROM node:${NODE_VERSION} AS pdf-compiler
+WORKDIR /app
+RUN apk add --no-cache texlive texlive-latex-extra texlive-fonts-recommended
+COPY . .
+CMD ["node", "--loader", "tsx", "scripts/compile-pdf.ts"]
