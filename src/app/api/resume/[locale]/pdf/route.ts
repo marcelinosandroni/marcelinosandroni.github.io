@@ -5,7 +5,7 @@ import { BuildResumeDocument } from "@/application/publication/build-resume-docu
 import { PublishPDFResume } from "@/application/publication/publish-pdf-resume";
 import { LaTeXResumeRenderer } from "@/infrastructure/renderers/latex-resume-renderer";
 import { MockPDFCompiler } from "@/infrastructure/pdf/mock-pdf-compiler";
-import { resumeContent } from "@/infrastructure/content/resume-data";
+import { getResumeContent } from "@/infrastructure/content";
 
 export async function GET(
   _request: NextRequest,
@@ -27,13 +27,11 @@ export async function GET(
     const publisher = new PublishPDFResume(builder, renderer, compiler);
 
     const currentVersion = ResumeVersion.create("0.1.5");
+    const resumeByLocale = getResumeContent(locale as "pt-BR" | "en-US");
     const artifact = await publisher.execute(
       currentVersion,
       locale as "pt-BR" | "en-US",
-      {
-        ...resumeContent,
-        locale: locale as "pt-BR" | "en-US",
-      }
+      resumeByLocale
     );
 
     return new NextResponse(new Uint8Array(artifact.pdfBuffer), {
