@@ -1,22 +1,25 @@
-FROM node:22-bookworm-slim AS dependencies
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts
+ARG NODE_VERSION=22-alpine
 
-FROM node:22-bookworm-slim AS development
+FROM node:${NODE_VERSION} AS base
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+
+FROM base AS dependencies
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts --no-audit --no-fund
+
+FROM base AS development
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
-FROM dependencies AS build
-WORKDIR /app
+FROM base AS build
+COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-FROM node:22-bookworm-slim AS production
+FROM node:${NODE_VERSION} AS production
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
