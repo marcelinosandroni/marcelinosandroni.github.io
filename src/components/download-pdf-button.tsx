@@ -7,9 +7,12 @@ interface DownloadPDFButtonProps {
   label?: string;
 }
 
-export function DownloadPDFButton({ locale, label = "Baixar PDF" }: DownloadPDFButtonProps) {
+export function DownloadPDFButton({ locale, label }: DownloadPDFButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const defaultLabel = label ?? (locale === "en-US" ? "Download PDF" : "Baixar PDF");
+  const loadingLabel = locale === "en-US" ? "Generating..." : "Gerando...";
 
   const handleDownload = async () => {
     setIsLoading(true);
@@ -18,7 +21,7 @@ export function DownloadPDFButton({ locale, label = "Baixar PDF" }: DownloadPDFB
     try {
       const response = await fetch(`/api/resume/${locale}/pdf`);
       if (!response.ok) {
-        throw new Error("Failed to download PDF");
+        throw new Error(locale === "en-US" ? "Failed to download PDF" : "Falha ao baixar PDF");
       }
 
       const blob = await response.blob();
@@ -31,7 +34,7 @@ export function DownloadPDFButton({ locale, label = "Baixar PDF" }: DownloadPDFB
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error occurred");
+      setError(err instanceof Error ? err.message : "Erro desconhecido");
     } finally {
       setIsLoading(false);
     }
@@ -44,10 +47,11 @@ export function DownloadPDFButton({ locale, label = "Baixar PDF" }: DownloadPDFB
         disabled={isLoading}
         className="button button-quiet"
         aria-busy={isLoading}
+        type="button"
       >
-        {isLoading ? "Gerando..." : label} <span>↓</span>
+        {isLoading ? loadingLabel : defaultLabel} <span>↓</span>
       </button>
-      {error && <small style={{ color: "var(--color-error)" }}>{error}</small>}
+      {error && <small style={{ color: "#d9534f" }}>{error}</small>}
     </>
   );
 }
