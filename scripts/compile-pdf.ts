@@ -18,7 +18,7 @@ import { BuildResumeDocument } from "../src/application/publication/build-resume
 import { PublishPDFResume, type PDFCompiler } from "../src/application/publication/publish-pdf-resume";
 import { LaTeXResumeRenderer } from "../src/infrastructure/renderers/latex-resume-renderer";
 import { DockerPDFCompiler } from "../src/infrastructure/pdf/docker-pdf-compiler";
-import { MockPDFCompiler } from "../src/infrastructure/pdf/mock-pdf-compiler";
+import { PdfKitPDFCompiler } from "../src/infrastructure/pdf/pdfkit-pdf-compiler";
 import { getResumeContent } from "../src/infrastructure/content";
 
 const execAsync = promisify(exec);
@@ -46,10 +46,10 @@ async function compileResumePDF(options: CompileOptions = {}): Promise<void> {
 
     const hasDocker = await isDockerAvailable();
     const renderer = new LaTeXResumeRenderer();
-    const compiler: PDFCompiler = hasDocker ? new DockerPDFCompiler(10000) : new MockPDFCompiler();
+    const compiler: PDFCompiler = hasDocker ? new DockerPDFCompiler(10000) : new PdfKitPDFCompiler();
 
     if (!hasDocker) {
-      console.log("ℹ️ Docker daemon not active, using standalone deterministic PDF compiler.");
+      console.log("ℹ️ Docker daemon not active, using PDFKit PDF compiler.");
     }
 
     const builder = new BuildResumeDocument(renderer);
@@ -64,8 +64,8 @@ async function compileResumePDF(options: CompileOptions = {}): Promise<void> {
       try {
         artifact = await publisher.execute(version, locale, content);
       } catch (err) {
-        console.warn("⚠️ Preferred compiler failed, falling back to standalone compiler:", err);
-        const fallbackPublisher = new PublishPDFResume(builder, renderer, new MockPDFCompiler());
+        console.warn("⚠️ Preferred compiler failed, falling back to PDFKit compiler:", err);
+        const fallbackPublisher = new PublishPDFResume(builder, renderer, new PdfKitPDFCompiler());
         artifact = await fallbackPublisher.execute(version, locale, content);
       }
 

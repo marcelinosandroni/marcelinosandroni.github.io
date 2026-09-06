@@ -4,7 +4,7 @@ import { ResumeVersion } from "@/domain/publication/resume-version";
 import { BuildResumeDocument } from "@/application/publication/build-resume-document";
 import { PublishPDFResume } from "@/application/publication/publish-pdf-resume";
 import { LaTeXResumeRenderer } from "@/infrastructure/renderers/latex-resume-renderer";
-import { MockPDFCompiler } from "@/infrastructure/pdf/mock-pdf-compiler";
+import { PdfKitPDFCompiler } from "@/infrastructure/pdf/pdfkit-pdf-compiler";
 import { getResumeContent } from "@/infrastructure/content";
 
 export async function GET(
@@ -22,7 +22,7 @@ export async function GET(
     }
 
     const renderer = new LaTeXResumeRenderer();
-    const compiler = new MockPDFCompiler();
+    const compiler = new PdfKitPDFCompiler();
     const builder = new BuildResumeDocument(renderer);
     const publisher = new PublishPDFResume(builder, renderer, compiler);
 
