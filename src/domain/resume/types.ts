@@ -4,6 +4,7 @@ export type ResumeExperience = {
   company: string;
   role: string;
   period: string;
+  location: string;
   summary: string;
   highlights: string[];
 };
@@ -26,6 +27,7 @@ export type ResumeContent = {
   title: string;
   location: string;
   contact: {
+    phone: string;
     email: string;
     linkedin: string;
   };

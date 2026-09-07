@@ -11,6 +11,7 @@ const sampleContent = {
   title: "Test Engineer",
   location: "Test City",
   contact: {
+    phone: "+55 11 91446-1993",
     email: "test@example.com",
     linkedin: "linkedin.com/in/test",
   },
@@ -20,6 +21,7 @@ const sampleContent = {
       company: "Test Corp",
       role: "Engineer",
       period: "2023-2024",
+      location: "Remote",
       summary: "Built things",
       highlights: ["Feature A", "Feature B"],
     },

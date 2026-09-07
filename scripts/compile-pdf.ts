@@ -54,7 +54,7 @@ async function compileResumePDF(options: CompileOptions = {}): Promise<void> {
 
     const builder = new BuildResumeDocument(renderer);
     const publisher = new PublishPDFResume(builder, renderer, compiler);
-    const version = ResumeVersion.create("0.1.5");
+    const version = ResumeVersion.create("0.1.28");
 
     for (const locale of locales) {
       console.log(`\n📄 Compiling resume for ${locale}...`);

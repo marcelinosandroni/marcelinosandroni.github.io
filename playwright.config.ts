@@ -8,8 +8,10 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://127.0.0.1:3001",
     trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
 
   projects: [
@@ -20,8 +22,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
+    command: "npm run dev -- --hostname 127.0.0.1 --port 3001",
+    url: "http://127.0.0.1:3001",
     reuseExistingServer: !process.env.CI,
   },
 });

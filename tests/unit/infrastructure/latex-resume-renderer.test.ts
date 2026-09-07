@@ -8,6 +8,7 @@ const sampleContent = {
   title: "Engenheiro de Software Sênior",
   location: "Fortaleza, CE",
   contact: {
+    phone: "+55 11 91446-1993",
     email: "marcelino.sandroni@gmail.com",
     linkedin: "linkedin.com/in/marcelinosandroni",
   },
@@ -17,6 +18,7 @@ const sampleContent = {
       company: "DGT Tecnologia",
       role: "Engenheiro de Software Sênior",
       period: "Jan/2026 – Presente",
+      location: "Remoto",
       summary: "Modernização de sistemas",
       highlights: ["C# .NET", "Microsserviços"],
     },

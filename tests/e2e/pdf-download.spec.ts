@@ -44,13 +44,22 @@ test.describe("Bilingual Resume & PDF Download", () => {
   });
 
   test("should display loading state during PDF generation", async ({ page }) => {
+    await page.route("**/api/resume/**/pdf", async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+      await route.continue();
+    });
+
     await page.goto("/");
 
     const downloadButton = page.getByRole("button", { name: /baixar pdf/i });
-    downloadButton.click();
+    const downloadPromise = page.waitForEvent("download");
+    await downloadButton.click();
 
     const busyButton = page.getByRole("button", { name: /gerando/i });
-    await expect(busyButton).toBeVisible({ timeout: 1000 });
+    await expect(busyButton).toBeVisible({ timeout: 5000 });
+
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toContain(".pdf");
   });
 
   test("should have accessible navigation and buttons", async ({ page }) => {

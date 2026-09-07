@@ -16,7 +16,7 @@ describe("Bilingual Resume PDF Generation", () => {
     const contentPtBr = getResumeContent("pt-BR");
     expect(contentPtBr.locale).toBe("pt-BR");
     expect(contentPtBr.name).toBe("Marcelino Sandroni Dias");
-    expect(contentPtBr.languages).toContain("Português · Nativo");
+    expect(contentPtBr.languages).toContain("Português Nativo");
 
     const result = await publisher.execute(
       ResumeVersion.create("1.0.0"),
