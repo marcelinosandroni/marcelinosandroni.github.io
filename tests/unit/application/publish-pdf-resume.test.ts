@@ -9,6 +9,7 @@ const sampleContent = {
   title: "Senior Engineer",
   location: "Test City",
   contact: {
+    phone: "+55 11 91446-1993",
     email: "test@example.com",
     linkedin: "linkedin.com/in/test",
   },

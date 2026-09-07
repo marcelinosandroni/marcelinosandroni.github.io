@@ -6,6 +6,7 @@ export const resumeContentEnUs: ResumeContent = {
   title: "Senior Software Engineer",
   location: "Fortaleza, CE, Brazil · Remote",
   contact: {
+    phone: "+55 11 91446-1993",
     email: "marcelino.sandroni@gmail.com",
     linkedin: "linkedin.com/in/marcelinosandroni",
   },
@@ -16,6 +17,7 @@ export const resumeContentEnUs: ResumeContent = {
       company: "DGT Tecnologia",
       role: "Senior Software Engineer",
       period: "Jan/2026 – Present",
+      location: "Remote",
       summary: "Modernizing legacy systems and orchestrating high-volume microservices.",
       highlights: [
         "C# (.NET), Go, Node.js, CQRS and event-driven architecture",
@@ -28,6 +30,7 @@ export const resumeContentEnUs: ResumeContent = {
       company: "Antlia",
       role: "Senior Software Engineer",
       period: "Dec/2022 – Dec/2025",
+      location: "Remote",
       summary: "Leading web development for the financial sector.",
       highlights: [
         "Angular, React, Next.js and complex state management",
@@ -39,6 +42,7 @@ export const resumeContentEnUs: ResumeContent = {
       company: "Banco Itaú",
       role: "Software Engineer",
       period: "Mar/2022 – Nov/2022",
+      location: "Hybrid",
       summary: "Driving Clean Code and TDD adoption in highly available microservices.",
       highlights: ["C# and Java integrated with message brokers", "Vulnerability mitigation and test coverage evolution"],
     },
@@ -46,6 +50,7 @@ export const resumeContentEnUs: ResumeContent = {
       company: "Pollux Technologies",
       role: "Software Engineer",
       period: "Jun/2021 – Jan/2022",
+      location: "Remote",
       summary: "Architecting microservices, serverless applications and interfaces for startups.",
       highlights: ["TypeScript, NestJS, RESTful and GraphQL APIs", "React and Flutter"],
     },
@@ -53,6 +58,7 @@ export const resumeContentEnUs: ResumeContent = {
       company: "Accounting Consulting Firms",
       role: "Accounting Analyst & Manager",
       period: "Jan/2005 – Dec/2020",
+      location: "São Paulo",
       summary: "15 years leading financial teams and translating accounting logic into technical specifications.",
       highlights: ["Compliance, cash flow optimization and strategic consulting", "Process automation and operational efficiency"],
     },
