@@ -77,8 +77,8 @@ describe("Bilingual Resume PDF Generation", () => {
       getResumeContent("en-US"),
     );
 
-    expect(resultPtBr.filename).toContain("-pt-BR.pdf");
-    expect(resultEnUs.filename).toContain("-en-US.pdf");
+    expect(resultPtBr.filename).toContain("-pt-BR-CLEAN.pdf");
+    expect(resultEnUs.filename).toContain("-en-US-CLEAN.pdf");
     expect(resultPtBr.filename).not.toEqual(resultEnUs.filename);
   });
 });

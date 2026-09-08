@@ -72,4 +72,20 @@ test.describe("Bilingual Resume & PDF Download", () => {
     await expect(downloadButton).toBeEnabled();
     await expect(downloadButton).toBeVisible();
   });
+
+  test("should download the selected alternate template from the arrow menu", async ({ page }) => {
+    await page.goto("/");
+
+    const templateToggle = page.getByRole("button", { name: /escolher modelo de pdf/i });
+    await templateToggle.click();
+
+    await expect(page.getByRole("menu")).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: /reference/i })).toBeVisible();
+
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("menuitem", { name: /reference/i }).click();
+
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toContain("REFERENCE");
+  });
 });

@@ -1,4 +1,5 @@
 export const resumeLatexTemplate = ({
+  templateId,
   name,
   title,
   location,
@@ -9,6 +10,7 @@ export const resumeLatexTemplate = ({
   locale,
   body,
 }: {
+  templateId: string;
   name: string;
   title: string;
   location: string;
@@ -18,11 +20,19 @@ export const resumeLatexTemplate = ({
   version: string;
   locale: string;
   body: string;
-}) => String.raw`
-\documentclass[10pt,a4paper]{article}
+}) => {
+  const isReference = templateId === "REFERENCE";
+  const margin = isReference ? "0.60in" : "0.68in";
+  const fontSize = isReference ? "10.5pt" : "10pt";
+  const nameSize = isReference ? "22" : "24";
+  const titleSize = isReference ? "12" : "13";
+  const accentColor = isReference ? "95,99,96" : "129,144,35";
+
+  return String.raw`
+\documentclass[${fontSize},a4paper]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=0.68in]{geometry}
+\usepackage[margin=${margin}]{geometry}
 \usepackage{enumitem}
 \usepackage{tabularx}
 \usepackage{xcolor}
@@ -35,7 +45,7 @@ export const resumeLatexTemplate = ({
 \setlength{\parskip}{3pt}
 \definecolor{ink}{RGB}{23,33,29}
 \definecolor{muted}{RGB}{95,99,96}
-\definecolor{accent}{RGB}{129,144,35}
+\definecolor{accent}{RGB}{${accentColor}}
 \hypersetup{colorlinks=true,urlcolor=ink}
 \titleformat{\section}{\large\bfseries\color{ink}}{}{0pt}{}[\vspace{-4pt}\textcolor{accent}{\rule{\linewidth}{0.7pt}}]
 \titlespacing*{\section}{0pt}{8pt}{4pt}
@@ -44,8 +54,8 @@ export const resumeLatexTemplate = ({
 \begin{document}
 \color{ink}
 \begin{center}
-{\fontsize{24}{28}\selectfont\bfseries ${name}}\\[3pt]
-{\fontsize{13}{16}\selectfont ${title}}\\[4pt]
+{\fontsize{${nameSize}}{26}\selectfont\bfseries ${name}}\\[3pt]
+{\fontsize{${titleSize}}{15}\selectfont ${title}}\\[4pt]
 {\small ${location} \textbar{} ${phone} \textbar{} ${email} \textbar{} \href{https://${linkedin}}{${linkedin}}}
 \end{center}
 
@@ -58,3 +68,4 @@ ${body}
 \end{center}
 \end{document}
 `;
+};
