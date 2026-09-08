@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { join } from "node:path";
-import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { readFileSync, mkdirSync } from "node:fs";
 import { ResumeVersion } from "@/domain/publication/resume-version";
 import { BuildResumeDocument } from "@/application/publication/build-resume-document";
 import { PublishPDFResume } from "@/application/publication/publish-pdf-resume";
@@ -17,6 +17,21 @@ import {
 } from "@/infrastructure/pdf/resume-template-registry";
 import { createErrorResponse } from "@/infrastructure/http/error-handler";
 import { InvalidLocaleError, InvalidTemplateError, PdfGenerationError } from "@/domain/errors";
+
+function getCacheDirectory(): string {
+  // Em ambientes serverless (Vercel, AWS Lambda, etc.), apenas /tmp é gravável
+  // Detectamos isso verificando se estamos em produção e se o processo está rodando em /var/task
+  const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.cwd().startsWith("/var/task");
+  
+  if (isServerless) {
+    const tmpDir = "/tmp/artifacts/cache";
+    mkdirSync(tmpDir, { recursive: true });
+    return tmpDir;
+  }
+  
+  // Em desenvolvimento local, usa o diretório public normal
+  return join(process.cwd(), "public", "artifacts", "cache");
+}
 
 function createPreferredFilename(locale: "pt-BR" | "en-US", version: string, templateId: ResumeTemplateId): string {
   return `Marcelino Sandroni Resume v${version} ${locale} ${templateId}.pdf`;
@@ -51,7 +66,8 @@ export async function GET(
     const builder = new BuildResumeDocument(renderer);
     const publisher = new PublishPDFResume(builder, renderer, compiler);
     const resumeByLocale = getResumeContent(normalizedLocale);
-    const cache = new ResumePdfCache(join(process.cwd(), "public", "artifacts", "cache"));
+    const cacheDir = getCacheDirectory();
+    const cache = new ResumePdfCache(cacheDir);
     const preferredFilename = createPreferredFilename(normalizedLocale, version.toString(), templateId);
     const cachedFilePath = cache.getPath(version.toString(), normalizedLocale, resumeByLocale, templateId, preferredFilename);
 
