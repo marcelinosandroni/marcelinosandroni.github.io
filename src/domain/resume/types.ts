@@ -1,5 +1,17 @@
 export type Locale = "pt-BR" | "en-US";
 
+export type CaseStudy = {
+  title: string;
+  challenge: string;
+  solution: string;
+  result: string;
+  metrics: {
+    label: string;
+    value: string;
+    icon?: "time" | "money" | "people" | "performance";
+  }[];
+};
+
 export type ResumeExperience = {
   company: string;
   role: string;
@@ -7,6 +19,10 @@ export type ResumeExperience = {
   location: string;
   summary: string;
   highlights: string[];
+  caseStudies?: CaseStudy[];
+  technologies?: string[];
+  teamSize?: number;
+  scope?: string;
 };
 
 export type ResumeSkillGroup = {
