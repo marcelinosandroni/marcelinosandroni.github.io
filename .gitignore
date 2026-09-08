@@ -1,6 +1,3 @@
 ```
-# Test reports
-playwright-report/
-```node_modules/
-public/artifacts/cache/
-playwright-report/
+node_modules/
+```
