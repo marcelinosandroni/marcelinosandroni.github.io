@@ -1,6 +1,9 @@
-```
 # Next.js build outputs
 .next/
+
+# Documentation and specs
+docs/
+specs/
 
 # Dependencies
 node_modules/
@@ -10,17 +13,15 @@ node_modules/
 .env.local
 .env.*
 
-# IDE files
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
 
 # Logs
 *.log
-
-# Temporary files
-*.tmp
 
 # OS generated files
 .DS_Store
@@ -31,27 +32,40 @@ coverage/
 htmlcov/
 .coverage
 
-# Python cache
+# Python specific
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
+*.so
+*.egg-info/
+.eggs/
+
+# Build and distribution
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Testing
 .pytest_cache/
 .mypy_cache/
 
 # Build artifacts
-dist/
-build/
 *.o
 *.obj
 *.out
 *.exe
 *.dll
-*.so
 *.a
 
-# Compressed files
+# Compressed files (already covered above, but keeping for completeness)
 *.zip
 *.gz
 *.tar
@@ -87,4 +101,3 @@ julia-*/
 # Zig build directory
 zig*/
 
-```
