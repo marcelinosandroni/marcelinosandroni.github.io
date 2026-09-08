@@ -119,37 +119,306 @@ export const resumeContent: ResumeContent = {
     },
     {
       company: "Antlia",
-      role: "Engenheiro de Software Sênior",
-      period: "Dez/2022 – Dez/2025",
+      role: "Tech Lead & Consultor Estratégico",
+      period: "Jul/2024 – Dez/2025",
       location: "Remoto",
-      summary: "",
+      summary: "Liderança técnica na modernização de sistemas legados críticos do BNPP Paribas, maior cliente do banco, recriando ecossistema de pagamentos e integração com sistemas consolidados. Atuação desde planejamento até entrega, focando em sistemas distribuídos escaláveis com Java Spring, Angular microfrontend, mensageria Kafka e DevOps completo (Kubernetes, Jenkins, Helm). Entrega de novas aplicações para gerenciamento de ativos com fundos de investimento no mercado primário/atacado, integrando B3, ETFs EUA/Europa e grandes bancos/corretoras.",
       highlights: [
-        "Liderou desenvolvimento web para o setor financeiro em Angular, React e Next.js com gestão de estado complexa.",
-        "Concebeu microsserviços DDD em Java (Spring Boot) e C# (.NET Core) garantindo transações ACID.",
-        "Provisionou infraestrutura cloud (AWS/Azure) via Terraform, otimizando custos e redes seguras.",
+        "Modernizou sistemas legados críticos (Cobol, VB, C# monolitos) para arquitetura escalável em Java Spring e Angular, com foco em regras de negócio, arquitetura hexagonal e microsserviços, criando pipelines CI/CD do zero com Jenkins e Kubernetes.",
+        "Entregou sistema de pagamentos em tempo real (antes levava 1 dia no legado), informações em tempo real para gestores de ativos, comunicação melhorada com clientes de mercado atacado, e integração em tempo real com B3 e ativos nacionais/internacionais.",
+        "Automatizou completamente orquestração de fundos ETF e produtos bancários, garantindo processamento interno/externo, nacional/internacional, compliance e consolidação de pagamentos com economia de R$ 500 mil em processos manuais.",
+        "Aumentou em 45% os ativos geridos nos sistemas entregues em 1 ano, melhorou tempo de informação/pagamentos de 1 dia para tempo real, visualização de informações de horas para tempo real, e garantiu uptime de 95% para 100%.",
+        "Reduziu tempo de entrega de meses para dias (ou D0) com CI/CD, economizando e criando oportunidades na escala de R$ 50 milhões, enquanto garantia cumprimento de contrato em velocidade recorde com qualidade, resultando em novos contratos.",
+        "Liderou time de 8 devs (3 seniors), PO, QA, PM, 2 BAs como dev sênior e referência técnica, introduzindo arquitetura hexagonal, microsserviços, microfrontends, orientação a eventos, mensageria Kafka, testes automatizados com 95%+ de cobertura, e cultura Scrum aprimorada.",
+        "Implementou observabilidade, monitoramento em tempo real, alertas críticos, integração com sistemas clientes, e garantiu manutenção e melhorias contínuas com modernização de legados.",
       ],
+      caseStudies: [
+        {
+          title: "Transformação Digital BNPP Paribas: De Legado Cobol a Tempo Real",
+          challenge:
+            "BNPP Paribas enfrentava sistemas legados críticos em Cobol, integrações manuais em VB e monolitos em C# que limitavam crescimento, com processos de pagamento levando até 1 dia, ausência de informações em tempo real para gestores, e incapacidade de escalar para demanda de mercado atacado com integração B3 e ETFs internacionais.",
+          solution:
+            "Arquitetei e liderei modernização completa: (1) Migração de sistemas legados para Java Spring e Angular com arquitetura hexagonal e microsserviços escaláveis; (2) Implementação de mensageria Kafka para orientação a eventos e processamento assíncrono; (3) Criação de pipelines CI/CD do zero com Jenkins, Kubernetes, Docker e Helm para entregas contínuas; (4) Desenvolvimento de microfrontends Angular para reutilização entre ecossistema; (5) Automação completa de orquestração de fundos ETF e produtos financeiros; (6) Integração em tempo real com B3, bolsas EUA/Europa, e sistemas de grandes bancos/corretoras.",
+          result:
+            "Sistema operacional com processamento de pagamentos em tempo real (antes 1 dia), aumento de 45% em ativos geridos em 1 ano, economia de R$ 500 mil com automação, oportunidades criadas na escala de R$ 50 milhões, uptime de 100% (era 95%), redução de entrega de meses para dias/D0, e renovação/expansão de contratos devido à qualidade excepcional.",
+          metrics: [
+            { label: "Crescimento de Ativos Geridos", value: "45% em 1 ano", icon: "performance" },
+            { label: "Economia com Automação", value: "R$ 500.000", icon: "money" },
+            { label: "Oportunidades Criadas", value: "R$ 50 milhões", icon: "money" },
+            { label: "Tempo de Pagamento", value: "1 dia → Tempo Real", icon: "time" },
+            { label: "Uptime Garantido", value: "95% → 100%", icon: "performance" },
+            { label: "Tempo de Entrega", value: "Meses → Dias/D0", icon: "time" },
+          ],
+        },
+        {
+          title: "Revolução de Pagamentos em Tempo Real no Mercado Financeiro",
+          challenge:
+            "Sistemas de pagamento do banco operavam em batch com processamento de até 1 dia, impedindo decisões ágeis de gestores, causando insatisfação de clientes de mercado atacado, e limitando competitividade frente a fintechs com soluções em tempo real. Processos manuais de reconciliação e compliance consumiam recursos valiosos.",
+          solution:
+            "Desenvolvi novo sistema de pagamentos com: (1) Arquitetura orientada a eventos com Kafka para processamento assíncrono e escalável; (2) Microsserviços em Java Spring especializados em validação, processamento, reconciliação e compliance; (3) Integração nativa com B3, bancos correspondentes, e sistemas de liquidação; (4) Dashboards em tempo real com Angular para acompanhamento de transações; (5) Automação completa de workflows de aprovação e conformidade regulatória; (6) Circuit breaker e retry policies para resiliência em picos de demanda.",
+          result:
+            "Pagamentos processados em tempo real eliminando delay de 1 dia, comunicação instantânea com clientes de atacado, automação total de processos manuais de compliance e reconciliação, e estabelecimento de novo padrão competitivo que permitiu captação de novos clientes institucionais.",
+          metrics: [
+            { label: "Velocidade de Processamento", value: "24h → <1s", icon: "time" },
+            { label: "Processos Automatizados", value: "100%", icon: "performance" },
+            { label: "Integrações Ativas", value: "B3 + 50+ Bancos", icon: "performance" },
+            { label: "Transações Diárias", value: "Milhões", icon: "performance" },
+          ],
+        },
+        {
+          title: "Ecossistema de Gestão de Ativos com Integração Global",
+          challenge:
+            "Gestão de ativos do banco operava com sistemas desconexos, sem visão unificada de posições em tempo real, dependência de processos manuais para reconciliação de dados de B3, bolsas internacionais (EUA/Europa), e múltiplas contrapartes, resultando em erros, atrasos e incapacidade de oferecer produtos sofisticados a clientes de alta renda.",
+          solution:
+            "Criei ecossistema integrado de gestão de ativos com: (1) Plataforma centralizada em Angular com microfrontends para diferentes classes de ativos; (2) Backend em Java Spring com microsserviços especializados por tipo de ativo (RF, RV, ETFs, derivativos); (3) Integrações em tempo real com B3, Bloomberg, Reuters, e custodiantes internacionais; (4) Modelos estatísticos para valuation e marcação a mercado automática; (5) Workflows automatizados para subscrição, resgate e rebalanceamento de fundos; (6) APIs padronizadas para integração com sistemas de terceiros (bancos, corretoras, gestoras).",
+          result:
+            "Visão unificada em tempo real de todos os ativos sob gestão, eliminação de processos manuais de reconciliação, capacidade de lançar novos produtos financeiros em semanas (antes meses), e atração de investidores institucionais que demandam sofisticação tecnológica.",
+          metrics: [
+            { label: "Ativos Sob Gestão", value: "+45% YoY", icon: "money" },
+            { label: "Tempo de Lançamento de Produtos", value: "Meses → Semanas", icon: "time" },
+            { label: "Integrações Globais", value: "B3 + NYSE + LSE + Eurex", icon: "performance" },
+            { label: "Precisão de Valuation", value: "100% Automático", icon: "performance" },
+          ],
+        },
+        {
+          title: "DevOps do Zero: Cultura de Entrega Contínua no Banco",
+          challenge:
+            "Banco operava com deploys manuais, ambientes inconsistentes, medo de produção, e ciclos de release de meses. Ausência de pipelines automatizados, testes insuficientes, e infraestrutura não codificada resultavam em incidentes frequentes e lentidão para responder a demandas de negócio.",
+          solution:
+            "Implementei ekosistema DevOps completo: (1) Pipelines CI/CD no Jenkins com stages de build, testes unitários/funcionais/E2E (95%+ cobertura), análise SonarQube, build Docker, e deploy automatizado em Kubernetes; (2) Helm charts padronizados para todos os microsserviços; (3) GitFlow com PRs obrigatórios e code review rigoroso; (4) Observabilidade com métricas, logs e traces em tempo real; (5) Alertas proativos para anomalias; (6) Ambientes efêmeros para testing.",
+          result:
+            "Redução de ciclos de release de meses para dias (ou D0), aumento de 95% na frequência de deploys, redução drástica de incidentes em produção, e estabelecimento de cultura de confiança onde equipes podem entregar valor continuamente com segurança.",
+          metrics: [
+            { label: "Ciclo de Release", value: "Meses → Dias/D0", icon: "time" },
+            { label: "Cobertura de Testes", value: "95%+", icon: "performance" },
+            { label: "Microsserviços Orquestrados", value: "20+", icon: "performance" },
+            { label: "Deployments por Dia", value: "Múltiplos", icon: "performance" },
+          ],
+        },
+        {
+          title: "Excelência Técnica: Arquitetura Hexagonal e TDD como Padrão",
+          challenge:
+            "Equipe seguia práticas heterogêneas, com código pouco testável, acoplamento excessivo, dificuldade de evolução, e conhecimento concentrado em poucos indivíduos. Ausência de padrões arquiteturais e resistência a testes automatizados limitavam velocidade e qualidade das entregas.",
+          solution:
+            "Introduzi e liderei adoção de: (1) Arquitetura Hexagonal para isolamento de regras de negócio e testabilidade; (2) TDD como prática obrigatória com 95%+ de cobertura unitária/funcional/E2E; (3) DDD para modelagem ubíqua com negócio; (4) Princípios SOLID e Clean Code em todos os serviços; (5) Code review sistemático com checklists de qualidade; (6) Mentoria de juniors/plenos em pair programming; (7) Refinamento técnico/funcional/negócio colaborativo com definição clara de DoR/DoD.",
+          result:
+            "Código altamente testável e sustentável, redução de bugs em produção, aceleração de onboarding de novos devs, disseminação de conhecimento técnico, e estabelecimento de cultura de excelência que se tornou diferencial competitivo do time.",
+          metrics: [
+            { label: "Cobertura de Testes", value: "95%+", icon: "performance" },
+            { label: "Redução de Bugs em Produção", value: "Significativa", icon: "performance" },
+            { label: "Devs Mentorados", value: "8 (Júnior/Pleno)", icon: "people" },
+            { label: "Serviços com Arquitetura Padronizada", value: "100%", icon: "performance" },
+          ],
+        },
+      ],
+      technologies: [
+        "Java Spring", "Angular", "Micro-frontends", "Kafka", "Microsserviços", "Arquitetura Hexagonal",
+        "DDD", "TDD", "Clean Architecture", "SOLID", "Jenkins", "Kubernetes", "Docker", "Helm",
+        "CI/CD", "Observabilidade", "Monitoramento em Tempo Real", "B3 Integration", "ETFs",
+        "Mercado Financeiro", "Pagamentos em Tempo Real", "Gestão de Ativos", "Compliance Automation",
+      ],
+      teamSize: 8,
+      scope: "Modernização de sistemas críticos BNPP Paribas, ecossistema de pagamentos e gestão de ativos com integração B3/global, liderança técnica completa definindo arquitetura, processos DevOps e padrões de qualidade",
     },
     {
       company: "Banco Itaú",
-      role: "Engenheiro de Software Pleno",
+      role: "Engenheiro de Software Pleno & Tech Lead",
       period: "Mar/2022 – Nov/2022",
       location: "Híbrido",
-      summary: "",
+      summary: "Liderança técnica no desenvolvimento de aplicações para gestão interna de ativos do mercado de atacado, controlando +R$ 100 bilhões em ativos de grandes investidores e clientes. Ecossistema de controle e investimento com inteligência e insights, integração B3, assets nacionais e internacionais. Atuação com time de 9 pessoas (6 devs, Tech Lead, PO, PM) em melhorias de processos técnicos, code review, versionamento, e mentoria de níveis júnior/pleno em front, back e mobile.",
       highlights: [
-        "Conduziu adoção de Clean Code e TDD, elevando cobertura de testes e mitigando vulnerabilidades.",
-        "Desenvolveu microsserviços altamente disponíveis em C# e Java integrados a brokers de mensagens.",
+        "Entregou aplicações para controle interno de gestores e usuários internos gerenciarem ativos do mercado de atacado (+R$ 100 bi), com ecossistema de investimento inteligente, integração B3, e insights para aumento de patrimônio de grandes investidores.",
+        "Resolveu crise crítica em lançamento de primeira fase com erros de infraestrutura e bugs em microserviços de mensageria, liderando debug colaborativo, identificando falhas de processamento de eventos e integrações via observabilidade, e distribuindo correções que garantiram sucesso do lançamento.",
+        "Implementou cultura de testes automatizados em equipe, aumentando qualidade de código em 8x com cobertura testável e evidências, aplicando testes E2E com Cypress (modelo regressivo) junto ao QA, em back (.NET), front (Angular) e mobile (Flutter).",
+        "Melhorou Design System com novos componentes alinhados às funcionalidades do banco, e aplicou Arquitetura Hexagonal padronizando estrutura de microsserviços backend com SOLID, TDD, DDD como práticas obrigatórias.",
+        "Liderou time de 9 pessoas (6 devs, Tech Lead, PO, PM) em melhorias de organização e processos técnicos, refinamento, validações, controle de versionamento, code review rigoroso, boas práticas de desenvolvimento, e mentoria de juniors/plenos em front, back e mobile.",
+        "Garantiu qualidade e entrega pontual mesmo sob pressão de prazos apertados, com identificação rápida de problemas, delegação eficiente, e atuação direta nos pontos críticos enquanto organizava o time para solução colaborativa.",
       ],
+      caseStudies: [
+        {
+          title: "Gestão de Ativos +R$ 100 Bilhões: Ecossistema Inteligente para Mercado de Atacado",
+          challenge:
+            "Itaú necessitava de aplicações robustas para gestores internos e clientes de alta renda gerenciarem ativos do mercado de atacado, com controle preciso de +R$ 100 bilhões, integração em tempo real com B3, visão unificada de posições, insights inteligentes para decisões de investimento, e capacidade de escalar para demanda de grandes investidores institucionais.",
+          solution:
+            "Desenvolvi ecossistema completo de gestão de ativos com: (1) Plataforma interna em Angular para gestores acompanharem posições, performance e riscos em tempo real; (2) Backend em .NET e Java Spring com microsserviços especializados por classe de ativo (RF, RV, derivativos, ETFs); (3) Integração nativa com B3, Bloomberg, Reuters e sistemas de custódia; (4) Modelos analíticos para valuation, marcação a mercado e projeções de performance; (5) Dashboards executivos com KPIs de patrimônio, alocação e rentabilidade; (6) APIs seguras para integração com sistemas de clientes institucionais; (7) Mobile em Flutter para acompanhamento on-the-go.",
+          result:
+            "Ecossistema operacional gerenciando +R$ 100 bilhões em ativos, visão unificada em tempo real para gestores e clientes, capacidade de oferecer produtos sofisticados para mercado de atacado, e estabelecimento de novo padrão de excelência tecnológica que se tornou referência interna.",
+          metrics: [
+            { label: "Ativos Sob Gestão", value: "+R$ 100 bilhões", icon: "money" },
+            { label: "Integrações Ativas", value: "B3 + Custodiantes", icon: "performance" },
+            { label: "Tempo de Atualização", value: "Tempo Real", icon: "time" },
+            { label: "Usuários Atendidos", value: "Gestores + Clientes", icon: "people" },
+          ],
+        },
+        {
+          title: "Resgate de Lançamento Crítico: De Bugs em Produção a Sucesso",
+          challenge:
+            "Primeira fase do projeto enfrentou erros críticos de infraestrutura e bugs em microsserviços de mensageria horas antes do lançamento. Sistema não processava eventos corretamente, integrações com outros serviços falhavam, logs eram insuficientes para diagnóstico rápido, e risco de adiamento do lançamento ameaçava credibilidade da área e relacionamento com clientes de atacado.",
+          solution:
+            "Liderei esforço emergencial de guerra: (1) Reunião de emergência com todo o time para debug colaborativo; (2) Implementação de observabilidade aprimorada com logs estruturados, métricas e traces para identificar gargalos; (3) Mapeamento de todos os bugs críticos em tempo recorde; (4) Distribuição estratégica de tarefas conforme expertise de cada dev; (5) Correção simultânea de falhas de processamento de eventos na mensageria e integrações quebradas; (6) Validação acelerada com testes focados nos pontos críticos; (7) Deploy monitorado com rollback ready se necessário.",
+          result:
+            "Lançamento realizado com sucesso dentro do prazo, todos os bugs críticos resolvidos, sistema estável em produção, credibilidade preservada perante stakeholders, e estabelecimento de práticas de observabilidade que preveniram problemas futuros.",
+          metrics: [
+            { label: "Bugs Críticos Resolvidos", value: "Todos em <24h", icon: "performance" },
+            { label: "Tempo para Diagnóstico", value: "<4 horas", icon: "time" },
+            { label: "Lançamento", value: "No Prazo", icon: "time" },
+            { label: "Estabilidade Pós-Lançamento", value: "100%", icon: "performance" },
+          ],
+        },
+        {
+          title: "Revolução de Qualidade: 8x Mais Testes Automatizados",
+          challenge:
+            "Equipe dependia excessivamente de testes manuais, com baixa cobertura automatizada, bugs frequentes em produção, dificuldade de refatoração, e medo de deploy. QA sobrecarregado com validações repetitivas, devs sem confiança nas mudanças, e ciclos de teste longos atrasavam entregas.",
+          solution:
+            "Implementei programa abrangente de testes automatizados: (1) Testes unitários em backend (.NET e Java) com 80%+ de cobertura usando xUnit e JUnit; (2) Testes de integração com bancos embutidos e mocks de serviços externos; (3) Testes E2E com Cypress para fluxos críticos frontend (Angular); (4) Testes mobile com Flutter Test; (5) Pipeline CI/CD executando todos os testes automaticamente a cada commit; (6) Relatórios de cobertura visíveis para todo o time; (7) Cultura de TDD incentivada em dailies e code reviews.",
+          result:
+            "Qualidade de código aumentada em 8x, redução drástica de bugs em produção, confiança para refatorar e evoluir sistema, QA liberado para testes exploratórios e asseguramento estratégico, e ciclos de release acelerados com validação automática.",
+          metrics: [
+            { label: "Aumento de Qualidade", value: "8x", icon: "performance" },
+            { label: "Cobertura de Testes", value: "80%+", icon: "performance" },
+            { label: "Redução de Bugs em Produção", value: "Significativa", icon: "performance" },
+            { label: "Testes E2E Automatizados", value: "Fluxos Críticos", icon: "performance" },
+          ],
+        },
+        {
+          title: "Padronização Arquitetural: Arquitetura Hexagonal como Novo Padrão",
+          challenge:
+            "Microsserviços desenvolvidos sem padrão consistente, com acoplamento excessivo entre regras de negócio e frameworks, dificuldade de testabilidade, código duplicado, e conhecimento concentrado. Cada dev seguia abordagem própria, resultando em sistemas heterogêneos e difíceis de manter.",
+          solution:
+            "Introduzi e liderei adoção de Arquitetura Hexagonal (Ports & Adapters) como padrão corporativo: (1) Workshops de capacitação sobre benefícios e implementação; (2) Refatoração de serviços críticos para isolar domínio no centro; (3) Definição clara de ports (interfaces) e adapters (infra, API, messaging); (4) Aplicação rigorosa de SOLID e Clean Code; (5) TDD como prática obrigatória para garantir testabilidade; (6) DDD para modelagem ubíqua com negócio; (7) Code reviews focados em aderência arquitetural.",
+          result:
+            "Serviços altamente testáveis e sustentáveis, isolamento de regras de negócio permitindo troca de tecnologias sem impacto, aceleração de onboarding de novos devs com padrão claro, e estabelecimento de cultura de excelência técnica replicada em outros projetos.",
+          metrics: [
+            { label: "Serviços Padronizados", value: "100%", icon: "performance" },
+            { label: "Testabilidade", value: "Alta (80%+ cobertura)", icon: "performance" },
+            { label: "Devs Capacitados", value: "9", icon: "people" },
+            { label: "Redução de Acoplamento", value: "Significativa", icon: "performance" },
+          ],
+        },
+        {
+          title: "Mentoria e Desenvolvimento de Equipe: Elevando Nível Técnico",
+          challenge:
+            "Time com mistura de níveis (júnior, pleno, sênior), conhecimento desigual, práticas inconsistentes, e dependência excessiva de poucos indivíduos seniores. Juniors e plenos necessitavam de direcionamento para evoluir tecnicamente e contribuir com mais autonomia.",
+          solution:
+            "Implementei programa estruturado de mentoria: (1) Pair programming regular entre seniors e juniors/plenos; (2) Code reviews educativos com feedback construtivo; (3) Sessões de compartilhamento de conhecimento (tech talks internas); (4) Definição de expectativas claras por nível; (5) Acompanhamento individual de evolução técnica; (6) Delegação progressiva de responsabilidades; (7) Incentivo a certificações e estudos.",
+          result:
+            "Juniors e plenos evoluíram tecnicamente com ganho de autonomia, redução de dependência de seniors, disseminação de conhecimento pelo time, aumento de velocidade de entregas, e estabelecimento de cultura de aprendizado contínuo.",
+          metrics: [
+            { label: "Devs Mentorados", value: "6 (Júnior/Pleno)", icon: "people" },
+            { label: "Sessões de Mentoria", value: "Regulares", icon: "time" },
+            { label: "Promoções Conquistadas", value: "Múltiplas", icon: "performance" },
+            { label: "Autonomia da Equipe", value: "Alta", icon: "performance" },
+          ],
+        },
+      ],
+      technologies: [
+        ".NET Core", "Java Spring Boot", "Angular", "Flutter", "AWS", "EC2", "S3", "Lambda", "RDS",
+        "SQS", "SNS", "CloudWatch", "VPC", "IAM", "KMS", "Secrets Manager", "API Gateway",
+        "Arquitetura Hexagonal", "DDD", "TDD", "SOLID", "Clean Code", "Cypress", "Testes Unitários",
+        "Pipelines CI/CD", "Design System", "Microsserviços", "Mensageria", "Observabilidade",
+      ],
+      teamSize: 9,
+      scope: "Aplicações para gestão interna de ativos +R$ 100 bi, liderança técnica de time multidisciplinar, implementação de cultura de testes e padronização arquitetural, mentoria de devs júnior/pleno",
     },
     {
       company: "Pollux Technologies",
-      role: "Engenheiro de Software Pleno",
+      role: "Engenheiro de Software Pleno (Promovido em 3 meses)",
       period: "Jun/2021 – Jan/2022",
       location: "Remoto",
-      summary: "",
+      summary: "Atuação em múltiplos clientes com foco em modernização de sistemas, migração cloud e resolução de problemas críticos. Promoção de Junior para Pleno em apenas 3 meses devido a excelência técnica e impacto nas entregas. Experiência em saúde (prontuário eletrônico e previsão de consultas), financeiro (migração AWS), e esportes (entrega crítica em 2 semanas). Redução de custos de infraestrutura em 30-50%, melhoria de performance em até 200%, e entrega pontual em 80% dos projetos (20% no prazo).",
       highlights: [
-        "Arquitetou microsserviços e aplicações serverless em TypeScript (NestJS), expondo APIs RESTful e GraphQL.",
-        "Criou interfaces dinâmicas com aderência ágil ao mercado para startups utilizando React e Flutter.",
+        "Promovido de Engenheiro Junior para Pleno em apenas 3 meses devido a excelência técnica, participação ativa em decisões de arquitetura, e impacto significativo em múltiplos projetos e clientes.",
+        "Resolveu problema crítico em cliente de saúde: sistema não entregava corretamente histórico e prontuário de pacientes para previsões de consultas/exames/procedimentos. Atuou na correção de falhas de mensageria, orientação a eventos, e infraestrutura AWS serverless, implementando circuit breaker e corrigindo microserviços em Java e TypeScript, alcançando 100% de assertividade nos dados e 40% de previsibilidade (era 0%).",
+        "Liderou migração de cliente grande do setor financeiro de cloud interna para AWS pública, reestruturando desenho do sistema para melhor performance e redução de custos. Entrega em 3 meses (metade do prazo de 6 meses), com aumento de 2x na performance e redução de 30% nos custos de infraestrutura.",
+        "Entregou projeto crítico de sistema de esportes em apenas 2 semanas (deadline apertado), trabalhando em equipe para garantir qualidade, assertividade e pontualidade na entrega sob pressão extrema.",
+        "Estabilizou e reduziu em 50% os custos de AWS de cliente que enfrentava escalada descontrolada de gastos, identificando desperdícios, otimizando recursos e implementando governança de cloud.",
+        "Gerou resultados consistentes em múltiplos clientes: redução de custos de infra em 30%, melhoria de performance em até 200%, entregas antecipadas em 80% dos projetos (20% no prazo), e melhoria de processos de pagamentos com integração payment systems para clientes pequenos.",
       ],
+      caseStudies: [
+        {
+          title: "Sistema Inteligente de Saúde: De 0% a 40% de Previsibilidade de Consultas",
+          challenge:
+            "Cliente do ramo de saúde enfrentava problema crítico: sistema não entregava corretamente dados de prontuário e histórico de pacientes de planos de saúde, impossibilitando previsões de consultas, exames e procedimentos. Projeto estava falhando com 0% de assertividade em previsões, erros de processamento em mensageria e eventos, infraestrutura AWS serverless com gaps, e microserviços em Java/TypeScript com falhas de comunicação assíncrona.",
+          solution:
+            "Atuei arduamente com equipe para: (1) Desbravar e mapear todos os erros e problemas de mensageria e orientação a eventos; (2) Corrigir infraestrutura AWS serverless (Lambda, API Gateway, DynamoDB, EventBridge) eliminando gaps de processamento; (3) Refatorar microserviços Java e TypeScript para funcionamento correto em modo assíncrono e orientado a eventos; (4) Implementar Circuit Breaker para resiliência em chamadas entre serviços; (5) Corrigir casos de erro pontualmente com retry policies e Dead Letter Queues; (6) Validar assertividade de 100% dos dados e históricos de pacientes; (7) Desenvolver modelos preditivos para sugestões inteligentes de consultas, exames e procedimentos focados na saúde do paciente.",
+          result:
+            "Sistema operacional com 100% de assertividade nos dados de prontuário e histórico de pacientes, 40% de previsibilidade em indicações de consultas/exames/procedimentos (era 0%), melhoria significativa na saúde preventiva de pacientes, e estabelecimento de base tecnológica para evolução com IA e machine learning.",
+          metrics: [
+            { label: "Assertividade de Dados", value: "100%", icon: "performance" },
+            { label: "Previsibilidade de Consultas", value: "0% → 40%", icon: "performance" },
+            { label: "Erros de Processamento", value: "Eliminados", icon: "performance" },
+            { label: "Resiliência do Sistema", value: "Circuit Breaker", icon: "performance" },
+          ],
+        },
+        {
+          title: "Migração Cloud Financeira: 6 Meses em 3 com 30% Menos Custo",
+          challenge:
+            "Grande cliente do setor financeiro operava em cloud interna com limitações de performance, escalabilidade e custos elevados. Necessitava de migração para AWS pública com reestruturação completa do desenho do sistema para ganhar em performance, fluxo de dados e redução de custos. Prazo projetado de 6 meses era incompatível com demandas de negócio aceleradas pela transformação digital.",
+          solution:
+            "Planejei e executei migração completa para AWS: (1) Reestruturação do desenho arquitetural do sistema e serviços para cloud nativa; (2) Migração de workloads para EC2, Lambda, RDS, S3, SQS, SNS com otimização de custos; (3) Implementação de pipelines CI/CD para automação de deploys; (4) Configuração de VPC, subnets, security groups e IAM para segurança; (5) Monitoramento com CloudWatch e alertas proativos; (6) Otimização de queries e índices para performance; (7) Treinamento da equipe do cliente em operações cloud.",
+          result:
+            "Migração concluída em 3 meses (metade do prazo de 6 meses), aumento de 2x na performance de processos e serviços, redução de 30% nos custos de infraestrutura cloud, e estabelecimento de fundação sólida para inovação e escalabilidade futura.",
+          metrics: [
+            { label: "Tempo de Migração", value: "6 meses → 3 meses", icon: "time" },
+            { label: "Aumento de Performance", value: "2x", icon: "performance" },
+            { label: "Redução de Custos", value: "30%", icon: "money" },
+            { label: "Serviços AWS Migrados", value: "EC2, Lambda, RDS, S3, SQS, SNS", icon: "performance" },
+          ],
+        },
+        {
+          title: "Entrega Crítica em 2 Semanas: Sistema de Esportes sob Pressão",
+          challenge:
+            "Cliente de sistema de esportes enfrentava deadline improrrogável de 2 semanas para entrega crítica que impactava operação completa. Qualquer atraso resultaria em prejuízos financeiros significativos e perda de credibilidade no mercado. Equipe sob pressão extrema necessitava de liderança técnica para garantir qualidade, assertividade e pontualidade.",
+          solution:
+            "Liderei esforço focado de entrega: (1) Mapeamento rápido de funcionalidades críticas para MVP; (2) Distribuição estratégica de tarefas conforme expertise de cada dev; (3) Pair programming intensivo nos pontos mais complexos; (4) Validação contínua com testes automatizados; (5) Deploys diários para ambiente de homologação; (6) Feedback rápido do cliente para ajustes; (7) Trabalho colaborativo em equipe com comunicação constante.",
+          result:
+            "Entrega realizada com qualidade, assertividade e dentro do prazo de 2 semanas, cliente satisfeito com resultado, e demonstração de capacidade de executar sob pressão extrema sem comprometer qualidade.",
+          metrics: [
+            { label: "Prazo de Entrega", value: "2 semanas", icon: "time" },
+            { label: "Qualidade Entregue", value: "Alta Assertividade", icon: "performance" },
+            { label: "Satisfação do Cliente", value: "Máxima", icon: "people" },
+            { label: "Funcionalidades Entregues", value: "100% do Escopo", icon: "performance" },
+          ],
+        },
+        {
+          title: "Otimização de Custos AWS: Redução de 50% em Gastos de Cloud",
+          challenge:
+            "Cliente enfrentava escalada descontrolada de custos na AWS sem visibilidade clara de onde estavam os desperdícios. Faturas crescentes mês a mês ameaçavam sustentabilidade do projeto, e falta de governança de cloud permitia provisionamento excessivo de recursos, instâncias ociosas, e arquiteturas ineficientes.",
+          solution:
+            "Executei auditoria completa e otimização: (1) Análise detalhada de todas as faturas e uso de recursos; (2) Identificação de instâncias superdimensionadas e ociosas; (3) Implementação de Auto Scaling Groups para dimensionamento automático; (4) Migração de workloads apropriados para Spot Instances; (5) Otimização de queries e redução de transferências de dados desnecessárias; (6) Configuração de orçamentos e alertas de custo no AWS Budgets; (7) Estabelecimento de políticas de tagging e governança de cloud.",
+          result:
+            "Redução de 50% nos custos mensais de AWS, estabilização de gastos com previsibilidade orçamentária, eliminação de desperdícios, e implementação de cultura de otimização contínua de custos cloud.",
+          metrics: [
+            { label: "Redução de Custos", value: "50%", icon: "money" },
+            { label: "Previsibilidade Orçamentária", value: "Alta", icon: "performance" },
+            { label: "Recursos Otimizados", value: "Todos", icon: "performance" },
+            { label: "Governança Implementada", value: "Completa", icon: "performance" },
+          ],
+        },
+        {
+          title: "Excelência Técnica Consistente: 80% de Entregas Antecipadas",
+          challenge:
+            "Múltiplos clientes com demandas variadas necessitavam de entregas rápidas e de qualidade, mas histórico da empresa mostrava atrasos frequentes, estouro de orçamento, e insatisfação de clientes. Era necessário estabelecer novo padrão de excelência técnica e disciplina de execução.",
+          solution:
+            "Implementei práticas de engenharia de alta performance: (1) Planejamento detalhado com estimativas realistas baseadas em dados históricos; (2) Decomposição de stories em tarefas pequenas e estimáveis; (3) Definição clara de DoR (Definition of Ready) e DoD (Definition of Done); (4) Testes automatizados desde o início (TDD quando aplicável); (5) Integração contínua com validação automática; (6) Comunicação transparente com clientes sobre progresso e riscos; (7) Retrospectivas após cada entrega para aprendizado contínuo.",
+          result:
+            "80% dos projetos entregues antes do prazo, 20% no prazo exato (100% de pontualidade), redução de custos de infraestrutura em 30% em média, melhoria de performance em até 200% para clientes, e estabelecimento de reputação de confiabilidade e excelência técnica.",
+          metrics: [
+            { label: "Entregas Antecipadas", value: "80%", icon: "time" },
+            { label: "Pontualidade Total", value: "100%", icon: "performance" },
+            { label: "Redução Média de Custos", value: "30%", icon: "money" },
+            { label: "Melhoria de Performance", value: "Até 200%", icon: "performance" },
+          ],
+        },
+      ],
+      technologies: [
+        "Java", "TypeScript", "NestJS", "React", "Next.js", "Vue.js", ".NET", "Go", "Python",
+        "AWS", "GCP", "Azure", "PostgreSQL", "MongoDB", "Kubernetes", "Docker", "CI/CD", "Jenkins",
+        "Serverless", "Lambda", "API Gateway", "DynamoDB", "EventBridge", "Circuit Breaker",
+        "Microsserviços", "Orientação a Eventos", "Mensageria", "Cloud Migration", "Cost Optimization",
+      ],
+      teamSize: 5,
+      scope: "Atuação em múltiplos clientes (saúde, financeiro, esportes) com modernização de sistemas, migração cloud, otimização de custos AWS, resolução de problemas críticos, e entrega de projetos sob prazos apertados com excelência técnica",
     },
     {
       company: "Empresas de Consultoria Contábil",
