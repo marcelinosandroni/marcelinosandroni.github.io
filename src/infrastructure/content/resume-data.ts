@@ -119,15 +119,106 @@ export const resumeContent: ResumeContent = {
     },
     {
       company: "Antlia",
-      role: "Engenheiro de Software Sênior",
-      period: "Dez/2022 – Dez/2025",
+      role: "Tech Lead & Consultor Estratégico",
+      period: "Jul/2024 – Dez/2025",
       location: "Remoto",
-      summary: "",
+      summary: "Liderança técnica na modernização de sistemas legados críticos do BNPP Paribas, maior cliente do banco, recriando ecossistema de pagamentos e integração com sistemas consolidados. Atuação desde planejamento até entrega, focando em sistemas distribuídos escaláveis com Java Spring, Angular microfrontend, mensageria Kafka e DevOps completo (Kubernetes, Jenkins, Helm). Entrega de novas aplicações para gerenciamento de ativos com fundos de investimento no mercado primário/atacado, integrando B3, ETFs EUA/Europa e grandes bancos/corretoras.",
       highlights: [
-        "Liderou desenvolvimento web para o setor financeiro em Angular, React e Next.js com gestão de estado complexa.",
-        "Concebeu microsserviços DDD em Java (Spring Boot) e C# (.NET Core) garantindo transações ACID.",
-        "Provisionou infraestrutura cloud (AWS/Azure) via Terraform, otimizando custos e redes seguras.",
+        "Modernizou sistemas legados críticos (Cobol, VB, C# monolitos) para arquitetura escalável em Java Spring e Angular, com foco em regras de negócio, arquitetura hexagonal e microsserviços, criando pipelines CI/CD do zero com Jenkins e Kubernetes.",
+        "Entregou sistema de pagamentos em tempo real (antes levava 1 dia no legado), informações em tempo real para gestores de ativos, comunicação melhorada com clientes de mercado atacado, e integração em tempo real com B3 e ativos nacionais/internacionais.",
+        "Automatizou completamente orquestração de fundos ETF e produtos bancários, garantindo processamento interno/externo, nacional/internacional, compliance e consolidação de pagamentos com economia de R$ 500 mil em processos manuais.",
+        "Aumentou em 45% os ativos geridos nos sistemas entregues em 1 ano, melhorou tempo de informação/pagamentos de 1 dia para tempo real, visualização de informações de horas para tempo real, e garantiu uptime de 95% para 100%.",
+        "Reduziu tempo de entrega de meses para dias (ou D0) com CI/CD, economizando e criando oportunidades na escala de R$ 50 milhões, enquanto garantia cumprimento de contrato em velocidade recorde com qualidade, resultando em novos contratos.",
+        "Liderou time de 8 devs (3 seniors), PO, QA, PM, 2 BAs como dev sênior e referência técnica, introduzindo arquitetura hexagonal, microsserviços, microfrontends, orientação a eventos, mensageria Kafka, testes automatizados com 95%+ de cobertura, e cultura Scrum aprimorada.",
+        "Implementou observabilidade, monitoramento em tempo real, alertas críticos, integração com sistemas clientes, e garantiu manutenção e melhorias contínuas com modernização de legados.",
       ],
+      caseStudies: [
+        {
+          title: "Transformação Digital BNPP Paribas: De Legado Cobol a Tempo Real",
+          challenge:
+            "BNPP Paribas enfrentava sistemas legados críticos em Cobol, integrações manuais em VB e monolitos em C# que limitavam crescimento, com processos de pagamento levando até 1 dia, ausência de informações em tempo real para gestores, e incapacidade de escalar para demanda de mercado atacado com integração B3 e ETFs internacionais.",
+          solution:
+            "Arquitetei e liderei modernização completa: (1) Migração de sistemas legados para Java Spring e Angular com arquitetura hexagonal e microsserviços escaláveis; (2) Implementação de mensageria Kafka para orientação a eventos e processamento assíncrono; (3) Criação de pipelines CI/CD do zero com Jenkins, Kubernetes, Docker e Helm para entregas contínuas; (4) Desenvolvimento de microfrontends Angular para reutilização entre ecossistema; (5) Automação completa de orquestração de fundos ETF e produtos financeiros; (6) Integração em tempo real com B3, bolsas EUA/Europa, e sistemas de grandes bancos/corretoras.",
+          result:
+            "Sistema operacional com processamento de pagamentos em tempo real (antes 1 dia), aumento de 45% em ativos geridos em 1 ano, economia de R$ 500 mil com automação, oportunidades criadas na escala de R$ 50 milhões, uptime de 100% (era 95%), redução de entrega de meses para dias/D0, e renovação/expansão de contratos devido à qualidade excepcional.",
+          metrics: [
+            { label: "Crescimento de Ativos Geridos", value: "45% em 1 ano", icon: "performance" },
+            { label: "Economia com Automação", value: "R$ 500.000", icon: "money" },
+            { label: "Oportunidades Criadas", value: "R$ 50 milhões", icon: "money" },
+            { label: "Tempo de Pagamento", value: "1 dia → Tempo Real", icon: "time" },
+            { label: "Uptime Garantido", value: "95% → 100%", icon: "performance" },
+            { label: "Tempo de Entrega", value: "Meses → Dias/D0", icon: "time" },
+          ],
+        },
+        {
+          title: "Revolução de Pagamentos em Tempo Real no Mercado Financeiro",
+          challenge:
+            "Sistemas de pagamento do banco operavam em batch com processamento de até 1 dia, impedindo decisões ágeis de gestores, causando insatisfação de clientes de mercado atacado, e limitando competitividade frente a fintechs com soluções em tempo real. Processos manuais de reconciliação e compliance consumiam recursos valiosos.",
+          solution:
+            "Desenvolvi novo sistema de pagamentos com: (1) Arquitetura orientada a eventos com Kafka para processamento assíncrono e escalável; (2) Microsserviços em Java Spring especializados em validação, processamento, reconciliação e compliance; (3) Integração nativa com B3, bancos correspondentes, e sistemas de liquidação; (4) Dashboards em tempo real com Angular para acompanhamento de transações; (5) Automação completa de workflows de aprovação e conformidade regulatória; (6) Circuit breaker e retry policies para resiliência em picos de demanda.",
+          result:
+            "Pagamentos processados em tempo real eliminando delay de 1 dia, comunicação instantânea com clientes de atacado, automação total de processos manuais de compliance e reconciliação, e estabelecimento de novo padrão competitivo que permitiu captação de novos clientes institucionais.",
+          metrics: [
+            { label: "Velocidade de Processamento", value: "24h → <1s", icon: "time" },
+            { label: "Processos Automatizados", value: "100%", icon: "performance" },
+            { label: "Integrações Ativas", value: "B3 + 50+ Bancos", icon: "performance" },
+            { label: "Transações Diárias", value: "Milhões", icon: "performance" },
+          ],
+        },
+        {
+          title: "Ecossistema de Gestão de Ativos com Integração Global",
+          challenge:
+            "Gestão de ativos do banco operava com sistemas desconexos, sem visão unificada de posições em tempo real, dependência de processos manuais para reconciliação de dados de B3, bolsas internacionais (EUA/Europa), e múltiplas contrapartes, resultando em erros, atrasos e incapacidade de oferecer produtos sofisticados a clientes de alta renda.",
+          solution:
+            "Criei ecossistema integrado de gestão de ativos com: (1) Plataforma centralizada em Angular com microfrontends para diferentes classes de ativos; (2) Backend em Java Spring com microsserviços especializados por tipo de ativo (RF, RV, ETFs, derivativos); (3) Integrações em tempo real com B3, Bloomberg, Reuters, e custodiantes internacionais; (4) Modelos estatísticos para valuation e marcação a mercado automática; (5) Workflows automatizados para subscrição, resgate e rebalanceamento de fundos; (6) APIs padronizadas para integração com sistemas de terceiros (bancos, corretoras, gestoras).",
+          result:
+            "Visão unificada em tempo real de todos os ativos sob gestão, eliminação de processos manuais de reconciliação, capacidade de lançar novos produtos financeiros em semanas (antes meses), e atração de investidores institucionais que demandam sofisticação tecnológica.",
+          metrics: [
+            { label: "Ativos Sob Gestão", value: "+45% YoY", icon: "money" },
+            { label: "Tempo de Lançamento de Produtos", value: "Meses → Semanas", icon: "time" },
+            { label: "Integrações Globais", value: "B3 + NYSE + LSE + Eurex", icon: "performance" },
+            { label: "Precisão de Valuation", value: "100% Automático", icon: "performance" },
+          ],
+        },
+        {
+          title: "DevOps do Zero: Cultura de Entrega Contínua no Banco",
+          challenge:
+            "Banco operava com deploys manuais, ambientes inconsistentes, medo de produção, e ciclos de release de meses. Ausência de pipelines automatizados, testes insuficientes, e infraestrutura não codificada resultavam em incidentes frequentes e lentidão para responder a demandas de negócio.",
+          solution:
+            "Implementei ekosistema DevOps completo: (1) Pipelines CI/CD no Jenkins com stages de build, testes unitários/funcionais/E2E (95%+ cobertura), análise SonarQube, build Docker, e deploy automatizado em Kubernetes; (2) Helm charts padronizados para todos os microsserviços; (3) GitFlow com PRs obrigatórios e code review rigoroso; (4) Observabilidade com métricas, logs e traces em tempo real; (5) Alertas proativos para anomalias; (6) Ambientes efêmeros para testing.",
+          result:
+            "Redução de ciclos de release de meses para dias (ou D0), aumento de 95% na frequência de deploys, redução drástica de incidentes em produção, e estabelecimento de cultura de confiança onde equipes podem entregar valor continuamente com segurança.",
+          metrics: [
+            { label: "Ciclo de Release", value: "Meses → Dias/D0", icon: "time" },
+            { label: "Cobertura de Testes", value: "95%+", icon: "performance" },
+            { label: "Microsserviços Orquestrados", value: "20+", icon: "performance" },
+            { label: "Deployments por Dia", value: "Múltiplos", icon: "performance" },
+          ],
+        },
+        {
+          title: "Excelência Técnica: Arquitetura Hexagonal e TDD como Padrão",
+          challenge:
+            "Equipe seguia práticas heterogêneas, com código pouco testável, acoplamento excessivo, dificuldade de evolução, e conhecimento concentrado em poucos indivíduos. Ausência de padrões arquiteturais e resistência a testes automatizados limitavam velocidade e qualidade das entregas.",
+          solution:
+            "Introduzi e liderei adoção de: (1) Arquitetura Hexagonal para isolamento de regras de negócio e testabilidade; (2) TDD como prática obrigatória com 95%+ de cobertura unitária/funcional/E2E; (3) DDD para modelagem ubíqua com negócio; (4) Princípios SOLID e Clean Code em todos os serviços; (5) Code review sistemático com checklists de qualidade; (6) Mentoria de juniors/plenos em pair programming; (7) Refinamento técnico/funcional/negócio colaborativo com definição clara de DoR/DoD.",
+          result:
+            "Código altamente testável e sustentável, redução de bugs em produção, aceleração de onboarding de novos devs, disseminação de conhecimento técnico, e estabelecimento de cultura de excelência que se tornou diferencial competitivo do time.",
+          metrics: [
+            { label: "Cobertura de Testes", value: "95%+", icon: "performance" },
+            { label: "Redução de Bugs em Produção", value: "Significativa", icon: "performance" },
+            { label: "Devs Mentorados", value: "8 (Júnior/Pleno)", icon: "people" },
+            { label: "Serviços com Arquitetura Padronizada", value: "100%", icon: "performance" },
+          ],
+        },
+      ],
+      technologies: [
+        "Java Spring", "Angular", "Micro-frontends", "Kafka", "Microsserviços", "Arquitetura Hexagonal",
+        "DDD", "TDD", "Clean Architecture", "SOLID", "Jenkins", "Kubernetes", "Docker", "Helm",
+        "CI/CD", "Observabilidade", "Monitoramento em Tempo Real", "B3 Integration", "ETFs",
+        "Mercado Financeiro", "Pagamentos em Tempo Real", "Gestão de Ativos", "Compliance Automation",
+      ],
+      teamSize: 8,
+      scope: "Modernização de sistemas críticos BNPP Paribas, ecossistema de pagamentos e gestão de ativos com integração B3/global, liderança técnica completa definindo arquitetura, processos DevOps e padrões de qualidade",
     },
     {
       company: "Banco Itaú",
