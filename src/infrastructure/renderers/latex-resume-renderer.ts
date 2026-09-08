@@ -1,19 +1,51 @@
 import type { ResumeDocumentInput, ResumeDocument, ResumeDocumentRenderer } from "@/application/publication/build-resume-document";
 import { resumeLatexTemplate } from "@/infrastructure/pdf/latex-templates";
+import { DEFAULT_RESUME_TEMPLATE, type ResumeTemplateId } from "@/infrastructure/pdf/resume-template-registry";
 
 export class LaTeXResumeRenderer implements ResumeDocumentRenderer {
+  constructor(private readonly templateId: ResumeTemplateId = DEFAULT_RESUME_TEMPLATE) {}
+
   async render(input: ResumeDocumentInput): Promise<ResumeDocument> {
     const { version, locale, content } = input;
     const isEnglish = locale === "en-US";
-    const sections = [
-      this.renderSection(isEnglish ? "Summary" : "Resumo", this.escapeLatex(content.summary)),
-      this.renderExperiences(content.experiences, isEnglish ? "Experience" : "Experiência"),
-      this.renderSkills(content.skillGroups, isEnglish ? "Skills" : "Habilidades"),
-      this.renderEducation(content.education, isEnglish ? "Education" : "Formação"),
-      this.renderLanguages(content.languages, isEnglish ? "Languages" : "Idiomas"),
-    ].filter(Boolean).join("\n\n");
+    const labels = this.templateId === "REFERENCE"
+      ? isEnglish
+        ? {
+            summary: "Executive Summary",
+            skills: "Core Skills & Software Architecture",
+            experience: "Professional Experience",
+            education: "Education & Certifications",
+            languages: "Languages",
+          }
+        : {
+            summary: "Resumo Executivo",
+            skills: "Core Skills & Arquitetura de Software",
+            experience: "Experiência Profissional",
+            education: "Formação Acadêmica & Certificações",
+            languages: "Idiomas",
+          }
+      : isEnglish
+        ? { summary: "Summary", skills: "Skills", experience: "Experience", education: "Education", languages: "Languages" }
+        : { summary: "Resumo", skills: "Habilidades", experience: "Experiência", education: "Formação", languages: "Idiomas" };
+    const sections = this.templateId === "REFERENCE"
+      ? [
+          this.renderSection(labels.summary, this.escapeLatex(content.summary)),
+          this.renderSkills(content.skillGroups, labels.skills),
+          this.renderExperiences(content.experiences, labels.experience),
+          this.renderEducation(content.education, labels.education),
+          this.renderLanguages(content.languages, labels.languages),
+        ]
+      : [
+          this.renderSection(labels.summary, this.escapeLatex(content.summary)),
+          this.renderExperiences(content.experiences, labels.experience),
+          this.renderSkills(content.skillGroups, labels.skills),
+          this.renderEducation(content.education, labels.education),
+          this.renderLanguages(content.languages, labels.languages),
+        ];
+    const body = sections.filter(Boolean).join("\n\n");
 
     const texContent = resumeLatexTemplate({
+      templateId: this.templateId,
       name: this.escapeLatex(content.name),
       title: this.escapeLatex(content.title),
       location: this.escapeLatex(content.location),
@@ -22,12 +54,12 @@ export class LaTeXResumeRenderer implements ResumeDocumentRenderer {
       linkedin: this.escapeLatex(content.contact.linkedin),
       version: version.toString(),
       locale,
-      body: sections,
+      body,
     });
 
     const sanitizedName = content.name.toLowerCase().replace(/\s+/g, "-");
     return {
-      filename: `resume-${sanitizedName}-${version.toString()}-${locale}.tex`,
+      filename: `resume-${sanitizedName}-${version.toString()}-${locale}-${this.templateId}.tex`,
       content: texContent,
     };
   }

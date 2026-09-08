@@ -17,7 +17,7 @@ export interface PDFCompiler {
 export class PublishPDFResume {
   constructor(
     private readonly documentBuilder: {
-      execute: (input: { version: ResumeVersion; locale: Locale; content: ResumeContent }) => Promise<{ filename: string; content: string }>;
+      execute: (input: { version: ResumeVersion; locale: Locale; content: ResumeContent; templateId?: string }) => Promise<{ filename: string; content: string }>;
     },
     private readonly renderer: ResumeDocumentRenderer,
     private readonly compiler: PDFCompiler,
@@ -27,11 +27,13 @@ export class PublishPDFResume {
     version: ResumeVersion,
     locale: Locale,
     content: ResumeContent,
+    templateId = "CLEAN",
   ): Promise<ResumeArtifact> {
     const document = await this.documentBuilder.execute({
       version,
       locale,
       content,
+      templateId,
     });
 
     const pdfBuffer = await this.compiler.compile(document.content, document.filename);
