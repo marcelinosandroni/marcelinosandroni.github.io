@@ -1,0 +1,604 @@
+# Catálogo de Tarefas (Tasks Catalog)
+
+## Visão Geral
+Este documento lista todas as tarefas derivadas das User Stories, organizadas por épico e prioridade, com critérios de conclusão claros para execução por agentes de IA.
+
+---
+
+## Status das Tarefas
+
+**Legenda**:
+- 🔴 Não iniciada
+- 🟡 Em progresso
+- 🟢 Concluída
+- ⚪ Bloqueada
+
+---
+
+## ÉPICO 01: Visualização do Currículo
+
+### TASK-001: Criar modelo de domínio para Currículo
+**US Relacionada**: US-01  
+**Prioridade**: Crítica  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 2h  
+
+**Descrição**: Implementar entidades de domínio representando o currículo com tipagem forte e invariantes.
+
+**Critérios de Conclusão**:
+- [ ] Interface `Resume` definida em `src/domain/entities/resume.ts`
+- [ ] Interfaces auxiliares: `Experience`, `Education`, `Skill`, `LanguageProficiency`
+- [ ] Value Objects: `LanguageCode`, `MonthYear`, `ContactInfo`
+- [ ] Validações de invariantes no construtor/factory
+- [ ] Zero dependências externas
+- [ ] Testes unitários com 90%+ cobertura
+
+**Arquivos Esperados**:
+- `src/domain/entities/resume.ts`
+- `src/domain/entities/experience.ts`
+- `src/domain/entities/skill.ts`
+- `src/domain/value-objects/language-code.ts`
+- `src/domain/value-objects/month-year.ts`
+- `tests/unit/domain/entities/resume.test.ts`
+
+**Instruções para Agente**:
+1. Consulte `specs/contracts/contracts-spec.md` para schemas TypeScript
+2. Siga `.github/instructions/domain.instructions.md` para regras de domínio
+3. Mantenha entidades imutáveis
+4. Defina factories para criação complexa
+
+---
+
+### TASK-002: Implementar componente de visualização
+**US Relacionada**: US-01  
+**Prioridade**: Crítica  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 4h  
+
+**Descrição**: Criar componentes React para exibir o currículo de forma organizada e responsiva.
+
+**Critérios de Conclusão**:
+- [ ] Componente `ResumePage` como entry point
+- [ ] Componentes separados: `PersonalInfo`, `Summary`, `ExperienceList`, `EducationList`, `SkillsSection`, `LanguagesSection`
+- [ ] Layout responsivo (mobile-first)
+- [ ] SEO com metadata dinâmica (title, description, Open Graph)
+- [ ] Acessibilidade WCAG 2.1 AA (semântica, ARIA, contraste)
+- [ ] Tipagem baseada nas entidades de domínio
+
+**Arquivos Esperados**:
+- `src/app/[lang]/page.tsx`
+- `src/components/resume/personal-info.tsx`
+- `src/components/resume/summary.tsx`
+- `src/components/resume/experience-list.tsx`
+- `src/components/resume/skills-section.tsx`
+- `src/components/resume/languages-section.tsx`
+
+**Instruções para Agente**:
+1. Consulte `specs/architecture/architecture-spec.md` para fluxos
+2. Siga `.github/instructions/typescript-react.instructions.md`
+3. Use dados tipados do domínio
+4. Separe lógica de apresentação de lógica de negócio
+
+---
+
+### TASK-003: Adicionar testes unitários (90%+ cobertura)
+**US Relacionada**: US-01  
+**Prioridade**: Crítica  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 3h  
+
+**Descrição**: Implementar bateria de testes unitários para entidades e componentes.
+
+**Critérios de Conclusão**:
+- [ ] Testes para todas as entidades de domínio
+- [ ] Testes para value objects
+- [ ] Testes para factories e validadores
+- [ ] Cobertura mínima 90%
+- [ ] Testes executam em < 30s
+- [ ] CI valida cobertura
+
+**Arquivos Esperados**:
+- `tests/unit/domain/entities/*.test.ts`
+- `tests/unit/domain/value-objects/*.test.ts`
+- `vitest.config.ts` configurado para cobertura
+
+**Instruções para Agente**:
+1. Consulte `.github/instructions/tests.instructions.md`
+2. Use Vitest como runner
+3. Mock interfaces de infraestrutura
+4. Valide invariantes e casos de erro
+
+---
+
+### TASK-004: Validar acessibilidade
+**US Relacionada**: US-01  
+**Prioridade**: Alta  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 2h  
+
+**Descrição**: Auditar e corrigir questões de acessibilidade na interface.
+
+**Critérios de Conclusão**:
+- [ ] Navegação completa por teclado
+- [ ] Focus indicators visíveis
+- [ ] Contraste de cores ≥ 4.5:1 (texto normal)
+- [ ] Alt text em imagens (se houver)
+- [ ] ARIA labels onde necessário
+- [ ] Validação com axe-core ou similar
+- [ ] `prefers-reduced-motion` respeitado
+
+**Arquivos Esperados**:
+- Relatório de auditoria em `docs/accessibility-audit.md`
+- Correções aplicadas nos componentes
+
+**Instruções para Agente**:
+1. Execute `npm run test:a11y` (se existir) ou use axe DevTools
+2. Corrija violações por severidade
+3. Documente decisões de acessibilidade
+4. Valide com leitores de tela (VoiceOver, NVDA)
+
+---
+
+## ÉPICO 02: Internacionalização
+
+### TASK-010: Configurar roteamento i18n
+**US Relacionada**: US-02  
+**Prioridade**: Alta  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 2h  
+
+**Descrição**: Implementar roteamento Next.js com suporte a PT-BR e EN-US.
+
+**Critérios de Conclusão**:
+- [ ] Rotas `/pt-br` e `/en-us` funcionais
+- [ ] Redirecionamento padrão para PT-BR
+- [ ] Middleware detecta idioma preferido
+- [ ] URLs compartilháveis preservam idioma
+- [ ] Metadata dinâmica por idioma
+
+**Arquivos Esperados**:
+- `next.config.ts` com config i18n
+- `src/middleware.ts` para detecção
+- `src/i18n/config.ts` para configurações
+
+**Instruções para Agente**:
+1. Use App Router do Next.js 14+
+2. Implemente middleware para detecção
+3. Preserve idioma em navegações internas
+4. Teste com diferentes user-agents
+
+---
+
+### TASK-011: Implementar parser de Markdown tipado
+**US Relacionada**: US-02  
+**Prioridade**: Alta  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 3h  
+
+**Descrição**: Criar parser que converte Markdown → Entidades de Domínio com validação de schema.
+
+**Critérios de Conclusão**:
+- [ ] Parser lê frontmatter (id, language, version, lastUpdated)
+- [ ] Extrai seções: PersonalInfo, Summary, Experiences, Education, Skills, Languages
+- [ ] Valida schema obrigatório
+- [ ] Lança erros claros para MD inválido
+- [ ] Preserva fatos sem invenções
+- [ ] Testes com fixtures de MD válido e inválido
+
+**Arquivos Esperados**:
+- `src/infrastructure/adapters/markdown-parser.ts`
+- `src/infrastructure/adapters/git-files-adapter.ts`
+- `tests/unit/infrastructure/parsers/markdown-parser.test.ts`
+
+**Instruções para Agente**:
+1. Consulte `specs/contracts/contracts-spec.md` para schema Markdown
+2. Use biblioteca `gray-matter` para frontmatter
+3. Implemente validações rigorosas
+4. Trate encoding UTF-8 corretamente
+
+---
+
+### TASK-012: Criar validador de sincronização PT-BR/EN-US
+**US Relacionada**: US-02  
+**Prioridade**: Média  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 2h  
+
+**Descrição**: Implementar validador que verifica consistência entre versões PT-BR e EN-US.
+
+**Critérios de Conclusão**:
+- [ ] Compara número de experiências
+- [ ] Valida equivalência de períodos (start/end dates)
+- [ ] Verifica habilidades equivalentes
+- [ ] Alerta para divergências de fatos
+- [ ] Integra no CI como check opcional
+- [ ] Script CLI para validação manual
+
+**Arquivos Esperados**:
+- `src/application/use-cases/validate-language-sync.ts`
+- `scripts/validate-i18n-sync.ts`
+- `.github/workflows/validate-i18n.yml`
+
+**Instruções para Agente**:
+1. Compare estruturas, não traduções literais
+2. Foque em fatos (datas, cargos, empresas)
+3. Gere relatório legível de divergências
+4. Permita falsos positivos controlados
+
+---
+
+### TASK-013: Adicionar testes de integração
+**US Relacionada**: US-02  
+**Prioridade**: Alta  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 2h  
+
+**Descrição**: Testar fluxo completo de i18n: rota → parser → entidade → UI.
+
+**Critérios de Conclusão**:
+- [ ] Teste de fluxo PT-BR completo
+- [ ] Teste de fluxo EN-US completo
+- [ ] Valida metadata por idioma
+- [ ] Testa fallback para idioma inválido
+- [ ] Executa em CI com Docker
+
+**Arquivos Esperados**:
+- `tests/integration/i18n/resume-i18n.test.ts`
+
+**Instruções para Agente**:
+1. Use banco de dados em memória ou mocks
+2. Isole testes de i18n de outros testes
+3. Valide URLs geradas
+4. Teste cenários de erro
+
+---
+
+## ÉPICO 03: Geração e Download de PDF
+
+### TASK-030: Definir contrato de conteúdo para PDF
+**US Relacionada**: US-04  
+**Prioridade**: Alta  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 1h  
+
+**Descrição**: Especificar dados estruturados necessários para geração de PDF LaTeX.
+
+**Critérios de Conclusão**:
+- [ ] Interface `LatexTemplateInput` definida
+- [ ] Mapeamento Resume → LatexTemplateInput documentado
+- [ ] Contrato versionado junto com template LaTeX
+- [ ] Validação de dados antes de gerar .tex
+
+**Arquivos Esperados**:
+- `specs/contracts/contracts-spec.md` atualizado
+- `src/domain/dtos/latex-input.ts`
+
+**Instruções para Agente**:
+1. Baseie-se em `specs/contracts/contracts-spec.md`
+2. Documente transformações necessárias
+3. Preveja extensão futura (outros templates)
+
+---
+
+### TASK-031: Implementar template LaTeX
+**US Relacionada**: US-04  
+**Prioridade**: Alta  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 4h  
+
+**Descrição**: Criar template LaTeX profissional e reprodutível para o currículo.
+
+**Critérios de Conclusão**:
+- [ ] Template `.tex` com interpolação de variáveis
+- [ ] Estilo consistente com UI web
+- [ ] Fontes embutidas ou disponíveis no Docker
+- [ ] Layout A4 otimizado para impressão
+- [ ] Hyperlinks funcionais (email, LinkedIn, GitHub)
+- [ ] Teste com dados reais
+
+**Arquivos Esperados**:
+- `src/infrastructure/templates/resume-template.tex`
+- `Dockerfile.latex` com TeX Live
+- `scripts/compile-pdf.ts`
+
+**Instruções para Agente**:
+1. Consulte `specs/contracts/contracts-spec.md` para estrutura LaTeX
+2. Use pacotes LaTeX estáveis e bem mantidos
+3. Otimize para legibilidade em preto e branco
+4. Teste compilação localmente antes de commit
+
+---
+
+### TASK-032: Configurar pipeline Docker de compilação
+**US Relacionada**: US-04  
+**Prioridade**: Alta  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 3h  
+
+**Descrição**: Configurar container Docker para compilação reprodutível de PDFs.
+
+**Critérios de Conclusão**:
+- [ ] Dockerfile com TeX Live fixado
+- [ ] Script de compilação retorna código 0 em sucesso
+- [ ] Logs claros em caso de falha
+- [ ] Imagem ≤ 500MB (otimizada)
+- [ ] Integração com GitHub Actions
+- [ ] Cache de camadas Docker
+
+**Arquivos Esperados**:
+- `Dockerfile.latex`
+- `.github/workflows/compile-pdf.yml`
+- `scripts/compile-pdf.ts`
+
+**Instruções para Agente**:
+1. Use imagem base Alpine quando possível
+2. Instale apenas pacotes LaTeX necessários
+3. Valide saída do compilador
+4. Implemente timeout de 60s para compilação
+
+---
+
+### TASK-033: Implementar endpoint de download
+**US Relacionada**: US-04  
+**Prioridade**: Alta  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 2h  
+
+**Descrição**: Criar API endpoint para download de PDFs versionados.
+
+**Critérios de Conclusão**:
+- [ ] GET `/api/versions/:versionId/pdf` funcional
+- [ ] Headers corretos: Content-Type, Content-Disposition
+- [ ] Tratamento de erro para versão/PDF não encontrado
+- [ ] Rate limiting básico
+- [ ] Logging de downloads
+- [ ] Testes de integração
+
+**Arquivos Esperados**:
+- `src/app/api/versions/[versionId]/pdf/route.ts`
+- `src/application/use-cases/download-pdf.ts`
+
+**Instruções para Agente**:
+1. Consulte `specs/contracts/contracts-spec.md` para contrato de API
+2. Use StorageAdapter para buscar PDF
+3. Retorne stream para arquivos grandes
+4. Implemente cache headers apropriados
+
+---
+
+### TASK-034: Adicionar testes de regressão visual
+**US Relacionada**: US-04  
+**Prioridade**: Média  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 3h  
+
+**Descrição**: Implementar comparação visual de PDFs para detectar mudanças não intencionais.
+
+**Critérios de Conclusão**:
+- [ ] Snapshot de PDFs de referência
+- [ ] Comparação pixel-a-pixel ou estrutural
+- [ ] Limiar de diferença configurável
+- [ ] Relatório visual de diferenças
+- [ ] Integração no CI
+
+**Arquivos Esperados**:
+- `tests/visual/pdf-regression.test.ts`
+- `tests/visual/baselines/` com PDFs de referência
+- Script de atualização de baselines
+
+**Instruções para Agente**:
+1. Use biblioteca de diff de imagens (sharp, pixelmatch)
+2. Converta PDF → PNG para comparação
+3. Documente mudanças aceitáveis vs bugs
+4. Automatize atualização de baselines
+
+---
+
+## ÉPICO 04: Versionamento e Publicação
+
+### TASK-040: Modelar entidade Versão
+**US Relacionada**: US-05  
+**Prioridade**: Média  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 2h  
+
+**Descrição**: Definir entidade de domínio para versões publicadas.
+
+**Critérios de Conclusão**:
+- [ ] Interface `PublishedVersion` com id, versionNumber, publishedAt, status
+- [ ] Validação de versionamento semântico
+- [ ] Invariante: versão publicada é imutável
+- [ ] Relacionamento com Resume e PdfArtifact
+- [ ] Testes unitários
+
+**Arquivos Esperados**:
+- `src/domain/entities/version.ts`
+- `tests/unit/domain/entities/version.test.ts`
+
+**Instruções para Agente**:
+1. Siga princípios de modelagem de domínio
+2. Garanta imutabilidade após publicação
+3. Use semver para versionamento
+4. Preveja estados: draft, published, archived
+
+---
+
+### TASK-041: Implementar migração Supabase
+**US Relacionada**: US-05  
+**Prioridade**: Média  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 2h  
+
+**Descrição**: Criar migrations SQL para tabelas de versões e artefatos PDF.
+
+**Critérios de Conclusão**:
+- [ ] Tabela `published_versions` criada
+- [ ] Tabela `pdf_artifacts` criada
+- [ ] Índices configurados
+- [ ] RLS policies implementadas
+- [ ] Seed data para desenvolvimento
+- [ ] Migration reversível (down)
+
+**Arquivos Esperados**:
+- `supabase/migrations/YYYYMMDDHHMMSS_create_published_versions.sql`
+- `supabase/migrations/YYYYMMDDHHMMSS_create_pdf_artifacts.sql`
+- `supabase/migrations/YYYYMMDDHHMMSS_enable_rls.sql`
+
+**Instruções para Agente**:
+1. Consulte `specs/contracts/contracts-spec.md` para schema DB
+2. Use convenção de naming do Supabase
+3. Teste migrations localmente com `supabase start`
+4. Documente rollback procedures
+
+---
+
+### TASK-042: Criar adaptador de persistência
+**US Relacionada**: US-05  
+**Prioridade**: Média  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 3h  
+
+**Descrição**: Implementar SupabaseAdapter para operações CRUD de versões.
+
+**Critérios de Conclusão**:
+- [ ] Implementa interface `ResumeRepository`
+- [ ] Métodos: getByLanguage, getVersion, listVersions
+- [ ] Tratamento de erros do Supabase
+- [ ] Tipagem segura com generated types
+- [ ] Testes com banco emulado/mock
+- [ ] Conexão via environment variables
+
+**Arquivos Esperados**:
+- `src/infrastructure/adapters/supabase-adapter.ts`
+- `src/infrastructure/config/supabase-config.ts`
+- `tests/unit/infrastructure/adapters/supabase-adapter.test.ts`
+
+**Instruções para Agente**:
+1. Use cliente oficial `@supabase/supabase-js`
+2. Gere types com `supabase gen types`
+3. Respeite contratos de repository
+4. Implemente retry para falhas transitórias
+
+---
+
+### TASK-043: Implementar UI de seleção de versões
+**US Relacionada**: US-05  
+**Prioridade**: Baixa  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 3h  
+
+**Descrição**: Criar interface para listar e selecionar versões publicadas.
+
+**Critérios de Conclusão**:
+- [ ] Dropdown ou lista de versões disponíveis
+- [ ] Exibe versionNumber e publishedAt formatado
+- [ ] Indicador de versão atual
+- [ ] Navegação entre versões sem reload completo
+- [ ] Estado de carregamento e erro
+- [ ] Acessível por teclado
+
+**Arquivos Esperados**:
+- `src/components/resume/version-selector.tsx`
+- `src/hooks/use-versions.ts`
+
+**Instruções para Agente**:
+1. Consulte design system existente
+2. Use Suspense para loading states
+3. Implemente optimistic updates
+4. Teste com lista vazia e muitos itens
+
+---
+
+### TASK-044: Adicionar testes de integração
+**US Relacionada**: US-05  
+**Prioridade**: Média  
+**Status**: 🔴 Não iniciada  
+**Estimativa**: 3h  
+
+**Descrição**: Testar fluxo completo de versionamento: publish → storage → retrieval.
+
+**Critérios de Conclusão**:
+- [ ] Teste de publicação de versão
+- [ ] Teste de listagem de versões
+- [ ] Teste de recuperação de versão específica
+- [ ] Teste de imutabilidade pós-publicação
+- [ ] Valida RLS (leitura pública, escrita autenticada)
+- [ ] Executa em CI com Supabase local
+
+**Arquivos Esperados**:
+- `tests/integration/versioning/publication-flow.test.ts`
+- `tests/integration/versioning/rls-policies.test.ts`
+
+**Instruções para Agente**:
+1. Use Supabase local (`supabase start`)
+2. Isole testes de integração
+3. Limpe dados após cada teste
+4. Valide políticas de segurança
+
+---
+
+## Backlog de Evolução (Pós-MVP)
+
+| ID | Descrição | Épico | Prioridade | Dependências |
+|----|-----------|-------|------------|--------------|
+| FEAT-01 | Painel autenticado de rascunhos e publicação | EPIC-04 | Média | TASK-041, TASK-042 |
+| FEAT-02 | Case studies e portfólio de projetos | EPIC-01 | Baixa | TASK-001, TASK-002 |
+| FEAT-03 | Analytics com privacidade | - | Baixa | - |
+| FEAT-04 | Geração alternativa com Playwright para PDF web | EPIC-03 | Média | TASK-030 |
+| FEAT-05 | Implementação automática de novas habilidades | EPIC-01 | Baixa | TASK-001 |
+| FEAT-06 | Interação nas experiências (mídia, desafios) | EPIC-01 | Baixa | TASK-002 |
+| FEAT-07 | Anos de experiência por habilidade (cálculo auto) | EPIC-01 | Média | TASK-001 |
+| FEAT-08 | Lint automático e regras para Markdown | - | Média | TASK-011 |
+
+---
+
+## Matriz de Priorização
+
+| Tarefa | Prioridade | Impacto | Esforço | Risco | Ordem Sugerida |
+|--------|------------|---------|---------|-------|----------------|
+| TASK-001 | Crítica | Alto | Baixo | Baixo | 1 |
+| TASK-002 | Crítica | Alto | Médio | Baixo | 2 |
+| TASK-003 | Crítica | Alto | Médio | Baixo | 3 |
+| TASK-010 | Alta | Alto | Baixo | Baixo | 4 |
+| TASK-011 | Alta | Alto | Médio | Médio | 5 |
+| TASK-030 | Alta | Alto | Baixo | Baixo | 6 |
+| TASK-031 | Alta | Alto | Médio | Médio | 7 |
+| TASK-032 | Alta | Alto | Médio | Alto | 8 |
+| TASK-004 | Alta | Médio | Baixo | Baixo | 9 |
+| TASK-012 | Média | Médio | Baixo | Baixo | 10 |
+
+---
+
+## Guia para Agentes de IA
+
+### Ao Pegar uma Tarefa
+1. Leia a descrição e critérios de conclusão completamente
+2. Consulte documentos vinculados (contratos, arquitetura, instruções)
+3. Verifique dependências de outras tarefas
+4. Estime tempo realista baseado na complexidade
+
+### Ao Implementar
+1. Siga padrões estabelecidos nas instruções da camada
+2. Escreva testes antes ou durante implementação (TDD recomendado)
+3. Mantenha commits atômicos e descritivos
+4. Documente decisões técnicas no código ou docs
+
+### Ao Concluir
+1. Execute todos os testes localmente
+2. Valide critérios de conclusão um a um
+3. Atualize status neste documento
+4. Solicite review de agente especializado (architecture-reviewer, resume-reviewer)
+
+### Ao Encontrar Bloqueios
+1. Documente o bloqueio claramente
+2. Identifique dependências faltantes
+3. Sugira alternativas ou workarounds
+4. Escalone para revisão humana se necessário
+
+---
+
+## Histórico de Mudanças
+
+| Data | Tarefa | Mudança | Autor |
+|------|--------|---------|-------|
+| 2025-01-15 | Todas | Criação inicial do catálogo | System |
