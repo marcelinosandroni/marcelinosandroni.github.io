@@ -14,11 +14,14 @@ describe("ResumePdfCache", () => {
       const content = getResumeContent("pt-BR");
       const payload = Buffer.from("%PDF-1.4\nGenerated resume");
 
-      const firstPath = cache.write("0.1.28", "pt-BR", content, payload, "Marcelino Sandroni Resume v0.1.28 pt-BR.pdf");
-      const secondPath = cache.write("0.1.28", "pt-BR", content, payload, "Marcelino Sandroni Resume v0.1.28 pt-BR.pdf");
+      const firstPath = cache.write("0.1.28", "pt-BR", content, "CLEAN", payload, "Marcelino Sandroni Resume v0.1.28 pt-BR CLEAN.pdf");
+      const secondPath = cache.write("0.1.28", "pt-BR", content, "CLEAN", payload, "Marcelino Sandroni Resume v0.1.28 pt-BR CLEAN.pdf");
 
       expect(firstPath).toBe(secondPath);
       expect(readFileSync(secondPath)).toEqual(payload);
+
+      const referencePath = cache.write("0.1.28", "pt-BR", content, "REFERENCE", payload, "Marcelino Sandroni Resume v0.1.28 pt-BR REFERENCE.pdf");
+      expect(referencePath).not.toBe(firstPath);
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
