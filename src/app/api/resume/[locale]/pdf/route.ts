@@ -10,13 +10,18 @@ import { DockerPDFCompiler } from "@/infrastructure/pdf/docker-pdf-compiler";
 import { PdfKitPDFCompiler } from "@/infrastructure/pdf/pdfkit-pdf-compiler";
 import { ResumePdfCache } from "@/infrastructure/pdf/resume-pdf-cache";
 import { getResumeContent } from "@/infrastructure/content";
+import {
+  DEFAULT_RESUME_TEMPLATE,
+  isResumeTemplateId,
+  type ResumeTemplateId,
+} from "@/infrastructure/pdf/resume-template-registry";
 
-function createPreferredFilename(locale: "pt-BR" | "en-US", version: string): string {
-  return `Marcelino Sandroni Resume v${version} ${locale}.pdf`;
+function createPreferredFilename(locale: "pt-BR" | "en-US", version: string, templateId: ResumeTemplateId): string {
+  return `Marcelino Sandroni Resume v${version} ${locale} ${templateId}.pdf`;
 }
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ locale: string }> }
 ) {
   try {
@@ -30,15 +35,26 @@ export async function GET(
     }
 
     const normalizedLocale = locale as "pt-BR" | "en-US";
+    const requestedTemplate = request.nextUrl.searchParams.get("template");
+    const templateId = requestedTemplate === null
+      ? DEFAULT_RESUME_TEMPLATE
+      : isResumeTemplateId(requestedTemplate)
+        ? requestedTemplate
+        : null;
+
+    if (!templateId) {
+      return NextResponse.json({ error: "Invalid template" }, { status: 400 });
+    }
+
     const version = ResumeVersion.create("0.1.28");
-    const renderer = new LaTeXResumeRenderer();
+    const renderer = new LaTeXResumeRenderer(templateId);
     const compiler = new DockerPDFCompiler(30000);
     const builder = new BuildResumeDocument(renderer);
     const publisher = new PublishPDFResume(builder, renderer, compiler);
     const resumeByLocale = getResumeContent(normalizedLocale);
     const cache = new ResumePdfCache(join(process.cwd(), "public", "artifacts", "cache"));
-    const preferredFilename = createPreferredFilename(normalizedLocale, version.toString());
-    const cachedFilePath = cache.getPath(version.toString(), normalizedLocale, resumeByLocale, preferredFilename);
+    const preferredFilename = createPreferredFilename(normalizedLocale, version.toString(), templateId);
+    const cachedFilePath = cache.getPath(version.toString(), normalizedLocale, resumeByLocale, templateId, preferredFilename);
 
     let pdfBytes: Buffer;
     if (cachedFilePath) {
@@ -46,14 +62,14 @@ export async function GET(
     } else {
       let artifact;
       try {
-        artifact = await publisher.execute(version, normalizedLocale, resumeByLocale);
+        artifact = await publisher.execute(version, normalizedLocale, resumeByLocale, templateId);
       } catch {
         const fallbackCompiler = new PdfKitPDFCompiler();
         const fallbackPublisher = new PublishPDFResume(builder, renderer, fallbackCompiler);
-        artifact = await fallbackPublisher.execute(version, normalizedLocale, resumeByLocale);
+        artifact = await fallbackPublisher.execute(version, normalizedLocale, resumeByLocale, templateId);
       }
 
-      const generatedPath = cache.write(version.toString(), normalizedLocale, resumeByLocale, artifact.pdfBuffer, preferredFilename);
+      const generatedPath = cache.write(version.toString(), normalizedLocale, resumeByLocale, templateId, artifact.pdfBuffer, preferredFilename);
       pdfBytes = readFileSync(generatedPath);
     }
 

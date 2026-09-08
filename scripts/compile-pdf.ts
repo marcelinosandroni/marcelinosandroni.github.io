@@ -20,12 +20,18 @@ import { LaTeXResumeRenderer } from "../src/infrastructure/renderers/latex-resum
 import { DockerPDFCompiler } from "../src/infrastructure/pdf/docker-pdf-compiler";
 import { PdfKitPDFCompiler } from "../src/infrastructure/pdf/pdfkit-pdf-compiler";
 import { getResumeContent } from "../src/infrastructure/content";
+import {
+  DEFAULT_RESUME_TEMPLATE,
+  isResumeTemplateId,
+  type ResumeTemplateId,
+} from "../src/infrastructure/pdf/resume-template-registry";
 
 const execAsync = promisify(exec);
 
 interface CompileOptions {
   locale?: "pt-BR" | "en-US";
   outputDir?: string;
+  template?: ResumeTemplateId;
 }
 
 async function isDockerAvailable(): Promise<boolean> {
@@ -45,28 +51,28 @@ async function compileResumePDF(options: CompileOptions = {}): Promise<void> {
     await fs.mkdir(outputDir, { recursive: true });
 
     const hasDocker = await isDockerAvailable();
-    const renderer = new LaTeXResumeRenderer();
     const compiler: PDFCompiler = hasDocker ? new DockerPDFCompiler(10000) : new PdfKitPDFCompiler();
 
     if (!hasDocker) {
       console.log("ℹ️ Docker daemon not active, using PDFKit PDF compiler.");
     }
 
-    const builder = new BuildResumeDocument(renderer);
-    const publisher = new PublishPDFResume(builder, renderer, compiler);
     const version = ResumeVersion.create("0.1.28");
 
     for (const locale of locales) {
       console.log(`\n📄 Compiling resume for ${locale}...`);
       const content = getResumeContent(locale);
+      const renderer = new LaTeXResumeRenderer(options.template ?? DEFAULT_RESUME_TEMPLATE);
+      const builder = new BuildResumeDocument(renderer);
+      const publisher = new PublishPDFResume(builder, renderer, compiler);
 
       let artifact;
       try {
-        artifact = await publisher.execute(version, locale, content);
+        artifact = await publisher.execute(version, locale, content, options.template ?? DEFAULT_RESUME_TEMPLATE);
       } catch (err) {
         console.warn("⚠️ Preferred compiler failed, falling back to PDFKit compiler:", err);
         const fallbackPublisher = new PublishPDFResume(builder, renderer, new PdfKitPDFCompiler());
-        artifact = await fallbackPublisher.execute(version, locale, content);
+        artifact = await fallbackPublisher.execute(version, locale, content, options.template ?? DEFAULT_RESUME_TEMPLATE);
       }
 
       const filepath = join(outputDir, artifact.filename);
@@ -91,6 +97,14 @@ for (let i = 0; i < args.length; i++) {
     i++;
   } else if (args[i] === "--output" && args[i + 1]) {
     options.outputDir = args[i + 1];
+    i++;
+  } else if (args[i] === "--template" && args[i + 1]) {
+    const template = args[i + 1];
+    if (!isResumeTemplateId(template)) {
+      console.error(`❌ Invalid template: ${template}`);
+      process.exit(1);
+    }
+    options.template = template;
     i++;
   }
 }

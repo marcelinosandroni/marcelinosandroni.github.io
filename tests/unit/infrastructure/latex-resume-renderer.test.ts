@@ -89,4 +89,20 @@ describe("LaTeXResumeRenderer", () => {
     expect(result.content).toContain("\\section{Formação}");
     expect(result.content).toContain("\\section{Idiomas}");
   });
+
+  it("renders the reference model with the reference section contract", async () => {
+    const renderer = new LaTeXResumeRenderer("REFERENCE");
+    const result = await renderer.render({
+      version: ResumeVersion.create("0.2.0"),
+      locale: "pt-BR",
+      content: sampleContent,
+    });
+
+    expect(result.content).toContain("\\section{Resumo Executivo}");
+    expect(result.content).toContain("\\section{Core Skills \\& Arquitetura de Software}");
+    expect(result.content).toContain("\\section{Experiência Profissional}");
+    expect(result.content).toContain("\\section{Formação Acadêmica \\& Certificações}");
+    expect(result.content).toContain("\\section{Idiomas}");
+    expect(result.content.indexOf("Core Skills \\& Arquitetura")).toBeLessThan(result.content.indexOf("Experiência Profissional"));
+  });
 });

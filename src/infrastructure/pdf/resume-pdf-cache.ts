@@ -12,10 +12,11 @@ export class ResumePdfCache {
     version: string,
     locale: "pt-BR" | "en-US",
     content: ResumeContent,
+    templateId: string,
     preferredFilename: string,
   ): string {
-    const signature = this.buildSignature(version, locale, content);
-    const cacheDir = join(this.rootDir, locale, version);
+    const signature = this.buildSignature(version, locale, content, templateId);
+    const cacheDir = join(this.rootDir, locale, version, templateId);
     const targetPath = join(cacheDir, preferredFilename);
     const signaturePath = join(cacheDir, `${this.safeName(preferredFilename)}.${signature}.meta`);
 
@@ -30,11 +31,12 @@ export class ResumePdfCache {
     version: string,
     locale: "pt-BR" | "en-US",
     content: ResumeContent,
+    templateId: string,
     pdfBuffer: Buffer,
     preferredFilename: string,
   ): string {
-    const signature = this.buildSignature(version, locale, content);
-    const cacheDir = join(this.rootDir, locale, version);
+    const signature = this.buildSignature(version, locale, content, templateId);
+    const cacheDir = join(this.rootDir, locale, version, templateId);
     mkdirSync(cacheDir, { recursive: true });
 
     const targetPath = join(cacheDir, preferredFilename);
@@ -53,18 +55,21 @@ export class ResumePdfCache {
     version: string,
     locale: "pt-BR" | "en-US",
     content: ResumeContent,
+    templateId: string,
     preferredFilename: string,
   ): boolean {
-    return Boolean(this.getPath(version, locale, content, preferredFilename));
+    return Boolean(this.getPath(version, locale, content, templateId, preferredFilename));
   }
 
-  private buildSignature(version: string, locale: string, content: ResumeContent): string {
+  private buildSignature(version: string, locale: string, content: ResumeContent, templateId: string): string {
     const payload = JSON.stringify({
       version,
       locale,
+      templateId,
       name: content.name,
       title: content.title,
       location: content.location,
+      contact: content.contact,
       summary: content.summary,
       experiences: content.experiences,
       skillGroups: content.skillGroups,

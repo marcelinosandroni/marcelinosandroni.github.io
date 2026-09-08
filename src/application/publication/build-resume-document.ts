@@ -5,6 +5,7 @@ export type ResumeDocumentInput = {
   version: ResumeVersion;
   locale: Locale;
   content: ResumeContent;
+  templateId?: string;
 };
 
 export type ResumeDocument = {
