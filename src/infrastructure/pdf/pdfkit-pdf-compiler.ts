@@ -26,7 +26,7 @@ export class PdfKitPDFCompiler implements PDFCompiler {
       for (const section of sections) {
         // Capture metadata from footer
         if (section.type === "metadata") {
-          metadata = section.value;
+          metadata = section.value as { locale: string; version: string };
           continue;
         }
 
@@ -43,7 +43,7 @@ export class PdfKitPDFCompiler implements PDFCompiler {
 
         if (isInsideTabular && section.type === "tabularRow") {
           const y = doc.y;
-          const parts = section.value.split(" & ");
+          const parts = (section.value as string).split(" & ");
           const label = parts[0] || "";
           const content = parts.slice(1).join(" & ") || "";
           const labelWidth = 130;
@@ -58,27 +58,27 @@ export class PdfKitPDFCompiler implements PDFCompiler {
             );
             doc.y = y + (maxLines * lineHeight) + 3;
           } else {
-            doc.font("Helvetica").fontSize(9).fillColor("#17211D").text(section.value, 50, y);
+            doc.font("Helvetica").fontSize(9).fillColor("#17211D").text(section.value as string, 50, y);
           }
           continue;
         }
 
         switch (section.type) {
           case "title":
-            doc.font("Helvetica-Bold").fontSize(22).fillColor("#17211D").text(section.value, { align: "center" });
+            doc.font("Helvetica-Bold").fontSize(22).fillColor("#17211D").text(section.value as string, { align: "center" });
             doc.moveDown(0.4);
             break;
           case "subtitle":
-            doc.font("Helvetica-Bold").fontSize(11).fillColor("#17211D").text(section.value, { align: "center" });
+            doc.font("Helvetica-Bold").fontSize(11).fillColor("#17211D").text(section.value as string, { align: "center" });
             doc.moveDown(0.25);
             break;
           case "contact":
-            doc.font("Helvetica").fontSize(9).fillColor("#5F6360").text(section.value, { align: "center", lineGap: 1.5 });
+            doc.font("Helvetica").fontSize(9).fillColor("#5F6360").text(section.value as string, { align: "center", lineGap: 1.5 });
             doc.moveDown(0.3);
             break;
           case "section":
             doc.moveDown(0.5);
-            doc.font("Helvetica-Bold").fontSize(12).fillColor("#17211D").text(section.value.toUpperCase(), { tracking: 2 });
+            doc.font("Helvetica-Bold").fontSize(12).fillColor("#17211D").text((section.value as string).toUpperCase());
             doc.moveDown(0.15);
             // Draw accent line
             const lineWidth = doc.page.width - 100;
@@ -86,16 +86,16 @@ export class PdfKitPDFCompiler implements PDFCompiler {
             doc.moveDown(0.35);
             break;
           case "paragraph":
-            doc.font("Helvetica").fontSize(10).fillColor("#17211D").text(section.value, { lineGap: 2, paragraphGap: 4, align: "justify" });
+            doc.font("Helvetica").fontSize(10).fillColor("#17211D").text(section.value as string, { lineGap: 2, paragraphGap: 4, align: "justify" });
             break;
           case "listItem":
-            doc.font("Helvetica").fontSize(10).fillColor("#17211D").text(`• ${section.value}`, { indent: 15, paragraphGap: 2, lineGap: 1.5, align: "left" });
+            doc.font("Helvetica").fontSize(10).fillColor("#17211D").text(`• ${section.value as string}`, { indent: 15, paragraphGap: 2, lineGap: 1.5, align: "left" });
             break;
           case "emphasis":
-            doc.font("Helvetica-Oblique").fontSize(10).fillColor("#5F6360").text(section.value, { paragraphGap: 2 });
+            doc.font("Helvetica-Oblique").fontSize(10).fillColor("#5F6360").text(section.value as string, { paragraphGap: 2 });
             break;
           case "bold":
-            doc.font("Helvetica-Bold").fontSize(10).fillColor("#17211D").text(section.value, { paragraphGap: 2, lineGap: 1.5 });
+            doc.font("Helvetica-Bold").fontSize(10).fillColor("#17211D").text(section.value as string, { paragraphGap: 2, lineGap: 1.5 });
             break;
         }
       }
@@ -117,8 +117,8 @@ export class PdfKitPDFCompiler implements PDFCompiler {
     return Buffer.concat(chunks);
   }
 
-  private parseDocumentSections(texSource: string): Array<{ type: "title" | "section" | "subtitle" | "paragraph" | "listItem" | "emphasis" | "bold" | "contact" | "tabularStart" | "tabularEnd" | "tabularRow" | "metadata"; value: string | { locale: string; version: string } }> {
-    const entries: Array<{ type: "title" | "section" | "subtitle" | "paragraph" | "listItem" | "emphasis" | "bold" | "contact" | "tabularStart" | "tabularEnd" | "tabularRow" | "metadata"; value: string | { locale: string; version: string } }> = [];
+  private parseDocumentSections(texSource: string): Array<{ type: "title" | "section" | "subtitle" | "paragraph" | "listItem" | "emphasis" | "bold" | "contact" | "tabularStart" | "tabularEnd" | "tabularRow" | "metadata"; value: string } | { type: "metadata"; value: { locale: string; version: string } }> {
+    const entries: Array<{ type: "title" | "section" | "subtitle" | "paragraph" | "listItem" | "emphasis" | "bold" | "contact" | "tabularStart" | "tabularEnd" | "tabularRow" | "metadata"; value: string } | { type: "metadata"; value: { locale: string; version: string } }> = [];
     
     // Remove document preamble and extract body content
     const bodyMatch = texSource.match(/\\begin\{document\}([\s\S]*?)\\end\{document\}/);

@@ -1,37 +1,57 @@
-# Build artifacts
-public/artifacts/*.pdf
+```
+# Next.js build outputs
+.next/
 
 # Dependencies
 node_modules/
 
-# Logs and temp files
-*.log
-*.tmp
-
-# Environment
+# Environment variables
 .env
 .env.local
-*.env.*
+.env.*
 
-# Editors
+# IDE files
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Python
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
 
-# Build directories
+# Build artifacts
 dist/
 build/
-target/
-.coverage
-coverage/
-htmlcov/
+*.o
+*.obj
+*.out
+*.exe
+*.dll
+*.so
+*.a
 
-# Compression files
+# Compressed files
 *.zip
 *.gz
 *.tar
@@ -55,36 +75,16 @@ htmlcov/
 *.tar.xz
 *.tar.zst
 
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# Testing
-.mypy_cache/
-.pytest_cache/
-.nyc_output/
-coverage/
-
-# IDE
-*.swp
-*.swo
-
-# Virtual environments
-venv/
-.venv/
-.env/
-.venv.bak/
-env.bak/
-
 # Gradle
 .gradle/
 
-# Temporary files
-*.tmp
-*~
-*.bak
+# Target directory for Rust/Cargo
+target/
 
-# Node
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Julia packages
+julia-*/
+
+# Zig build directory
+zig*/
+
+```
