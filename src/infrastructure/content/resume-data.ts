@@ -417,7 +417,7 @@ export const resumeContent: ResumeContent = {
         "Serverless", "Lambda", "API Gateway", "DynamoDB", "EventBridge", "Circuit Breaker",
         "Microsserviços", "Orientação a Eventos", "Mensageria", "Cloud Migration", "Cost Optimization",
       ],
-      teamSize: "Múltiplos times (variável por cliente)",
+      teamSize: 5,
       scope: "Atuação em múltiplos clientes (saúde, financeiro, esportes) com modernização de sistemas, migração cloud, otimização de custos AWS, resolução de problemas críticos, e entrega de projetos sob prazos apertados com excelência técnica",
     },
     {
