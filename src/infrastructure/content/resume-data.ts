@@ -322,14 +322,103 @@ export const resumeContent: ResumeContent = {
     },
     {
       company: "Pollux Technologies",
-      role: "Engenheiro de Software Pleno",
+      role: "Engenheiro de Software Pleno (Promovido em 3 meses)",
       period: "Jun/2021 – Jan/2022",
       location: "Remoto",
-      summary: "",
+      summary: "Atuação em múltiplos clientes com foco em modernização de sistemas, migração cloud e resolução de problemas críticos. Promoção de Junior para Pleno em apenas 3 meses devido a excelência técnica e impacto nas entregas. Experiência em saúde (prontuário eletrônico e previsão de consultas), financeiro (migração AWS), e esportes (entrega crítica em 2 semanas). Redução de custos de infraestrutura em 30-50%, melhoria de performance em até 200%, e entrega pontual em 80% dos projetos (20% no prazo).",
       highlights: [
-        "Arquitetou microsserviços e aplicações serverless em TypeScript (NestJS), expondo APIs RESTful e GraphQL.",
-        "Criou interfaces dinâmicas com aderência ágil ao mercado para startups utilizando React e Flutter.",
+        "Promovido de Engenheiro Junior para Pleno em apenas 3 meses devido a excelência técnica, participação ativa em decisões de arquitetura, e impacto significativo em múltiplos projetos e clientes.",
+        "Resolveu problema crítico em cliente de saúde: sistema não entregava corretamente histórico e prontuário de pacientes para previsões de consultas/exames/procedimentos. Atuou na correção de falhas de mensageria, orientação a eventos, e infraestrutura AWS serverless, implementando circuit breaker e corrigindo microserviços em Java e TypeScript, alcançando 100% de assertividade nos dados e 40% de previsibilidade (era 0%).",
+        "Liderou migração de cliente grande do setor financeiro de cloud interna para AWS pública, reestruturando desenho do sistema para melhor performance e redução de custos. Entrega em 3 meses (metade do prazo de 6 meses), com aumento de 2x na performance e redução de 30% nos custos de infraestrutura.",
+        "Entregou projeto crítico de sistema de esportes em apenas 2 semanas (deadline apertado), trabalhando em equipe para garantir qualidade, assertividade e pontualidade na entrega sob pressão extrema.",
+        "Estabilizou e reduziu em 50% os custos de AWS de cliente que enfrentava escalada descontrolada de gastos, identificando desperdícios, otimizando recursos e implementando governança de cloud.",
+        "Gerou resultados consistentes em múltiplos clientes: redução de custos de infra em 30%, melhoria de performance em até 200%, entregas antecipadas em 80% dos projetos (20% no prazo), e melhoria de processos de pagamentos com integração payment systems para clientes pequenos.",
       ],
+      caseStudies: [
+        {
+          title: "Sistema Inteligente de Saúde: De 0% a 40% de Previsibilidade de Consultas",
+          challenge:
+            "Cliente do ramo de saúde enfrentava problema crítico: sistema não entregava corretamente dados de prontuário e histórico de pacientes de planos de saúde, impossibilitando previsões de consultas, exames e procedimentos. Projeto estava falhando com 0% de assertividade em previsões, erros de processamento em mensageria e eventos, infraestrutura AWS serverless com gaps, e microserviços em Java/TypeScript com falhas de comunicação assíncrona.",
+          solution:
+            "Atuei arduamente com equipe para: (1) Desbravar e mapear todos os erros e problemas de mensageria e orientação a eventos; (2) Corrigir infraestrutura AWS serverless (Lambda, API Gateway, DynamoDB, EventBridge) eliminando gaps de processamento; (3) Refatorar microserviços Java e TypeScript para funcionamento correto em modo assíncrono e orientado a eventos; (4) Implementar Circuit Breaker para resiliência em chamadas entre serviços; (5) Corrigir casos de erro pontualmente com retry policies e Dead Letter Queues; (6) Validar assertividade de 100% dos dados e históricos de pacientes; (7) Desenvolver modelos preditivos para sugestões inteligentes de consultas, exames e procedimentos focados na saúde do paciente.",
+          result:
+            "Sistema operacional com 100% de assertividade nos dados de prontuário e histórico de pacientes, 40% de previsibilidade em indicações de consultas/exames/procedimentos (era 0%), melhoria significativa na saúde preventiva de pacientes, e estabelecimento de base tecnológica para evolução com IA e machine learning.",
+          metrics: [
+            { label: "Assertividade de Dados", value: "100%", icon: "performance" },
+            { label: "Previsibilidade de Consultas", value: "0% → 40%", icon: "performance" },
+            { label: "Erros de Processamento", value: "Eliminados", icon: "performance" },
+            { label: "Resiliência do Sistema", value: "Circuit Breaker", icon: "performance" },
+          ],
+        },
+        {
+          title: "Migração Cloud Financeira: 6 Meses em 3 com 30% Menos Custo",
+          challenge:
+            "Grande cliente do setor financeiro operava em cloud interna com limitações de performance, escalabilidade e custos elevados. Necessitava de migração para AWS pública com reestruturação completa do desenho do sistema para ganhar em performance, fluxo de dados e redução de custos. Prazo projetado de 6 meses era incompatível com demandas de negócio aceleradas pela transformação digital.",
+          solution:
+            "Planejei e executei migração completa para AWS: (1) Reestruturação do desenho arquitetural do sistema e serviços para cloud nativa; (2) Migração de workloads para EC2, Lambda, RDS, S3, SQS, SNS com otimização de custos; (3) Implementação de pipelines CI/CD para automação de deploys; (4) Configuração de VPC, subnets, security groups e IAM para segurança; (5) Monitoramento com CloudWatch e alertas proativos; (6) Otimização de queries e índices para performance; (7) Treinamento da equipe do cliente em operações cloud.",
+          result:
+            "Migração concluída em 3 meses (metade do prazo de 6 meses), aumento de 2x na performance de processos e serviços, redução de 30% nos custos de infraestrutura cloud, e estabelecimento de fundação sólida para inovação e escalabilidade futura.",
+          metrics: [
+            { label: "Tempo de Migração", value: "6 meses → 3 meses", icon: "time" },
+            { label: "Aumento de Performance", value: "2x", icon: "performance" },
+            { label: "Redução de Custos", value: "30%", icon: "money" },
+            { label: "Serviços AWS Migrados", value: "EC2, Lambda, RDS, S3, SQS, SNS", icon: "performance" },
+          ],
+        },
+        {
+          title: "Entrega Crítica em 2 Semanas: Sistema de Esportes sob Pressão",
+          challenge:
+            "Cliente de sistema de esportes enfrentava deadline improrrogável de 2 semanas para entrega crítica que impactava operação completa. Qualquer atraso resultaria em prejuízos financeiros significativos e perda de credibilidade no mercado. Equipe sob pressão extrema necessitava de liderança técnica para garantir qualidade, assertividade e pontualidade.",
+          solution:
+            "Liderei esforço focado de entrega: (1) Mapeamento rápido de funcionalidades críticas para MVP; (2) Distribuição estratégica de tarefas conforme expertise de cada dev; (3) Pair programming intensivo nos pontos mais complexos; (4) Validação contínua com testes automatizados; (5) Deploys diários para ambiente de homologação; (6) Feedback rápido do cliente para ajustes; (7) Trabalho colaborativo em equipe com comunicação constante.",
+          result:
+            "Entrega realizada com qualidade, assertividade e dentro do prazo de 2 semanas, cliente satisfeito com resultado, e demonstração de capacidade de executar sob pressão extrema sem comprometer qualidade.",
+          metrics: [
+            { label: "Prazo de Entrega", value: "2 semanas", icon: "time" },
+            { label: "Qualidade Entregue", value: "Alta Assertividade", icon: "performance" },
+            { label: "Satisfação do Cliente", value: "Máxima", icon: "people" },
+            { label: "Funcionalidades Entregues", value: "100% do Escopo", icon: "performance" },
+          ],
+        },
+        {
+          title: "Otimização de Custos AWS: Redução de 50% em Gastos de Cloud",
+          challenge:
+            "Cliente enfrentava escalada descontrolada de custos na AWS sem visibilidade clara de onde estavam os desperdícios. Faturas crescentes mês a mês ameaçavam sustentabilidade do projeto, e falta de governança de cloud permitia provisionamento excessivo de recursos, instâncias ociosas, e arquiteturas ineficientes.",
+          solution:
+            "Executei auditoria completa e otimização: (1) Análise detalhada de todas as faturas e uso de recursos; (2) Identificação de instâncias superdimensionadas e ociosas; (3) Implementação de Auto Scaling Groups para dimensionamento automático; (4) Migração de workloads apropriados para Spot Instances; (5) Otimização de queries e redução de transferências de dados desnecessárias; (6) Configuração de orçamentos e alertas de custo no AWS Budgets; (7) Estabelecimento de políticas de tagging e governança de cloud.",
+          result:
+            "Redução de 50% nos custos mensais de AWS, estabilização de gastos com previsibilidade orçamentária, eliminação de desperdícios, e implementação de cultura de otimização contínua de custos cloud.",
+          metrics: [
+            { label: "Redução de Custos", value: "50%", icon: "money" },
+            { label: "Previsibilidade Orçamentária", value: "Alta", icon: "performance" },
+            { label: "Recursos Otimizados", value: "Todos", icon: "performance" },
+            { label: "Governança Implementada", value: "Completa", icon: "performance" },
+          ],
+        },
+        {
+          title: "Excelência Técnica Consistente: 80% de Entregas Antecipadas",
+          challenge:
+            "Múltiplos clientes com demandas variadas necessitavam de entregas rápidas e de qualidade, mas histórico da empresa mostrava atrasos frequentes, estouro de orçamento, e insatisfação de clientes. Era necessário estabelecer novo padrão de excelência técnica e disciplina de execução.",
+          solution:
+            "Implementei práticas de engenharia de alta performance: (1) Planejamento detalhado com estimativas realistas baseadas em dados históricos; (2) Decomposição de stories em tarefas pequenas e estimáveis; (3) Definição clara de DoR (Definition of Ready) e DoD (Definition of Done); (4) Testes automatizados desde o início (TDD quando aplicável); (5) Integração contínua com validação automática; (6) Comunicação transparente com clientes sobre progresso e riscos; (7) Retrospectivas após cada entrega para aprendizado contínuo.",
+          result:
+            "80% dos projetos entregues antes do prazo, 20% no prazo exato (100% de pontualidade), redução de custos de infraestrutura em 30% em média, melhoria de performance em até 200% para clientes, e estabelecimento de reputação de confiabilidade e excelência técnica.",
+          metrics: [
+            { label: "Entregas Antecipadas", value: "80%", icon: "time" },
+            { label: "Pontualidade Total", value: "100%", icon: "performance" },
+            { label: "Redução Média de Custos", value: "30%", icon: "money" },
+            { label: "Melhoria de Performance", value: "Até 200%", icon: "performance" },
+          ],
+        },
+      ],
+      technologies: [
+        "Java", "TypeScript", "NestJS", "React", "Next.js", "Vue.js", ".NET", "Go", "Python",
+        "AWS", "GCP", "Azure", "PostgreSQL", "MongoDB", "Kubernetes", "Docker", "CI/CD", "Jenkins",
+        "Serverless", "Lambda", "API Gateway", "DynamoDB", "EventBridge", "Circuit Breaker",
+        "Microsserviços", "Orientação a Eventos", "Mensageria", "Cloud Migration", "Cost Optimization",
+      ],
+      teamSize: "Múltiplos times (variável por cliente)",
+      scope: "Atuação em múltiplos clientes (saúde, financeiro, esportes) com modernização de sistemas, migração cloud, otimização de custos AWS, resolução de problemas críticos, e entrega de projetos sob prazos apertados com excelência técnica",
     },
     {
       company: "Empresas de Consultoria Contábil",
