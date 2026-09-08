@@ -36,12 +36,21 @@ export class PdfKitPDFCompiler implements PDFCompiler {
 
         if (isInsideTabular && section.type === "tabularRow") {
           const y = doc.y;
-          const parts = section.value.split(" & ");
-          const labelWidth = 120;
+          // Split by & but use the LAST " & " as separator since label may contain & (e.g., "Architecture & Backend")
+          const lastAmpIndex = section.value.lastIndexOf(" & ");
+          let label, content;
+          if (lastAmpIndex > -1) {
+            label = section.value.substring(0, lastAmpIndex);
+            content = section.value.substring(lastAmpIndex + 3);
+          } else {
+            label = section.value;
+            content = "";
+          }
+          const labelWidth = 140;
 
-          if (parts.length >= 2) {
-            doc.font("Helvetica-Bold").fontSize(10).text(parts[0], 52, y, { width: labelWidth, align: "left" });
-            doc.font("Helvetica").fontSize(10).text(parts[1], 52 + labelWidth, y, { width: doc.page.width - 52 - labelWidth - 52, align: "left" });
+          if (content && content.trim()) {
+            doc.font("Helvetica-Bold").fontSize(10).text(label.trim(), 52, y, { width: labelWidth, align: "left" });
+            doc.font("Helvetica").fontSize(10).text(content.trim(), 52 + labelWidth, y, { width: doc.page.width - 52 - labelWidth - 52, align: "left" });
           } else {
             doc.font("Helvetica").fontSize(10).text(section.value, 52, y);
           }
@@ -187,9 +196,24 @@ export class PdfKitPDFCompiler implements PDFCompiler {
 
       // Tabular rows (label & content \\\\)
       if (inTabular) {
+        // Match rows with & as column separator, but not \& (escaped ampersand)
+        // We need to find the column separator & that's not preceded by backslash
         const rowMatch = line.match(/^(.+?)\s*&\s*(.+?)\s*\\\\$/);
         if (rowMatch) {
-          entries.push({ type: "tabularRow", value: `${this.normalizeLatexText(rowMatch[1])} & ${this.normalizeLatexText(rowMatch[2])}` });
+          let label = rowMatch[1];
+          let content = rowMatch[2];
+          // The label may contain \& which should be part of the label text
+          // Check if label ends with backslash (meaning the & was actually \&)
+          if (label.trim().endsWith('\\')) {
+            // This means we matched on a wrong &, look for the real column separator
+            // The real separator is & not preceded by \
+            const parts = line.split(/(?<!\\)&/);
+            if (parts.length >= 2) {
+              label = parts[0].replace(/\\$/, '').trim();
+              content = parts.slice(1).join('&').replace(/\s*\\\\$/, '').trim();
+            }
+          }
+          entries.push({ type: "tabularRow", value: `${this.normalizeLatexText(label)} & ${this.normalizeLatexText(content)}` });
         }
         continue;
       }
