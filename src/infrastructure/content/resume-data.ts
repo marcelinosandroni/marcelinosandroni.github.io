@@ -222,14 +222,103 @@ export const resumeContent: ResumeContent = {
     },
     {
       company: "Banco Itaú",
-      role: "Engenheiro de Software Pleno",
+      role: "Engenheiro de Software Pleno & Tech Lead",
       period: "Mar/2022 – Nov/2022",
       location: "Híbrido",
-      summary: "",
+      summary: "Liderança técnica no desenvolvimento de aplicações para gestão interna de ativos do mercado de atacado, controlando +R$ 100 bilhões em ativos de grandes investidores e clientes. Ecossistema de controle e investimento com inteligência e insights, integração B3, assets nacionais e internacionais. Atuação com time de 9 pessoas (6 devs, Tech Lead, PO, PM) em melhorias de processos técnicos, code review, versionamento, e mentoria de níveis júnior/pleno em front, back e mobile.",
       highlights: [
-        "Conduziu adoção de Clean Code e TDD, elevando cobertura de testes e mitigando vulnerabilidades.",
-        "Desenvolveu microsserviços altamente disponíveis em C# e Java integrados a brokers de mensagens.",
+        "Entregou aplicações para controle interno de gestores e usuários internos gerenciarem ativos do mercado de atacado (+R$ 100 bi), com ecossistema de investimento inteligente, integração B3, e insights para aumento de patrimônio de grandes investidores.",
+        "Resolveu crise crítica em lançamento de primeira fase com erros de infraestrutura e bugs em microserviços de mensageria, liderando debug colaborativo, identificando falhas de processamento de eventos e integrações via observabilidade, e distribuindo correções que garantiram sucesso do lançamento.",
+        "Implementou cultura de testes automatizados em equipe, aumentando qualidade de código em 8x com cobertura testável e evidências, aplicando testes E2E com Cypress (modelo regressivo) junto ao QA, em back (.NET), front (Angular) e mobile (Flutter).",
+        "Melhorou Design System com novos componentes alinhados às funcionalidades do banco, e aplicou Arquitetura Hexagonal padronizando estrutura de microsserviços backend com SOLID, TDD, DDD como práticas obrigatórias.",
+        "Liderou time de 9 pessoas (6 devs, Tech Lead, PO, PM) em melhorias de organização e processos técnicos, refinamento, validações, controle de versionamento, code review rigoroso, boas práticas de desenvolvimento, e mentoria de juniors/plenos em front, back e mobile.",
+        "Garantiu qualidade e entrega pontual mesmo sob pressão de prazos apertados, com identificação rápida de problemas, delegação eficiente, e atuação direta nos pontos críticos enquanto organizava o time para solução colaborativa.",
       ],
+      caseStudies: [
+        {
+          title: "Gestão de Ativos +R$ 100 Bilhões: Ecossistema Inteligente para Mercado de Atacado",
+          challenge:
+            "Itaú necessitava de aplicações robustas para gestores internos e clientes de alta renda gerenciarem ativos do mercado de atacado, com controle preciso de +R$ 100 bilhões, integração em tempo real com B3, visão unificada de posições, insights inteligentes para decisões de investimento, e capacidade de escalar para demanda de grandes investidores institucionais.",
+          solution:
+            "Desenvolvi ecossistema completo de gestão de ativos com: (1) Plataforma interna em Angular para gestores acompanharem posições, performance e riscos em tempo real; (2) Backend em .NET e Java Spring com microsserviços especializados por classe de ativo (RF, RV, derivativos, ETFs); (3) Integração nativa com B3, Bloomberg, Reuters e sistemas de custódia; (4) Modelos analíticos para valuation, marcação a mercado e projeções de performance; (5) Dashboards executivos com KPIs de patrimônio, alocação e rentabilidade; (6) APIs seguras para integração com sistemas de clientes institucionais; (7) Mobile em Flutter para acompanhamento on-the-go.",
+          result:
+            "Ecossistema operacional gerenciando +R$ 100 bilhões em ativos, visão unificada em tempo real para gestores e clientes, capacidade de oferecer produtos sofisticados para mercado de atacado, e estabelecimento de novo padrão de excelência tecnológica que se tornou referência interna.",
+          metrics: [
+            { label: "Ativos Sob Gestão", value: "+R$ 100 bilhões", icon: "money" },
+            { label: "Integrações Ativas", value: "B3 + Custodiantes", icon: "performance" },
+            { label: "Tempo de Atualização", value: "Tempo Real", icon: "time" },
+            { label: "Usuários Atendidos", value: "Gestores + Clientes", icon: "people" },
+          ],
+        },
+        {
+          title: "Resgate de Lançamento Crítico: De Bugs em Produção a Sucesso",
+          challenge:
+            "Primeira fase do projeto enfrentou erros críticos de infraestrutura e bugs em microsserviços de mensageria horas antes do lançamento. Sistema não processava eventos corretamente, integrações com outros serviços falhavam, logs eram insuficientes para diagnóstico rápido, e risco de adiamento do lançamento ameaçava credibilidade da área e relacionamento com clientes de atacado.",
+          solution:
+            "Liderei esforço emergencial de guerra: (1) Reunião de emergência com todo o time para debug colaborativo; (2) Implementação de observabilidade aprimorada com logs estruturados, métricas e traces para identificar gargalos; (3) Mapeamento de todos os bugs críticos em tempo recorde; (4) Distribuição estratégica de tarefas conforme expertise de cada dev; (5) Correção simultânea de falhas de processamento de eventos na mensageria e integrações quebradas; (6) Validação acelerada com testes focados nos pontos críticos; (7) Deploy monitorado com rollback ready se necessário.",
+          result:
+            "Lançamento realizado com sucesso dentro do prazo, todos os bugs críticos resolvidos, sistema estável em produção, credibilidade preservada perante stakeholders, e estabelecimento de práticas de observabilidade que preveniram problemas futuros.",
+          metrics: [
+            { label: "Bugs Críticos Resolvidos", value: "Todos em <24h", icon: "performance" },
+            { label: "Tempo para Diagnóstico", value: "<4 horas", icon: "time" },
+            { label: "Lançamento", value: "No Prazo", icon: "time" },
+            { label: "Estabilidade Pós-Lançamento", value: "100%", icon: "performance" },
+          ],
+        },
+        {
+          title: "Revolução de Qualidade: 8x Mais Testes Automatizados",
+          challenge:
+            "Equipe dependia excessivamente de testes manuais, com baixa cobertura automatizada, bugs frequentes em produção, dificuldade de refatoração, e medo de deploy. QA sobrecarregado com validações repetitivas, devs sem confiança nas mudanças, e ciclos de teste longos atrasavam entregas.",
+          solution:
+            "Implementei programa abrangente de testes automatizados: (1) Testes unitários em backend (.NET e Java) com 80%+ de cobertura usando xUnit e JUnit; (2) Testes de integração com bancos embutidos e mocks de serviços externos; (3) Testes E2E com Cypress para fluxos críticos frontend (Angular); (4) Testes mobile com Flutter Test; (5) Pipeline CI/CD executando todos os testes automaticamente a cada commit; (6) Relatórios de cobertura visíveis para todo o time; (7) Cultura de TDD incentivada em dailies e code reviews.",
+          result:
+            "Qualidade de código aumentada em 8x, redução drástica de bugs em produção, confiança para refatorar e evoluir sistema, QA liberado para testes exploratórios e asseguramento estratégico, e ciclos de release acelerados com validação automática.",
+          metrics: [
+            { label: "Aumento de Qualidade", value: "8x", icon: "performance" },
+            { label: "Cobertura de Testes", value: "80%+", icon: "performance" },
+            { label: "Redução de Bugs em Produção", value: "Significativa", icon: "performance" },
+            { label: "Testes E2E Automatizados", value: "Fluxos Críticos", icon: "performance" },
+          ],
+        },
+        {
+          title: "Padronização Arquitetural: Arquitetura Hexagonal como Novo Padrão",
+          challenge:
+            "Microsserviços desenvolvidos sem padrão consistente, com acoplamento excessivo entre regras de negócio e frameworks, dificuldade de testabilidade, código duplicado, e conhecimento concentrado. Cada dev seguia abordagem própria, resultando em sistemas heterogêneos e difíceis de manter.",
+          solution:
+            "Introduzi e liderei adoção de Arquitetura Hexagonal (Ports & Adapters) como padrão corporativo: (1) Workshops de capacitação sobre benefícios e implementação; (2) Refatoração de serviços críticos para isolar domínio no centro; (3) Definição clara de ports (interfaces) e adapters (infra, API, messaging); (4) Aplicação rigorosa de SOLID e Clean Code; (5) TDD como prática obrigatória para garantir testabilidade; (6) DDD para modelagem ubíqua com negócio; (7) Code reviews focados em aderência arquitetural.",
+          result:
+            "Serviços altamente testáveis e sustentáveis, isolamento de regras de negócio permitindo troca de tecnologias sem impacto, aceleração de onboarding de novos devs com padrão claro, e estabelecimento de cultura de excelência técnica replicada em outros projetos.",
+          metrics: [
+            { label: "Serviços Padronizados", value: "100%", icon: "performance" },
+            { label: "Testabilidade", value: "Alta (80%+ cobertura)", icon: "performance" },
+            { label: "Devs Capacitados", value: "9", icon: "people" },
+            { label: "Redução de Acoplamento", value: "Significativa", icon: "performance" },
+          ],
+        },
+        {
+          title: "Mentoria e Desenvolvimento de Equipe: Elevando Nível Técnico",
+          challenge:
+            "Time com mistura de níveis (júnior, pleno, sênior), conhecimento desigual, práticas inconsistentes, e dependência excessiva de poucos indivíduos seniores. Juniors e plenos necessitavam de direcionamento para evoluir tecnicamente e contribuir com mais autonomia.",
+          solution:
+            "Implementei programa estruturado de mentoria: (1) Pair programming regular entre seniors e juniors/plenos; (2) Code reviews educativos com feedback construtivo; (3) Sessões de compartilhamento de conhecimento (tech talks internas); (4) Definição de expectativas claras por nível; (5) Acompanhamento individual de evolução técnica; (6) Delegação progressiva de responsabilidades; (7) Incentivo a certificações e estudos.",
+          result:
+            "Juniors e plenos evoluíram tecnicamente com ganho de autonomia, redução de dependência de seniors, disseminação de conhecimento pelo time, aumento de velocidade de entregas, e estabelecimento de cultura de aprendizado contínuo.",
+          metrics: [
+            { label: "Devs Mentorados", value: "6 (Júnior/Pleno)", icon: "people" },
+            { label: "Sessões de Mentoria", value: "Regulares", icon: "time" },
+            { label: "Promoções Conquistadas", value: "Múltiplas", icon: "performance" },
+            { label: "Autonomia da Equipe", value: "Alta", icon: "performance" },
+          ],
+        },
+      ],
+      technologies: [
+        ".NET Core", "Java Spring Boot", "Angular", "Flutter", "AWS", "EC2", "S3", "Lambda", "RDS",
+        "SQS", "SNS", "CloudWatch", "VPC", "IAM", "KMS", "Secrets Manager", "API Gateway",
+        "Arquitetura Hexagonal", "DDD", "TDD", "SOLID", "Clean Code", "Cypress", "Testes Unitários",
+        "Pipelines CI/CD", "Design System", "Microsserviços", "Mensageria", "Observabilidade",
+      ],
+      teamSize: 9,
+      scope: "Aplicações para gestão interna de ativos +R$ 100 bi, liderança técnica de time multidisciplinar, implementação de cultura de testes e padronização arquitetural, mentoria de devs júnior/pleno",
     },
     {
       company: "Pollux Technologies",
