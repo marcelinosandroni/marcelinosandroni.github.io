@@ -1,5 +1,12 @@
 export type Locale = "pt-BR" | "en-US";
 
+export type ResumeMediaAsset = {
+  type: "image" | "video" | "link" | "document";
+  url: string;
+  caption?: string;
+  thumbnailUrl?: string;
+};
+
 export type CaseStudy = {
   title: string;
   challenge: string;
@@ -23,11 +30,13 @@ export type ResumeExperience = {
   technologies?: string[];
   teamSize?: number;
   scope?: string;
+  mediaAssets?: ResumeMediaAsset[];
 };
 
 export type ResumeSkillGroup = {
   label: string;
   skills: string[];
+  yearsOfExperience?: number;
 };
 
 export type ResumeEducation = {

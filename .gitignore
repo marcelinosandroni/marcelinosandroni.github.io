@@ -1,47 +1,71 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+```
+# Next.js build outputs
+.next/
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# Node.js dependencies
+node_modules/
 
-# testing
-/coverage
+# Environment variables
+.env
+.env.local
+*.env.*
 
-# next.js
-/.next/
-/out/
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# production
-/build
+# Logs
+*.log
 
-# misc
+# Temporary files
+*.tmp
+
+# Build artifacts
+dist/
+build/
+coverage/
+htmlcov/
+*.out
+*.exe
+*.dll
+*.so
+*.a
+
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+
+# OS specific
 .DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# artifacts
-/public/artifacts/
-
-# pdf
-*.pdf
+Thumbs.db
+```
