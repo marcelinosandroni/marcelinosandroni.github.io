@@ -32,3 +32,23 @@ Todas as diretrizes de arquitetura, qualidade, produto e escopo do projeto estã
 - **Revisor de Conteúdo**: [.github/agents/resume-reviewer.agent.md](.github/agents/resume-reviewer.agent.md)
 - **Sincronização de Idiomas**: [.github/prompts/sync-resume.prompt.md](.github/prompts/sync-resume.prompt.md)
 
+
+## 5. Regras Críticas de Git e Versionamento
+
+### ⚠️ NUNCA MODIFIQUE O `.gitignore` DE FORMA DESTRUTIVA
+
+**Regra Absoluta:** O arquivo `.gitignore` deve ser tratado como imutável em sua estrutura existente. 
+
+- **NÃO** remova, substitua ou altere as entradas existentes do `.gitignore`
+- **NÃO** reescreva o arquivo inteiro ao fazer mudanças
+- **NÃO** permita que agentes (como qwen, copilot, etc.) modifiquem a estrutura do `.gitignore`
+- **APENAS** adicione novos itens específicos quando estritamente necessário, mantendo todo o conteúdo existente
+- Se um agente modificar o `.gitignore` removendo entradas existentes, reverta imediatamente com `git checkout HEAD -- .gitignore`
+
+**Justificativa:** Modificações indevidas no `.gitignore` podem causar commit acidental de arquivos sensíveis (build artifacts, node_modules, arquivos temporários), poluindo o repositório e causando problemas de build/deploy.
+
+**Procedimento Correto para Adicionar Entradas:**
+```bash
+# Append apenas a nova entrada necessária
+echo "nova-entrada/" >> .gitignore
+```
