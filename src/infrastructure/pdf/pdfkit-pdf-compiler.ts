@@ -20,7 +20,35 @@ export class PdfKitPDFCompiler implements PDFCompiler {
       doc.moveDown();
       doc.font("Helvetica").fontSize(11).text("Generated from: " + filename);
     } else {
+      let isInsideTabular = false;
+
       for (const section of sections) {
+        if (section.type === "tabularStart") {
+          isInsideTabular = true;
+          continue;
+        }
+
+        if (section.type === "tabularEnd") {
+          isInsideTabular = false;
+          doc.moveDown(0.3);
+          continue;
+        }
+
+        if (isInsideTabular && section.type === "tabularRow") {
+          const y = doc.y;
+          const parts = section.value.split(" & ");
+          const labelWidth = 120;
+
+          if (parts.length >= 2) {
+            doc.font("Helvetica-Bold").fontSize(10).text(parts[0], 52, y, { width: labelWidth, align: "left" });
+            doc.font("Helvetica").fontSize(10).text(parts[1], 52 + labelWidth, y, { width: doc.page.width - 52 - labelWidth - 52, align: "left" });
+          } else {
+            doc.font("Helvetica").fontSize(10).text(section.value, 52, y);
+          }
+          doc.moveDown(0.15);
+          continue;
+        }
+
         switch (section.type) {
           case "title":
             doc.font("Helvetica-Bold").fontSize(20).text(section.value, { align: "center" });
@@ -30,18 +58,29 @@ export class PdfKitPDFCompiler implements PDFCompiler {
             doc.font("Helvetica-Bold").fontSize(11).text(section.value);
             doc.moveDown(0.2);
             break;
+          case "contact":
+            doc.font("Helvetica").fontSize(9).text(section.value, { align: "center" });
+            doc.moveDown(0.15);
+            break;
           case "section":
-            doc.font("Helvetica-Bold").fontSize(13).text(section.value.toUpperCase());
-            doc.moveDown(0.2);
+            doc.font("Helvetica-Bold").fontSize(13).fillColor("#17211D").text(section.value.toUpperCase());
+            doc.moveDown(0.15);
+            // Draw accent line
+            const lineWidth = doc.page.width - 104;
+            doc.rect(52, doc.y - 2, lineWidth, 2).fill("#819023");
+            doc.moveDown(0.25);
             break;
           case "paragraph":
-            doc.font("Helvetica").fontSize(10).text(section.value, { lineGap: 2, paragraphGap: 4 });
+            doc.font("Helvetica").fontSize(10).fillColor("#17211D").text(section.value, { lineGap: 2, paragraphGap: 4 });
             break;
           case "listItem":
-            doc.font("Helvetica").fontSize(10).text(`• ${section.value}`, { indent: 18, paragraphGap: 3, lineGap: 1.5 });
+            doc.font("Helvetica").fontSize(10).fillColor("#17211D").text(`• ${section.value}`, { indent: 18, paragraphGap: 3, lineGap: 1.5 });
             break;
           case "emphasis":
-            doc.font("Helvetica-Oblique").fontSize(10).text(section.value, { paragraphGap: 3 });
+            doc.font("Helvetica-Oblique").fontSize(10).fillColor("#17211D").text(section.value, { paragraphGap: 3 });
+            break;
+          case "bold":
+            doc.font("Helvetica-Bold").fontSize(10).fillColor("#17211D").text(section.value, { paragraphGap: 2 });
             break;
         }
       }
@@ -56,82 +95,168 @@ export class PdfKitPDFCompiler implements PDFCompiler {
     return Buffer.concat(chunks);
   }
 
-  private parseDocumentSections(texSource: string): Array<{ type: "title" | "section" | "subtitle" | "paragraph" | "listItem" | "emphasis"; value: string }> {
-    const entries: Array<{ type: "title" | "section" | "subtitle" | "paragraph" | "listItem" | "emphasis"; value: string }> = [];
-    const lines = texSource.split(/\r?\n/);
+  private parseDocumentSections(texSource: string): Array<{ type: "title" | "section" | "subtitle" | "paragraph" | "listItem" | "emphasis" | "bold" | "contact" | "tabularStart" | "tabularEnd" | "tabularRow"; value: string }> {
+    const entries: Array<{ type: "title" | "section" | "subtitle" | "paragraph" | "listItem" | "emphasis" | "bold" | "contact" | "tabularStart" | "tabularEnd" | "tabularRow"; value: string }> = [];
+    
+    // Remove document preamble and extract body content
+    const bodyMatch = texSource.match(/\\begin\{document\}([\s\S]*?)\\end\{document\}/);
+    if (!bodyMatch) {
+      return entries;
+    }
+
+    const body = bodyMatch[1];
+    const lines = body.split(/\r?\n/);
 
     let inList = false;
+    let inTabular = false;
+    let currentParagraph = "";
+
+    const flushParagraph = () => {
+      if (currentParagraph.trim()) {
+        entries.push({ type: "paragraph", value: this.normalizeLatexText(currentParagraph) });
+        currentParagraph = "";
+      }
+    };
 
     for (const rawLine of lines) {
       const line = rawLine.trim();
-      if (!line) continue;
-
-      if (["\\begin{document}", "\\end{document}", "\\maketitle", "\\usepackage", "\\documentclass"].some((token) => line.startsWith(token))) {
+      if (!line) {
+        flushParagraph();
         continue;
       }
 
-      const titleMatch = line.match(/^\\title\{(.+)\}$/);
-      if (titleMatch) {
-        entries.push({ type: "title", value: this.normalizeLatexText(titleMatch[1]) });
+      // Skip LaTeX setup commands
+      if (["\\color{ink}", "\\vspace{4pt}", "\\vfill"].includes(line)) {
         continue;
       }
 
-      const sectionMatch = line.match(/^\\section\*?\{(.+)\}$/) || line.match(/^\\section\s*\{(.+)\}$/);
+      // Center environment - extract contact info
+      if (line === "\\begin{center}") {
+        continue;
+      }
+
+      if (line === "\\end{center}") {
+        flushParagraph();
+        continue;
+      }
+
+      // Handle fontsize commands - extract the text content
+      const fontsizeMatch = line.match(/\\fontsize\{\d+\}\{\d+\}\\selectfont(?:\\bfseries)?\s*(.+?)(?:\\\\|$)/);
+      if (fontsizeMatch) {
+        const text = fontsizeMatch[1].trim();
+        if (text) {
+          // Check if it's a title (larger font) or subtitle
+          if (line.includes("\\fontsize{24}") || line.includes("\\fontsize{22}")) {
+            entries.push({ type: "title", value: this.normalizeLatexText(text) });
+          } else {
+            entries.push({ type: "subtitle", value: this.normalizeLatexText(text) });
+          }
+        }
+        continue;
+      }
+
+      // Handle line breaks in center block (contact info)
+      const centerTextMatch = line.match(/^\\small\s+(.+)$/);
+      if (centerTextMatch) {
+        entries.push({ type: "contact", value: this.normalizeLatexText(centerTextMatch[1]) });
+        continue;
+      }
+
+      // Section headers
+      const sectionMatch = line.match(/^\\section\{(.+)\}$/);
       if (sectionMatch) {
+        flushParagraph();
         entries.push({ type: "section", value: this.normalizeLatexText(sectionMatch[1]) });
         inList = false;
+        inTabular = false;
         continue;
       }
 
-      const subsectionMatch = line.match(/^\\subsection\{(.+)\}$/);
-      if (subsectionMatch) {
-        entries.push({ type: "subtitle", value: this.normalizeLatexText(subsectionMatch[1]) });
-        inList = false;
+      // Tabular environment
+      if (line.includes("\\begin{tabularx}")) {
+        inTabular = true;
+        entries.push({ type: "tabularStart", value: "" });
         continue;
       }
 
+      if (line.includes("\\end{tabularx}")) {
+        inTabular = false;
+        entries.push({ type: "tabularEnd", value: "" });
+        continue;
+      }
+
+      // Tabular rows (label & content \\\\)
+      if (inTabular) {
+        const rowMatch = line.match(/^(.+?)\s*&\s*(.+?)\s*\\\\$/);
+        if (rowMatch) {
+          entries.push({ type: "tabularRow", value: `${this.normalizeLatexText(rowMatch[1])} & ${this.normalizeLatexText(rowMatch[2])}` });
+        }
+        continue;
+      }
+
+      // Itemize environment
       if (line === "\\begin{itemize}") {
         inList = true;
+        flushParagraph();
         continue;
       }
 
       if (line === "\\end{itemize}") {
         inList = false;
+        flushParagraph();
         continue;
       }
 
-      const itemMatch = line.match(/^\\item\s*(.+)$/);
+      // List items
+      const itemMatch = line.match(/^\\item\s+(.+)$/);
       if (itemMatch) {
+        flushParagraph();
         entries.push({ type: "listItem", value: this.normalizeLatexText(itemMatch[1]) });
         continue;
       }
 
-      const emphasisMatch = line.match(/^\\textit\{(.+)\}$/);
-      if (emphasisMatch) {
-        entries.push({ type: "emphasis", value: this.normalizeLatexText(emphasisMatch[1]) });
+      // Bold text with period at end (experience headers)
+      const boldPeriodMatch = line.match(/^\\textbf\{([^}]+)\}\\quad(.+)$/);
+      if (boldPeriodMatch) {
+        flushParagraph();
+        const boldText = this.normalizeLatexText(boldPeriodMatch[1]);
+        const restText = this.normalizeLatexText(boldPeriodMatch[2]);
+        entries.push({ type: "bold", value: boldText + " " + restText });
         continue;
       }
 
-      const textMatch = line.match(/^\\textbf\{(.+)\}$/);
-      if (textMatch) {
-        entries.push({ type: "paragraph", value: this.normalizeLatexText(textMatch[1]) });
+      // Standalone bold text
+      const boldMatch = line.match(/^\\textbf\{(.+)\}$/);
+      if (boldMatch) {
+        flushParagraph();
+        entries.push({ type: "bold", value: this.normalizeLatexText(boldMatch[1]) });
         continue;
       }
 
-      if (inList) {
-        entries.push({ type: "listItem", value: this.normalizeLatexText(line.replace(/^\\item\s*/, "")) });
+      // Italic text (education periods)
+      const italicMatch = line.match(/^\\textit\{(.+)\}$/);
+      if (italicMatch) {
+        flushParagraph();
+        entries.push({ type: "emphasis", value: this.normalizeLatexText(italicMatch[1]) });
         continue;
       }
 
+      // Renew command (skip)
+      if (line.startsWith("\\renewcommand")) {
+        continue;
+      }
+
+      // Plain text - accumulate for paragraph
       const plainText = this.normalizeLatexText(line)
         .replace(/^\\/, "")
         .trim();
 
-      if (!plainText) continue;
-
-      entries.push({ type: "paragraph", value: plainText });
+      if (plainText) {
+        currentParagraph += plainText + " ";
+      }
     }
 
+    flushParagraph();
     return entries;
   }
 
@@ -145,7 +270,7 @@ export class PdfKitPDFCompiler implements PDFCompiler {
       .replace(/\\section\*?\{([^}]+)\}/g, "$1")
       .replace(/\\subsection\{([^}]+)\}/g, "$1")
       .replace(/\\item\s*/g, "")
-      .replace(/\\\\/g, "\n")
+      .replace(/\\\\/g, "")
       .replace(/\\&/g, "&")
       .replace(/\\%/g, "%")
       .replace(/\\\$/g, "$")
@@ -154,10 +279,13 @@ export class PdfKitPDFCompiler implements PDFCompiler {
       .replace(/\{\}/g, "")
       .replace(/\{([^}]+)\}/g, "$1")
       .replace(/\\~/g, "~")
-      .replace(/\\^/g, "^")
+      .replace(/\^/g, "^")
       .replace(/\\\(/g, "(")
       .replace(/\\\)/g, ")")
-      .replace(/\s+\n/g, "\n")
+      .replace(/\\href\{[^}]+\}\{([^}]+)\}/g, "$1")
+      .replace(/\\textbar\{\}/g, "|")
+      .replace(/\\,/g, "")
+      .replace(/\s+/g, " ")
       .trim();
   }
 }
