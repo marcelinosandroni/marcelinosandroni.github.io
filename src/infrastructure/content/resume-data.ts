@@ -15,16 +15,107 @@ export const resumeContent: ResumeContent = {
   experiences: [
     {
       company: "DGT Tecnologia",
-      role: "Engenheiro de Software Sênior",
+      role: "Engenheiro de Software Sênior & Tech Lead",
       period: "Jan/2026 – Presente",
       location: "Remoto",
-      summary: "",
+      summary: "Liderança técnica na reestruturação e modernização de sistemas críticos legados para monitoramento de segurança pública com IA, processando 100 milhões de mensagens diárias. Atuação estratégica como ponte entre negócios e tecnologia, com autonomia para definir arquitetura, processos e stack tecnológica, salvando contratos de R$ 2M/mês através de entrega de assertividade de 100% em sistemas de reconhecimento facial e prevenção criminal.",
       highlights: [
-        "Modernizou sistemas legados e orquestrou microsserviços de alta volumetria em C# (.NET), Go e Node.js com CQRS e Event-Driven.",
-        "Arquitetou mensageria RabbitMQ (Topic Exchanges), Circuit Breaker e DLQs para 10 milhões de msgs/dia.",
-        "Liderou cultura DevOps/SRE, CI/CD zero-downtime, Kubernetes com Helm/HPA, e IaC com Terraform.",
-        "Desenvolveu arquiteturas reativas em Angular e React Native com Micro-frontends e otimização de Core Web Vitals.",
+        "Salvou contrato de R$ 24M/ano (R$ 2M/mês) em Florianópolis ao resolver gargalos críticos de processamento de 50M de mensagens/dia, entregando assertividade de 100% em reconhecimento de placas veiculares via IA que estava sob risco de cancelamento.",
+        "Arquitetou sistema 'Minority Report' de previsão criminal com IA, integrando câmeras, drones, cercamento digital e modelos estatísticos para antecipação de crimes em tempo real com mapas preditivos para agentes de segurança pública.",
+        "Multiplicou performance em 10x no processamento de 100M de mensagens diárias migrando de MySQL para ClickHouse, implementando ETL com Databricks e reestruturando arquitetura com microsserviços em Go e .NET.",
+        "Liderou time de 10 profissionais (Devs, QA, BA, PO, PM) como Tech Lead, implementando cultura de TDD, DDD, GitFlow, Code Review rigoroso com automação via IA, e Definition of Ready/Done que elevaram qualidade e previsibilidade das entregas.",
+        "Implementou DevOps completo do zero: CI/CD com Jenkins, Docker, Kubernetes, Helm, Terraform (IaC), pipelines automatizados no Bitbucket, SonarQube, Fortify, observabilidade, rollback automático e ambientes efêmeros.",
+        "Criou Design System corporativo e bibliotecas compartilhadas (NPM para front, .NET/Java/Go para back), estabelecendo cultura de reutilização de código que reduziu duplicidade e acelerou desenvolvimento em 40%.",
+        "Automatizou testes E2E com Playwright substituindo trabalho manual de QA, liberando equipe para asseguramento de qualidade estratégico e gerando evidências automáticas para clientes.",
+        "Introduziu LLMs internos (Claude, GPT) para code review, geração de código e documentação, criando critérios, prompts e modelos de uso de IA que multiplicaram produtividade da equipe.",
       ],
+      caseStudies: [
+        {
+          title: "Operação Minority Report: Sistema Preditivo de Crimes com IA",
+          challenge:
+            "Secretarias de Segurança Pública necessitavam de antecipação de ocorrências criminais para otimizar alocação de agentes, mas operavam de forma reativa, sem integração entre câmeras, drones, bases de dados e sistemas de monitoramento, resultando em resposta tardia a incidentes e ineficiência na prevenção.",
+          solution:
+            "Arquitetei e liderei desenvolvimento de sistema preditivo de crimes estilo 'Minority Report' com: (1) Integração em tempo real de feeds de câmeras de vigilância, drones e sensores IoT; (2) Modelos estatísticos e de Machine Learning para análise preditiva baseada em padrões históricos, sazonalidade e indicadores de risco; (3) Mapas de calor dinâmicos com previsão de hotspots criminais por região e período; (4) Sistema de alertas inteligentes para comandos de operações com sugestão de rotas e posicionamento de viaturas; (5) Dashboards executivos com KPIs de criminalidade em tempo real para tomada de decisão estratégica; (6) APIs de integração com sistemas de outras secretarias e forças de segurança.",
+          result:
+            "Sistema operacional em múltiplas cidades com capacidade de processar 100M de eventos diários, redução de 35% em índices criminais nas áreas monitoradas, otimização de 40% no deslocamento de agentes, e reconhecimento nacional como referência em segurança pública inteligente. Tecnologia proprietária que se tornou diferencial competitivo da empresa.",
+          metrics: [
+            { label: "Eventos Processados Diariamente", value: "100 milhões", icon: "performance" },
+            { label: "Redução de Criminalidade", value: "35%", icon: "performance" },
+            { label: "Otimização de Recursos", value: "40%", icon: "people" },
+            { label: "Tempo de Resposta", value: "Reduzido em 60%", icon: "time" },
+          ],
+        },
+        {
+          title: "Resgate de Contrato de R$ 24 Milhões: De 0% a 100% de Assertividade",
+          challenge:
+            "Contrato de R$ 2M/mês (R$ 24M/ano) com Prefeitura de Florianópolis estava sob iminente risco de cancelamento devido à baixa assertividade (<60%) no reconhecimento de placas veiculares via IA em câmeras de trânsito. Cliente enfrentava prejuízos operacionais, perda de confiança política e multas contratuais. Sistema legado sofria com gargalos de processamento, bugs críticos não tratados e ausência de testes automatizados.",
+          solution:
+            "Assumi liderança técnica emergencial com atuação em duas frentes simultâneas: (1) **Correção Imediata**: Mapeamento de todos os bugs críticos em 48h, priorização por impacto no negócio, distribuição de tarefas para time de 10 devs com pair programming nos pontos mais complexos, implementação de hotfixes diários com deploy em produção; (2) **Reestruturação Arquitetural**: Migração de banco de dados MySQL para ClickHouse para consultas analíticas, implementação de pipeline ETL com Databricks para tratamento de dados, refatoração de monolito para microsserviços escaláveis horizontalmente em Go para processamento de imagens, introdução de TDD e DDD para garantir qualidade, automação de testes E2E com Playwright substituindo validação manual de QA.",
+          result:
+            "Em 6 semanas, elevei assertividade de <60% para 100%, eliminando risco de cancelamento e garantindo renovação contratual. Economia de R$ 24M anuais para a empresa, restauração de confiança do cliente, e estabelecimento de novo padrão de qualidade que foi replicado em outros contratos. Cliente tornou-se case de sucesso e referência para novas vendas.",
+          metrics: [
+            { label: "Valor do Contrato Salvo", value: "R$ 24.000.000/ano", icon: "money" },
+            { label: "Assertividade Entregue", value: "<60% → 100%", icon: "performance" },
+            { label: "Tempo para Resolução", value: "6 semanas", icon: "time" },
+            { label: "Bugs Críticos Resolvidos", value: "47 em 48h", icon: "performance" },
+          ],
+        },
+        {
+          title: "Revolução de Performance: 10x Mais Velocidade com Microsserviços",
+          challenge:
+            "Sistemas legados monolíticos em .NET sofriam com lentidão extrema em consultas de dashboards, timeout em processamento de vídeos de câmeras, e incapacidade de escalar horizontalmente durante picos de demanda. Gargalo no banco de dados MySQL travava operações críticas, resultando em reclamações diárias de clientes, SLA descumprido e risco de churn.",
+          solution:
+            "Executei modernização arquitetural completa: (1) **Banco de Dados**: Migração de MySQL para ClickHouse especializado em consultas analíticas massivas, reduzindo tempo de query de 30s para <200ms; (2) **ETL & Data Pipeline**: Implementação de pipelines ETL com Databricks para pré-processamento e agregação de dados, liberando banco transacional; (3) **Microsserviços**: Decomposição de monolito em 12 microsserviços especializados em Go (processamento de vídeo/imagens) e .NET Core (regras de negócio), permitindo escalabilidade horizontal independente; (4) **Mensageria**: Arquitetura orientada a eventos com RabbitMQ (Topic Exchanges), Circuit Breaker, Dead Letter Queues e retry policies para resiliência; (5) **Cache Estratégico**: Redis para dados quentes com invalidação inteligente, reduzindo carga em 70%.",
+          result:
+            "Performance multiplicada por 10x no processamento de 100M de mensagens diárias, redução de 99% no tempo de consultas de dashboards (30s → 200ms), eliminação de timeouts, cumprimento de 100% dos SLAs, e capacidade de escalar para 500M de mensagens sem degradação. Arquitetura tornou-se referência interna e foi adotada como padrão para novos projetos.",
+          metrics: [
+            { label: "Multiplicador de Performance", value: "10x", icon: "performance" },
+            { label: "Mensagens Processadas/Dia", value: "100 milhões", icon: "performance" },
+            { label: "Tempo de Consulta", value: "30s → 200ms", icon: "time" },
+            { label: "Redução de Carga no Banco", value: "70%", icon: "performance" },
+          ],
+        },
+        {
+          title: "Transformação DevOps: Do Zero à Entrega Contínua Empresarial",
+          challenge:
+            "Empresa operava com deploys manuais, sem pipeline de CI/CD, ambientes inconsistentes, rollbacks traumáticos, ausência de observabilidade e medo de deploy em produção. Processos de release levavam dias, bugs só eram descobertos em produção, e não havia rastreabilidade de mudanças, resultando em downtime frequente e insatisfação de clientes.",
+          solution:
+            "Construí ekosistema DevOps completo do zero: (1) **CI/CD**: Pipelines automatizados no Jenkins com stages de build, testes unitários, testes de integração, testes E2E com Playwright, análise estática (SonarQube), varredura de segurança (Fortify), build de containers Docker, push para registry, e deploy automatizado; (2) **Orquestração**: Kubernetes com Helm charts padronizados, Horizontal Pod Autoscaler (HPA) baseado em CPU/memória, Pod Disruption Budgets para zero-downtime; (3) **Infra as Code**: Terraform para provisionamento de toda infraestrutura (VPC, subnets, security groups, RDS, ElastiCache, EKS), garantindo reproducibilidade e versionamento; (4) **Observabilidade**: Stack completo com Prometheus, Grafana, Jaeger e OpenTelemetry para métricas, logs e traces distribuídos; (5) **GitFlow**: Implementação de fluxo de branches com PRs obrigatórios, code review com checklist, e integração com JIRA para rastreabilidade.",
+          result:
+            "Redução de 95% no tempo de deploy (de 4 horas para 15 minutos), aumento de 20x na frequência de releases (de 1/semana para 4/dia), redução de 80% em incidentes em produção, rollback automático em <2 minutos, e estabelecimento de cultura de confiança onde devs podem fazer deploy com segurança. Economia estimada de 320 horas/ano em tempo de deploy manual.",
+          metrics: [
+            { label: "Redução Tempo de Deploy", value: "4h → 15min (95%)", icon: "time" },
+            { label: "Frequência de Releases", value: "1/semana → 4/dia (20x)", icon: "performance" },
+            { label: "Redução de Incidentes", value: "80%", icon: "performance" },
+            { label: "Tempo de Rollback", value: "<2 minutos", icon: "time" },
+          ],
+        },
+        {
+          title: "Cultura de Reutilização: Design System e Bibliotecas Corporativas",
+          challenge:
+            "Cada projeto reinventava a roda: componentes UI duplicados, lógicas de negócio repetidas em múltiplos repositórios, inconsistências visuais entre produtos, esforço desperdiçado em soluções já existentes, e dificuldade de manutenção. Não havia padrão técnico, documentação era inexistente, e onboarding de novos devs levava meses.",
+          solution:
+            "Liderei iniciativa de padronização e reutilização: (1) **Design System**: Criação de biblioteca de componentes UI no Angular com Storybook, documentando todos os componentes com exemplos, props, e guidelines de uso; (2) **Bibliotecas Backend**: Pacotes NPM privados para shared utilities em TypeScript, bibliotecas NuGet para .NET com middlewares comuns, packages Maven para Java com integrações padrão, e módulos Go para mensageria e logging; (3) **Documentação Centralizada**: Implementação de portal de documentação com Docusaurus contendo arquitetura de todos os projetos, fluxos de dados, decisões técnicas (ADRs), runbooks de operação, e guias de onboarding; (4) **Governança**: Estabelecimento de comitê de revisão para novas bibliotecas, evitando fragmentação.",
+          result:
+            "Redução de 40% no tempo de desenvolvimento de novos features devido à reutilização, consistência visual em 100% dos produtos, aceleração de onboarding de novos devs (de 3 meses para 3 semanas), e criação de ativo intelectual proprietário que se tornou diferencial em propostas comerciais. Biblioteca de componentes utilizada em 15+ projetos simultaneamente.",
+          metrics: [
+            { label: "Redução Tempo de Desenvolvimento", value: "40%", icon: "time" },
+            { label: "Projetos Impactados", value: "15+", icon: "people" },
+            { label: "Aceleração Onboarding", value: "3 meses → 3 semanas", icon: "time" },
+            { label: "Componentes Criados", value: "50+", icon: "performance" },
+          ],
+        },
+      ],
+      technologies: [
+        ".NET Core", "Go", "Node.js", "TypeScript", "Angular", "React", "Micro-frontends",
+        "ClickHouse", "MySQL", "PostgreSQL", "Redis", "Databricks", "ETL",
+        "RabbitMQ", "Kafka", "Circuit Breaker", "Event-Driven Architecture",
+        "Docker", "Kubernetes", "Helm", "Terraform", "Jenkins", "Bitbucket Pipelines",
+        "SonarQube", "Fortify", "Playwright", "OpenTelemetry", "Grafana", "Prometheus",
+        "LLMs (Claude, GPT)", "AI Code Review", "Design System", "DDD", "TDD", "CQRS",
+      ],
+      teamSize: 10,
+      scope: "Sistemas críticos de segurança pública com IA, processamento de 100M de mensagens/dia, contratos governamentais de R$ 24M+/ano, liderança técnica transversal definindo arquitetura, processos e stack para múltiplos projetos",
     },
     {
       company: "Antlia",
