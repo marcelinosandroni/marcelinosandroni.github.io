@@ -65,11 +65,89 @@ export const resumeContent: ResumeContent = {
       role: "Analista Contábil & Gestor",
       period: "Jan/2005 – Dez/2020",
       location: "São Paulo",
-      summary: "",
+      summary:
+        "Transformação digital e reestruturação operacional de empresas através de automação de processos contábeis, gestão financeira estratégica e liderança de equipes. Atuação como ponte entre negócios e tecnologia, implementando soluções que reduziram custos operacionais em 83% e liberaram capital de giro para investimentos estratégicos.",
       highlights: [
-        "Liderou equipes financeiras, executando consultoria estratégica focada em compliance e otimização de fluxo de caixa.",
-        "Conduziu a automação de rotinas operacionais, traduzindo lógica tributária em especificações técnicas.",
+        "Redução do tempo de fechamento contábil de 30 dias para 5 dias (83% mais rápido) através da automação de processos manuais.",
+        "Economia de R$ 200 mil/ano em custos operacionais e eliminação de retrabalho manual em múltiplas empresas.",
+        "Geração de R$ 2 milhões em novos investimentos através de consultoria estratégica de alocação de capital.",
+        "Redução de até R$ 1 milhão em tributos anuais com planejamento tributário avançado e reclassificação contábil estratégica.",
+        "Liberação de 20+ colaboradores para atividades de maior valor agregado através da automação de rotinas operacionais.",
+        "Implementação de trabalho remoto e dashboards em tempo real, aumentando produtividade e satisfação da equipe.",
+        "Multiplicação por 5x da performance operacional, permitindo realocação para questões complexas e expansão de carteira.",
+        "Integração de sistemas contábeis com clientes, automatizando troca de informações e reduzindo erros manuais em 95%.",
       ],
+      caseStudies: [
+        {
+          title: "Automação do Fechamento Contábil: De 30 para 5 Dias",
+          challenge:
+            "Empresas enfrentavam ciclo de fechamento contábil de 30 dias, exigindo esforço manual intensivo de 20+ colaboradores, gerando atrasos na tomada de decisão, multas por entrega fora do prazo e incapacidade de fornecer relatórios financeiros em tempo real para os gestores.",
+          solution:
+            "Desenvolvi e implementei sistema integrado de automação contábil com: (1) Integração direta via API entre sistemas dos clientes e plataforma contábil, eliminando digitação manual; (2) Criação de regras de negócio automatizadas para classificação contábil baseada em histórico e padrões; (3) Dashboards em tempo real com indicadores financeiros críticos; (4) Fluxos de aprovação automatizados com notificações inteligentes; (5) Planilhas financeiras dinâmicas com macros personalizadas para cenários específicos de cada cliente.",
+          result:
+            "Redução de 83% no tempo de fechamento (30 → 5 dias), liberação de 20 colaboradores para atividades estratégicas, economia anual de R$ 200 mil em custos operacionais, eliminação de 95% dos erros manuais e aumento da satisfação dos clientes com relatórios em tempo real.",
+          metrics: [
+            { label: "Redução do Tempo de Processo", value: "30 dias → 5 dias", icon: "time" },
+            { label: "Economia Anual em Custos", value: "R$ 200.000", icon: "money" },
+            { label: "Colaboradores Realocados", value: "20+ pessoas", icon: "people" },
+            { label: "Redução de Erros Manuais", value: "95%", icon: "performance" },
+            { label: "Multiplicador de Performance", value: "5x", icon: "performance" },
+          ],
+        },
+        {
+          title: "Planejamento Tributário Estratégico: Economia de R$ 1 Milhão",
+          challenge:
+            "Clientes pagavam tributos excessivos devido à classificação contábil inadequada, desconhecimento de regimes tributários ótimos e falta de planejamento fiscal estratégico, resultando em perda competitiva e redução de margens de lucro.",
+          solution:
+            "Implementei metodologia de revisão contábil profunda com: (1) Análise detalhada de todas as operações e reclassificação contábil estratégica; (2) Migração para regimes tributários mais vantajosos (Lucro Real vs. Presumido); (3) Aproveitamento de benefícios fiscais regionais e setoriais; (4) Estruturação de operações para otimização legal de carga tributária; (5) Monitoramento contínuo de mudanças legislativas com ajuste proativo de estratégias.",
+          result:
+            "Economia acumulada de até R$ 1 milhão em tributos por cliente/ano, aumento de margem líquida em 8-12%, melhoria significativa na competitividade de mercado e recursos liberados para reinvestimento em crescimento e inovação.",
+          metrics: [
+            { label: "Economia Tributária Anual", value: "Até R$ 1.000.000", icon: "money" },
+            { label: "Aumento de Margem Líquida", value: "8-12%", icon: "money" },
+            { label: "Clientes Beneficiados", value: "Múltiplos", icon: "people" },
+          ],
+        },
+        {
+          title: "Consultoria de Investimentos: R$ 2 Milhões em Aplicações Estratégicas",
+          challenge:
+            "Empresas mantinham capital ocioso em contas correntes sem render juros, desconheciam opções de investimento adequadas ao perfil de risco e não possuíam política de gestão de caixa, resultando em perda de oportunidade de crescimento e fragilidade financeira.",
+          solution:
+            "Estruturei processo de gestão financeira estratégica com: (1) Diagnóstico completo do fluxo de caixa e capital disponível; (2) Definição de política de investimentos alinhada ao perfil de risco e necessidades de liquidez; (3) Diversificação em aplicações financeiras otimizadas (CDB, LCI/LCA, fundos, tesouro direto); (4) Projeções financeiras de longo prazo com cenários otimistas, pessimistas e realistas; (5) Reuniões mensais de acompanhamento e rebalanceamento de carteira.",
+          result:
+            "Alocação estratégica de R$ 2 milhões em investimentos de alta rentabilidade, geração de receita financeira adicional de 12-15% ao ano, fortalecimento do capital de giro e criação de reserva para expansões e aquisições estratégicas.",
+          metrics: [
+            { label: "Capital Investido Estratégicamente", value: "R$ 2.000.000", icon: "money" },
+            { label: "Rentabilidade Anual Obtida", value: "12-15% a.a.", icon: "money" },
+            { label: "Empresas com Gestão Profissional", value: "Múltiplas", icon: "people" },
+          ],
+        },
+        {
+          title: "Transformação Digital e Trabalho Remoto",
+          challenge:
+            "Equipes presas a processos manuais, planilhas desconexas e comunicação fragmentada, com baixa produtividade, resistência à mudança tecnológica e impossibilidade de trabalho remoto mesmo para funções administrativas.",
+          solution:
+            "Liderei transformação digital completa com: (1) Implementação de sistemas cloud-based integrados; (2) Criação de dashboards unificados com KPIs em tempo real; (3) Automação de fluxos de aprovação e notificações; (4) Treinamentos intensivos em ferramentas digitais e novas metodologias; (5) Estabelecimento de cultura data-driven com reuniões baseadas em métricas; (6) Implementação gradual de trabalho remoto com ferramentas de colaboração.",
+          result:
+            "Modernização completa das operações, implementação bem-sucedida de trabalho remoto para funções administrativas, aumento de 40% na produtividade das equipes, melhoria no clima organizacional e atração de talentos pela flexibilidade oferecida.",
+          metrics: [
+            { label: "Aumento de Produtividade", value: "40%", icon: "performance" },
+            { label: "Funções Convertidas para Remoto", value: "Múltiplas áreas", icon: "people" },
+            { label: "Sistemas Implementados", value: "Cloud-based Integrados", icon: "performance" },
+          ],
+        },
+      ],
+      technologies: [
+        "Sistemas Contábeis Integrados",
+        "APIs de Integração",
+        "Dashboards Financeiros",
+        "Planilhas Avançadas (Macros/VBA)",
+        "Ferramentas de Automação",
+        "Plataformas Cloud",
+        "Sistemas de Gestão ERP",
+      ],
+      teamSize: 20,
+      scope: "Múltiplas empresas de diferentes portes e setores, com atuação em consultoria contábil, tributária, financeira e de gestão de pessoas",
     },
   ],
   skillGroups: [
