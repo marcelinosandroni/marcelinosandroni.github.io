@@ -1,6 +1,12 @@
+# Next.js build outputs
+.next/
+
 # Documentation and specs
 docs/
 specs/
+
+# Dependencies
+node_modules/
 
 # Environment variables
 .env
@@ -16,6 +22,10 @@ specs/
 
 # Logs
 *.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
 
 # Coverage reports
 coverage/
@@ -46,13 +56,16 @@ ENV/
 # Testing
 .pytest_cache/
 .mypy_cache/
-.hypothesis/
 
-# OS generated files
-.DS_Store
-Thumbs.db
+# Build artifacts
+*.o
+*.obj
+*.out
+*.exe
+*.dll
+*.a
 
-# Compressed files
+# Compressed files (already covered above, but keeping for completeness)
 *.zip
 *.gz
 *.tar
@@ -75,3 +88,16 @@ Thumbs.db
 *.tar.bz2
 *.tar.xz
 *.tar.zst
+
+# Gradle
+.gradle/
+
+# Target directory for Rust/Cargo
+target/
+
+# Julia packages
+julia-*/
+
+# Zig build directory
+zig*/
+
