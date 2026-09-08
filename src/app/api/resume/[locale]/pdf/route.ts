@@ -15,6 +15,8 @@ import {
   isResumeTemplateId,
   type ResumeTemplateId,
 } from "@/infrastructure/pdf/resume-template-registry";
+import { createErrorResponse } from "@/infrastructure/http/error-handler";
+import { InvalidLocaleError, InvalidTemplateError, PdfGenerationError } from "@/domain/errors";
 
 function createPreferredFilename(locale: "pt-BR" | "en-US", version: string, templateId: ResumeTemplateId): string {
   return `Marcelino Sandroni Resume v${version} ${locale} ${templateId}.pdf`;
@@ -28,10 +30,7 @@ export async function GET(
     const { locale } = await params;
 
     if (locale !== "pt-BR" && locale !== "en-US") {
-      return NextResponse.json(
-        { error: "Invalid locale" },
-        { status: 400 }
-      );
+      throw new InvalidLocaleError(`Invalid locale: ${locale}`, { providedLocale: locale });
     }
 
     const normalizedLocale = locale as "pt-BR" | "en-US";
@@ -43,7 +42,7 @@ export async function GET(
         : null;
 
     if (!templateId) {
-      return NextResponse.json({ error: "Invalid template" }, { status: 400 });
+      throw new InvalidTemplateError(`Invalid template: ${requestedTemplate}`, { providedTemplate: requestedTemplate });
     }
 
     const version = ResumeVersion.create("0.1.28");
@@ -63,7 +62,10 @@ export async function GET(
       let artifact;
       try {
         artifact = await publisher.execute(version, normalizedLocale, resumeByLocale, templateId);
-      } catch {
+      } catch (error) {
+        // Log the primary compiler failure for debugging
+        console.warn('Primary PDF compiler failed, attempting fallback', error);
+        
         const fallbackCompiler = new PdfKitPDFCompiler();
         const fallbackPublisher = new PublishPDFResume(builder, renderer, fallbackCompiler);
         artifact = await fallbackPublisher.execute(version, normalizedLocale, resumeByLocale, templateId);
@@ -81,10 +83,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("PDF generation error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate PDF" },
-      { status: 500 }
-    );
+    // Use centralized error handler for consistent responses
+    return createErrorResponse(error);
   }
 }
