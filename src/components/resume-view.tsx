@@ -1,10 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { Locale } from "@/domain/resume/types";
 import { getResumeContent } from "@/infrastructure/content";
 import { DownloadPDFButton } from "@/components/download-pdf-button";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { SkillGrid } from "@/components/skill-badge";
+import {
+  parseWorkExperiences,
+  calculateSkillExperience,
+} from "@/domain/resume/skill-experience";
 
 interface ResumeViewProps {
   initialLocale?: Locale;
@@ -48,6 +53,12 @@ export function ResumeView({ initialLocale = "pt-BR" }: ResumeViewProps) {
 
   const resume = getResumeContent(locale);
   const isEn = locale === "en-US";
+
+  // EV4 - Calculate skill experiences automatically from work history
+  const skillExperiences = useMemo(() => {
+    const parsed = parseWorkExperiences(resume.experiences);
+    return calculateSkillExperience(parsed);
+  }, [resume.experiences]);
 
   return (
     <main>
@@ -161,14 +172,17 @@ export function ResumeView({ initialLocale = "pt-BR" }: ResumeViewProps) {
                 : "O repertório técnico é amplo. A escolha é sempre orientada pelo problema."}
             </p>
           </div>
+          
+          {/* EV4 - Skill Experience Badges with automatic calculation */}
           <div className="skill-grid">
-            {resume.skillGroups.map((group) => (
-              <article className="skill-group" key={group.label}>
-                <h3>{group.label}</h3>
+            {skillExperiences.map((skillExp) => (
+              <article className="skill-group" key={skillExp.skill}>
+                <h3>{skillExp.skill}</h3>
                 <div>
-                  {group.skills.map((skill) => (
-                    <span key={skill}>{skill}</span>
-                  ))}
+                  <SkillGrid 
+                    skills={[skillExp]} 
+                    showYears={true}
+                  />
                 </div>
               </article>
             ))}
