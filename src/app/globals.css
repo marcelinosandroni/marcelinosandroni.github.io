@@ -11,3 +11,25 @@
 .education-section { padding-bottom: 145px; } .education-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 70px; } .education-item { border-top: 1px solid var(--line); padding: 25px 0 30px; } .education-item > span { color: #819023; font: .65rem 'DM Mono', monospace; } .education-item h3 { margin: 13px 0 4px; font-size: 1.1rem; } .education-item strong { font-size: .78rem; } .education-item p { color: var(--muted); font-size: .78rem; line-height: 1.6; }
 .footer { background: #dfe1d5; padding: 90px 0 60px; } .footer-inner { display: flex; justify-content: space-between; align-items: end; } .footer h2 { margin: 20px 0 0; font-size: clamp(3rem, 7vw, 6rem); line-height: .86; letter-spacing: -.07em; } .footer-links { display: flex; flex-direction: column; gap: 14px; font: .76rem 'DM Mono', monospace; } .footer-links a { border-bottom: 1px solid #b7bcb0; padding-bottom: 10px; } .footer-links a span { color: #748723; } .footer-links small { color: #777d73; margin-top: 25px; }
 @media (max-width: 760px) { .shell { width: min(100% - 36px, 620px); } .topbar { height: 72px; } .topbar nav { display: none; } .hero { min-height: auto; display: block; padding: 70px 0 80px; } .hero h1 { font-size: clamp(3.5rem, 16vw, 6rem); } .hero-title { font-size: 1.3rem; } .hero-summary { font-size: .9rem; } .hero-note { margin-top: 70px; } .signal-inner { padding: 16px 0; display: block; line-height: 2; } .signal-inner span:not(:first-child) { display: none; } .section { padding: 80px 0; } .section-heading { display: block; margin-bottom: 45px; } .section-heading h2 { margin-top: 12px; } .section-heading p { max-width: 290px; } .experience { grid-template-columns: 30px 1fr; gap: 10px; } .experience-meta { display: block; line-height: 1.8; } .experience-meta span { display: block; } .experience h3 { font-size: 1.25rem; } .experience ul { display: block; } .experience li { margin-bottom: 7px; } .skill-grid, .education-grid { grid-template-columns: 1fr; } .skill-group:not(:nth-child(3n + 1)) { padding-left: 0; border-left: 0; } .skill-group { min-height: auto; } .footer { padding: 70px 0 45px; } .footer-inner { display: block; } .footer-links { margin-top: 65px; } .hero-actions { flex-wrap: wrap; } }
+
+/* EV4 - Skill Experience Badges */
+.skill-badge { position: relative; display: inline-flex; flex-direction: column; gap: 4px; padding: 10px 14px; background: #e8ebe4; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
+.skill-badge:hover { background: #dfe3da; border-color: #819023; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(129,144,35,0.15); }
+.skill-badge-highlight { background: linear-gradient(135deg, #d9f46c20 0%, #81902320 100%); border-color: #81902340; }
+.skill-badge-highlight:hover { background: linear-gradient(135deg, #d9f46c40 0%, #81902340 100%); }
+.skill-badge-compact { padding: 6px 10px; font-size: 0.75rem; }
+.skill-name { font-weight: 700; font-size: 0.82rem; color: var(--ink); }
+.skill-experience { font-size: 0.68rem; color: #819023; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.04em; }
+.skill-tooltip { position: absolute; z-index: 50; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); min-width: 280px; max-width: 340px; padding: 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 24px rgba(23,33,29,0.15); animation: tooltipFadeIn 0.2s ease; }
+@keyframes tooltipFadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-4px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+.tooltip-title { font-weight: 700; font-size: 0.75rem; color: var(--ink); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.tooltip-details { display: flex; flex-direction: column; gap: 10px; }
+.tooltip-item { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 0.72rem; }
+.tooltip-item strong { font-weight: 600; color: var(--ink); }
+.tooltip-item span { color: var(--muted); }
+.tooltip-period { grid-column: 1 / -1; font-family: 'DM Mono', monospace; font-size: 0.65rem; color: #819023; }
+.tooltip-duration { grid-column: 2; font-family: 'DM Mono', monospace; font-size: 0.65rem; color: #a8bd36; text-align: right; }
+.skill-grid-container { margin-top: 20px; }
+.skill-grid-title { font-size: 1.1rem; margin-bottom: 16px; color: var(--muted); }
+.skill-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.skill-grid-empty { color: var(--muted); font-size: 0.85rem; font-style: italic; }
