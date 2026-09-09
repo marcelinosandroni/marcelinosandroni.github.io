@@ -34,11 +34,12 @@ Como visitante, quero consultar uma versão publicada para conferir quando o con
 
 ## Evoluções
 
-- Painel autenticado de rascunhos e publicação.
+- **EV-01 Painel autenticado para blog**: Como autor, quero um painel administrativo estilo CMS para criar, editar e publicar artigos/blog posts.
+  - **Aceite:** autenticação segura; lista de artigos com status (rascunho/publicado); editor visual/Markdown; preview antes de publicar; histórico de publicações; categorias/tags.
+
 - Case studies e portfólio de projetos.
 - Analytics com privacidade.
-- Geração alternativa com Playwright para PDF web.
 - Implementação automática de novas habilidades com base em experiência e vagas
 - Interação nas experiência profissionais verificando os desafios e entregas com imagens, vídeos, projetos, código.
-- Adicionar anos de esperiência em cada habilidade, com data de início calculando anos automaticamente.
+- Adicionar anos de experiência em cada habilidade, com data de início calculando anos automaticamente.
 - Lint automático e regras para MD e outros
