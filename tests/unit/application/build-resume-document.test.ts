@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ResumeVersion } from "@/domain/publication/resume-version";
 import { BuildResumeDocument, type ResumeDocumentRenderer } from "@/application/publication/build-resume-document";
+import { labelsFor } from "../../fixtures/pdf-labels";
 
 const sampleContent = {
   locale: "pt-BR" as const,
@@ -32,11 +33,33 @@ describe("BuildResumeDocument", () => {
       version: ResumeVersion.create("0.1.5"),
       locale: "pt-BR",
       content: sampleContent,
+      labels: await labelsFor("pt-BR"),
     });
 
     expect(result.filename).toBe("marcelino-sandroni-dias-0.1.5-pt-BR.tex");
     expect(result.content).toContain("Marcelino Sandroni Dias");
     expect(result.content).toContain("0.1.5");
     expect(result.content).toContain("pt-BR");
+  });
+
+  it("forwards the resolved section labels to the renderer", async () => {
+    let received: unknown;
+
+    const renderer: ResumeDocumentRenderer = {
+      render: async (input) => {
+        received = input.labels;
+        return { filename: "out.tex", content: "" };
+      },
+    };
+
+    const labels = await labelsFor("pt-BR");
+    await new BuildResumeDocument(renderer).execute({
+      version: ResumeVersion.create("0.1.5"),
+      locale: "pt-BR",
+      content: sampleContent,
+      labels,
+    });
+
+    expect(received).toEqual(labels);
   });
 });
