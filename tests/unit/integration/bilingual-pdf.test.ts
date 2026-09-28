@@ -1,10 +1,11 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import { ResumeVersion } from "@/domain/publication/resume-version";
 import { BuildResumeDocument } from "@/application/publication/build-resume-document";
 import { PublishPDFResume } from "@/application/publication/publish-pdf-resume";
 import { LaTeXResumeRenderer } from "@/infrastructure/renderers/latex-resume-renderer";
 import { MockPDFCompiler } from "@/infrastructure/pdf/mock-pdf-compiler";
 import { getResumeContent } from "@/infrastructure/content";
+import { labelsFor } from "../../fixtures/pdf-labels";
 
 describe("Bilingual Resume PDF Generation", () => {
   it("generates PT-BR resume with correct locale-specific content", async () => {
@@ -22,6 +23,7 @@ describe("Bilingual Resume PDF Generation", () => {
       ResumeVersion.create("1.0.0"),
       "pt-BR",
       contentPtBr,
+      await labelsFor("pt-BR"),
     );
 
     expect(result.locale).toBe("pt-BR");
@@ -43,6 +45,7 @@ describe("Bilingual Resume PDF Generation", () => {
       ResumeVersion.create("1.0.0"),
       "en-US",
       contentEnUs,
+      await labelsFor("en-US"),
     );
 
     expect(result.locale).toBe("en-US");
@@ -69,12 +72,14 @@ describe("Bilingual Resume PDF Generation", () => {
       ResumeVersion.create("1.0.0"),
       "pt-BR",
       getResumeContent("pt-BR"),
+      await labelsFor("pt-BR"),
     );
 
     const resultEnUs = await publisher.execute(
       ResumeVersion.create("1.0.0"),
       "en-US",
       getResumeContent("en-US"),
+      await labelsFor("en-US"),
     );
 
     expect(resultPtBr.filename).toContain("-pt-BR-CLEAN.pdf");

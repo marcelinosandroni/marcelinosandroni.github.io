@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { ResumeVersion } from "@/domain/publication/resume-version";
 import { PublishPDFResume, type PDFCompiler } from "@/application/publication/publish-pdf-resume";
 import { BuildResumeDocument, type ResumeDocumentRenderer } from "@/application/publication/build-resume-document";
+import { labelsFor } from "../../fixtures/pdf-labels";
 
 const sampleContent = {
   locale: "pt-BR" as const,
@@ -37,10 +38,13 @@ describe("PublishPDFResume", () => {
     const builder = new BuildResumeDocument(mockRenderer);
     const publisher = new PublishPDFResume(builder, mockRenderer, mockCompiler);
 
+    const labels = await labelsFor("pt-BR");
+
     const result = await publisher.execute(
       ResumeVersion.create("0.1.5"),
       "pt-BR" as const,
       sampleContent,
+      labels,
     );
 
     expect(result.version.toString()).toBe("0.1.5");
@@ -49,5 +53,24 @@ describe("PublishPDFResume", () => {
     expect(result.pdfBuffer).toEqual(mockPdfBuffer);
     expect(result.generatedAt).toBeInstanceOf(Date);
     expect(mockCompiler.compile).toHaveBeenCalled();
+  });
+
+  it("forwards the template id and section labels to the document builder", async () => {
+    let received: { templateId?: string; labels: unknown } | undefined;
+
+    const renderer: ResumeDocumentRenderer = {
+      render: async (input) => {
+        received = { templateId: input.templateId, labels: input.labels };
+        return { filename: "resume.tex", content: "" };
+      },
+    };
+
+    const labels = await labelsFor("en-US", "REFERENCE");
+    await new PublishPDFResume(new BuildResumeDocument(renderer), renderer, {
+      compile: async () => Buffer.from(""),
+    }).execute(ResumeVersion.create("1.0.0"), "en-US", sampleContent, labels, "REFERENCE");
+
+    expect(received?.templateId).toBe("REFERENCE");
+    expect(received?.labels).toEqual(labels);
   });
 });
