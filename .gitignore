@@ -64,3 +64,6 @@ htmlcov/
 
 # Genered files
 *.pdf
+# Generated build artifacts and caches
+tsconfig.tsbuildinfo
+public/artifacts/cache/
