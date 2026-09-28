@@ -10,9 +10,11 @@ Como recrutador, quero compreender o perfil, a experiência, as habilidades e a 
 
 ### US-02 Alternar idioma
 
-Como visitante internacional, quero alternar entre PT-BR e EN-US para ler o currículo no meu idioma.
+Como visitante internacional, quero alternar entre EN-US e PT-BR para ler o currículo no meu idioma.
 
-**Aceite:** mesma estrutura e fatos equivalentes; URL compartilhável; metadata correta por idioma.
+**Aceite:** mesma estrutura e fatos equivalentes; URL compartilhável e canônica por idioma; metadata, `hreflang` e sitemap corretos por idioma; nenhum texto da interface fixado no código.
+
+> **Status**: entregue em 2026-09-28. Decisão e trade-offs em [ADR-005](../adr/ADR-005-internationalization-strategy.md). EN-US é o idioma padrão.
 
 ### US-03 Explorar trajetória
 
@@ -43,3 +45,6 @@ Como visitante, quero consultar uma versão publicada para conferir quando o con
 - Interação nas experiência profissionais verificando os desafios e entregas com imagens, vídeos, projetos, código.
 - Adicionar anos de experiência em cada habilidade, com data de início calculando anos automaticamente.
 - Lint automático e regras para MD e outros
+- Adicionar novo idioma (ex.: es-ES) a partir do contrato de locale existente: um arquivo de catálogo tipado, uma entrada em `SUPPORTED_LOCALES` e um `resume-data-*.ts`.
+- Regra de lint que proíba texto visível direto em componentes React, para barrar regressão de conteúdo fixado no código.
+- Datas relativas e números localizados por idioma (`Intl.RelativeTimeFormat`, `Intl.NumberFormat`) em datas de experiência e métricas.
