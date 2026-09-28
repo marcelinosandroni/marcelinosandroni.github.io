@@ -29,7 +29,12 @@ export function PortraitFrame({ portrait }: PortraitFrameProps) {
 
       <div className="relative w-full overflow-hidden rounded-2xl bg-surface-raised p-space-md shadow-2xl">
         <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-surface-base">
-          <span className="absolute left-3 top-3 z-10 font-label-mono text-[9px] text-primary-container/80">
+          {/*
+           * The mark sits on the photograph, so it carries the same scrim as the
+           * status badge. Without it, a busy background swallows a 9px label and
+           * the telemetry becomes decorative noise (DESIGN.md §10).
+           */}
+          <span className="absolute left-3 top-3 z-10 rounded bg-surface-base/80 px-1.5 py-0.5 font-label-mono text-[9px] text-primary-container/90 backdrop-blur-sm">
             {topLeft}
           </span>
 

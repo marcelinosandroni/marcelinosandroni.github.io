@@ -61,7 +61,7 @@ export const homeContentPtBR: HomeContent = {
       },
     ],
     portrait: {
-      src: null,
+      src: "/portrait.jpg",
       alt: "Retrato de Marcelino Sandroni Dias, Tech Lead e Arquiteto de Software",
       cornerMarks: ["// SEC_ID: NEO-001", "[SYS_OK]", "// CIPHER: HEX-256", "LATÊNCIA < 0.1ms"],
       badge: "ASSERTIVIDADE 100%",
