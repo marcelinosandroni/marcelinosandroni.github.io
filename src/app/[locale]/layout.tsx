@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { JetBrains_Mono, Manrope, Playfair_Display } from "next/font/google";
 
 import {
   LOCALE_SEGMENTS,
@@ -13,6 +14,32 @@ import {
 import { SITE_OWNER, SITE_URL } from "@/domain/site/site-info";
 import { getDictionary } from "@/i18n";
 import "../globals.css";
+
+/*
+ * Three families, one job each (DESIGN.md §4). Loaded through `next/font`, so
+ * the files are self-hosted at build time: no request to Google at runtime, no
+ * FOUT, and a size-adjusted fallback that keeps the metric bars stable enough
+ * that swapping the webfont causes no layout shift.
+ */
+const manrope = Manrope({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--msd-font-manrope",
+});
+
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--msd-font-jetbrains",
+});
+
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["500", "600"],
+  style: ["normal", "italic"],
+  variable: "--msd-font-playfair",
+});
 
 /**
  * Only the locales returned by `generateStaticParams` are routable. Anything
@@ -83,7 +110,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
     description: t.metadata.structuredDataDescription,
     url: `${SITE_URL}/${segment}`,
     inLanguage: locale,
-    sameAs: [SITE_OWNER.linkedin],
+    sameAs: [SITE_OWNER.linkedin, SITE_OWNER.github],
     knowsAbout: t.metadata.knowsAbout,
     address: {
       "@type": "PostalAddress",
@@ -94,7 +121,16 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   };
 
   return (
-    <html lang={locale}>
+    /*
+     * `data-scroll-behavior="smooth"` tells the router that smooth scrolling is
+     * intentional, so it disables it during route transitions and the new page
+     * does not animate in from the top while the reader is mid-click.
+     */
+    <html
+      lang={locale}
+      data-scroll-behavior="smooth"
+      className={`${manrope.variable} ${jetBrainsMono.variable} ${playfairDisplay.variable}`}
+    >
       <body>
         <script
           type="application/ld+json"

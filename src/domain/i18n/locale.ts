@@ -110,13 +110,26 @@ export function getAlternateLocale(locale: Locale): Locale {
     : DEFAULT_LOCALE;
 }
 
-export function getAlternateLanguageMap(): Record<string, string> {
+/**
+ * The `hreflang` set for a localized document.
+ *
+ * `suffix` appends a route below the locale segment, so nested routes declare
+ * their own alternates with the same shape the layout uses at the root. A page
+ * that redeclares `alternates` replaces the layout's object outright in Next.js,
+ * so every route must restate the full set rather than only `canonical`.
+ */
+export function getAlternateLanguageMap(suffix = ""): Record<string, string> {
   const languages: Record<string, string> = {};
   for (const candidate of SUPPORTED_LOCALES) {
-    languages[candidate] = `/${LOCALE_SEGMENTS[candidate]}`;
+    languages[candidate] = `/${LOCALE_SEGMENTS[candidate]}${suffix}`;
   }
-  languages["x-default"] = `/${LOCALE_SEGMENTS[DEFAULT_LOCALE]}`;
+  languages["x-default"] = `/${LOCALE_SEGMENTS[DEFAULT_LOCALE]}${suffix}`;
   return languages;
+}
+
+/** Open Graph `locale` values for every locale except the active one. */
+export function getAlternateOpenGraphLocales(locale: Locale): string[] {
+  return SUPPORTED_LOCALES.filter((candidate) => candidate !== locale).map(toOpenGraphLocale);
 }
 
 /** Open Graph uses underscore-separated, capitalized tags. */

@@ -1,5 +1,7 @@
 import { DomainError } from './domain-error';
 
+export { DomainError } from './domain-error';
+
 /**
  * Error thrown when a resource is not found
  */
