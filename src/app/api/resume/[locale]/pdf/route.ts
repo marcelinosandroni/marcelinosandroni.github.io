@@ -10,6 +10,8 @@ import { DockerPDFCompiler } from "@/infrastructure/pdf/docker-pdf-compiler";
 import { PdfKitPDFCompiler } from "@/infrastructure/pdf/pdfkit-pdf-compiler";
 import { ResumePdfCache } from "@/infrastructure/pdf/resume-pdf-cache";
 import { getResumeContent } from "@/infrastructure/content";
+import { getDictionary } from "@/i18n";
+import { getPdfSectionLabels } from "@/infrastructure/pdf/pdf-section-labels";
 import {
   DEFAULT_RESUME_TEMPLATE,
   isResumeTemplateId,
@@ -66,6 +68,8 @@ export async function GET(
     const builder = new BuildResumeDocument(renderer);
     const publisher = new PublishPDFResume(builder, renderer, compiler);
     const resumeByLocale = getResumeContent(normalizedLocale);
+    const t = await getDictionary(normalizedLocale);
+    const sectionLabels = getPdfSectionLabels(t, templateId);
     const cacheDir = getCacheDirectory();
     const cache = new ResumePdfCache(cacheDir);
     const preferredFilename = createPreferredFilename(normalizedLocale, version.toString(), templateId);
@@ -77,14 +81,14 @@ export async function GET(
     } else {
       let artifact;
       try {
-        artifact = await publisher.execute(version, normalizedLocale, resumeByLocale, templateId);
+        artifact = await publisher.execute(version, normalizedLocale, resumeByLocale, sectionLabels, templateId);
       } catch (error) {
         // Log the primary compiler failure for debugging
         console.warn('Primary PDF compiler failed, attempting fallback', error);
         
         const fallbackCompiler = new PdfKitPDFCompiler();
         const fallbackPublisher = new PublishPDFResume(builder, renderer, fallbackCompiler);
-        artifact = await fallbackPublisher.execute(version, normalizedLocale, resumeByLocale, templateId);
+        artifact = await fallbackPublisher.execute(version, normalizedLocale, resumeByLocale, sectionLabels, templateId);
       }
 
       const generatedPath = cache.write(version.toString(), normalizedLocale, resumeByLocale, templateId, artifact.pdfBuffer, preferredFilename);
