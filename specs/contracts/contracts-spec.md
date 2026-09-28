@@ -165,6 +165,53 @@ currículo em português, nunca uma versão resumida.
 **Validação**: `tests/unit/presentation/content-locale.test.ts` executa no CI a
 cada build. Uma versão EN-US abreviada ou com fatos divergentes falha o build.
 
+### Contrato de Rótulos do PDF
+
+O PDF gerado também é interface: os títulos das seções são texto visível e
+obedecem à mesma regra dos catálogos.
+
+| Elemento | Origem |
+|---|---|
+| Títulos de seção do template `CLEAN` | `pdf.sections` do catálogo |
+| Títulos de seção do template `REFERENCE` | `pdf.referenceSections` do catálogo |
+| Nomes e descrições de template | `pdf.templates.{CLEAN,REFERENCE}` do catálogo |
+| Rótulos de ação e erro | `pdf.download`, `pdf.generating`, `pdf.failed`, `pdf.unknownError`, `pdf.chooseTemplate` |
+
+**Contrato de entrada**
+
+```typescript
+type ResumeSectionLabels = {
+  summary: string;
+  skills: string;
+  experience: string;
+  education: string;
+  languages: string;
+};
+
+type ResumeDocumentInput = {
+  version: ResumeVersion;
+  locale: Locale;
+  content: ResumeContent;
+  templateId?: string;
+  labels: ResumeSectionLabels;  // obrigatório
+};
+```
+
+`labels` é **obrigatório**: o renderer é função pura da sua entrada e não pode
+conter texto próprio. O chamador resolve via
+`getPdfSectionLabels(dictionary, templateId)`.
+
+**Regras**
+1. O renderer não contém nenhum literal de título. Isso é verificado por teste
+   que lê o fonte do renderer.
+2. Os títulos são preservados **exatamente** como eram antes da extração, para
+   que o PDF do cliente não mude. "Core Skills & Arquitetura de Software" é
+   intencional: o modelo REFERENCE reproduz os títulos do PDF de referência.
+3. `src/i18n/dictionaries/loader.ts` não importa Next.js, permitindo que o
+   script `compile-pdf.ts` resolva os catálogos fora do runtime do Next.
+4. `caseStudies` **não** são renderizados por nenhum renderer. Todo o conteúdo de
+   case study, incluindo a marcação markdown `**`, está fora do PDF atual.
+
 ---
 
 ## Contrato de Conteúdo do Currículo

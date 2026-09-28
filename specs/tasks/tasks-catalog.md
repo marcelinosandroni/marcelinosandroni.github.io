@@ -443,6 +443,51 @@ registrado como follow-up.
 
 ---
 
+### TASK-019: Extrair rótulos do PDF para os catálogos de mensagem
+**US Relacionada**: US-02, US-04  
+**Prioridade**: Média  
+**Status**: 🟢 Concluída  
+**Estimativa**: 2h  
+**Realizado**: 2h  
+
+**Descrição**: `LaTeXResumeRenderer` continha 20 títulos de seção fixos
+("Executive Summary", "Experiência Profissional", "Resumo Executivo"…), que são
+texto visível no PDF do cliente e violavam o contrato de "nenhum texto visível
+escrito diretamente no código". Investigando um relato anterior de asteriscos
+literais no PDF, verificou-se que esse relato era falso (os marcadores `**` só
+existem em `caseStudies`, que nenhum renderer consome), mas a investigação
+revelou esta violação real.
+
+**O Que Foi Feito**:
+- ✅ `pdf.sections` e `pdf.referenceSections` adicionados aos catálogos, com os
+  textos **idênticos** aos anteriores, para não alterar o PDF do cliente
+- ✅ `labels` tornado **obrigatório** em `ResumeDocumentInput`: o renderer virou
+    função pura da entrada
+- ✅ `getPdfSectionLabels(dictionary, templateId)` centraliza a escolha por modelo
+- ✅ `PublishPDFResume.execute` recebe e encaminha os rótulos
+- ✅ `src/i18n/dictionaries/loader.ts` isolado sem dependência de Next.js, para
+  que `scripts/compile-pdf.ts` resolva catálogos fora do runtime do Next
+- ✅ Chamadas atualizadas: rota de API e script de compilação
+- ✅ Testes usam `labelsFor()` via catálogo real, em vez de cópias das strings
+
+**Validação**:
+- ✅ Os 20 títulos conferidos um a um contra os literais anteriores: 0 divergências
+- ✅ `.tex` gerado com 14.635 bytes, idêntico ao anterior (nenhuma mudança visual)
+- ✅ Teste que lê o fonte do renderer e falha se qualquer título reaparecer nele
+- ✅ `npm run compile:pdf` gera os dois PDFs com sucesso
+
+**Nota**: `caseStudies` continuam não sendo renderizados. Registrado como
+follow-up no backlog.
+
+**Arquivos Esperados**:
+- `src/i18n/dictionaries/en-US.ts`, `pt-BR.ts`, `loader.ts` ✅
+- `src/infrastructure/pdf/pdf-section-labels.ts` ✅
+- `src/infrastructure/renderers/latex-resume-renderer.ts` ✅
+- `src/application/publication/build-resume-document.ts`, `publish-pdf-resume.ts` ✅
+- `src/app/api/resume/[locale]/pdf/route.ts`, `scripts/compile-pdf.ts` ✅
+
+---
+
 ### TASK-013: Adicionar testes de integração
 **US Relacionada**: US-02  
 **Prioridade**: Alta  
@@ -852,6 +897,7 @@ Template funcional. Validar visualmente PDF gerado e ajustar detalhes finos se n
 
 | Data | Tarefa | Mudança | Autor |
 |------|--------|---------|-------|
+| 2026-09-28 | TASK-019 | Títulos de seção do PDF movidos dos literais do renderer para os catálogos | opencode |
 | 2026-09-28 | TASK-012, TASK-018 | Versão EN-US reescrita como tradução completa do PT-BR (fonte da verdade), com paridade de estrutura e fatos verificada em CI | opencode |
 | 2026-09-28 | TASK-010, TASK-014..017 | Roteamento i18n, catálogos tipados, SEO por idioma e Server Components. EN-US passou a ser o locale padrão. Ver [ADR-005](../../docs/adr/ADR-005-internationalization-strategy.md) | opencode |
 | 2025-01-15 | Todas | Criação inicial do catálogo | System |
