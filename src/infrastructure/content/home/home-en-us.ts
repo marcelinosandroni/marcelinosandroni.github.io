@@ -1,4 +1,4 @@
-﻿import type { HomeContent } from "@/domain/portfolio";
+import type { HomeContent } from "@/domain/portfolio";
 
 /**
  * Home page content — en-US.
@@ -59,7 +59,7 @@ export const homeContentEnUS: HomeContent = {
       },
     ],
     portrait: {
-      src: null,
+      src: "/portrait.jpg",
       alt: "Portrait of Marcelino Sandroni Dias, Tech Lead and Software Architect",
       cornerMarks: ["// SEC_ID: NEO-001", "[SYS_OK]", "// CIPHER: HEX-256", "LATENCY < 0.1ms"],
       badge: "ZERO FALSE POSITIVE",

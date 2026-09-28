@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { getAlternateLanguageMap, SUPPORTED_LOCALES, type Locale } from "@/domain/i18n";
@@ -337,14 +340,46 @@ describe("home content: hreflang shape", () => {
 });
 
 describe("home content: portrait", () => {
-  it("falls back to the designed monogram when no photograph is configured", () => {
-    // A null `src` must be a supported state, not an oversight: the frame renders
-    // an intentional monogram panel rather than a broken image.
+  /**
+   * `src` must be a root-relative path into `public/`, never a remote URL.
+   * A remote host would require a `remotePatterns` entry in `next.config.ts`, and
+   * forgetting that produces a runtime 400 from the image optimizer — a failure
+   * that only shows up in the browser.
+   */
+  it("only ever points at a local file in public/, or at nothing", () => {
     for (const locale of LOCALES) {
       const portrait = getHomeContent(locale).hero.portrait;
-      expect(portrait.src === null || portrait.src.startsWith("/")).toBe(true);
-      expect(portrait.alt.trim()).not.toBe("");
+
+      if (portrait.src !== null) {
+        expect(portrait.src, locale).toMatch(/^\/[A-Za-z0-9._/-]+\.[A-Za-z0-9]+$/);
+        expect(portrait.src, locale).not.toMatch(/^https?:\/\//);
+      }
+      expect(portrait.alt.trim(), locale).not.toBe("");
     }
+  });
+
+  /**
+   * A path typo is invisible in review and renders a broken image on the hero.
+   * The frame can fall back to a designed monogram, but only when `src` is
+   * genuinely absent — never when a file is configured and missing.
+   */
+  it("resolves a configured portrait to a real file in public/", () => {
+    for (const locale of LOCALES) {
+      const { src } = getHomeContent(locale).hero.portrait;
+
+      if (src === null) {
+        continue;
+      }
+
+      const onDisk = path.join(process.cwd(), "public", src.replace(/^\//, ""));
+      expect(existsSync(onDisk), `${locale} portrait ${src} is missing from public/`).toBe(true);
+    }
+  });
+
+  it("uses the same photograph for both locales", () => {
+    expect(getHomeContent("pt-BR").hero.portrait.src).toBe(
+      getHomeContent("en-US").hero.portrait.src,
+    );
   });
 });
 
