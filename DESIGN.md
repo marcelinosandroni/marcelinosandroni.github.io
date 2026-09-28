@@ -21,7 +21,7 @@ decision is a trade-off between them:
 | Audience | What they need in the first 5 seconds | What they do next |
 | --- | --- | --- |
 | **Technical evaluator** (staff/principal hiring manager) | Scale numbers, architecture decisions, correctness | Read the track record, open a case study, open an article |
-| **Tech recruiter / talent partner** | Role, tenure, stack, availability, contact | Scan the KPI matrix, download the PDF, hit LinkedIn |
+| **Tech recruiter / talent partner** | Role, tenure, stack, availability, contact | Scan the KPI grid, download the PDF, hit LinkedIn |
 | **CEO / owner / investor** | Financial impact, risk reduction, leadership | Read the headline, the fiscal KPIs, the CTA |
 
 Consequences that are **not optional**:
@@ -51,11 +51,43 @@ engineering** and **senior executive fiscal stewardship**.
 - Financial impacts, operational metrics and architecture summaries are staged
   with museum-grade typographic discipline.
 
-**Voice rules.** Sentence case in headlines. Sentence case in mono labels,
-uppercased only via `text-transform: uppercase`. No exclamation marks. No
-"passionate", "enthusiast", "guru", "ninja", "rockstar". First-person plural is
-allowed only in case studies (`I architected…` → keep the *achievement*, drop
-the *heroics*).
+**Voice rules.** The register is **corporate executive**, not engineering
+showcase and not marketing. Sentence case in prose, uppercase mono for micro-labels.
+No exclamation marks. No "passionate", "enthusiast", "guru", "ninja", "rockstar",
+"cutting-edge", "seamless", "leverage" as a verb. First-person only for what was
+personally delivered.
+
+### 1.1 Copy rules (normative, machine-enforced)
+
+These are asserted in `tests/unit/presentation/home-content.test.ts`, because a
+copy rule that lives only in a review comment does not survive a content edit.
+
+**No fiction naming.** Systems are named for what they do. Codenames borrowed from
+films, pop culture or anime are banned, as are invented project names. The
+predictive public-safety platform is *"Sistema Preditivo de Segurança Pública"* /
+*"Predictive Public Safety System"* — not a movie title. Identifiers may be terse
+(`// ID: MSD-01`) but never grandiose.
+
+**Every figure is measurable and traceable.** A number on this site is R$,
+percentage, or volumetry. It must come from the resume, and the arsenal chips must
+be skills the resume claims in the same category. A bullet with no figure is a
+bullet that should have been cut.
+
+**Compression.** At most **three bullets per employer**, everywhere — home and
+resume. The depth lives in the case studies on `/resume`, not in a wall of bullets.
+
+**The arithmetic is stated, not implied.** Where the career spans two fields, the
+sum is written out with both periods: *15 years of corporate financial governance
+(2005–2020) plus 6 years of software engineering (2021–2026): 21 years of combined
+expertise.* A reader must never have to add two date ranges themselves.
+
+**Spelling is part of the voice.** en-US copy uses American spelling (a British
+spelling tells a US recruiter the text was translated, not written). pt-BR copy
+uses Brazilian Portuguese, never European forms.
+
+**Closed taxonomy.** The technical arsenal is exactly four categories —
+*Frontend & UI*, *Backend Core*, *DevOps & Cloud*, *Artificial Intelligence* — in
+both the home arsenal and the resume skill groups, so the two never disagree.
 
 ---
 
@@ -326,8 +358,10 @@ behaviours were **deliberately rejected** because they damage the primary goal
 | Full-screen boot overlay that blocks the page for 2.5s | Non-blocking `BootSequence` that auto-dismisses, is skipped on repeat visits, and is disabled entirely under `prefers-reduced-motion` | A 2.5s gate before any content is a measurable conversion loss and reads as a gimmick to a CTO. The first paint must contain the headline. |
 | Overlay that must be dismissed by a click or `Enter` | Dismissed on any pointer/key/scroll input, and on a short timer | Content must never be gated on interaction. |
 | Web Audio ambient drone | Removed entirely | Autoplay is blocked by browsers anyway; unsolicited audio is hostile, and it costs CPU on a page whose job is to be fast. |
-| Full-bleed "matrix rain" canvas behind the whole page | Canvas confined to the boot sequence only, `prefers-reduced-motion` aware, and cleaned up on unmount | A permanently animating full-viewport canvas costs battery and dominates the CPU profile on a performance-scored site. |
+| "Full-screen code-rain canvas behind the whole page | Canvas confined to the boot sequence only, `prefers-reduced-motion` aware, and cleaned up on unmount | A permanently animating full-viewport canvas costs battery and dominates the CPU profile on a performance-scored site. |
 | `100M msgs/day` and other metrics hardcoded in markup | Every metric, title and description lives in `src/infrastructure/content/home/*` | Content must be configurable and bilingual; the design is a template, the data is not in the markup. |
+| Codename and pop-culture naming (`NEO`, `AnimateMatrix`, `Minority Report`, "neural uplink") | Systems named for what they do; identifiers reduced to `// ID: MSD-01` | See §1.1. A codename borrowed from a film is a tell that the copy was dressed up rather than earned, and it invites the question of what else is invented. |
+| Boot sequence labelled `COGNITIVE SYS_INIT` / `NEURAL UPLINK READY` | `// SESSION INIT` / `READY. AWAITING INSTRUCTION...`, with the career arithmetic as the payload | The one thing a reader can usefully learn in the first second is the 15 + 6 = 21 progression, not a joke. |
 | Material Symbols icon font | Local inline SVG icon component | No third-party font request, no FOUT, no layout shift, tree-shakeable. |
 
 Anything else in the reference that can be reproduced faithfully **must** be
@@ -412,7 +446,7 @@ Never ship any of these:
 3. A Client Component that imports resume or home content.
 4. A card grid where every card is identical in structure and emphasis — vary
    the stat scale (`metric-stat` vs `headline-lg`) so the eye finds the number
-   that matters, as the reference KPI matrix does.
+   that matters, as the reference KPI grid does.
 5. `rounded-full` on anything that is not a live status.
 6. A shadow heavier than `shadow-lg` with a non-accent colour.
 7. A gradient with a visible edge, or a gradient behind body text.

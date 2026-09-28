@@ -1,7 +1,7 @@
 import { BlogPreviewSection } from "@/components/home/blog-preview";
 import { ContactGatewaySection } from "@/components/home/contact-gateway";
 import { HomeHeroSection } from "@/components/home/home-hero";
-import { KpiMatrixSection } from "@/components/home/kpi-matrix";
+import { KpiSection } from "@/components/home/kpi-grid";
 import { TechArsenalSection } from "@/components/home/tech-arsenal";
 import { TrackRecordSection } from "@/components/home/track-record";
 import { BootSequence } from "@/components/site/boot-sequence";
@@ -73,7 +73,7 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
 
       <main id="main" aria-label={t.a11y.mainContent}>
         <HomeHeroSection hero={home.hero} locale={locale} t={t} pdfTemplates={pdfTemplates} />
-        <KpiMatrixSection section={home.kpis} />
+        <KpiSection section={home.kpis} />
         <TechArsenalSection section={home.stack} />
         <TrackRecordSection
           section={home.trackRecord}
@@ -93,20 +93,26 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
 /**
  * Terminal lines for the boot sequence. Data, not markup, so the copy is
  * translatable and reviewable in the same place as every other string.
+ *
+ * Every line is a checkable fact drawn from the resume — no codenames, no
+ * theatrical jargon, and the arithmetic is stated outright because it is the
+ * single most useful thing a reader can learn in the first second.
  */
 const BOOT_DIAGNOSTICS = {
   "en-US": [
-    "> Initializing sovereign cognitive matrix...",
-    "> Synchronizing dual-core architecture (financial SOX + distributed AI)",
-    "> Vector DB: pgvector // TensorRT ingestion active",
-    "> Edge gateway: Kafka 50M msgs/day p99 < 10ms verified",
-    "> NEURAL UPLINK READY. STANDBY...",
+    "> Loading profile and portfolio...",
+    "> 15 yrs financial governance (2005-2020) + 6 yrs software engineering (2021-2026)",
+    "> Combined: 21 years of applied expertise",
+    "> Platform: Go / .NET / Java / Kafka / Kubernetes / AWS",
+    "> Protected revenue R$ 24M per year · 100M messages per day",
+    "> READY. AWAITING INSTRUCTION...",
   ],
   "pt-BR": [
-    "> Inicializando matriz cognitiva soberana...",
-    "> Sincronizando arquitetura de núcleo duplo (SOX financeiro + IA distribuída)",
-    "> Banco vetorial: pgvector // Ingestão TensorRT ativa",
-    "> Gateway de borda: Kafka 50M msgs/dia p99 < 10ms verificado",
-    "> UPLINK NEURAL PRONTO. EM ESPERA...",
+    "> Carregando perfil e portfólio...",
+    "> 15 anos de governança financeira (2005-2020) + 6 anos de engenharia (2021-2026)",
+    "> Combinado: 21 anos de expertise aplicada",
+    "> Plataforma: Go / .NET / Java / Kafka / Kubernetes / AWS",
+    "> Receita protegida de R$ 24M por ano · 100M de mensagens por dia",
+    "> PRONTO. AGUARDANDO INSTRUÇÃO...",
   ],
 } as const satisfies Record<Locale, string[]>;

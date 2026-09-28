@@ -123,9 +123,9 @@ export const articlesEnUS: BlogArticle[] = [
         ordered: true,
         items: [
           "Do not migrate the database. Migrate the responsibility: move the telemetry stream to a dedicated write path and let the relational store keep doing what it is good at.",
-          "Use Databricks ETL to normalise, de-duplicate and pre-aggregate before the load. The fastest insert into ClickHouse is the one that never happened.",
+          "Use Databricks ETL to normalize, de-duplicate and pre-aggregate before the load. The fastest insert into ClickHouse is the one that never happened.",
           "Choose the ORDER BY key from the most frequent query, not from the entity. For telemetry that is almost always (event_type, occurred_at, device_id).",
-          "Materialise views for the queries that run every five minutes, and leave the rest as ad-hoc queries.",
+          "materialize views for the queries that run every five minutes, and leave the rest as ad-hoc queries.",
         ],
       },
       {
@@ -177,7 +177,7 @@ export const articlesEnUS: BlogArticle[] = [
     status: "published",
     title: "The dual-core leader: why accounting rigor makes better software architects",
     excerpt:
-      "How financial discipline converts technical debt into calculated liabilities and shifts development velocity from cost centre to profit engine.",
+      "How financial discipline converts technical debt into calculated liabilities and shifts development velocity from cost center to profit engine.",
     readingTimeMinutes: 6,
     publishedAt: "2026-01-27",
     updatedAt: null,
@@ -199,13 +199,13 @@ export const articlesEnUS: BlogArticle[] = [
         items: [
           "A service with 40% test coverage is not 'less finished'. It is a high-interest liability with a certain payment schedule and an unknown present value.",
           "A production incident is not a bug. It is a direct cash cost, with a customer, an hour rate, and a whole environment affected.",
-          "A 30-second dashboard query is a cost centre running a full shift.",
+          "A 30-second dashboard query is a cost center running a full shift.",
         ],
       },
       { type: "heading", level: 2, text: "What this changes in the practice of leading" },
       {
         type: "paragraph",
-        text: "Three concrete behaviours, transferred from accounting into engineering with almost no friction: budget instead of estimate, measure before you optimise, and privatise the cost before you privatise the benefit. A tech lead who can state the annual cost of a technical decision in one sentence has a competitive advantage no framework will ever ship.",
+        text: "Three concrete behaviors, transferred from accounting into engineering with almost no friction: budget instead of estimate, measure before you optimize, and privatise the cost before you privatise the benefit. A tech lead who can state the annual cost of a technical decision in one sentence has a competitive advantage no framework will ever ship.",
       },
       {
         type: "quote",
@@ -215,7 +215,7 @@ export const articlesEnUS: BlogArticle[] = [
         type: "callout",
         tone: "primary",
         title: "If you are hiring",
-        text: "Ask the candidate what a month of downtime costs in their system. The answer reveals their reasoning rigour and their experience with the true cost of a technical decision at the same time.",
+        text: "Ask the candidate what a month of downtime costs in their system. The answer reveals their reasoning rigor and their experience with the true cost of a technical decision at the same time.",
       },
       {
         type: "paragraph",

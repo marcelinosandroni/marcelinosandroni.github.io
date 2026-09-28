@@ -112,7 +112,7 @@ test.describe("Resume document route", () => {
 
     await expect(page.locator("h1")).toContainText("Marcelino Sandroni Dias");
     await expect(page.locator("#experience article")).toHaveCount(5);
-    await expect(page.locator("#skills article")).toHaveCount(6);
+    await expect(page.locator("#skills article")).toHaveCount(4);
     await expect(page.locator("#education article")).toHaveCount(5);
   });
 
@@ -122,7 +122,7 @@ test.describe("Resume document route", () => {
     // 24 case studies across the five roles in the canonical content:
     // 5 + 5 + 5 + 5 + 4.
     await expect(page.locator("#experience article h5")).toHaveCount(24);
-    await expect(page.locator("body")).toContainText("Operação Minority Report");
+    await expect(page.locator("body")).toContainText("Sistema Preditivo de Segurança Pública");
   });
 
   test("labels each case study with problem, solution and outcome", async ({ page }) => {

@@ -24,7 +24,7 @@ export const resumeContentEnUs: ResumeContent = {
     linkedin: "linkedin.com/in/marcelinosandroni",
   },
   summary:
-    "Senior full-stack software engineer with the strategic differentiator of pairing cutting-edge engineering with 15 years of solid experience in business and accounting. Specialist in translating complex corporate financial rules into scalable web architectures and high-volume distributed systems. I work end to end (backend, frontend, mobile and DevOps) to build robust products that maximise financial profitability, scale alongside the company and solve real operational pain points without breaking the system. I work as a technical reference point, combining methodological rigour, mentorship and the use of artificial intelligence to accelerate delivery with clean, sustainable code.",
+    "15 years of corporate financial governance (2005–2020) plus 6 years of software engineering (2021–2026): 21 years of combined expertise. Senior Software Engineer and Tech Lead working end to end across backend, frontend, mobile and DevOps. I translate complex corporate financial rules into scalable web architectures and high-volume distributed systems — with measured results of R$ 24 million/year, 100 million messages/day and 10x throughput gains. I work as a technical reference point: architecture, multidisciplinary team leadership, mentoring and AI-assisted automation to ship faster with clean, sustainable code.",
   experiences: [
     {
       company: "DGT Tecnologia",
@@ -32,30 +32,25 @@ export const resumeContentEnUs: ResumeContent = {
       period: "Jan/2026 – Present",
       location: "Remote",
       summary:
-        "Technical leadership in the restructuring and modernisation of critical legacy systems for AI-powered public security monitoring, processing 100 million messages daily. Strategic role as the bridge between business and technology, with the autonomy to define architecture, processes and the technology stack, saving contracts worth R$ 2M/month by delivering 100% accuracy across facial recognition and crime prevention systems.",
+        "Technical leadership in the restructuring and modernization of critical legacy systems for AI-powered public security monitoring, processing 100 million messages daily. Strategic role as the bridge between business and technology, with the autonomy to define architecture, processes and the technology stack, saving contracts worth R$ 2M/month by delivering 100% accuracy across facial recognition and crime prevention systems.",
       highlights: [
-        "Saved a R$ 24M/year contract (R$ 2M/month) in Florianópolis by resolving critical processing bottlenecks handling 50M messages/day, delivering 100% accuracy on AI-based vehicle plate recognition that was at risk of being cancelled.",
-        "Architected an AI-powered 'Minority Report' crime prediction system, integrating cameras, drones, digital fencing and statistical models for real-time crime forecasting with predictive maps for public security agents.",
-        "Multiplied processing performance by 10x on 100M daily messages by migrating from MySQL to ClickHouse, implementing ETL with Databricks and restructuring the architecture into microservices in Go and .NET.",
-        "Led a team of 10 professionals (developers, QA, BA, PO, PM) as Tech Lead, implementing a TDD, DDD and GitFlow culture, rigorous code review automated with AI, and Definition of Ready/Done that raised delivery quality and predictability.",
-        "Implemented complete DevOps from scratch: CI/CD with Jenkins, Docker, Kubernetes, Helm, Terraform (IaC), automated pipelines in Bitbucket, SonarQube, Fortify, observability, automatic rollback and ephemeral environments.",
-        "Created a corporate Design System and shared libraries (NPM for front end, .NET/Java/Go for back end), establishing a culture of code reuse that reduced duplication and accelerated development by 40%.",
-        "Automated E2E testing with Playwright, replacing manual QA work, freeing the team for strategic quality assurance and generating automatic evidence for clients.",
-        "Introduced internal LLMs (Claude, GPT) for code review, code generation and documentation, creating the criteria, prompts and AI usage patterns that multiplied the team's productivity.",
+        "Rescued a R$ 24M/year (R$ 2M/month) contract in Florianópolis, lifting license-plate recognition accuracy from <60% to 100% and removing the cancellation risk.",
+        "Multiplied throughput 10x on 100M messages/day by migrating MySQL to ClickHouse with Databricks ETL and Go and .NET microservices.",
+        "Led 10 people (Dev, QA, BA, PO, PM) and cut development time 40% through a design system and shared libraries.",
       ],
       caseStudies: [
         {
-          title: "Minority Report Operation: AI Crime Prediction System",
+          title: "Predictive Public Safety System: AI-Assisted Crime Prevention",
           challenge:
-            "Public security departments needed to anticipate criminal occurrences in order to optimise the allocation of agents, but operated reactively, with no integration between cameras, drones, databases and monitoring systems, resulting in late incident response and inefficient crime prevention.",
+            "Public security departments needed to anticipate criminal occurrences in order to optimize the allocation of agents, but operated reactively, with no integration between cameras, drones, databases and monitoring systems, resulting in late incident response and inefficient crime prevention.",
           solution:
-            "I architected and led the development of a 'Minority Report'-style predictive crime system with: (1) Real-time integration of CCTV feeds, drones and IoT sensors; (2) Statistical and machine learning models for predictive analysis based on historical patterns, seasonality and risk indicators; (3) Dynamic heat maps predicting crime hotspots by region and period; (4) Intelligent alerting system for operations commands with route and patrol positioning suggestions; (5) Executive dashboards with real-time crime KPIs for strategic decision making; (6) Integration APIs with systems from other departments and security forces.",
+            "I architected and led the development of a predictive public safety platform with: (1) Real-time integration of CCTV feeds, drones and IoT sensors; (2) Statistical and machine learning models for predictive analysis based on historical patterns, seasonality and risk indicators; (3) Dynamic heat maps predicting crime hotspots by region and period; (4) Intelligent alerting system for operations commands with route and patrol positioning suggestions; (5) Executive dashboards with real-time crime KPIs for strategic decision making; (6) Integration APIs with systems from other departments and security forces.",
           result:
-            "System operational in multiple cities with capacity to process 100M daily events, 35% reduction in crime rates in monitored areas, 40% optimisation of agent displacement, and national recognition as a reference in intelligent public security. Proprietary technology that became a competitive differentiator for the company.",
+            "System operational in multiple cities with capacity to process 100M daily events, 35% reduction in crime rates in monitored areas, 40% optimization of agent displacement, and national recognition as a reference in intelligent public security. Proprietary technology that became a competitive differentiator for the company.",
           metrics: [
             { label: "Daily Events Processed", value: "100 million", icon: "performance" },
             { label: "Crime Reduction", value: "35%", icon: "performance" },
-            { label: "Resource Optimisation", value: "40%", icon: "people" },
+            { label: "Resource optimization", value: "40%", icon: "people" },
             { label: "Response Time", value: "Reduced by 60%", icon: "time" },
           ],
         },
@@ -64,7 +59,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "A R$ 2M/month (R$ 24M/year) contract with the city hall of Florianópolis was at imminent risk of cancellation due to low accuracy (<60%) in AI-based vehicle plate recognition on traffic cameras. The client faced operational losses, loss of political confidence and contractual penalties. The legacy system suffered from processing bottlenecks, untreated critical bugs and the absence of automated tests.",
           solution:
-            "I took on emergency technical leadership across two fronts simultaneously: (1) Immediate remediation: mapping all critical bugs within 48 hours, prioritisation by business impact, distribution of tasks to a team of 10 developers with pair programming at the most complex points, daily hotfixes deployed to production; (2) Architectural restructuring: database migration from MySQL to ClickHouse for analytical queries, implementation of an ETL pipeline with Databricks for data processing, refactoring the monolith into horizontally scalable microservices in Go for image processing, introduction of TDD and DDD to guarantee quality, and automation of E2E testing with Playwright replacing manual QA validation.",
+            "I took on emergency technical leadership across two fronts simultaneously: (1) Immediate remediation: mapping all critical bugs within 48 hours, prioritization by business impact, distribution of tasks to a team of 10 developers with pair programming at the most complex points, daily hotfixes deployed to production; (2) Architectural restructuring: database migration from MySQL to ClickHouse for analytical queries, implementation of an ETL pipeline with Databricks for data processing, refactoring the monolith into horizontally scalable microservices in Go for image processing, introduction of TDD and DDD to guarantee quality, and automation of E2E testing with Playwright replacing manual QA validation.",
           result:
             "In 6 weeks I raised accuracy from <60% to 100%, eliminating the cancellation risk and securing contract renewal. R$ 24M annual savings for the company, restoration of client confidence, and establishment of a new quality standard that was replicated across other contracts. The client became a success case and a reference for new sales.",
           metrics: [
@@ -79,7 +74,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "Monolithic legacy systems in .NET suffered from extreme slowness in dashboard queries, timeouts processing camera video, and an inability to scale horizontally during demand peaks. A MySQL database bottleneck stalled critical operations, resulting in daily customer complaints, breached SLAs and churn risk.",
           solution:
-            "I carried out a complete architectural modernisation: (1) Database: migration from MySQL to ClickHouse specialised for massive analytical queries, reducing query time from 30s to <200ms; (2) ETL and data pipeline: implementation of ETL pipelines with Databricks for pre-processing and data aggregation, freeing the transactional database; (3) Microservices: decomposition of the monolith into 12 specialised microservices in Go (video/image processing) and .NET Core (business rules), enabling independent horizontal scalability; (4) Messaging: event-driven architecture with RabbitMQ (Topic Exchanges), Circuit Breaker, Dead Letter Queues and retry policies for resilience; (5) Strategic caching: Redis for hot data with intelligent invalidation, reducing load by 70%.",
+            "I carried out a complete architectural modernization: (1) Database: migration from MySQL to ClickHouse specialized for massive analytical queries, reducing query time from 30s to <200ms; (2) ETL and data pipeline: implementation of ETL pipelines with Databricks for pre-processing and data aggregation, freeing the transactional database; (3) Microservices: decomposition of the monolith into 12 specialized microservices in Go (video/image processing) and .NET Core (business rules), enabling independent horizontal scalability; (4) Messaging: event-driven architecture with RabbitMQ (Topic Exchanges), Circuit Breaker, Dead Letter Queues and retry policies for resilience; (5) Strategic caching: Redis for hot data with intelligent invalidation, reducing load by 70%.",
           result:
             "Performance multiplied by 10x in the processing of 100M daily messages, 99% reduction in dashboard query time (30s → 200ms), elimination of timeouts, 100% SLA compliance, and capacity to scale to 500M messages without degradation. The architecture became an internal reference and was adopted as the standard for new projects.",
           metrics: [
@@ -94,7 +89,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "The company operated with manual deployments, no CI/CD pipeline, inconsistent environments, traumatic rollbacks, no observability and a fear of deploying to production. Release processes took days, bugs were only discovered in production, and there was no change traceability, resulting in frequent downtime and customer dissatisfaction.",
           solution:
-            "I built a complete DevOps ecosystem from scratch: (1) CI/CD: automated pipelines in Jenkins with build, unit test, integration test, Playwright E2E test, static analysis (SonarQube), security scanning (Fortify), Docker container build, registry push and automated deployment stages; (2) Orchestration: Kubernetes with standardised Helm charts, Horizontal Pod Autoscaler (HPA) based on CPU/memory, and Pod Disruption Budgets for zero downtime; (3) Infrastructure as Code: Terraform for provisioning the entire infrastructure (VPC, subnets, security groups, RDS, ElastiCache, EKS), guaranteeing reproducibility and versioning; (4) Observability: full stack with Prometheus, Grafana, Jaeger and OpenTelemetry for metrics, logs and distributed traces; (5) GitFlow: implementation of a branch flow with mandatory PRs, code review with checklist, and JIRA integration for traceability.",
+            "I built a complete DevOps ecosystem from scratch: (1) CI/CD: automated pipelines in Jenkins with build, unit test, integration test, Playwright E2E test, static analysis (SonarQube), security scanning (Fortify), Docker container build, registry push and automated deployment stages; (2) Orchestration: Kubernetes with standardized Helm charts, Horizontal Pod Autoscaler (HPA) based on CPU/memory, and Pod Disruption Budgets for zero downtime; (3) Infrastructure as Code: Terraform for provisioning the entire infrastructure (VPC, subnets, security groups, RDS, ElastiCache, EKS), guaranteeing reproducibility and versioning; (4) Observability: full stack with Prometheus, Grafana, Jaeger and OpenTelemetry for metrics, logs and distributed traces; (5) GitFlow: implementation of a branch flow with mandatory PRs, code review with checklist, and JIRA integration for traceability.",
           result:
             "95% reduction in deployment time (from 4 hours to 15 minutes), 20x increase in release frequency (from 1/week to 4/day), 80% reduction in production incidents, automatic rollback in <2 minutes, and the establishment of a culture of trust where developers can deploy safely. Estimated savings of 320 hours/year in manual deployment time.",
           metrics: [
@@ -109,7 +104,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "Every project reinvented the wheel: duplicated UI components, business logic repeated across multiple repositories, visual inconsistencies between products, effort wasted on existing solutions, and maintenance difficulty. There was no technical standard, documentation was nonexistent, and onboarding new developers took months.",
           solution:
-            "I led the standardisation and reuse initiative: (1) Design System: creation of an Angular UI component library with Storybook, documenting every component with examples, props and usage guidelines; (2) Backend libraries: private NPM packages for shared utilities in TypeScript, NuGet libraries for .NET with common middlewares, Maven packages for Java with standard integrations, and Go modules for messaging and logging; (3) Centralised documentation: implementation of a documentation portal with Docusaurus containing the architecture of all projects, data flows, technical decisions (ADRs), operational runbooks and onboarding guides; (4) Governance: establishment of a review committee for new libraries, preventing fragmentation.",
+            "I led the standardization and reuse initiative: (1) Design System: creation of an Angular UI component library with Storybook, documenting every component with examples, props and usage guidelines; (2) Backend libraries: private NPM packages for shared utilities in TypeScript, NuGet libraries for .NET with common middlewares, Maven packages for Java with standard integrations, and Go modules for messaging and logging; (3) centralized documentation: implementation of a documentation portal with Docusaurus containing the architecture of all projects, data flows, technical decisions (ADRs), operational runbooks and onboarding guides; (4) Governance: establishment of a review committee for new libraries, preventing fragmentation.",
           result:
             "40% reduction in development time for new features thanks to reuse, visual consistency in 100% of products, faster onboarding of new developers (from 3 months to 3 weeks), and the creation of proprietary intellectual property that became a differentiator in commercial proposals. The component library is used in 15+ projects simultaneously.",
           metrics: [
@@ -138,15 +133,11 @@ export const resumeContentEnUs: ResumeContent = {
       period: "Jul/2024 – Dec/2025",
       location: "Remote",
       summary:
-        "Technical leadership in the modernisation of critical legacy systems for BNPP Paribas, the bank's largest client, recreating the payments ecosystem and integrating with consolidated systems. Involved from planning through delivery, focusing on scalable distributed systems with Java Spring, an Angular microfrontend, Kafka messaging and complete DevOps (Kubernetes, Jenkins, Helm). Delivery of new applications for asset management with investment funds in the primary/wholesale market, integrating B3, US/European ETFs and large banks/brokers.",
+        "Technical leadership in the modernization of critical legacy systems for BNPP Paribas, the bank's largest client, recreating the payments ecosystem and integrating with consolidated systems. Involved from planning through delivery, focusing on scalable distributed systems with Java Spring, an Angular microfrontend, Kafka messaging and complete DevOps (Kubernetes, Jenkins, Helm). Delivery of new applications for asset management with investment funds in the primary/wholesale market, integrating B3, US/European ETFs and large banks/brokers.",
       highlights: [
-        "Modernised critical legacy systems (Cobol, VB, C# monoliths) into a scalable architecture on Java Spring and Angular, with a focus on business rules, hexagonal architecture and microservices, building CI/CD pipelines from scratch with Jenkins and Kubernetes.",
-        "Delivered a real-time payments system (previously taking 1 day on the legacy system), real-time information for asset managers, improved communication with wholesale clients, and real-time integration with B3 and national/international assets.",
-        "Fully automated the orchestration of ETF funds and banking products, guaranteeing internal/external and national/international processing, compliance and payment consolidation, saving R$ 500 thousand in manual processes.",
-        "Increased assets under management by 45% in the systems delivered within 1 year, improved information/payment time from 1 day to real time, information visibility from hours to real time, and guaranteed uptime from 95% to 100%.",
-        "Reduced delivery time from months to days (or D0) with CI/CD, saving and creating opportunities on a scale of R$ 50 million, while guaranteeing contract compliance at record speed with quality, resulting in new contracts.",
-        "Led a team of 8 developers (3 senior), PO, QA, PM and 2 BAs as senior developer and technical reference, introducing hexagonal architecture, microservices, microfrontends, event orientation, Kafka messaging, automated tests with 95%+ coverage, and an enhanced Scrum culture.",
-        "Implemented observability, real-time monitoring, critical alerts and integration with client systems, and guaranteed continuous maintenance and improvement through legacy modernisation.",
+        "Grew assets under management 45% in 1 year, with settlement moving from D+1 batch to real time and uptime from 95% to 100%.",
+        "Created opportunities on the order of R$ 50 million and automated manual processes, saving R$ 500 thousand per year.",
+        "Led 8 developers (3 principal) modernizing COBOL, VB and C# onto Java Spring and Angular, with hexagonal architecture, Kafka and 95%+ test coverage.",
       ],
       caseStudies: [
         {
@@ -154,7 +145,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "BNPP Paribas faced critical legacy systems in Cobol, manual integrations in VB and C# monoliths that limited growth, with payment processes taking up to 1 day, no real-time information for asset managers, and an inability to scale to wholesale market demand with B3 integration and international ETFs.",
           solution:
-            "I architected and led the complete modernisation: (1) Migration of legacy systems to Java Spring and Angular with hexagonal architecture and scalable microservices; (2) Implementation of Kafka messaging for event orientation and asynchronous processing; (3) Creation of CI/CD pipelines from scratch with Jenkins, Kubernetes, Docker and Helm for continuous delivery; (4) Development of Angular microfrontends for reuse across the ecosystem; (5) Complete automation of ETF fund and financial product orchestration; (6) Real-time integration with B3, US/European exchanges, and the systems of large banks and brokers.",
+            "I architected and led the complete modernization: (1) Migration of legacy systems to Java Spring and Angular with hexagonal architecture and scalable microservices; (2) Implementation of Kafka messaging for event orientation and asynchronous processing; (3) Creation of CI/CD pipelines from scratch with Jenkins, Kubernetes, Docker and Helm for continuous delivery; (4) Development of Angular microfrontends for reuse across the ecosystem; (5) Complete automation of ETF fund and financial product orchestration; (6) Real-time integration with B3, US/European exchanges, and the systems of large banks and brokers.",
           result:
             "Operational system with real-time payment processing (previously 1 day), 45% increase in assets under management in 1 year, R$ 500 thousand saved through automation, opportunities created on a scale of R$ 50 million, 100% uptime (previously 95%), delivery reduced from months to days/D0, and contract renewal/expansion due to exceptional quality.",
           metrics: [
@@ -171,7 +162,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "The bank's payment systems operated in batch with processing of up to 1 day, preventing agile decisions by managers, causing dissatisfaction among wholesale clients, and limiting competitiveness against fintechs with real-time solutions. Manual reconciliation and compliance processes consumed valuable resources.",
           solution:
-            "I developed a new payments system with: (1) Event-driven architecture with Kafka for asynchronous and scalable processing; (2) Java Spring microservices specialised in validation, processing, reconciliation and compliance; (3) Native integration with B3, correspondent banks and settlement systems; (4) Real-time Angular dashboards for transaction monitoring; (5) Complete automation of approval workflows and regulatory compliance; (6) Circuit breaker and retry policies for resilience during demand peaks.",
+            "I developed a new payments system with: (1) Event-driven architecture with Kafka for asynchronous and scalable processing; (2) Java Spring microservices specialized in validation, processing, reconciliation and compliance; (3) Native integration with B3, correspondent banks and settlement systems; (4) Real-time Angular dashboards for transaction monitoring; (5) Complete automation of approval workflows and regulatory compliance; (6) Circuit breaker and retry policies for resilience during demand peaks.",
           result:
             "Payments processed in real time, eliminating the 1-day delay, instant communication with wholesale clients, total automation of manual compliance and reconciliation processes, and the establishment of a new competitive standard that enabled the acquisition of new institutional clients.",
           metrics: [
@@ -186,7 +177,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "The bank's asset management operated with disconnected systems, no unified real-time view of positions, dependence on manual processes to reconcile data from B3, international exchanges (US/Europe) and multiple counterparties, resulting in errors, delays and an inability to offer sophisticated products to high-net-worth clients.",
           solution:
-            "I created an integrated asset management ecosystem with: (1) Centralised Angular platform with microfrontends for different asset classes; (2) Java Spring backend with microservices specialised by asset type (fixed income, equities, ETFs, derivatives); (3) Real-time integrations with B3, Bloomberg, Reuters and international custodians; (4) Statistical models for valuation and automatic mark-to-market; (5) Automated workflows for fund subscription, redemption and rebalancing; (6) Standardised APIs for integration with third-party systems (banks, brokers, asset managers).",
+            "I created an integrated asset management ecosystem with: (1) centralized Angular platform with microfrontends for different asset classes; (2) Java Spring backend with microservices specialized by asset type (fixed income, equities, ETFs, derivatives); (3) Real-time integrations with B3, Bloomberg, Reuters and international custodians; (4) Statistical models for valuation and automatic mark-to-market; (5) Automated workflows for fund subscription, redemption and rebalancing; (6) standardized APIs for integration with third-party systems (banks, brokers, asset managers).",
           result:
             "Unified real-time view of all assets under management, elimination of manual reconciliation processes, ability to launch new financial products in weeks (previously months), and attraction of institutional investors who demand technological sophistication.",
           metrics: [
@@ -201,7 +192,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "The bank operated with manual deployments, inconsistent environments, fear of production and release cycles of months. The absence of automated pipelines, insufficient tests and uncoded infrastructure resulted in frequent incidents and slow response to business demands.",
           solution:
-            "I implemented a complete DevOps ecosystem: (1) CI/CD pipelines in Jenkins with build, unit/functional/E2E test stages (95%+ coverage), SonarQube analysis, Docker build and automated deployment to Kubernetes; (2) Standardised Helm charts for all microservices; (3) GitFlow with mandatory PRs and rigorous code review; (4) Observability with real-time metrics, logs and traces; (5) Proactive alerts for anomalies; (6) Ephemeral environments for testing.",
+            "I implemented a complete DevOps ecosystem: (1) CI/CD pipelines in Jenkins with build, unit/functional/E2E test stages (95%+ coverage), SonarQube analysis, Docker build and automated deployment to Kubernetes; (2) standardized Helm charts for all microservices; (3) GitFlow with mandatory PRs and rigorous code review; (4) Observability with real-time metrics, logs and traces; (5) Proactive alerts for anomalies; (6) Ephemeral environments for testing.",
           result:
             "Release cycles reduced from months to days (or D0), 95% increase in deployment frequency, drastic reduction in production incidents, and the establishment of a culture of trust where teams can continuously deliver value safely.",
           metrics: [
@@ -223,7 +214,7 @@ export const resumeContentEnUs: ResumeContent = {
             { label: "Test Coverage", value: "95%+", icon: "performance" },
             { label: "Production Bug Reduction", value: "Significant", icon: "performance" },
             { label: "Mentored Developers", value: "8 (Junior/Mid)", icon: "people" },
-            { label: "Services with Standardised Architecture", value: "100%", icon: "performance" },
+            { label: "Services with standardized Architecture", value: "100%", icon: "performance" },
           ],
         },
       ],
@@ -235,7 +226,7 @@ export const resumeContentEnUs: ResumeContent = {
       ],
       teamSize: 8,
       scope:
-        "Modernisation of critical BNPP Paribas systems, payments ecosystem and asset management with B3/global integration, complete technical leadership defining architecture, DevOps processes and quality standards",
+        "modernization of critical BNPP Paribas systems, payments ecosystem and asset management with B3/global integration, complete technical leadership defining architecture, DevOps processes and quality standards",
     },
     {
       company: "Banco Itaú",
@@ -245,12 +236,9 @@ export const resumeContentEnUs: ResumeContent = {
       summary:
         "Technical leadership in the development of applications for internal management of wholesale market assets, controlling more than R$ 100 billion in assets of large investors and clients. Control and investment ecosystem with intelligence and insights, B3 integration, national and international assets. Worked with a team of 9 people (6 developers, Tech Lead, PO, PM) on technical process improvements, code review, versioning, and mentoring of junior and mid-level developers in front end, back end and mobile.",
       highlights: [
-        "Delivered applications for the internal control of managers and internal users to manage wholesale market assets (more than R$ 100 billion), with a smart investment ecosystem, B3 integration and insights to increase the net worth of large investors.",
-        "Resolved a critical crisis in the first-phase launch caused by infrastructure errors and bugs in messaging microservices, leading collaborative debugging, identifying event processing and integration failures through observability, and distributing fixes that guaranteed the success of the launch.",
-        "Implemented a culture of automated testing on the team, increasing code quality 8x with testable coverage and evidence, applying E2E tests with Cypress (regression model) together with QA, in back end (.NET), front end (Angular) and mobile (Flutter).",
-        "Improved the Design System with new components aligned to the bank's features, and applied Hexagonal Architecture standardising the structure of backend microservices with SOLID, TDD and DDD as mandatory practices.",
-        "Led a team of 9 people (6 developers, Tech Lead, PO, PM) on improvements to organisation and technical processes, refinement, validations, version control, rigorous code review, development best practices, and mentoring of junior and mid-level developers in front end, back end and mobile.",
-        "Guaranteed quality and on-time delivery even under tight deadline pressure, with rapid problem identification, efficient delegation, and direct action on critical points while organising the team for collaborative resolution.",
+        "Designed the asset-management platform operating +R$ 100 billion under custody, with B3 integration and a unified real-time view.",
+        "Rescued a critical launch hit by infrastructure failure, fixing the messaging microservices in under 24h.",
+        "Implemented automated testing across 3 layers (.NET, Angular, Flutter), raising code quality 8x with 80%+ coverage on a 9-person team.",
       ],
       caseStudies: [
         {
@@ -258,7 +246,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "Itaú needed robust applications for internal managers and high-net-worth clients to manage wholesale market assets, with precise control of more than R$ 100 billion, real-time B3 integration, a unified view of positions, smart insights for investment decisions, and capacity to scale to the demands of large institutional investors.",
           solution:
-            "I developed a complete asset management ecosystem with: (1) Internal Angular platform for managers to track positions, performance and risks in real time; (2) .NET and Java Spring backend with microservices specialised by asset class (fixed income, equities, derivatives, ETFs); (3) Native integration with B3, Bloomberg, Reuters and custody systems; (4) Analytical models for valuation, mark-to-market and performance projections; (5) Executive dashboards with net worth, allocation and profitability KPIs; (6) Secure APIs for integration with institutional client systems; (7) Flutter mobile app for on-the-go monitoring.",
+            "I developed a complete asset management ecosystem with: (1) Internal Angular platform for managers to track positions, performance and risks in real time; (2) .NET and Java Spring backend with microservices specialized by asset class (fixed income, equities, derivatives, ETFs); (3) Native integration with B3, Bloomberg, Reuters and custody systems; (4) Analytical models for valuation, mark-to-market and performance projections; (5) Executive dashboards with net worth, allocation and profitability KPIs; (6) Secure APIs for integration with institutional client systems; (7) Flutter mobile app for on-the-go monitoring.",
           result:
             "Operational ecosystem managing more than R$ 100 billion in assets, unified real-time view for managers and clients, capacity to offer sophisticated products to the wholesale market, and the establishment of a new standard of technological excellence that became an internal reference.",
           metrics: [
@@ -288,7 +276,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "The team relied excessively on manual tests, with low automated coverage, frequent production bugs, refactoring difficulty and fear of deploying. QA was overloaded with repetitive validations, developers lacked confidence in changes, and long test cycles delayed deliveries.",
           solution:
-            "I implemented a comprehensive automated testing programme: (1) Unit tests in back end (.NET and Java) with 80%+ coverage using xUnit and JUnit; (2) Integration tests with embedded databases and mocks of external services; (3) E2E tests with Cypress for critical front-end flows (Angular); (4) Mobile tests with Flutter Test; (5) CI/CD pipeline running all tests automatically on every commit; (6) Coverage reports visible to the whole team; (7) TDD culture encouraged in dailies and code reviews.",
+            "I implemented a comprehensive automated testing program: (1) Unit tests in back end (.NET and Java) with 80%+ coverage using xUnit and JUnit; (2) Integration tests with embedded databases and mocks of external services; (3) E2E tests with Cypress for critical front-end flows (Angular); (4) Mobile tests with Flutter Test; (5) CI/CD pipeline running all tests automatically on every commit; (6) Coverage reports visible to the whole team; (7) TDD culture encouraged in dailies and code reviews.",
           result:
             "Code quality increased 8x, drastic reduction in production bugs, confidence to refactor and evolve the system, QA freed for exploratory testing and strategic assurance, and accelerated release cycles with automatic validation.",
           metrics: [
@@ -299,15 +287,15 @@ export const resumeContentEnUs: ResumeContent = {
           ],
         },
         {
-          title: "Architectural Standardisation: Hexagonal Architecture as the New Standard",
+          title: "Architectural standardization: Hexagonal Architecture as the New Standard",
           challenge:
             "Microservices were developed without a consistent standard, with excessive coupling between business rules and frameworks, testability difficulty, duplicated code and concentrated knowledge. Each developer followed their own approach, resulting in heterogeneous and hard-to-maintain systems.",
           solution:
-            "I introduced and led the adoption of Hexagonal Architecture (Ports & Adapters) as the corporate standard: (1) Training workshops on benefits and implementation; (2) Refactoring of critical services to isolate the domain at the centre; (3) Clear definition of ports (interfaces) and adapters (infrastructure, API, messaging); (4) Rigorous application of SOLID and Clean Code; (5) TDD as a mandatory practice to guarantee testability; (6) DDD for ubiquitous modelling with the business; (7) Code reviews focused on architectural compliance.",
+            "I introduced and led the adoption of Hexagonal Architecture (Ports & Adapters) as the corporate standard: (1) Training workshops on benefits and implementation; (2) Refactoring of critical services to isolate the domain at the center; (3) Clear definition of ports (interfaces) and adapters (infrastructure, API, messaging); (4) Rigorous application of SOLID and Clean Code; (5) TDD as a mandatory practice to guarantee testability; (6) DDD for ubiquitous modelling with the business; (7) Code reviews focused on architectural compliance.",
           result:
             "Highly testable and sustainable services, isolation of business rules allowing technology swaps without impact, faster onboarding of new developers with a clear standard, and the establishment of a technical excellence culture replicated in other projects.",
           metrics: [
-            { label: "Standardised Services", value: "100%", icon: "performance" },
+            { label: "standardized Services", value: "100%", icon: "performance" },
             { label: "Testability", value: "High (80%+ coverage)", icon: "performance" },
             { label: "Trained Developers", value: "9", icon: "people" },
             { label: "Coupling Reduction", value: "Significant", icon: "performance" },
@@ -318,7 +306,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "Team with a mix of levels (junior, mid, senior), uneven knowledge, inconsistent practices and excessive dependence on a few senior individuals. Juniors and mid-level developers needed guidance to grow technically and contribute with more autonomy.",
           solution:
-            "I implemented a structured mentorship programme: (1) Regular pair programming between seniors and juniors/mid-levels; (2) Educational code reviews with constructive feedback; (3) Knowledge sharing sessions (internal tech talks); (4) Clear definition of expectations per level; (5) Individual tracking of technical growth; (6) Progressive delegation of responsibilities; (7) Encouragement of certifications and studies.",
+            "I implemented a structured mentorship program: (1) Regular pair programming between seniors and juniors/mid-levels; (2) Educational code reviews with constructive feedback; (3) Knowledge sharing sessions (internal tech talks); (4) Clear definition of expectations per level; (5) Individual tracking of technical growth; (6) Progressive delegation of responsibilities; (7) Encouragement of certifications and studies.",
           result:
             "Juniors and mid-level developers grew technically with greater autonomy, reduced dependence on seniors, knowledge dissemination across the team, increased delivery speed, and the establishment of a culture of continuous learning.",
           metrics: [
@@ -337,7 +325,7 @@ export const resumeContentEnUs: ResumeContent = {
       ],
       teamSize: 9,
       scope:
-        "Applications for internal management of assets over R$ 100 billion, multidisciplinary team technical leadership, implementation of a testing culture and architectural standardisation, mentoring of junior and mid-level developers",
+        "Applications for internal management of assets over R$ 100 billion, multidisciplinary team technical leadership, implementation of a testing culture and architectural standardization, mentoring of junior and mid-level developers",
     },
     {
       company: "Pollux Technologies",
@@ -345,14 +333,11 @@ export const resumeContentEnUs: ResumeContent = {
       period: "Jun/2021 – Jan/2022",
       location: "Remote",
       summary:
-        "Work across multiple clients focused on system modernisation, cloud migration and resolution of critical problems. Promoted from Junior to Mid-level in just 3 months due to technical excellence and impact on delivery. Experience in healthcare (electronic medical records and appointment forecasting), finance (AWS migration) and sports (critical delivery in 2 weeks). 30-50% reduction in infrastructure costs, performance improvements of up to 200%, and on-time delivery on 80% of projects (20% delivered early).",
+        "Work across multiple clients focused on system modernization, cloud migration and resolution of critical problems. Promoted from Junior to Mid-level in just 3 months due to technical excellence and impact on delivery. Experience in healthcare (electronic medical records and appointment forecasting), finance (AWS migration) and sports (critical delivery in 2 weeks). 30-50% reduction in infrastructure costs, performance improvements of up to 200%, and on-time delivery on 80% of projects (20% delivered early).",
       highlights: [
-        "Promoted from Junior to Mid-level Software Engineer in just 3 months due to technical excellence, active participation in architecture decisions, and significant impact across multiple projects and clients.",
-        "Resolved a critical problem at a healthcare client: the system was not correctly delivering patient history and medical records for appointment, exam and procedure forecasting. Worked on correcting messaging failures, event orientation and AWS serverless infrastructure, implementing circuit breaker and fixing microservices in Java and TypeScript, achieving 100% data accuracy and 40% forecastability (previously 0%).",
-        "Led the migration of a large financial sector client from internal cloud to public AWS, restructuring the system design for better performance and cost reduction. Delivered in 3 months (half the 6-month deadline), with a 2x increase in performance and 30% reduction in infrastructure costs.",
-        "Delivered a critical sports system project in just 2 weeks (tight deadline), working as a team to guarantee quality, accuracy and punctuality under extreme pressure.",
-        "Stabilised and reduced by 50% the AWS costs of a client facing uncontrolled spending escalation, identifying waste, optimising resources and implementing cloud governance.",
-        "Delivered consistent results across multiple clients: 30% reduction in infrastructure costs, performance improvements of up to 200%, early deliveries on 80% of projects (20% ahead of schedule), and improved payment processes with payment system integrations for small clients.",
+        "Led an AWS public-cloud migration delivered in 3 months against a 6-month plan, with 2x performance and 30% cost reduction.",
+        "Cut a client's monthly AWS spend 50% through invoice auditing, autoscaling and moving workloads to spot instances.",
+        "Fixed messaging failures and data-integrity defects in healthcare, taking record accuracy to 100% and appointment predictability from 0% to 40%.",
       ],
       caseStudies: [
         {
@@ -375,7 +360,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "A large financial sector client operated on internal cloud with performance limitations, scalability constraints and high costs. It needed migration to public AWS with a complete restructuring of the system design to gain performance, data flow and cost reduction. The projected 6-month timeline was incompatible with business demands accelerated by digital transformation.",
           solution:
-            "I planned and executed the complete migration to AWS: (1) Restructuring of the architectural design of the system and services for cloud-native operation; (2) Migration of workloads to EC2, Lambda, RDS, S3, SQS, SNS with cost optimisation; (3) Implementation of CI/CD pipelines to automate deployments; (4) Configuration of VPC, subnets, security groups and IAM for security; (5) Monitoring with CloudWatch and proactive alerts; (6) Optimisation of queries and indexes for performance; (7) Training of the client's team in cloud operations.",
+            "I planned and executed the complete migration to AWS: (1) Restructuring of the architectural design of the system and services for cloud-native operation; (2) Migration of workloads to EC2, Lambda, RDS, S3, SQS, SNS with cost optimization; (3) Implementation of CI/CD pipelines to automate deployments; (4) Configuration of VPC, subnets, security groups and IAM for security; (5) Monitoring with CloudWatch and proactive alerts; (6) optimization of queries and indexes for performance; (7) Training of the client's team in cloud operations.",
           result:
             "Migration completed in 3 months (half the 6-month deadline), 2x increase in process and service performance, 30% reduction in cloud infrastructure costs, and establishment of a solid foundation for future innovation and scalability.",
           metrics: [
@@ -401,17 +386,17 @@ export const resumeContentEnUs: ResumeContent = {
           ],
         },
         {
-          title: "AWS Cost Optimisation: 50% Reduction in Cloud Spending",
+          title: "AWS Cost optimization: 50% Reduction in Cloud Spending",
           challenge:
             "A client faced uncontrolled cost escalation on AWS with no clear visibility of where the waste was. Growing monthly invoices threatened the sustainability of the project, and a lack of cloud governance allowed excessive resource provisioning, idle instances and inefficient architectures.",
           solution:
-            "I carried out a complete audit and optimisation: (1) Detailed analysis of all invoices and resource usage; (2) Identification of oversized and idle instances; (3) Implementation of Auto Scaling Groups for automatic sizing; (4) Migration of appropriate workloads to Spot Instances; (5) Query optimisation and reduction of unnecessary data transfers; (6) Configuration of budgets and cost alerts in AWS Budgets; (7) Establishment of tagging policies and cloud governance.",
+            "I carried out a complete audit and optimization: (1) Detailed analysis of all invoices and resource usage; (2) Identification of oversized and idle instances; (3) Implementation of Auto Scaling Groups for automatic sizing; (4) Migration of appropriate workloads to Spot Instances; (5) Query optimization and reduction of unnecessary data transfers; (6) Configuration of budgets and cost alerts in AWS Budgets; (7) Establishment of tagging policies and cloud governance.",
           result:
-            "50% reduction in monthly AWS costs, stabilisation of spending with budget predictability, elimination of waste, and implementation of a culture of continuous cloud cost optimisation.",
+            "50% reduction in monthly AWS costs, stabilization of spending with budget predictability, elimination of waste, and implementation of a culture of continuous cloud cost optimization.",
           metrics: [
             { label: "Cost Reduction", value: "50%", icon: "money" },
             { label: "Budget Predictability", value: "High", icon: "performance" },
-            { label: "Resources Optimised", value: "All", icon: "performance" },
+            { label: "Resources optimized", value: "All", icon: "performance" },
             { label: "Governance Implemented", value: "Complete", icon: "performance" },
           ],
         },
@@ -435,11 +420,11 @@ export const resumeContentEnUs: ResumeContent = {
         "Java", "TypeScript", "NestJS", "React", "Next.js", "Vue.js", ".NET", "Go", "Python",
         "AWS", "GCP", "Azure", "PostgreSQL", "MongoDB", "Kubernetes", "Docker", "CI/CD", "Jenkins",
         "Serverless", "Lambda", "API Gateway", "DynamoDB", "EventBridge", "Circuit Breaker",
-        "Microservices", "Event-Driven Architecture", "Messaging", "Cloud Migration", "Cost Optimisation",
+        "Microservices", "Event-Driven Architecture", "Messaging", "Cloud Migration", "Cost optimization",
       ],
       teamSize: 5,
       scope:
-        "Work across multiple clients (healthcare, finance, sports) covering system modernisation, cloud migration, AWS cost optimisation, resolution of critical problems, and project delivery under tight deadlines with technical excellence",
+        "Work across multiple clients (healthcare, finance, sports) covering system modernization, cloud migration, AWS cost optimization, resolution of critical problems, and project delivery under tight deadlines with technical excellence",
     },
     {
       company: "Accounting Consulting Firms",
@@ -449,14 +434,9 @@ export const resumeContentEnUs: ResumeContent = {
       summary:
         "Digital transformation and operational restructuring of companies through accounting process automation, strategic financial management and team leadership. Acted as the bridge between business and technology, implementing solutions that reduced operating costs by 83% and released working capital for strategic investments.",
       highlights: [
-        "Reduced the accounting closing cycle from 30 days to 5 days (83% faster) through the automation of manual processes.",
-        "Saved R$ 200 thousand/year in operating costs and eliminated manual rework across multiple companies.",
-        "Generated R$ 2 million in new investments through strategic capital allocation consulting.",
-        "Reduced taxes by up to R$ 1 million annually through advanced tax planning and strategic accounting reclassification.",
-        "Freed 20+ employees for higher-value activities through the automation of operational routines.",
-        "Implemented remote work and real-time dashboards, increasing productivity and team satisfaction.",
-        "Multiplied operational performance by 5x, allowing reallocation to complex issues and portfolio expansion.",
-        "Integrated accounting systems with clients, automating information exchange and reducing manual errors by 95%.",
+        "Cut the accounting close from 30 days to 5 days (−83%), freeing 20+ people for higher-value work.",
+        "Saved up to R$ 1 million per year in taxes through advanced tax planning and strategic accounting reclassification.",
+        "Allocated R$ 2 million into high-yield investments (12–15% p.a.) and eliminated 95% of manual reconciliation errors.",
       ],
       caseStudies: [
         {
@@ -480,7 +460,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "Clients paid excessive taxes due to inadequate accounting classification, lack of knowledge about optimal tax regimes and the absence of strategic tax planning, resulting in competitive loss and reduced profit margins.",
           solution:
-            "I implemented a deep accounting review methodology with: (1) Detailed analysis of all operations and strategic accounting reclassification; (2) Migration to more advantageous tax regimes (Actual Profit vs. Presumed); (3) Leverage of regional and sectoral tax benefits; (4) Structuring of operations for legal tax burden optimisation; (5) Continuous monitoring of legislative changes with proactive strategy adjustments.",
+            "I implemented a deep accounting review methodology with: (1) Detailed analysis of all operations and strategic accounting reclassification; (2) Migration to more advantageous tax regimes (Actual Profit vs. Presumed); (3) Leverage of regional and sectoral tax benefits; (4) Structuring of operations for legal tax burden optimization; (5) Continuous monitoring of legislative changes with proactive strategy adjustments.",
           result:
             "Accumulated savings of up to R$ 1 million in taxes per client/year, 8-12% net margin increase, significant improvement in market competitiveness, and resources freed for reinvestment in growth and innovation.",
           metrics: [
@@ -494,7 +474,7 @@ export const resumeContentEnUs: ResumeContent = {
           challenge:
             "Companies kept idle capital in non-interest-bearing checking accounts, did not know suitable investment options for their risk profile and had no cash management policy, resulting in lost growth opportunities and financial fragility.",
           solution:
-            "I structured a strategic financial management process with: (1) Complete cash flow and available capital diagnosis; (2) Investment policy definition aligned to the risk profile and liquidity needs; (3) Diversification into optimised financial applications (CDB, LCI/LCA, funds, treasury direct); (4) Long-term financial projections with optimistic, pessimistic and realistic scenarios; (5) Monthly follow-up meetings and portfolio rebalancing.",
+            "I structured a strategic financial management process with: (1) Complete cash flow and available capital diagnosis; (2) Investment policy definition aligned to the risk profile and liquidity needs; (3) Diversification into optimized financial applications (CDB, LCI/LCA, funds, treasury direct); (4) Long-term financial projections with optimistic, pessimistic and realistic scenarios; (5) Monthly follow-up meetings and portfolio rebalancing.",
           result:
             "Strategic allocation of R$ 2 million in high-yield investments, generation of additional financial revenue of 12-15% per year, strengthened working capital, and created reserve for strategic expansions and acquisitions.",
           metrics: [
@@ -510,7 +490,7 @@ export const resumeContentEnUs: ResumeContent = {
           solution:
             "I led complete digital transformation with: (1) Implementation of integrated cloud-based systems; (2) Creation of unified dashboards with real-time KPIs; (3) Automation of approval flows and notifications; (4) Intensive training in digital tools and new methodologies; (5) Establishment of a data-driven culture with metrics-based meetings; (6) Gradual implementation of remote work with collaboration tools.",
           result:
-            "Complete operations modernisation, successful remote work implementation for administrative functions, 40% increase in team productivity, improved organisational climate, and talent attraction through the flexibility offered.",
+            "Complete operations modernization, successful remote work implementation for administrative functions, 40% increase in team productivity, improved organizational climate, and talent attraction through the flexibility offered.",
           metrics: [
             { label: "Productivity Increase", value: "40%", icon: "performance" },
             { label: "Functions Converted to Remote", value: "Multiple areas", icon: "people" },
@@ -533,12 +513,10 @@ export const resumeContentEnUs: ResumeContent = {
     },
   ],
   skillGroups: [
-    { label: "Architecture & Backend", skills: ["C# (.NET Core)", "Java (Spring Boot)", "Node.js (NestJS)", "TypeScript", "Python", "Go", "Microservices", "API Gateway", "BFF", "CQRS", "Clean Arch", "DDD"] },
-    { label: "Frontend & Performance", skills: ["React", "Next.js (RSC, SSR)", "Angular", "Flutter", "React Native", "Micro-frontends (Module Federation)", "Redux", "Zustand"] },
-    { label: "Messaging & Resilience", skills: ["RabbitMQ (Topic Exchanges)", "Kafka (Partitioning)", "Circuit Breaker", "Retry", "Throttling", "Dead Letter Queues (DLQ)"] },
-    { label: "Databases, Caches & AI", skills: ["PostgreSQL", "SQL Server", "ClickHouse", "Redis", "Query Tuning", "Sharding", "LLM Integration (OpenAI, Claude, Gemini)", "RAG"] },
-    { label: "DevOps & SRE", skills: ["AWS", "Azure", "GCP", "K8s (Helm, HPA)", "Docker", "IaC (Terraform)", "CI/CD", "OpenTelemetry", "Datadog", "Grafana"] },
-    { label: "Security & Testing", skills: ["TDD", "Cypress", "Playwright", "K6", "OAuth 2.0 (PKCE)", "OIDC", "JWT", "XSS/CSRF protection", "CSP", "CORS"] },
+    { label: "Frontend & UI", skills: ["React", "Next.js (RSC, SSR)", "Angular", "Flutter", "React Native", "Micro-frontends (Module Federation)", "Redux", "Zustand", "Tailwind CSS", "Design System", "Storybook"] },
+    { label: "Backend Core", skills: ["C# (.NET Core)", "Java (Spring Boot)", "Node.js (NestJS)", "TypeScript", "Python", "Go", "Microservices", "API Gateway", "BFF", "CQRS", "Clean Arch", "DDD", "Apache Kafka", "RabbitMQ (Topic Exchanges)", "Circuit Breaker", "PostgreSQL", "SQL Server", "ClickHouse", "Redis", "OAuth 2.0 (PKCE)", "OIDC", "JWT"] },
+    { label: "DevOps & Cloud", skills: ["AWS", "Azure", "GCP", "K8s (Helm, HPA)", "Docker", "IaC (Terraform)", "CI/CD", "Jenkins", "OpenTelemetry", "Datadog", "Grafana", "TDD", "Cypress", "Playwright", "K6", "CORS", "CSP"] },
+    { label: "Artificial Intelligence", skills: ["LLM Integration (OpenAI, Claude, Gemini)", "RAG", "pgvector", "Qdrant", "TensorRT", "LangChain", "Autonomous Agents", "AI Code Review"] },
   ],
   education: [
     { title: "Bachelor's in Computer Engineering", institution: "UNIVESP", period: "2021–2025", description: "In-depth focus on computer architecture, artificial intelligence and advanced data structures, consolidating the theoretical foundation for scalable software development." },
