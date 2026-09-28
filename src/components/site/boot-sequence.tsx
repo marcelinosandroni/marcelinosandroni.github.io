@@ -41,7 +41,14 @@ const SEEN_KEY = "msd:boot-seen:v1";
 const AUTO_DISMISS_MS = 1100;
 const FADE_MS = 750;
 
-const GLYPHS = "ｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾊﾋﾎﾏﾐﾑﾒﾓ011010MSD//ARCHITECT";
+/**
+ * Glyph set for the falling-characters effect.
+ *
+ * Hex and infrastructure tokens rather than the reference's katakana: the visual
+ * rhythm is kept, but it now reads as an instrument readout instead of a
+ * film-reference pastiche, which is the point of the copy pass.
+ */
+const GLYPHS = "0123456789ABCDEF/\\<>{}[]().:-=#$+-_*&@%!|";
 const COLUMN_WIDTH = 14;
 
 /** The gating values are read once per page load and never change afterwards. */
@@ -218,15 +225,15 @@ export function BootSequence({
             <span className="msd-pulse inline-block h-2 w-2 rounded-full bg-primary-container" />
             <span className="font-bold tracking-widest text-primary-container">{statusLabel}</span>
           </span>
-          <span className="hidden text-text-secondary sm:inline">UPLINK // SECURE</span>
+          <span className="hidden text-text-secondary sm:inline">SESSION // 001</span>
         </div>
 
         <div className="relative z-10 mx-auto w-full max-w-xl rounded-xl bg-surface-raised/90 p-space-xl shadow-2xl backdrop-blur-xl">
           <div className="flex items-center justify-between pb-space-sm">
             <span className="font-label-mono text-label-mono uppercase tracking-widest text-text-secondary">
-              {"// COGNITIVE SYS_INIT"}
+              {"// SESSION INIT"}
             </span>
-            <span className="font-label-mono text-label-mono text-primary-container">[SECURE BOOT]</span>
+            <span className="font-label-mono text-label-mono text-primary-container">[SECURE]</span>
           </div>
           <div className="space-y-space-xs font-code-inline text-code-inline text-text-muted">
             {diagnostics.map((line, index) => (

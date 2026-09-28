@@ -11,7 +11,7 @@ export const resumeContent: ResumeContent = {
     linkedin: "linkedin.com/in/marcelinosandroni",
   },
   summary:
-    "Engenheiro de Software Sênior Full Stack com o diferencial estratégico de unir engenharia de ponta a 15 anos de sólida experiência em negócios e contabilidade. Especialista em traduzir regras corporativas financeiras complexas em arquiteturas web escaláveis e sistemas distribuídos de alta volumetria. Atuo de ponta a ponta (Backend, Frontend, Mobile e DevOps) para construir produtos robustos que maximizam a rentabilidade financeira, escalam junto com a empresa e resolvem dores reais da operação sem quebrar o sistema. Atuo como referência técnica, combinando rigor metodológico, mentoria e uso de Inteligência Artificial para acelerar entregas com código limpo e sustentável.",
+    "15 anos de governança financeira corporativa (2005–2020) somados a 6 anos de engenharia de software (2021–2026): 21 anos de expertise combinada. Engenheiro de Software Sênior e Tech Lead com atuação de ponta a ponta em backend, frontend, mobile e DevOps. Traduzo regras corporativas financeiras complexas em arquiteturas web escaláveis e sistemas distribuídos de alta volumetria — com resultados medidos de R$ 24 milhões/ano, 100 milhões de mensagens/dia e ganho de 10x em performance. Atuo como referência técnica: arquitetura, liderança de times multidisciplinares, mentoria e automação com IA para acelerar entregas com código limpo e sustentável.",
   experiences: [
     {
       company: "DGT Tecnologia",
@@ -20,22 +20,17 @@ export const resumeContent: ResumeContent = {
       location: "Remoto",
       summary: "Liderança técnica na reestruturação e modernização de sistemas críticos legados para monitoramento de segurança pública com IA, processando 100 milhões de mensagens diárias. Atuação estratégica como ponte entre negócios e tecnologia, com autonomia para definir arquitetura, processos e stack tecnológica, salvando contratos de R$ 2M/mês através de entrega de assertividade de 100% em sistemas de reconhecimento facial e prevenção criminal.",
       highlights: [
-        "Salvou contrato de R$ 24M/ano (R$ 2M/mês) em Florianópolis ao resolver gargalos críticos de processamento de 50M de mensagens/dia, entregando assertividade de 100% em reconhecimento de placas veiculares via IA que estava sob risco de cancelamento.",
-        "Arquitetou sistema 'Minority Report' de previsão criminal com IA, integrando câmeras, drones, cercamento digital e modelos estatísticos para antecipação de crimes em tempo real com mapas preditivos para agentes de segurança pública.",
-        "Multiplicou performance em 10x no processamento de 100M de mensagens diárias migrando de MySQL para ClickHouse, implementando ETL com Databricks e reestruturando arquitetura com microsserviços em Go e .NET.",
-        "Liderou time de 10 profissionais (Devs, QA, BA, PO, PM) como Tech Lead, implementando cultura de TDD, DDD, GitFlow, Code Review rigoroso com automação via IA, e Definition of Ready/Done que elevaram qualidade e previsibilidade das entregas.",
-        "Implementou DevOps completo do zero: CI/CD com Jenkins, Docker, Kubernetes, Helm, Terraform (IaC), pipelines automatizados no Bitbucket, SonarQube, Fortify, observabilidade, rollback automático e ambientes efêmeros.",
-        "Criou Design System corporativo e bibliotecas compartilhadas (NPM para front, .NET/Java/Go para back), estabelecendo cultura de reutilização de código que reduziu duplicidade e acelerou desenvolvimento em 40%.",
-        "Automatizou testes E2E com Playwright substituindo trabalho manual de QA, liberando equipe para asseguramento de qualidade estratégico e gerando evidências automáticas para clientes.",
-        "Introduziu LLMs internos (Claude, GPT) para code review, geração de código e documentação, criando critérios, prompts e modelos de uso de IA que multiplicaram produtividade da equipe.",
+        "Resgatei contrato de R$ 24M/ano (R$ 2M/mês) em Florianópolis, elevando a assertividade do reconhecimento de placas de <60% para 100% e eliminando o risco de cancelamento.",
+        "Multipliquei em 10x o processamento de 100M de mensagens/dia, migrando MySQL para ClickHouse com ETL em Databricks e microsserviços em Go e .NET.",
+        "Liderei 10 pessoas (Dev, QA, BA, PO, PM) e cortei 40% no tempo de desenvolvimento com design system e bibliotecas compartilhadas.",
       ],
       caseStudies: [
         {
-          title: "Operação Minority Report: Sistema Preditivo de Crimes com IA",
+          title: "Sistema Preditivo de Segurança Pública: Prevenção Criminal Assistida por IA",
           challenge:
             "Secretarias de Segurança Pública necessitavam de antecipação de ocorrências criminais para otimizar alocação de agentes, mas operavam de forma reativa, sem integração entre câmeras, drones, bases de dados e sistemas de monitoramento, resultando em resposta tardia a incidentes e ineficiência na prevenção.",
           solution:
-            "Arquitetei e liderei desenvolvimento de sistema preditivo de crimes estilo 'Minority Report' com: (1) Integração em tempo real de feeds de câmeras de vigilância, drones e sensores IoT; (2) Modelos estatísticos e de Machine Learning para análise preditiva baseada em padrões históricos, sazonalidade e indicadores de risco; (3) Mapas de calor dinâmicos com previsão de hotspots criminais por região e período; (4) Sistema de alertas inteligentes para comandos de operações com sugestão de rotas e posicionamento de viaturas; (5) Dashboards executivos com KPIs de criminalidade em tempo real para tomada de decisão estratégica; (6) APIs de integração com sistemas de outras secretarias e forças de segurança.",
+            "Arquitetei e liderei o desenvolvimento de uma plataforma preditiva de segurança pública com: (1) Integração em tempo real de feeds de câmeras de vigilância, drones e sensores IoT; (2) Modelos estatísticos e de Machine Learning para análise preditiva baseada em padrões históricos, sazonalidade e indicadores de risco; (3) Mapas de calor dinâmicos com previsão de hotspots criminais por região e período; (4) Sistema de alertas inteligentes para comandos de operações com sugestão de rotas e posicionamento de viaturas; (5) Dashboards executivos com KPIs de criminalidade em tempo real para tomada de decisão estratégica; (6) APIs de integração com sistemas de outras secretarias e forças de segurança.",
           result:
             "Sistema operacional em múltiplas cidades com capacidade de processar 100M de eventos diários, redução de 35% em índices criminais nas áreas monitoradas, otimização de 40% no deslocamento de agentes, e reconhecimento nacional como referência em segurança pública inteligente. Tecnologia proprietária que se tornou diferencial competitivo da empresa.",
           metrics: [
@@ -124,13 +119,9 @@ export const resumeContent: ResumeContent = {
       location: "Remoto",
       summary: "Liderança técnica na modernização de sistemas legados críticos do BNPP Paribas, maior cliente do banco, recriando ecossistema de pagamentos e integração com sistemas consolidados. Atuação desde planejamento até entrega, focando em sistemas distribuídos escaláveis com Java Spring, Angular microfrontend, mensageria Kafka e DevOps completo (Kubernetes, Jenkins, Helm). Entrega de novas aplicações para gerenciamento de ativos com fundos de investimento no mercado primário/atacado, integrando B3, ETFs EUA/Europa e grandes bancos/corretoras.",
       highlights: [
-        "Modernizou sistemas legados críticos (Cobol, VB, C# monolitos) para arquitetura escalável em Java Spring e Angular, com foco em regras de negócio, arquitetura hexagonal e microsserviços, criando pipelines CI/CD do zero com Jenkins e Kubernetes.",
-        "Entregou sistema de pagamentos em tempo real (antes levava 1 dia no legado), informações em tempo real para gestores de ativos, comunicação melhorada com clientes de mercado atacado, e integração em tempo real com B3 e ativos nacionais/internacionais.",
-        "Automatizou completamente orquestração de fundos ETF e produtos bancários, garantindo processamento interno/externo, nacional/internacional, compliance e consolidação de pagamentos com economia de R$ 500 mil em processos manuais.",
-        "Aumentou em 45% os ativos geridos nos sistemas entregues em 1 ano, melhorou tempo de informação/pagamentos de 1 dia para tempo real, visualização de informações de horas para tempo real, e garantiu uptime de 95% para 100%.",
-        "Reduziu tempo de entrega de meses para dias (ou D0) com CI/CD, economizando e criando oportunidades na escala de R$ 50 milhões, enquanto garantia cumprimento de contrato em velocidade recorde com qualidade, resultando em novos contratos.",
-        "Liderou time de 8 devs (3 seniors), PO, QA, PM, 2 BAs como dev sênior e referência técnica, introduzindo arquitetura hexagonal, microsserviços, microfrontends, orientação a eventos, mensageria Kafka, testes automatizados com 95%+ de cobertura, e cultura Scrum aprimorada.",
-        "Implementou observabilidade, monitoramento em tempo real, alertas críticos, integração com sistemas clientes, e garantiu manutenção e melhorias contínuas com modernização de legados.",
+        "Aumentei em 45% os ativos sob gestão em 1 ano, com liquidação migrando de D+1 para tempo real e uptime de 95% para 100%.",
+        "Criei oportunidades na ordem de R$ 50 milhões e automatizei processos manuais, economizando R$ 500 mil por ano.",
+        "Liderei 8 devs (3 principais) modernizando COBOL, VB e C# para Java Spring e Angular, com arquitetura hexagonal, Kafka e 95%+ de cobertura de testes.",
       ],
       caseStudies: [
         {
@@ -227,12 +218,9 @@ export const resumeContent: ResumeContent = {
       location: "Híbrido",
       summary: "Liderança técnica no desenvolvimento de aplicações para gestão interna de ativos do mercado de atacado, controlando +R$ 100 bilhões em ativos de grandes investidores e clientes. Ecossistema de controle e investimento com inteligência e insights, integração B3, assets nacionais e internacionais. Atuação com time de 9 pessoas (6 devs, Tech Lead, PO, PM) em melhorias de processos técnicos, code review, versionamento, e mentoria de níveis júnior/pleno em front, back e mobile.",
       highlights: [
-        "Entregou aplicações para controle interno de gestores e usuários internos gerenciarem ativos do mercado de atacado (+R$ 100 bi), com ecossistema de investimento inteligente, integração B3, e insights para aumento de patrimônio de grandes investidores.",
-        "Resolveu crise crítica em lançamento de primeira fase com erros de infraestrutura e bugs em microserviços de mensageria, liderando debug colaborativo, identificando falhas de processamento de eventos e integrações via observabilidade, e distribuindo correções que garantiram sucesso do lançamento.",
-        "Implementou cultura de testes automatizados em equipe, aumentando qualidade de código em 8x com cobertura testável e evidências, aplicando testes E2E com Cypress (modelo regressivo) junto ao QA, em back (.NET), front (Angular) e mobile (Flutter).",
-        "Melhorou Design System com novos componentes alinhados às funcionalidades do banco, e aplicou Arquitetura Hexagonal padronizando estrutura de microsserviços backend com SOLID, TDD, DDD como práticas obrigatórias.",
-        "Liderou time de 9 pessoas (6 devs, Tech Lead, PO, PM) em melhorias de organização e processos técnicos, refinamento, validações, controle de versionamento, code review rigoroso, boas práticas de desenvolvimento, e mentoria de juniors/plenos em front, back e mobile.",
-        "Garantiu qualidade e entrega pontual mesmo sob pressão de prazos apertados, com identificação rápida de problemas, delegação eficiente, e atuação direta nos pontos críticos enquanto organizava o time para solução colaborativa.",
+        "Desenhei a plataforma de gestão de ativos que opera +R$ 100 bilhões em custódia, com integração B3 e visão unificada em tempo real.",
+        "Resgatei um lançamento crítico com falha de infraestrutura, corrigindo os microsserviços de mensageria em menos de 24h.",
+        "Implementei testes automatizados em 3 camadas (.NET, Angular, Flutter), elevando a qualidade em 8x com 80%+ de cobertura em um time de 9 pessoas.",
       ],
       caseStudies: [
         {
@@ -327,12 +315,9 @@ export const resumeContent: ResumeContent = {
       location: "Remoto",
       summary: "Atuação em múltiplos clientes com foco em modernização de sistemas, migração cloud e resolução de problemas críticos. Promoção de Junior para Pleno em apenas 3 meses devido a excelência técnica e impacto nas entregas. Experiência em saúde (prontuário eletrônico e previsão de consultas), financeiro (migração AWS), e esportes (entrega crítica em 2 semanas). Redução de custos de infraestrutura em 30-50%, melhoria de performance em até 200%, e entrega pontual em 80% dos projetos (20% no prazo).",
       highlights: [
-        "Promovido de Engenheiro Junior para Pleno em apenas 3 meses devido a excelência técnica, participação ativa em decisões de arquitetura, e impacto significativo em múltiplos projetos e clientes.",
-        "Resolveu problema crítico em cliente de saúde: sistema não entregava corretamente histórico e prontuário de pacientes para previsões de consultas/exames/procedimentos. Atuou na correção de falhas de mensageria, orientação a eventos, e infraestrutura AWS serverless, implementando circuit breaker e corrigindo microserviços em Java e TypeScript, alcançando 100% de assertividade nos dados e 40% de previsibilidade (era 0%).",
-        "Liderou migração de cliente grande do setor financeiro de cloud interna para AWS pública, reestruturando desenho do sistema para melhor performance e redução de custos. Entrega em 3 meses (metade do prazo de 6 meses), com aumento de 2x na performance e redução de 30% nos custos de infraestrutura.",
-        "Entregou projeto crítico de sistema de esportes em apenas 2 semanas (deadline apertado), trabalhando em equipe para garantir qualidade, assertividade e pontualidade na entrega sob pressão extrema.",
-        "Estabilizou e reduziu em 50% os custos de AWS de cliente que enfrentava escalada descontrolada de gastos, identificando desperdícios, otimizando recursos e implementando governança de cloud.",
-        "Gerou resultados consistentes em múltiplos clientes: redução de custos de infra em 30%, melhoria de performance em até 200%, entregas antecipadas em 80% dos projetos (20% no prazo), e melhoria de processos de pagamentos com integração payment systems para clientes pequenos.",
+        "Conduzi uma migração para AWS pública concluída em 3 meses, com prazo previsto de 6, entregando 2x de performance e 30% de redução de custo.",
+        "Reduzi 50% o custo mensal de AWS de um cliente, com auditoria de faturas, autoscaling e migração de workloads para instâncias spot.",
+        "Corrigi falhas de mensageria e integridade de dados em saúde, elevando a assertividade para 100% e a previsibilidade de 0% para 40%.",
       ],
       caseStudies: [
         {
@@ -428,14 +413,9 @@ export const resumeContent: ResumeContent = {
       summary:
         "Transformação digital e reestruturação operacional de empresas através de automação de processos contábeis, gestão financeira estratégica e liderança de equipes. Atuação como ponte entre negócios e tecnologia, implementando soluções que reduziram custos operacionais em 83% e liberaram capital de giro para investimentos estratégicos.",
       highlights: [
-        "Redução do tempo de fechamento contábil de 30 dias para 5 dias (83% mais rápido) através da automação de processos manuais.",
-        "Economia de R$ 200 mil/ano em custos operacionais e eliminação de retrabalho manual em múltiplas empresas.",
-        "Geração de R$ 2 milhões em novos investimentos através de consultoria estratégica de alocação de capital.",
-        "Redução de até R$ 1 milhão em tributos anuais com planejamento tributário avançado e reclassificação contábil estratégica.",
-        "Liberação de 20+ colaboradores para atividades de maior valor agregado através da automação de rotinas operacionais.",
-        "Implementação de trabalho remoto e dashboards em tempo real, aumentando produtividade e satisfação da equipe.",
-        "Multiplicação por 5x da performance operacional, permitindo realocação para questões complexas e expansão de carteira.",
-        "Integração de sistemas contábeis com clientes, automatizando troca de informações e reduzindo erros manuais em 95%.",
+        "Reduzi o fechamento contábil de 30 para 5 dias (−83%), liberando 20+ pessoas para funções de maior valor agregado.",
+        "Economizei até R$ 1 milhão por ano em tributos com planejamento tributário e reclassificação contábil.",
+        "Aloquei R$ 2 milhões em investimentos de alta rentabilidade (12–15% a.a.) e eliminei 95% dos erros manuais de conciliação.",
       ],
       caseStudies: [
         {
@@ -511,12 +491,10 @@ export const resumeContent: ResumeContent = {
     },
   ],
   skillGroups: [
-    { label: "Arquitetura & Backend", skills: ["C# (.NET Core)", "Java (Spring Boot)", "Node.js (NestJS)", "TypeScript", "Python", "Go", "Microsserviços", "API Gateway", "BFF", "CQRS", "Clean Arch", "DDD"] },
-    { label: "Frontend & Performance", skills: ["React", "Next.js (RSC, SSR)", "Angular", "Flutter", "React Native", "Micro-frontends (Module Federation)", "Redux", "Zustand"] },
-    { label: "Mensageria & Resiliência", skills: ["RabbitMQ (Topic Exchanges)", "Kafka (Partitioning)", "Circuit Breaker", "Retry", "Throttling", "Dead Letter Queues (DLQ)"] },
-    { label: "BD, Caches & IA", skills: ["PostgreSQL", "SQL Server", "ClickHouse", "Redis", "Query Tuning", "Sharding", "Integração LLMs (OpenAI, Claude, Gemini)", "RAG"] },
-    { label: "DevOps & SRE", skills: ["AWS", "Azure", "GCP", "K8s (Helm, HPA)", "Docker", "IaC (Terraform)", "CI/CD", "OpenTelemetry", "Datadog", "Grafana"] },
-    { label: "Segurança & Testes", skills: ["TDD", "Cypress", "Playwright", "K6", "OAuth 2.0 (PKCE)", "OIDC", "JWT", "proteção contra XSS/CSRF", "CSP", "CORS"] },
+    { label: "Frontend & UI", skills: ["React", "Next.js (RSC, SSR)", "Angular", "Flutter", "React Native", "Micro-frontends (Module Federation)", "Redux", "Zustand", "Tailwind CSS", "Design System", "Storybook"] },
+    { label: "Backend Core", skills: ["C# (.NET Core)", "Java (Spring Boot)", "Node.js (NestJS)", "TypeScript", "Python", "Go", "Microsserviços", "API Gateway", "BFF", "CQRS", "Clean Arch", "DDD", "Apache Kafka", "RabbitMQ (Topic Exchanges)", "Circuit Breaker", "PostgreSQL", "SQL Server", "ClickHouse", "Redis", "OAuth 2.0 (PKCE)", "OIDC", "JWT"] },
+    { label: "DevOps & Cloud", skills: ["AWS", "Azure", "GCP", "K8s (Helm, HPA)", "Docker", "IaC (Terraform)", "CI/CD", "Jenkins", "OpenTelemetry", "Datadog", "Grafana", "TDD", "Cypress", "Playwright", "K6", "CORS", "CSP"] },
+    { label: "Inteligência Artificial", skills: ["Integração LLMs (OpenAI, Claude, Gemini)", "RAG", "pgvector", "Qdrant", "TensorRT", "LangChain", "Agentes autônomos", "Code Review com IA"] },
   ],
   education: [
     { title: "Bacharelado em Engenharia da Computação", institution: "UNIVESP", period: "2021–2025", description: "Foco aprofundado em arquitetura de computadores, inteligência artificial e estruturas de dados avançadas, consolidando a base teórica para desenvolvimento de software escalável." },

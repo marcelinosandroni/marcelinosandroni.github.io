@@ -7,6 +7,7 @@ import { getAlternateLanguageMap, SUPPORTED_LOCALES, type Locale } from "@/domai
 import { ArticleSlug } from "@/domain/blog";
 import { getHomeContent } from "@/infrastructure/content/home";
 import { getResumeContent } from "@/infrastructure/content";
+import { articlesEnUS, articlesPtBR } from "@/infrastructure/content/blog";
 
 /**
  * Guards the home page configuration.
@@ -244,6 +245,216 @@ describe("home content: track record joins to the resume", () => {
         expect(annotation.impact.label.trim()).not.toBe("");
         expect(annotation.impact.value.trim()).not.toBe("");
         expect(ACCENT_TONES.has(annotation.impact.accent)).toBe(true);
+      }
+    });
+
+    /**
+     * The blueprint is a curated summary of what that role actually ran on, so
+     * every chip must be one of that experience's declared technologies. This is
+     * what stops a stack chip from becoming an unbacked claim.
+     */
+    it(`draws every ${locale} blueprint from that role's own technologies`, () => {
+      const resume = getResumeContent(locale);
+
+      for (const annotation of getHomeContent(locale).trackRecord.annotations) {
+        const experience = resume.experiences.find(
+          (candidate) => candidate.company === annotation.company,
+        );
+        const technologies = new Set(experience?.technologies ?? []);
+
+        for (const tech of annotation.blueprint) {
+          expect(technologies.has(tech), `${annotation.company}: "${tech}"`).toBe(true);
+        }
+      }
+    });
+  }
+});
+
+/**
+ * Copy rules for the executive filter. These are the constraints that a content
+ * edit can silently break, expressed as assertions so review does not have to
+ * catch them by eye.
+ */
+describe("copy rules: anti-cringe", () => {
+  const FORBIDDEN: [string, RegExp][] = [
+    ["codename NEO", /\bNEO\b/],
+    ["AnimateMatrix", /AnimateMatrix/],
+    ["Minority Report", /Minority Report/],
+    ["single-quoted Neo", /'Neo'/],
+    ["cognitive matrix", /cognitive matrix/i],
+    ["neural", /neural/i],
+  ];
+
+  const userFacing: [string, () => string][] = [
+    ["home/pt-BR", () => JSON.stringify(getHomeContent("pt-BR"))],
+    ["home/en-US", () => JSON.stringify(getHomeContent("en-US"))],
+    ["resume/pt-BR", () => JSON.stringify(getResumeContent("pt-BR"))],
+    ["resume/en-US", () => JSON.stringify(getResumeContent("en-US"))],
+    ["blog/pt-BR", () => JSON.stringify(articlesPtBR)],
+    ["blog/en-US", () => JSON.stringify(articlesEnUS)],
+  ];
+
+  it.each(userFacing)("%s carries no fiction naming", (_label, read) => {
+    const text = read();
+
+    for (const [name, pattern] of FORBIDDEN) {
+      expect(pattern.test(text), `${_label} contains ${name}`).toBe(false);
+    }
+  });
+
+  it("uses American spelling in the en-US catalogs", () => {
+    const british = [
+      "behaviour", "artefact", "rigour", "programme", "licence", "defence",
+      "prioritis", "normalis", "modernis", "optimis", "organis", "standardis",
+      "specialis", "stabilis", "utilis",
+    ];
+
+    for (const [label, read] of userFacing) {
+      if (!label.endsWith("en-US")) continue;
+
+      for (const word of british) {
+        // `optimistic` is correct American English; only flag the stem elsewhere.
+        const pattern = new RegExp(`\\b${word}(?!tic|tically)`, "i");
+        expect(pattern.test(read()), `${label} has British "${word}"`).toBe(false);
+      }
+    }
+  });
+
+  it("uses no European Portuguese in the pt-BR catalogs", () => {
+    const ptPt = [
+      "contacto", "objectivo", "projecto", "equipa", "ficheiro", "actividade",
+      "actualizar", "adoptar", "efectivo", "aspecto", "acção",
+    ];
+
+    for (const [label, read] of userFacing) {
+      if (!label.endsWith("pt-BR")) continue;
+
+      for (const word of ptPt) {
+        expect(new RegExp(`\\b${word}`, "i").test(read()), `${label} has PT-PT "${word}"`).toBe(
+          false,
+        );
+      }
+    }
+  });
+});
+
+describe("copy rules: extreme compression", () => {
+  for (const locale of LOCALES) {
+    it(`keeps ${locale} to three bullets per employer`, () => {
+      const resume = getResumeContent(locale);
+
+      for (const experience of resume.experiences) {
+        expect(experience.highlights.length, experience.company).toBeLessThanOrEqual(3);
+        expect(experience.highlights.length, experience.company).toBeGreaterThan(0);
+      }
+    });
+
+    /**
+     * Every surviving bullet has to carry a number, because the compression rule
+     * is "keep only what has R$, % or volumetry impact". A bullet with no figure
+     * is a bullet that should have been cut.
+     */
+    it(`keeps every ${locale} bullet measurable`, () => {
+      for (const experience of getResumeContent(locale).experiences) {
+        for (const highlight of experience.highlights) {
+          expect(highlight, `${experience.company}: "${highlight.slice(0, 40)}"`).toMatch(/\d/);
+        }
+      }
+    });
+
+    it(`keeps every ${locale} impact badge numeric`, () => {
+      for (const annotation of getHomeContent(locale).trackRecord.annotations) {
+        expect(annotation.impact.value, annotation.company).toMatch(/\d/);
+      }
+    });
+  }
+});
+
+describe("copy rules: coherent arithmetic", () => {
+  it("states the 15 + 6 = 21 progression in the hero, in both languages", () => {
+    for (const locale of LOCALES) {
+      const { narrative } = getHomeContent(locale).hero;
+
+      expect(narrative, locale).toMatch(/\b15\b/);
+      expect(narrative, locale).toMatch(/\b6\b/);
+      expect(narrative, locale).toMatch(/\b21\b/);
+    }
+  });
+
+  it("carries the same arithmetic in the resume summary", () => {
+    for (const locale of LOCALES) {
+      const { summary } = getResumeContent(locale);
+
+      for (const figure of ["15", "6", "21"]) {
+        expect(summary, `${locale} summary`).toContain(figure);
+      }
+    }
+  });
+
+  it("anchors the combined-experience KPI to 21", () => {
+    for (const locale of LOCALES) {
+      const kpi = getHomeContent(locale).kpis.items.find((item) => item.id === "track");
+
+      expect(kpi, locale).toBeDefined();
+      expect(kpi?.value, locale).toMatch(/21/);
+    }
+  });
+
+  /**
+   * The two periods must be stated as ranges, not as a bare total, or a reader
+   * cannot tell where 21 comes from. This also guards the arithmetic against a
+   * silent edit to one side of the sum.
+   */
+  it("spells out both periods so the sum is auditable", () => {
+    for (const locale of LOCALES) {
+      const { narrative } = getHomeContent(locale).hero;
+
+      expect(narrative, locale).toMatch(/2005\D{0,3}2020/);
+      expect(narrative, locale).toMatch(/2021\D{0,3}2026/);
+    }
+  });
+});
+
+describe("copy rules: technical arsenal taxonomy", () => {
+  const EXPECTED = {
+    "pt-BR": ["Frontend & UI", "Backend Core", "DevOps & Cloud", "Inteligência Artificial"],
+    "en-US": ["Frontend & UI", "Backend Core", "DevOps & Cloud", "Artificial Intelligence"],
+  } as const;
+
+  for (const locale of LOCALES) {
+    it(`groups ${locale} into exactly the four required categories`, () => {
+      const clusters = getHomeContent(locale).stack.clusters;
+
+      expect(clusters).toHaveLength(4);
+      expect(clusters.map((cluster) => cluster.title)).toEqual(EXPECTED[locale]);
+    });
+
+    it(`groups the ${locale} resume skills into the same four categories`, () => {
+      const groups = getResumeContent(locale).skillGroups;
+
+      expect(groups).toHaveLength(4);
+      expect(groups.map((group) => group.label)).toEqual(EXPECTED[locale]);
+    });
+
+    /**
+     * "Agrupe as skills da base": every chip on the arsenal must be a skill the
+     * resume actually claims, in the same category. Anything else is a chip the
+     * site asserts and the document of record does not support.
+     */
+    it(`derives every ${locale} arsenal chip from the resume skills`, () => {
+      const home = getHomeContent(locale);
+      const groups = getResumeContent(locale).skillGroups;
+
+      for (const cluster of home.stack.clusters) {
+        const declared = new Set(
+          groups.find((group) => group.label === cluster.title)?.skills ?? [],
+        );
+
+        expect(declared.size, cluster.title).toBeGreaterThan(0);
+
+        for (const item of cluster.items) {
+          expect(declared.has(item), `${cluster.title}: "${item}"`).toBe(true);
+        }
       }
     });
   }

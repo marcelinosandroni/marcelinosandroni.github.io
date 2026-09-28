@@ -7,33 +7,38 @@ import type { HomeContent } from "@/domain/portfolio";
  * the document of record: this file frames the *same* career as an executive
  * landing page without altering a single resume fact (DESIGN.md §12).
  *
- * Numbers are the ones defensible in an interview, sourced from the resume's own
- * case studies. Nothing here is a vanity metric.
+ * Copy rules enforced by the test suite, not by good intentions:
+ *  - no fiction naming: no codenames, no film or pop-culture references, and no
+ *    invented project names. Systems are named for what they do;
+ *  - every figure is measurable — R$, %, or volumetry — and traceable to the
+ *    resume, so nothing here is a vanity metric or a rounding of a rounding;
+ *  - the career arithmetic is stated explicitly rather than left for the reader
+ *    to infer from two date ranges.
  */
 export const homeContentPtBR: HomeContent = {
   locale: "pt-BR",
 
   hero: {
-    statusPill: "Engenharia Executiva // Especificação AnimateMatrix v6.0",
+    statusPill: "Disponível para liderança fracionada e consultoria",
     name: "Marcelino Sandroni Dias",
-    headlineLead: "Engenharia do futuro em",
-    headlineAccent: "IA e finanças",
-    headlineTail: "distribuídas.",
+    headlineLead: "Engenharia de software com",
+    headlineAccent: "impacto em R$",
+    headlineTail: "e em escala.",
     role: "Engenheiro de Software Sênior & Tech Lead",
     narrative:
-      "21 anos conectando governança financeira corporativa, enfileiramentos de IA de altíssimo volume e arquiteturas fintech de altíssima concurrência. Histórico comprovado protegendo milhões em contratos críticos de segurança pública e banco — e converter cada decisão técnica em retorno financeiro auditável.",
+      "15 anos de governança financeira corporativa (2005–2020) somados a 6 anos de engenharia de software (2021–2026): 21 anos de expertise combinada. Atuação de ponta a ponta em arquitetura, backend, frontend, mobile e DevOps, com resultados medidos de R$ 24 milhões/ano em contratos protegidos, 100 milhões de mensagens processadas por dia e ganho de 10x em performance.",
     metaDescription:
-      "Currículo vivo de Marcelino Sandroni Dias: 15 anos entre governança financeira, pipelines de IA e fintech de alta concorrência — R$ 24M/ano e 100M msgs/dia de impacto medido.",
+      "Currículo vivo de Marcelino Sandroni Dias: 21 anos de expertise combinada entre governança financeira e engenharia de software — R$ 24M/ano e 100M msgs/dia de impacto medido.",
     primaryAction: {
-      label: "Agendar uma conversa executiva",
+      label: "Agendar uma conversa",
       href: "#contact",
       icon: "calendar",
     },
     secondaryAction: {
-      label: "Explorar a trajetória",
+      label: "Ver a trajetória",
       href: "#experience",
     },
-    availability: "Disponível para liderança fracionada, consultoria de arquitetura e mentoria técnica",
+    availability: "Disponível para liderança fracionada, consultoria de arquitetura e mentoria",
     channels: [
       {
         id: "github",
@@ -53,7 +58,7 @@ export const homeContentPtBR: HomeContent = {
       },
       {
         id: "email",
-        label: "E-MAIL DIRETO",
+        label: "E-MAIL",
         href: "mailto:marcelino.sandroni@gmail.com",
         value: "marcelino.sandroni@gmail.com",
         icon: "mail",
@@ -63,63 +68,63 @@ export const homeContentPtBR: HomeContent = {
     portrait: {
       src: "/portrait.jpg",
       alt: "Retrato de Marcelino Sandroni Dias, Tech Lead e Arquiteto de Software",
-      cornerMarks: ["// SEC_ID: NEO-001", "[SYS_OK]", "// CIPHER: HEX-256", "LATÊNCIA < 0.1ms"],
+      cornerMarks: ["// ID: MSD-01", "[NOMINAL]", "// STACK: FULL", "LATÊNCIA < 0.1ms"],
       badge: "ASSERTIVIDADE 100%",
-      caption: "NEO // ARQUITETO TÉCNICO",
-      captionMeta: "Núcleos distribuídos · SOX · GenAI",
-      ticker: ["UPLINK: ATIVO // 100M MSGS/DIA", "100% DE SLA"],
+      caption: "// TECH LEAD & ARQUITETO DE SOFTWARE",
+      captionMeta: "Go · .NET · Java · Kafka",
+      ticker: ["PROCESSAMENTO: 100M MSGS/DIA", "100% DE SLA"],
     },
   },
 
   kpis: {
     id: "kpis",
-    kicker: "// MÉTRICAS DUAS & IMPACTO FISCAL",
-    title: "Rigor de engenharia medido em capital e velocidade",
-    note: "Zero métricas de vaidade. Retornos de balanço auditáveis, arquiteturas sem indisponibilidade e stewardship profundo de conformidade.",
+    kicker: "// IMPACTO FINANCEIRO E OPERACIONAL",
+    title: "Engenharia medida em capital, escala e disponibilidade",
+    note: "Zero métrica de vaimento. Retorno auditável, arquitetura sem indisponibilidade e conformidade sob stewardship.",
     items: [
       {
-        id: "finance",
-        label: "SOBERANÇA FINANCEIRA",
-        value: "15 anos",
+        id: "track",
+        label: "EXPERIÊNCIA COMBINADA",
+        value: "21 anos",
         scale: "monumental",
         description:
-          "Base em contabilidade e estratégia corporativa. IFRS, controles SOX e governança tributária traduzidos diretamente em arquiteturas de software sem déficit.",
+          "15 anos de governança financeira corporativa (2005–2020) somados a 6 anos de engenharia de software (2021–2026). A base contábil é o que permite avaliar custo computacional e risco operacional como passivo de balanço.",
         icon: "account",
         accent: "primary",
-        footnote: { label: "CICLO DE FECHAMENTO", value: "−83% DE COMPRESSÃO" },
+        footnote: { label: "FECHAMENTO", value: "30→5 DIAS (-83%)" },
       },
       {
         id: "throughput",
-        label: "BACKEND DE ALTA CONCURRÊNCIA",
+        label: "BACKEND CORE",
         value: "100M+",
         scale: "monumental",
         description:
-          "Mensagens de telemetria processadas por dia em pipelines distribuídos em Go, particionamento Apache Kafka, ClickHouse e latência p99 de borda abaixo de 10ms.",
-        icon: "bolt",
+          "Mensagens de telemetria processadas por dia em pipelines distribuídos, com particionamento Apache Kafka, armazenamento colunar em ClickHouse e latência p99 de borda abaixo de 10ms.",
+        icon: "server",
         accent: "secondary",
         footnote: { label: "RECEITA PROTEGIDA", value: "R$ 24M/ANO" },
       },
       {
-        id: "product",
-        label: "DESIGN SYSTEM & UX",
-        value: "Pixel-perfect",
-        scale: "headline",
+        id: "platform",
+        label: "DEVOPS & CLOUD",
+        value: "-95%",
+        scale: "monumental",
         description:
-          "Sistemas frontend e microfrontends com Next.js, React, Tailwind e Flutter. Zero regressões, acessibilidade AA e carregamento instantâneo.",
-        icon: "brush",
+          "Tempo de deploy reduzido de 4 horas para 15 minutos, com rollback automático em menos de 2 minutos, 80% menos incidentes em produção e infraestrutura como código em AWS, Azure e GCP.",
+        icon: "cloud",
         accent: "primary",
-        footnote: { label: "REUSABILIDADE", value: "+40% DE VELOCIDADE" },
+        footnote: { label: "DEPLOY", value: "4H → 15MIN" },
       },
       {
         id: "ai",
-        label: "ENXAMES COGNITIVOS & IA",
-        value: "IA aplicada",
-        scale: "headline",
+        label: "INTELIGÊNCIA ARTIFICIAL",
+        value: "100%",
+        scale: "monumental",
         description:
-          "Agentes autônomos, RAG empresarial, similaridade com pgvector e modelos otimizados com TensorRT para inferência em fluxos de vídeo em tempo real.",
-        icon: "brain",
+          "Assertividade de 100% em reconhecimento de placas com visão computacional, somada a RAG empresarial, similaridade com pgvector e inferência otimizada com TensorRT em fluxos de vídeo.",
+        icon: "cpu",
         accent: "secondary",
-        footnote: { label: "ASSERTIVIDADE DO MODELO", value: "100% DE RECALL" },
+        footnote: { label: "RECALL", value: "100% PROD" },
       },
     ],
   },
@@ -127,78 +132,78 @@ export const homeContentPtBR: HomeContent = {
   stack: {
     id: "arsenal",
     kicker: "// ARSENAL TÉCNICO",
-    title: "Construído para escala, resiliência e velocidade",
-    note: "Sem dogmas. Cada linguagem, banco e broker é escolhido estritamente para resolver gargalos de alta concorrência e garantir estabilidade do negócio.",
+    title: "Quatro frentes, uma decisão por problema",
+    note: "Categorias fechadas e rastreáveis ao currículo. Cada tecnologia listada aqui aparece no currículo, na categoria em que aparece aqui.",
     clusters: [
       {
         id: "frontend",
-        title: "Frontend & Design Systems",
+        title: "Frontend & UI",
         description:
-          "Microfrontends empresariais, bibliotecas de componentes acessíveis, gerenciamento de estado e atualizações em tempo real de alta frequência.",
+          "Microfrontends empresariais, design systems acessíveis e renderização de alta frequência sem regressão de desempenho.",
         icon: "devices",
         accent: "primary",
         items: [
           "React",
-          "Next.js (SSR/RSC)",
+          "Next.js (RSC, SSR)",
           "Angular",
-          "React Native",
           "Flutter",
+          "React Native",
           "Tailwind CSS",
-          "Module Federation",
-          "Design Systems",
+          "Design System",
+          "Storybook",
         ],
       },
       {
         id: "backend",
-        title: "Backend & Arquitetura Distribuída",
+        title: "Backend Core",
         description:
-          "Domain-Driven Design, Arquitetura Hexagonal, CQRS, outbox transacional e roteamento de alto volume por partição.",
+          "Arquitetura hexagonal, domain-driven design, mensageria de alta vazão e modelagem de dados relacional e colunar.",
         icon: "server",
         accent: "secondary",
         items: [
-          "Go (Golang)",
-          "Node.js (NestJS)",
-          "C# .NET Core",
+          "Go",
           "Java (Spring Boot)",
-          "Python",
+          "C# (.NET Core)",
+          "Node.js (NestJS)",
           "Apache Kafka",
-          "ClickHouse",
           "PostgreSQL",
+          "ClickHouse",
+          "Redis",
         ],
       },
       {
         id: "platform",
-        title: "DevOps, Cloud & Confiabilidade",
+        title: "DevOps & Cloud",
         description:
-          "Infraestrutura como código, deploys imutáveis, canários automatizados, telemetria distribuída e políticas de confiança zero.",
+          "Infraestrutura como código, orquestração com Kubernetes, observabilidade distribuída e entrega contínua com quality gates.",
         icon: "cloud",
         accent: "primary",
         items: [
-          "Kubernetes (K8s)",
           "Docker",
-          "Terraform (IaC)",
-          "AWS Cloud",
+          "K8s (Helm, HPA)",
+          "IaC (Terraform)",
+          "AWS",
           "Azure",
           "GCP",
           "OpenTelemetry",
-          "Datadog",
+          "CI/CD",
         ],
       },
       {
         id: "intelligence",
-        title: "IA, Enxames Multi-Agente & Inferência",
+        title: "Inteligência Artificial",
         description:
-          "GenAI em produção, analítica de vídeo de baixa latência, embeddings contextuais e copilotos automatizados para times de desenvolvimento.",
+          "GenAI aplicada ao ciclo de desenvolvimento, recuperação aumentada por contexto e inferência de borda em tempo real.",
         icon: "cpu",
         accent: "secondary",
         items: [
-          "LLM (GPT/Claude)",
-          "pgvector & Qdrant",
-          "RAG Pipelines",
-          "TensorRT Edge",
+          "Integração LLMs (OpenAI, Claude, Gemini)",
+          "RAG",
+          "pgvector",
+          "Qdrant",
+          "TensorRT",
           "LangChain",
-          "Enxames Autônomos",
-          "Playwright AI QA",
+          "Agentes autônomos",
         ],
       },
     ],
@@ -206,9 +211,9 @@ export const homeContentPtBR: HomeContent = {
 
   trackRecord: {
     id: "experience",
-    kicker: "// VELOCIDADE DE CARREIRA",
-    title: "Trajetória: Experiência em Sistemas Mission-Critical",
-    note: "DADOS LEGÍVEIS EM SEGUNDOS // ZERO ENCHILVAÇÃO",
+    kicker: "// TRAJETÓRIA",
+    title: "Experiência: Execução em Sistemas de Produção",
+    note: "TRÊS RESULTADOS POR EMPRESA // APENAS IMPACTO COMPROVÁVEL",
     ctaLabel: "Abrir o currículo completo",
     resumeCtaLabel: "CURRÍCULO COMPLETO",
     currentCompany: "DGT Tecnologia",
@@ -216,52 +221,51 @@ export const homeContentPtBR: HomeContent = {
       {
         company: "DGT Tecnologia",
         impact: { label: "IMPACTO", value: "R$ 24M/ANO SALVOS", accent: "primary" },
-        blueprintLabel: "// BLUEPRINT DE STACK",
-        blueprint: ["Go", "ClickHouse", "Kafka", "TensorRT", "Kubernetes", "Playwright"],
-        teamLine: "LIDERANÇA DE TIME: 10 PESSOAS (DEV, QA, BA, PO, PM)",
+        blueprintLabel: "// STACK DO PAPEL",
+        blueprint: ["Go", "ClickHouse", "Kafka", "Docker", "Kubernetes", "Playwright"],
+        teamLine: "LIDERANÇA: 10 PESSOAS (DEV, QA, BA, PO, PM)",
       },
       {
         company: "Antlia",
         impact: { label: "IMPACTO", value: "+45% DE ATIVOS SOB GESTÃO", accent: "secondary" },
-        blueprintLabel: "// BLUEPRINT DE STACK",
-        blueprint: [
-          "Java Spring Boot",
-          "Kafka",
-          "Angular MFE",
-          "Arquitetura Hexagonal",
-          "Kubernetes",
-        ],
-        teamLine: "LIDERANÇA DE TIME: 8 DEVS (3 PRINCIPAIS/SÊNIORES), PO, QA, 2 BAs",
+        blueprintLabel: "// STACK DO PAPEL",
+        blueprint: ["Java Spring", "Kafka", "Angular", "Arquitetura Hexagonal", "Kubernetes"],
+        teamLine: "LIDERANÇA: 8 DEVS (3 PRINCIPAIS) + PO, QA, PM, 2 BAs",
       },
       {
         company: "Banco Itaú",
         impact: { label: "ESCALA", value: "+R$ 100 BI EM CUSTÓDIA", accent: "primary" },
-        blueprintLabel: "// BLUEPRINT DE STACK",
-        blueprint: ["C# .NET", "Flutter", "Angular", "AWS", "Kafka"],
-        teamLine: "COORTE: ESQUADRILHA MULTIDISCIPLINAR DE 9 PESSOAS",
+        blueprintLabel: "// STACK DO PAPEL",
+        blueprint: [".NET Core", "Flutter", "Angular", "AWS", "Mensageria"],
+        teamLine: "SQUAD MULTIDISCIPLINAR: 9 PESSOAS",
       },
       {
         company: "Pollux Technologies",
-        impact: { label: "CUSTO EM NUVEM", value: "−50% DE INFRA", accent: "secondary" },
-        blueprintLabel: "// BLUEPRINT DE STACK",
-        blueprint: ["Node.js", "TypeScript", "AWS Serverless", "React"],
-        teamLine: "MÉTRICA: 80% DOS PROJETOS ENTREGUES ANTES DO PRAZO",
+        impact: { label: "CUSTO EM NUVEM", value: "-50% DE INFRA", accent: "secondary" },
+        blueprintLabel: "// STACK DO PAPEL",
+        blueprint: ["TypeScript", "AWS", "Serverless", "React", "Python"],
+        teamLine: "PROMOVIDO DE JÚNIOR A PLENO EM 3 MESES // 80% DOS PROJETOS ANTES DO PRAZO",
       },
       {
         company: "Empresas de Consultoria Contábil",
-        impact: { label: "FECHAMENTO MENSAL", value: "30 → 5 DIAS (−83%)", accent: "primary" },
-        blueprintLabel: "// DISCIPLINAS NÚCLEO",
-        blueprint: ["IFRS / SOX", "Planejamento Tributário", "Integração ERP", "Auditoria"],
-        teamLine: "FORMAÇÃO: BACHARELADO EM CIÊNCIAS CONTÁBEIS (ESTÁCIO)",
+        impact: { label: "FECHAMENTO MENSAL", value: "30 → 5 DIAS (-83%)", accent: "primary" },
+        blueprintLabel: "// DISCIPLINAS",
+        blueprint: [
+          "Sistemas Contábeis Integrados",
+          "APIs de Integração",
+          "Plataformas Cloud",
+          "Sistemas de Gestão ERP",
+        ],
+        teamLine: "BACHARELADO EM CIÊNCIAS CONTÁBEIS // 20+ PESSOAS REALOCADAS",
       },
     ],
   },
 
   blog: {
     id: "blog",
-    kicker: "// CAPITAL INTELECTUAL",
-    title: "Whitepapers de arquitetura selecionados",
-    note: "ENGENHARIA & ESTRATÉGIA FISCAL",
+    kicker: "// ESCRITOS TÉCNICOS",
+    title: "Whitepapers e notas de campo",
+    note: "ENGENHARIA DE DADOS E LIDERANÇA TÉCNICA",
     ctaLabel: "Ver todos os artigos",
     limit: 3,
     items: [
@@ -277,11 +281,11 @@ export const homeContentPtBR: HomeContent = {
       },
       {
         slug: "rds-to-clickhouse-100m-messages-a-day",
-        category: "OLAP DE ALTA CONCURRÊNCIA",
+        category: "PLATAFORMAS DE DADOS",
         readingTimeMinutes: 12,
         title: "De RDS para ClickHouse: 100M de mensagens/dia com p99 abaixo de 10ms",
         excerpt:
-          "Benchmark de fundo sobre como eliminar contenção de locks em bancos relacionais e migrar para armazenamento colunar em consultas de telemetria de sub-segundo.",
+          "Como eliminar contenção de concorrência em bancos relacionais e mover a análise para armazenamento colunar com consultas de sub-segundo.",
         ctaLabel: "LER O BENCHMARK",
         accent: "secondary",
       },
@@ -289,9 +293,9 @@ export const homeContentPtBR: HomeContent = {
         slug: "dual-core-leader-accounting-rigor",
         category: "LIDERANÇA TÉCNICA",
         readingTimeMinutes: 6,
-        title: "O líder de núcleo duplo: por que a rigor contábil corporativo forma melhores arquitetos",
+        title: "O líder de núcleo duplo: por que a rigor contábil forma melhores arquitetos",
         excerpt:
-          "Como a disciplina financeira converte dívida técnica em passivos calculados e move a velocidade de desenvolvimento de centro de custo para motor de lucro.",
+          "Como a disciplina financeira converte dívida técnica em passivo calculado e move a velocidade de desenvolvimento de centro de custo para motor de lucro.",
         ctaLabel: "LER O ENSAIO",
         accent: "primary",
       },
@@ -300,12 +304,12 @@ export const homeContentPtBR: HomeContent = {
 
   contact: {
     id: "contact",
-    kicker: "// INICIAR ENGAJAMENTO",
+    kicker: "// CONTATO",
     title: "Vamos conversar.",
     narrative:
-      "Contrate um arquiteto que calcula a depreciação financeira da sua infraestrutura em nuvem antes de escrever a primeira linha de Go ou Java distribuído.",
-    portalLabel: "// PORTAL DE ACESSO EXECUTIVO",
-    statusNote: "STATUS: TODOS OS SISTEMAS NOMINAIS // CONFIANÇA ZERO // CONSENSO SUB-MILISSEGUNDO",
+      "Contrate um arquiteto que dimensiona o custo de depreciação da sua infraestrutura antes de escrever a primeira linha de Go, Java ou .NET distribuído.",
+    portalLabel: "// CANAL DE CONTATO DIRETO",
+    statusNote: "RESPOSTA EM ATÉ 1 DIA ÚTIL // SEM FORMULÁRIO, SEM RASTREAMENTO",
     channels: [
       {
         id: "email",
@@ -319,13 +323,13 @@ export const homeContentPtBR: HomeContent = {
         id: "location",
         label: "BASE",
         href: "https://www.google.com/maps/search/?api=1&query=Fortaleza+CE+Brasil",
-        value: "Fortaleza, CE (Remoto global / disponível para encontros-chave)",
+        value: "Fortaleza, CE (remoto global)",
         icon: "location",
         external: true,
       },
       {
         id: "response",
-        label: "PRAZO DE RESPOSTA",
+        label: "RESPOSTA",
         href: "mailto:marcelino.sandroni@gmail.com",
         value: "Até 1 dia útil",
         icon: "verified",
@@ -334,34 +338,34 @@ export const homeContentPtBR: HomeContent = {
     ],
     brief: {
       ctaLabel: "Abrir briefing pré-preenchido",
-      subject: "Conversa executiva — {company}",
+      subject: "Conversa técnica — {company}",
       bodyTemplate:
-        "Olá Marcelino,\n\nContexto: {company}\nEscopo: {scope}\n\nObjetivo da conversa:\n\nPrazo desejado:\n\nObrigado!",
+        "Olá Marcelino,\n\nEmpresa: {company}\nEscopo: {scope}\n\nObjetivo da conversa:\n\nPrazo desejado:\n\nObrigado!",
     },
   },
 
   footer: {
     id: "footer",
-    kicker: "// GATEWAY DE CONTATO",
-    title: "Vamos falar de arquitetura, escala e ROI",
+    kicker: "// CONTATO",
+    title: "Arquitetura, escala e retorno financeiro",
     narrative:
-      "Disponível para consultoria estratégica, arquitetura principal e papéis selecionados de liderança fracionada em sistemas corporativos de altíssimo volume.",
+      "Disponível para consultoria estratégica, arquitetura principal e liderança fracionada em sistemas corporativos de altíssimo volume.",
     columns: [
       {
         id: "direct",
-        title: "CANAIS DIRETOS",
+        title: "DIRETO",
         items: [
           {
             id: "session",
-            label: "Agendar sessão executiva",
+            label: "Agendar conversa",
             href: "#contact",
-            value: "Agendar sessão",
+            value: "Agendar conversa",
             icon: "calendar",
             external: false,
           },
           {
             id: "mail",
-            label: "E-mail direto",
+            label: "E-mail",
             href: "mailto:marcelino.sandroni@gmail.com",
             value: "marcelino.sandroni@gmail.com",
             icon: "mail",
@@ -383,7 +387,7 @@ export const homeContentPtBR: HomeContent = {
         items: [
           {
             id: "github",
-            label: "Perfil no GitHub",
+            label: "GitHub",
             href: "https://github.com/marcelinosandroni",
             value: "github.com/marcelinosandroni",
             icon: "code",
@@ -391,7 +395,7 @@ export const homeContentPtBR: HomeContent = {
           },
           {
             id: "linkedin",
-            label: "Perfil no LinkedIn",
+            label: "LinkedIn",
             href: "https://linkedin.com/in/marcelinosandroni",
             value: "linkedin.com/in/marcelinosandroni",
             icon: "external",
@@ -399,7 +403,7 @@ export const homeContentPtBR: HomeContent = {
           },
           {
             id: "blog",
-            label: "Blog de engenharia",
+            label: "Blog técnico",
             href: "/blog",
             value: "Whitepapers",
             icon: "document",
