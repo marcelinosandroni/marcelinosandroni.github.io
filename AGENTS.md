@@ -146,6 +146,7 @@ echo "nova-entrada/" >> .gitignore
 | PDF Reference | [`docs/pdf-reference-contract.md`](./docs/pdf-reference-contract.md) | Contrato geração PDF |
 | LaTeX Template | [`docs/latex-template-authoring.md`](./docs/latex-template-authoring.md) | Guia templates LaTeX |
 | Release Process | [`docs/release-process.md`](./docs/release-process.md) | Processo de release |
+| ADR-005 i18n | [`docs/adr/ADR-005-internationalization-strategy.md`](./docs/adr/ADR-005-internationalization-strategy.md) | Estratégia de internacionalização |
 
 ### Pasta Product (Docs Legado)
 | Documento | Localização |
