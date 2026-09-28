@@ -1,9 +1,10 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import { ResumeVersion } from "@/domain/publication/resume-version";
 import { BuildResumeDocument } from "@/application/publication/build-resume-document";
 import { PublishPDFResume } from "@/application/publication/publish-pdf-resume";
 import { LaTeXResumeRenderer } from "@/infrastructure/renderers/latex-resume-renderer";
 import { MockPDFCompiler } from "@/infrastructure/pdf/mock-pdf-compiler";
+import { labelsFor } from "../../fixtures/pdf-labels";
 
 const sampleContent = {
   locale: "pt-BR" as const,
@@ -54,6 +55,7 @@ describe("PDF Generation Integration", () => {
       ResumeVersion.create("1.0.0"),
       "pt-BR",
       sampleContent,
+      await labelsFor("pt-BR"),
     );
 
     expect(result.version.toString()).toBe("1.0.0");
@@ -75,12 +77,14 @@ describe("PDF Generation Integration", () => {
       ResumeVersion.create("1.0.0"),
       "pt-BR",
       sampleContent,
+      await labelsFor("pt-BR"),
     );
 
     const resultEnUs = await publisher.execute(
       ResumeVersion.create("1.0.0"),
       "en-US",
       { ...sampleContent, locale: "en-US" },
+      await labelsFor("en-US"),
     );
 
     expect(resultPtBr.locale).toBe("pt-BR");
