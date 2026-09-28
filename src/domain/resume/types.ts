@@ -1,4 +1,6 @@
-export type Locale = "pt-BR" | "en-US";
+export type { Locale } from "@/domain/i18n";
+
+import type { Locale } from "@/domain/i18n";
 
 export type CaseStudy = {
   title: string;
