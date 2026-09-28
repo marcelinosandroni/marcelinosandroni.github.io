@@ -30,6 +30,13 @@ Documentação técnica detalhada e guias específicos:
 | [`release-process.md`](./release-process.md) | Processo de release e versionamento |
 | [`EXPERIENCES-ENRICHMENT.md`](./EXPERIENCES-ENRICHMENT.md) | Diretrizes para enriquecimento de experiências |
 
+### 2.1 Architecture Decision Records (ADR) 📋
+Local: `/docs/adr/`
+
+| Documento | Descrição |
+|-----------|-----------|
+| [`ADR-005-internationalization-strategy.md`](./adr/ADR-005-internationalization-strategy.md) | Estratégia de i18n: rotas localizadas, catálogos tipados, SEO por idioma |
+
 ### 3. Pasta Product (Legado) ⚠️
 Local: `/docs/product/`
 

@@ -150,6 +150,12 @@ interface StorageAdapter {
 
 ## Estrutura de Diretórios
 
+> **Nota**: a estrutura abaixo é a arquitetura *alvo* derivada do DDD. A
+> implementação atual de apresentação e internacionalização está descrita em
+> [ADR-005](../../docs/adr/ADR-005-internationalization-strategy.md): o App
+> Router do Next.js usa `src/app` e `src/components`, e o roteamento i18n vive
+> em `src/app/[locale]` com `src/proxy.ts`.
+
 ```
 src/
 ├── domain/                    # Domínio (puro, zero deps externas)
@@ -162,6 +168,10 @@ src/
 │   │   ├── language-code.ts
 │   │   ├── date-range.ts
 │   │   └── contact-info.ts
+│   ├── i18n/                  # Contrato de locale (puro, sem React/Next)
+│   │   └── locale.ts
+│   ├── site/                  # Identidade estática do site
+│   │   └── site-info.ts
 │   └── repositories/          # Interfaces (Ports)
 │       ├── resume-repository.ts
 │       └── pdf-generator.ts
@@ -179,13 +189,36 @@ src/
 │   │   ├── git-files-adapter.ts
 │   │   ├── supabase-adapter.ts
 │   │   └── latex-pdf-adapter.ts
-│   └── config/
+│   ├── content/               # Currículo por locale
+│   ├── i18n/                  # Negociação de Accept-Language (edge-safe)
+│   ├── pdf/
+│   └── renderers/
 │
-└── presentation/              # Next.js / React
-    ├── components/
-    ├── pages/
-    ├── hooks/
-    └── i18n/
+├── i18n/                      # Catálogos de mensagem (somente servidor)
+│   ├── dictionaries/
+│   │   ├── en-US.ts           # Locale de referência: define o contrato
+│   │   └── pt-BR.ts
+│   └── format-message.ts
+│
+├── app/                       # App Router
+│   ├── [locale]/              # Layout raiz sob segmento dinâmico
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   └── not-found.tsx
+│   ├── global-not-found.tsx
+│   ├── api/
+│   ├── robots.ts
+│   └── sitemap.ts
+│
+├── components/                # Apresentação
+│   ├── resume-view.tsx        # Server Component
+│   ├── locale-switcher.tsx    # Server Component (Link)
+│   └── download-pdf-button.tsx# Único Client Component
+│
+├── proxy.ts                   # Negociação e canonicalização de locale (edge)
+│
+└── presentation/              # Pages Router legado (planejado)
+    └── ...
 ```
 
 ---
@@ -224,6 +257,22 @@ src/
 6. UI atualiza com conteúdo da versão
 ```
 
+### Fluxo 4: Resolver idioma e renderizar currículo
+```
+1. Requisição chega em `src/proxy.ts` (edge)
+2. Se o primeiro segmento é um locale canônico -> segue para renderização
+3. Se é `/` -> Negocia por `?locale=`/`?lang>` e, na ausência, por Accept-Language
+4. Redireciona (307) para `/{locale-segment}`
+5. `app/[locale]/layout.tsx` define <html lang> e metadata via generateMetadata
+6. `app/[locale]/page.tsx` renderiza `ResumeView` (Server Component)
+7. `ResumeView` resolve o locale por `next/root-params` (getter `locale()`)
+8. `requireLocaleForRoute()` normaliza o segmento para a tag canônica
+9. `getDictionary(locale)` carrega o catálogo somente no servidor
+10. `getResumeContent(locale)` carrega o currículo somente no servidor
+11. HTML pré-renderizado (SSG) é enviado ao navegador
+12. Único Client Component (`DownloadPDFButton`) recebe strings via props
+```
+
 ---
 
 ## Decisões de Arquitetura (ADRs)
@@ -247,6 +296,21 @@ src/
 **Decisão**: `strict: true` no tsconfig, sem `any` implícitos.  
 **Motivo**: Segurança de tipos, melhor DX, menos bugs em runtime.  
 **Consequência**: Mais boilerplate inicial; curva de aprendizado.
+
+### ADR-005: Internacionalização por Rotas Localizadas e Catálogos de Mensagem
+**Decisão**: Layout raiz sob `app/[locale]/` com `generateStaticParams` e
+`dynamicParams = false`; `src/proxy.ts` negocia e canonicaliza o locale; todo
+texto de interface vive em catálogos tipados (`en-US` como referência, `pt-BR`
+tipado contra o contrato) carregados somente no servidor; apresentação é Server
+Component com um único Client Component isolado.  
+**Motivo**: Elimina texto fixado no código, gera HTML estático por idioma,
+remove 74 KB de currículo do bundle do cliente e habilita `hreflang`,
+`canonical`, `<html lang>` e sitemap por idioma.  
+**Consequência**: Adicionar um idioma passa a ser uma mudança tipada em
+`SUPPORTED_LOCALES`, um novo catálogo e um novo arquivo de conteúdo. O 404 global
+depende de `experimental.globalNotFound`. Âncoras de seção passaram a ser
+neutras (`#experience`, `#skills`, `#education`), o que altera links antigos.  
+**Documentação completa**: [ADR-005](../../docs/adr/ADR-005-internationalization-strategy.md)
 
 ---
 

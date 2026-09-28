@@ -20,10 +20,10 @@ Este documento consolida a visão, requisitos e backlog do produto em um formato
 **Status**: Em progresso
 
 ### EPIC-02: Internacionalização
-**Descrição**: Suportar múltiplos idiomas (PT-BR e EN-US) com conteúdo sincronizado.
+**Descrição**: Suportar múltiplos idiomas (EN-US e PT-BR) com conteúdo sincronizado.
 **User Stories**: US-02
 **Prioridade**: Alta
-**Status**: Planejado
+**Status**: Em progresso (roteamento, catálogos e SEO concluídos; paridade de conteúdo Markdown pendente)
 
 ### EPIC-03: Geração e Download de PDF
 **Descrição**: Gerar e disponibilizar PDFs determinísticos e versionados.
@@ -70,22 +70,33 @@ Este documento consolida a visão, requisitos e backlog do produto em um formato
 ### US-02: Alternar idioma
 **Épico**: EPIC-02  
 **Como**: Visitante internacional  
-**Quero**: Alternar entre PT-BR e EN-US  
+**Quero**: Alternar entre EN-US e PT-BR  
 **Para**: Ler o currículo no meu idioma  
 
 **Critérios de Aceite**:
-- [ ] Mesma estrutura e fatos equivalentes
-- [ ] URL compartilhável por idioma (`/pt-br`, `/en-us`)
-- [ ] Metadata correta por idioma (title, description, Open Graph)
-- [ ] Sincronização automática entre idiomas
+- [x] Mesma estrutura e fatos equivalentes
+- [x] URL compartilhável por idioma (`/en-us`, `/pt-br`)
+- [x] Metadata correta por idioma (title, description, Open Graph, `hreflang`)
+- [x] Sincronização automática entre idiomas
+- [x] EN-US é o idioma padrão; PT-BR é a segunda opção
+- [x] Visitante sem URL de idioma é redirecionado conforme `Accept-Language`
+- [x] Nenhum texto da interface fica fixado no código (ver [ADR-005](../../docs/adr/ADR-005-internationalization-strategy.md))
+- [x] Nenhum texto fixado em outro idioma: catálogos, rótulos acessíveis, âncoras e metadados seguem o idioma selecionado
 
 **Especificações Técnicas**:
-- Roteamento Next.js com i18n
+- Roteamento Next.js App Router com segmento dinâmico `[locale]`
+- Contrato de locale em domínio puro (`src/domain/i18n`)
+- Catálogos de mensagem tipados por locale (`src/i18n/dictionaries`)
+- `proxy.ts` para negociação e canonicalização de URL
 - Fonte canônica: arquivos Markdown versionados
 - Validação de consistência entre idiomas
 
 **Tarefas**:
-- [ ] TASK-010: Configurar roteamento i18n
+- [x] TASK-010: Configurar roteamento i18n
+- [x] TASK-014: Criar contrato de locale em domínio
+- [x] TASK-015: Criar catálogos de mensagem tipados
+- [x] TASK-016: Implementar `proxy.ts` e SEO por idioma
+- [x] TASK-017: Tornar a apresentação Server Component
 - [ ] TASK-011: Implementar parser de Markdown tipado
 - [ ] TASK-012: Criar validador de sincronização PT-BR/EN-US
 - [ ] TASK-013: Adicionar testes de integração

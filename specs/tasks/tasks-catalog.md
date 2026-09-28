@@ -175,28 +175,147 @@ Este documento lista todas as tarefas derivadas das User Stories, organizadas po
 ### TASK-010: Configurar roteamento i18n
 **US Relacionada**: US-02  
 **Prioridade**: Alta  
-**Status**: 🔴 Não iniciada  
+**Status**: 🟢 Concluída  
 **Estimativa**: 2h  
+**Realizado**: 4h  
+**ADR**: [ADR-005](../../docs/adr/ADR-005-internationalization-strategy.md)
 
-**Descrição**: Implementar roteamento Next.js com suporte a PT-BR e EN-US.
+**Descrição**: Implementar roteamento Next.js com suporte a EN-US e PT-BR.
 
 **Critérios de Conclusão**:
-- [ ] Rotas `/pt-br` e `/en-us` funcionais
-- [ ] Redirecionamento padrão para PT-BR
-- [ ] Middleware detecta idioma preferido
-- [ ] URLs compartilháveis preservam idioma
-- [ ] Metadata dinâmica por idioma
+- [x] Rotas `/en-us` e `/pt-br` funcionais
+- [x] Redirecionamento padrão para EN-US
+- [x] Proxy detecta idioma preferido (`Accept-Language`)
+- [x] URLs compartilháveis preservam idioma
+- [x] Metadata dinâmica por idioma
+
+**O Que Foi Feito**:
+- ✅ Contrato de locale em `src/domain/i18n/locale.ts` (tag canônica × segmento de URL)
+- ✅ Layout raiz movido para `src/app/[locale]/layout.tsx` com `generateStaticParams`
+- ✅ `dynamicParams = false`: locale não suportado retorna 404
+- ✅ `src/proxy.ts` no lugar do `middleware.ts` (depreciado no Next.js 16)
+- ✅ Redirect 307 de `/` e de `?locale=`/`?lang=` legados
+- ✅ Canonicalização 308 de segmento não canônico (`/PT-BR` → `/pt-br`)
+- ✅ `generateMetadata` por idioma com `canonical` e `hreflang` (`x-default`)
+- ✅ `<html lang>` correto por idioma
+- ✅ `sitemap.ts` e `robots.ts`
+- ✅ 404 localizado (`app/[locale]/not-found.tsx`) e 404 global
+  (`app/global-not-found.tsx` com `experimental.globalNotFound`)
 
 **Arquivos Esperados**:
-- `next.config.ts` com config i18n
-- `src/middleware.ts` para detecção
-- `src/i18n/config.ts` para configurações
+- `src/domain/i18n/locale.ts` — contrato de locale
+- `src/infrastructure/i18n/negotiate-locale.ts` — negociação de header
+- `src/app/[locale]/layout.tsx`, `page.tsx`, `not-found.tsx`
+- `src/app/global-not-found.tsx`, `src/app/sitemap.ts`, `src/app/robots.ts`
+- `src/proxy.ts`
 
 **Instruções para Agente**:
-1. Use App Router do Next.js 14+
-2. Implemente middleware para detecção
-3. Preserve idioma em navegações internas
-4. Teste com diferentes user-agents
+1. O getter de root param se chama `locale()` porque o segmento é `[locale]`, e
+   devolve o segmento **cru** da URL — normalize com `toLocale` antes de usar.
+2. Nunca adicione texto visível neste fluxo sem antes adicioná-lo aos catálogos.
+3. Ao adicionar um locale, atualize `SUPPORTED_LOCALES` e `LOCALE_SEGMENTS`; o
+   compilador vai cobrar o restante.
+
+---
+
+### TASK-014: Criar contrato de locale em domínio
+**US Relacionada**: US-02  
+**Prioridade**: Alta  
+**Status**: 🟢 Concluída  
+**Estimativa**: 1h  
+**Realizado**: 1h
+
+**Descrição**: Isolar a noção de idioma em módulo de domínio puro, sem React nem Next.js.
+
+**Critérios de Conclusão**:
+- [x] `Locale` (tag BCP-47) e `LocaleSegment` (URL) tipados separadamente
+- [x] `DEFAULT_LOCALE = "en-US"`
+- [x] `resolveLocale` aceita `pt`, `pt-PT`, `pt_BR`, `en-GB`
+- [x] `getAlternateLocale` sempre retorna um locale suportado diferente
+- [x] `getAlternateLanguageMap` inclui `x-default`
+- [x] Zero dependências de framework (verificado por revisão)
+
+**Arquivos Esperados**:
+- `src/domain/i18n/locale.ts`
+- `src/domain/i18n/index.ts`
+
+---
+
+### TASK-015: Criar catálogos de mensagem tipados
+**US Relacionada**: US-02  
+**Prioridade**: Alta  
+**Status**: 🟢 Concluída  
+**Estimativa**: 3h  
+**Realizado**: 3h
+
+**Descrição**: Eliminar todo texto fixado no código da apresentação.
+
+**Critérios de Conclusão**:
+- [x] `en-US` é o locale de referência e define o tipo `Dictionary`
+- [x] `pt-BR` tipado como `Dictionary` (chave errada quebra a compilação)
+- [x] Cobertura de 100% do texto de interface, metadata, rótulos acessíveis,
+      nomes de template de PDF e 404
+- [x] `formatMessage` com placeholders `{nome}` testado
+- [x] Carregamento por `import()` dinâmico, um chunk por locale
+- [x] Nenhum catálogo importado por Client Component
+- [x] Teste de paridade de chaves, placeholders e listas não vazias
+- [x] `resume-template-registry.ts` sem texto (rótulos movidos para o catálogo)
+
+**Arquivos Esperados**:
+- `src/i18n/dictionaries/en-US.ts`, `pt-BR.ts`, `index.ts`
+- `src/i18n/format-message.ts`, `src/i18n/index.ts`
+- `tests/unit/i18n/dictionaries.test.ts`
+
+---
+
+### TASK-016: Implementar proxy e SEO por idioma
+**US Relacionada**: US-02  
+**Prioridade**: Alta  
+**Status**: 🟢 Concluída  
+**Estimativa**: 2h  
+**Realizado**: 2h
+
+**Descrição**: Negociar e canonicalizar locale na edge, e expor a superfície de SEO por idioma.
+
+**Critérios de Conclusão**:
+- [x] `src/proxy.ts` com a convenção `proxy` (não `middleware`)
+- [x] Matcher ignora `api`, `_next` e arquivos com extensão
+- [x] Sem APIs Node no proxy (compatível com edge)
+- [x] Caminhos desconhecidos passam direto para o 404, sem redirect em dois saltos
+- [x] `canonical` e `hreflang` por idioma
+- [x] `sitemap.xml` com alternates e `robots.txt`
+- [x] JSON-LD por idioma com `inLanguage` e escape de `<`
+
+**Arquivos Esperados**:
+- `src/proxy.ts`
+- `src/app/[locale]/layout.tsx`
+- `src/app/sitemap.ts`, `src/app/robots.ts`
+
+---
+
+### TASK-017: Tornar a apresentação Server Component
+**US Relacionada**: US-01, US-02  
+**Prioridade**: Alta  
+**Status**: 🟢 Concluída  
+**Estimativa**: 3h  
+**Realizado**: 3h
+
+**Descrição**: Tirar o currículo do bundle do cliente sem perder a única interação real da página.
+
+**Critérios de Conclusão**:
+- [x] `ResumeView` é Server Component e resolve locale por `next/root-params`
+- [x] Conteúdo do currículo ausente do JavaScript do cliente (verificado por e2e)
+- [x] `LocaleSwitcher` virou `<Link>` de servidor (rastreável, copiável, prefetch)
+- [x] `DownloadPDFButton` é o único Client Component e recebe strings via props
+- [x] Âncoras de seção neutras (`#experience`, `#skills`, `#education`)
+- [x] Versão do site lida de `package.json` (fonte única, sem string duplicada)
+- [x] Estado de erro do download anunciado com `role="alert"`
+
+**Arquivos Esperados**:
+- `src/components/resume-view.tsx`
+- `src/components/locale-switcher.tsx`
+- `src/components/download-pdf-button.tsx`
+- `src/domain/site/site-info.ts`
 
 ---
 
@@ -613,6 +732,8 @@ Template funcional. Validar visualmente PDF gerado e ajustar detalhes finos se n
 | FEAT-06 | Interação nas experiências (mídia, desafios) | EPIC-01 | Baixa | TASK-002 |
 | FEAT-07 | Anos de experiência por habilidade (cálculo auto) | EPIC-01 | Média | TASK-001 |
 | FEAT-08 | Lint automático e regras para Markdown | - | Média | TASK-011 |
+| FEAT-09 | Adicionar novo idioma (ex.: es-ES) seguindo o contrato de locale | EPIC-02 | Baixa | TASK-014, TASK-015 |
+| FEAT-10 | Verificação de texto fixado residual em componentes (regra de lint) | EPIC-02 | Média | TASK-015 |
 
 ---
 
@@ -665,4 +786,5 @@ Template funcional. Validar visualmente PDF gerado e ajustar detalhes finos se n
 
 | Data | Tarefa | Mudança | Autor |
 |------|--------|---------|-------|
+| 2026-09-28 | TASK-010, TASK-014..017 | Roteamento i18n, catálogos tipados, SEO por idioma e Server Components. EN-US passou a ser o locale padrão. Ver [ADR-005](../../docs/adr/ADR-005-internationalization-strategy.md) | opencode |
 | 2025-01-15 | Todas | Criação inicial do catálogo | System |

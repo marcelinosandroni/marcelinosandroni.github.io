@@ -5,6 +5,139 @@ Este documento define os contratos técnicos entre camadas, especificações de 
 
 ---
 
+## Contrato de Internacionalização
+
+> Implementado conforme [ADR-005](../../docs/adr/ADR-005-internationalization-strategy.md).
+> Este é o contrato que governa **todo texto** exibido pela aplicação.
+
+### Contrato de Locale (`src/domain/i18n/locale.ts`)
+
+| Símbolo | Tipo | Valor / Regra |
+|---|---|---|
+| `SUPPORTED_LOCALES` | `readonly ["en-US", "pt-BR"]` | Locales suportados, em tag BCP-47 canônica |
+| `DEFAULT_LOCALE` | `"en-US"` | Idioma padrão; destino de `x-default` e de fallback |
+| `Locale` | `"en-US" \| "pt-BR"` | Tag canônica; usada em domínio, conteúdo e artefatos |
+| `LocaleSegment` | `"en-us" \| "pt-br"` | Segmento de URL em minúsculas |
+| `LOCALE_SEGMENTS` | `Record<Locale, LocaleSegment>` | Mapeamento canônico entre tag e segmento |
+| `LOCALE_LABELS` | `Record<Locale, {endonym, short}>` | Endônimo e sigla de UI por locale |
+
+**Funções do contrato**
+
+| Função | Assinatura | Comportamento |
+|---|---|---|
+| `isLocale` | `(value: string) => value is Locale` | `true` apenas para tags canônicas exatas |
+| `isLocaleSegment` | `(value: string) => value is LocaleSegment` | Case-insensitive |
+| `canonicalizeSegment` | `(segment: string) => LocaleSegment \| null` | Minúscula canônica ou `null` |
+| `toLocaleSegment` | `(locale: Locale) => LocaleSegment` | Total |
+| `toLocale` | `(segment: string) => Locale \| null` | Lenient, aceita qualquer caixa |
+| `toLocaleFromSegment` | `(segment: LocaleSegment) => Locale` | Total; exige narrowing prévio |
+| `resolveLocale` | `(tag: string) => Locale \| null` | Aceita `pt`, `pt-PT`, `pt_BR`; `null` se idioma não suportado |
+| `getAlternateLocale` | `(locale: Locale) => Locale` | Sempre um locale suportado diferente do recebido |
+| `getAlternateLanguageMap` | `() => Record<string, string>` | Mapa `hreflang` com todos os locales + `x-default` |
+| `toOpenGraphLocale` | `(locale: Locale) => string` | `pt-BR` → `pt_BR` |
+
+**Invariantes**
+1. `toLocaleSegment` sempre produz minúsculas.
+2. `toLocale` e `toLocaleFromSegment` são inversas uma da outra para segmentos válidos.
+3. `getAlternateLocale(l)` ∈ `SUPPORTED_LOCALES` e ≠ `l`.
+4. `SUPPORTED_LOCALE_SEGMENTS` é sempre derivado de `SUPPORTED_LOCALES`.
+5. O domínio não importa React, Next.js nem `negotiator`.
+
+### Contrato de Negociação (`src/infrastructure/i18n/negotiate-locale.ts`)
+
+```typescript
+function negotiateLocale(acceptLanguage: string | null | undefined): Locale;
+```
+
+- Usa `@formatjs/intl-localematcher` + `negotiator` (RFC 4647 lookup, com `q` values).
+- **Nunca lança**: header ausente, vazio ou malformado retorna `DEFAULT_LOCALE`.
+- Compatível com edge: sem APIs Node, sem estado global.
+
+### Contrato do Catálogo de Mensagens (`src/i18n/dictionaries/`)
+
+```typescript
+// en-US.ts — locale de REFERÊNCIA. Define o contrato.
+export const enUS = { metadata: {...}, nav: {...}, hero: {...}, ... };
+export type Dictionary = typeof enUS;
+
+// pt-BR.ts —-DEVE satisfazer o contrato.
+export const ptBR: Dictionary = { ... };
+```
+
+**Invariantes**
+1. Todo locale satisfaz `Dictionary`; chave ausente ou com forma errada **quebra a compilação**.
+2. Todo valor é `string` não vazio ou `string[]` não vazio.
+3. Listas não contêm entradas duplicadas nem entradas em branco.
+4. Placeholders `{nome}` são idênticos entre locales para a mesma chave.
+5. `metadata.knowsAbout` e as chaves de `pdf.templates` correspondem um a um entre locales.
+6. `metadata.keywords` **não** precisa ter o mesmo tamanho entre locales: conjuntos de SEO são específicos por idioma.
+7. Catálogos são carregados por `import()` dinâmico, um chunk por locale, e **nunca** são importados por Client Components.
+
+**Placeholders** são resolvidos por `formatMessage(template, values)`. Placeholders
+sem valor permanecem visíveis no texto, para que a falha apareça na interface em
+vez de virar um buraco silencioso.
+
+```typescript
+function formatMessage(template: string, values?: Record<string, string | number>): string;
+```
+
+### Contrato de Acesso ao Catálogo (`src/i18n/dictionaries/index.ts`)
+
+| Função | Uso | Restrição |
+|---|---|---|
+| `getDictionary(locale)` | Código com locale explícito (metadata, 404) | Server only |
+| `getDictionaryForRoute()` | Server Components aninhados | Server only; usa `next/root-params` |
+| `requireLocaleForRoute()` | Componentes que precisam do `Locale` canônico | Server only; chama `notFound()` se inválido |
+
+`getDictionaryForRoute` e `requireLocaleForRoute` importam `locale` de
+`next/root-params`. O nome do getter deriva do nome do segmento (`app/[locale]`),
+e o valor devolvido é o segmento **cru** da URL (`pt-br`), que precisa ser
+normalizado para a tag canônica. Importar qualquer um deles em um Client
+Component é erro de build.
+
+### Contrato de Rotas
+
+| Rota | Tipo | Idioma | Descrição |
+|---|---|---|---|
+| `/` | redirect 307 | negociado | Redireciona para `/{locale}` |
+| `/en-us` | SSG | `en-US` | Currículo em inglês |
+| `/pt-br` | SSG | `pt-BR` | Currículo em português |
+| `/PT-BR`, `/pt_BR` | redirect 308 | — | Canonicalização do segmento |
+| `/?locale=pt-BR`, `/?lang=pt` | redirect 307 | — | Compatibilidade com links legados |
+| `/fr` | 404 | — | Locale não suportado (`dynamicParams = false`) |
+| `/sitemap.xml` | static | — | Uma entrada por locale com `hreflang` |
+| `/robots.txt` | static | — | Permite `/`, bloqueia `/api/` |
+| `/api/resume/{locale}/pdf` | dynamic | — | Route Handler, fora de `[locale]` |
+
+### Contrato de Metadados por Idioma
+
+Gerados por `generateMetadata` em `app/[locale]/layout.tsx`:
+
+| Campo | Origem |
+|---|---|
+| `title`, `description` | `metadata.title` / `metadata.description` do catálogo |
+| `keywords` | `metadata.keywords` do catálogo |
+| `alternates.canonical` | `/{segmento}` |
+| `alternates.languages` | `getAlternateLanguageMap()` (inclui `x-default`) |
+| `openGraph.locale` | `toOpenGraphLocale(locale)` |
+| `openGraph.alternateLocale` | demais locales suportados |
+| `openGraph.siteName`, `twitter.*` | `metadata.*` do catálogo |
+| JSON-LD `inLanguage` | `locale` canônico |
+| JSON-LD `description`, `jobTitle`, `knowsAbout` | `metadata.*` do catálogo |
+
+Regras transversais de SEO que também são contrato:
+
+- **Nenhum texto visível pode ser escrito diretamente em componentes.** Toda
+  string exibida vem de um catálogo.
+- **Rótulos acessíveis** (`aria-label`, `role`, `alt`) também são traduzidos.
+- **Âncoras de seção são neutras**: `#experience`, `#skills`, `#education`.
+- **Identificadores técnicos** não são traduzidos: `ResumeTemplateId` (`CLEAN`,
+  `REFERENCE`) e `RESUME_TEMPLATE_IDS` permanecem estáveis, pois são contrato
+  com o endpoint de PDF.
+- **Metadados de arquivo** não são traduzidos: o PDF mantém o nome do autor.
+
+---
+
 ## Contrato de Conteúdo do Currículo
 
 ### Schema TypeScript
