@@ -47,8 +47,8 @@ Como visitante, quero consultar uma versão publicada para conferir quando o con
 - Interação nas experiência profissionais verificando os desafios e entregas com imagens, vídeos, projetos, código.
 - Adicionar anos de experiência em cada habilidade, com data de início calculando anos automaticamente.
 - Lint automático e regras para MD e outros
-- Remover a marcação markdown (`**negrito**`) do currículo PT-BR: os renderizadores LaTeX e PDFKit não a interpretam e hoje exibem asteriscos literais no PDF gerado.
 - Adicionar novo idioma (ex.: es-ES) a partir do contrato de locale existente: um arquivo de catálogo tipado, uma entrada em `SUPPORTED_LOCALES` e um `resume-data-*.ts`.
 - Regra de lint que proíba texto visível direto em componentes React, para barrar regressão de conteúdo fixado no código.
 - Datas relativas e números localizados por idioma (`Intl.RelativeTimeFormat`, `Intl.NumberFormat`) em datas de experiência e métricas.
 - CLI `scripts/validate-i18n-sync.ts` para relatar divergências de paridade entre idiomas com contexto legível, reaproveitando as regras dos testes.
+- Renderizar os `caseStudies` no currículo e no PDF. Hoje os 24 estudos de caso existem apenas como dados: nenhum renderer os consome, e a marcação markdown `**` usada no texto precisaria de suporte no `escapeLatex` antes de chegar ao PDF.
