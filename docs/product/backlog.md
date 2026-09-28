@@ -15,6 +15,8 @@ Como visitante internacional, quero alternar entre EN-US e PT-BR para ler o curr
 **Aceite:** mesma estrutura e fatos equivalentes; URL compartilhável e canônica por idioma; metadata, `hreflang` e sitemap corretos por idioma; nenhum texto da interface fixado no código.
 
 > **Status**: entregue em 2026-09-28. Decisão e trade-offs em [ADR-005](../adr/ADR-005-internationalization-strategy.md). EN-US é o idioma padrão.
+>
+> A versão EN-US do currículo foi reescrita como tradução completa do PT-BR, que é a fonte da verdade. A paridade de estrutura e fatos é verificada automaticamente em `tests/unit/presentation/content-locale.test.ts`.
 
 ### US-03 Explorar trajetória
 
@@ -45,6 +47,8 @@ Como visitante, quero consultar uma versão publicada para conferir quando o con
 - Interação nas experiência profissionais verificando os desafios e entregas com imagens, vídeos, projetos, código.
 - Adicionar anos de experiência em cada habilidade, com data de início calculando anos automaticamente.
 - Lint automático e regras para MD e outros
+- Remover a marcação markdown (`**negrito**`) do currículo PT-BR: os renderizadores LaTeX e PDFKit não a interpretam e hoje exibem asteriscos literais no PDF gerado.
 - Adicionar novo idioma (ex.: es-ES) a partir do contrato de locale existente: um arquivo de catálogo tipado, uma entrada em `SUPPORTED_LOCALES` e um `resume-data-*.ts`.
 - Regra de lint que proíba texto visível direto em componentes React, para barrar regressão de conteúdo fixado no código.
 - Datas relativas e números localizados por idioma (`Intl.RelativeTimeFormat`, `Intl.NumberFormat`) em datas de experiência e métricas.
+- CLI `scripts/validate-i18n-sync.ts` para relatar divergências de paridade entre idiomas com contexto legível, reaproveitando as regras dos testes.
