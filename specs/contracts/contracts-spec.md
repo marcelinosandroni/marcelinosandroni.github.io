@@ -33,7 +33,8 @@ Este documento define os contratos técnicos entre camadas, especificações de 
 | `toLocaleFromSegment` | `(segment: LocaleSegment) => Locale` | Total; exige narrowing prévio |
 | `resolveLocale` | `(tag: string) => Locale \| null` | Aceita `pt`, `pt-PT`, `pt_BR`; `null` se idioma não suportado |
 | `getAlternateLocale` | `(locale: Locale) => Locale` | Sempre um locale suportado diferente do recebido |
-| `getAlternateLanguageMap` | `() => Record<string, string>` | Mapa `hreflang` com todos os locales + `x-default` |
+| `getAlternateLanguageMap` | `(suffix?: string) => Record<string, string>` | Mapa `hreflang` com todos os locales + `x-default`; `suffix` aponta para rotas aninhadas |
+| `getAlternateOpenGraphLocales` | `(locale: Locale) => string[]` | Locales Open Graph exceto o ativo |
 | `toOpenGraphLocale` | `(locale: Locale) => string` | `pt-BR` → `pt_BR` |
 
 **Invariantes**
@@ -42,6 +43,11 @@ Este documento define os contratos técnicos entre camadas, especificações de 
 3. `getAlternateLocale(l)` ∈ `SUPPORTED_LOCALES` e ≠ `l`.
 4. `SUPPORTED_LOCALE_SEGMENTS` é sempre derivado de `SUPPORTED_LOCALES`.
 5. O domínio não importa React, Next.js nem `negotiator`.
+6. `getAlternateLanguageMap(suffix)` sempre inclui `x-default` apontando para o
+   locale de referência, com o mesmo `suffix`. Uma rota aninhada que redeclare
+   `alternates` precisa declarar o conjunto **completo**: o Next.js substitui o
+   objeto do layout em vez de mesclá-lo, então declarar apenas `canonical`
+   removeria os `hreflang` do layout.
 
 ### Contrato de Negociação (`src/infrastructure/i18n/negotiate-locale.ts`)
 
@@ -100,14 +106,23 @@ Component é erro de build.
 | Rota | Tipo | Idioma | Descrição |
 |---|---|---|---|
 | `/` | redirect 307 | negociado | Redireciona para `/{locale}` |
-| `/en-us` | SSG | `en-US` | Currículo em inglês |
-| `/pt-br` | SSG | `pt-BR` | Currículo em português |
+| `/en-us` | SSG | `en-US` | Home executiva em inglês |
+| `/pt-br` | SSG | `pt-BR` | Home executiva em português |
+| `/en-us/resume`, `/pt-br/resume` | SSG | por locale | Currículo completo — documento de registro |
+| `/en-us/blog`, `/pt-br/blog` | SSG | por locale | Índice do blog, lido de `blog_articles` |
+| `/en-us/blog/{slug}`, `/pt-br/blog/{slug}` | SSG + runtime | por locale | Artigo. Slugs conhecidos no build são pré-renderizados; os demais renderizam na primeira requisição (`dynamicParams` default), para que publicar não exija novo deploy |
+| `/en-us/blog/Not%20ASlug` | 404 | — | `ArticleSlug.create` falha antes de qualquer consulta |
 | `/PT-BR`, `/pt_BR` | redirect 308 | — | Canonicalização do segmento |
 | `/?locale=pt-BR`, `/?lang=pt` | redirect 307 | — | Compatibilidade com links legados |
 | `/fr` | 404 | — | Locale não suportado (`dynamicParams = false`) |
-| `/sitemap.xml` | static | — | Uma entrada por locale com `hreflang` |
+| `/sitemap.xml` | static | — | Home, currículo, blog e artigos, por locale, com `hreflang` |
 | `/robots.txt` | static | — | Permite `/`, bloqueia `/api/` |
 | `/api/resume/{locale}/pdf` | dynamic | — | Route Handler, fora de `[locale]` |
+
+Links entre páginas são construídos exclusivamente por
+`src/domain/site/routes.ts` (`homePath`, `resumePath`, `blogPath`, `articlePath`),
+de modo que nenhum componente duplica uma string de rota e nenhum leitor pt-BR
+chega a uma página em inglês.
 
 ### Contrato de Metadados por Idioma
 
@@ -124,6 +139,19 @@ Gerados por `generateMetadata` em `app/[locale]/layout.tsx`:
 | `openGraph.siteName`, `twitter.*` | `metadata.*` do catálogo |
 | JSON-LD `inLanguage` | `locale` canônico |
 | JSON-LD `description`, `jobTitle`, `knowsAbout` | `metadata.*` do catálogo |
+
+Rotas aninhadas (`/resume`, `/blog`, `/blog/[slug]`) possuem `generateMetadata`
+próprio e **redeclaram `alternates` e `openGraph` por inteiro**, incluindo o
+conjunto `hreflang` e o par `og:locale`. Declarar apenas `canonical` removeria
+esses campos, porque o Next.js substitui (não mescla) esses objetos.
+
+A home declara **apenas** `title` e `description` em `generateMetadata`. A copy
+vem de `home.hero.name` + `home.hero.role` e `home.hero.metaDescription`; o
+layout continua sendo dono de `alternates`, `openGraph` e `twitter`.
+
+O artigo emite `BlogPosting` (JSON-LD) com `headline`, `datePublished`,
+`dateModified`, `author`, `wordCount` e `timeRequired`, e retorna
+`robots: { index: false }` quando o slug é desconhecido ou inválido.
 
 Regras transversais de SEO que também são contrato:
 
@@ -423,6 +451,65 @@ lastUpdated: string (ISO 8601)
 
 ---
 
+## Contrato de Conteúdo da Home (Executive Overview)
+
+A home é uma landing page executiva cujo **todo** texto lido por um visitante é
+dado, não markup. O contrato vive em `src/domain/portfolio/home-content.ts`; os
+dados em `src/infrastructure/content/home/home-{locale}.ts`.
+
+### Divisão de responsabilidade
+
+| Origem | Contém | Exemplo |
+| --- | --- | --- |
+| `ResumeContent` | documento de registro, fonte da trajetória | cargos, destaques, tecnologias, formação |
+| `HomeContent` | enquadramento da home | KPIs, arsenal, badges de impacto, copy do hero, blog teasers, contato, rodapé |
+| `Dictionary` | chrome de UI | rótulos, aria, unidades, formatos |
+
+O currículo **não** é reformatado pelo design da home. A home **reusa** fatos do
+currículo (trajetória, formação) e possui copy própria. Ver
+[`DESIGN.md`](../../DESIGN.md) §12.
+
+### Vocabulários fechados
+
+Dados nunca nomeiam uma cor nem um glifo livremente:
+
+```ts
+type AccentTone = "primary" | "secondary" | "tertiary";   // lime | mint | slate
+type StatScale  = "monumental" | "headline";              // 48px | 32px
+type IconName   = /* 21 nomes, ver src/domain/portfolio/home-content.ts */;
+```
+
+Um `IconName` que a camada de apresentação não sabe renderizar é um erro de
+compilação, não um glifo ausente.
+
+### Junção com o currículo
+
+`HomeExperienceAnnotation` liga-se a `ResumeExperience` por `company`, nunca por
+posição — reordenar o currículo nunca reaponta um badge em silêncio. O join é
+verificado como total e não ambíguo para ambos os idiomas por
+`tests/unit/presentation/home-content.test.ts`.
+
+### Invariantes verificadas
+
+- `locale` bate com o registro consultado
+- Todo texto de usuário final é não-vazio e sem placeholder
+- Ids de seção são únicos e existem como âncora renderizada
+- `hero.secondaryAction.href` aponta para `#trackRecord.id`
+- Todo `href` interno resolve para uma rota real (`resume`, `blog`) ou para uma
+  âncora renderizada
+- Slugs de blog teaser são `ArticleSlug` válidos
+- Contagens (KPIs, clusters, canais, colunas) e escalas de estatística são
+  idênticas entre `pt-BR` e `en-US`
+
+### `hero.portrait.src`
+
+Opcional por contrato. `null` renderiza um monograma desenhado — um asset
+intencional, não uma imagem quebrada. Apontar para um arquivo em `public/`
+(por exemplo `"/portrait.jpg"`) é a única mudança necessária para usar uma
+fotografia; `next/image` assume dimensões e evita layout shift.
+
+---
+
 ## Contrato de Geração de PDF
 
 ### Input para Template LaTeX
@@ -689,6 +776,100 @@ CREATE POLICY "Public can download PDFs of published versions"
     )
   );
 ```
+
+> ⚠️ **Drift conhecido:** esta seção descreve `published_versions` e
+> `pdf_artifacts`, mas a migration aplicada
+> (`supabase/migrations/20260831000100_resume_publication.sql`) criou a tabela
+> única `resume_versions`, com `version`/`locale`/`content`/`published_at` e uma
+> policy `FOR SELECT` para `anon, authenticated`. Trate a migration como a
+> verdade; reconcilie esta seção em uma tarefa própria antes de construir sobre
+> `published_versions`.
+
+### Tabela `blog_articles`
+
+Fonte da verdade do blog. Uma linha por (artigo, idioma); o corpo é um array
+JSONB de blocos tipados, espelhando `ArticleBlock` em
+`src/domain/blog/article.ts`.
+
+```sql
+create type public.blog_category as enum (
+  'distributed-systems', 'data-platforms', 'leadership', 'ai-ml', 'fintech'
+);
+create type public.article_status as enum ('published', 'draft');
+
+create table public.blog_articles (
+  id uuid primary key,
+  locale text not null check (locale in ('pt-BR', 'en-US')),
+  slug text not null check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and length(slug) <= 96),
+  category public.blog_category not null,
+  status public.article_status not null default 'draft',
+  title text not null check (length(btrim(title)) > 0),
+  excerpt text not null check (length(btrim(excerpt)) > 0),
+  reading_time_minutes smallint not null check (reading_time_minutes between 1 and 120),
+  published_at date not null,
+  updated_at date,
+  featured boolean not null default false,
+  tags text[] not null default '{}',
+  body jsonb not null check (jsonb_typeof(body) = 'array' and jsonb_array_length(body) > 0),
+  created_at timestamptz not null default now(),
+  unique (locale, slug)
+);
+
+create index blog_articles_feed_idx
+  on public.blog_articles (locale, published_at desc)
+  where status = 'published';
+
+create index blog_articles_featured_idx
+  on public.blog_articles (locale, published_at desc)
+  where status = 'published' and featured;
+```
+
+Invariantes:
+
+- `id` é um UUID **estável**, compartilhado com o catálogo versionado em
+  `src/infrastructure/content/blog/`. É a chave de reconciliação entre a migration
+  e o código; nunca deve ser regenerado.
+- `slug` obedece ao mesmo invariante de `ArticleSlug.create`. O CHECK do banco e
+  o value object são a mesma regra em duas camadas.
+- `body` nunca é HTML. Blocos tipados apenas
+  (`paragraph`, `heading`, `list`, `quote`, `code`, `callout`).
+- Um artigo é uma linha por idioma: `pt-BR` e `en-US` compartilham `id` e `slug`.
+
+### RLS de `blog_articles`
+
+```sql
+alter table public.blog_articles enable row level security;
+
+-- Somente publicado, e somente a partir da data de publicação.
+create policy "published blog articles are publicly readable"
+  on public.blog_articles
+  for select
+  to anon, authenticated
+  using (status = 'published' and published_at <= current_date);
+```
+
+Não existe policy de `INSERT`/`UPDATE`/`DELETE`: o site não tem UI de autoria, e
+toda escrita passa por service-role ou por uma migration revisada. Um `draft` é
+invisível para o papel anônimo mesmo com a tabela exposta.
+
+### Contrato de leitura (porta `ArticleRepository`)
+
+```ts
+interface ArticleRepository {
+  listPublished(locale: Locale, limit?: number): Promise<ArticleSummary[]>;
+  findPublishedBySlug(locale: Locale, slug: ArticleSlug): Promise<BlogArticle | null>;
+}
+```
+
+Regras de composição, em `src/infrastructure/repositories/index.ts`:
+
+1. Sem `NEXT_PUBLIC_SUPABASE_URL`/`ANON_KEY` → `VersionedArticleRepository`
+   diretamente (sem import dinâmico do adapter, sem chamada de rede).
+2. Com banco configurado → `FallbackArticleRepository(Supabase, Versioned)`.
+3. Falha do primário → `onFallback` abre um circuit breaker de 60s; durante a
+   janela, o catálogo versionado responde sem tocar a rede.
+4. O adapter tem deadline de 2s por requisição. Um blog nunca deve segurar o
+   render de uma página.
 
 ---
 

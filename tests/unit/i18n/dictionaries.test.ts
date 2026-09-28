@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_LOCALE, LOCALE_SEGMENTS, type Locale } from "@/domain/i18n";
+import { DEFAULT_LOCALE, type Locale } from "@/domain/i18n";
 import { RESUME_TEMPLATE_IDS } from "@/infrastructure/pdf/resume-template-registry";
 import { formatMessage } from "@/i18n/format-message";
 import { enUS } from "@/i18n/dictionaries/en-US";
@@ -159,15 +159,18 @@ describe("message catalog parity", () => {
     }
   });
 
-  it("keeps the locale pair listing every supported segment", () => {
+  /**
+   * The locale switcher is the only place the site tells a reader that a second
+   * language exists, and its accessible name is built from a placeholder. The
+   * previous guard checked `signal.localePair`, a string on a status bar the
+   * redesign removed; this asserts the invariant that still holds on the surface
+   * that replaced it.
+   */
+  it("keeps the locale switcher template carrying its language placeholder", () => {
     for (const [locale, catalog] of Object.entries(catalogsByLocale)) {
-      const { localePair } = (catalog as typeof enUS).signal;
+      const template = (catalog as typeof enUS).localeSwitcher.switchTo;
 
-      for (const segment of Object.values(LOCALE_SEGMENTS)) {
-        expect(`${locale}:${segment}:${localePair.toUpperCase().includes(segment.toUpperCase())}`).toBe(
-          `${locale}:${segment}:true`,
-        );
-      }
+      expect(`${locale}:${placeholdersOf(template).join(",")}`).toBe(`${locale}:language`);
     }
   });
 });

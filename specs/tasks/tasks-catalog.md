@@ -831,6 +831,204 @@ Template funcional. Validar visualmente PDF gerado e ajustar detalhes finos se n
 
 ---
 
+## ÉPICO 05: Design Executivo e Blog
+
+Redesenho da home como landing page executiva a partir do sistema de design
+`DESIGN.md`, com todo o conteúdo da home configurável e bilíngue, o currículo
+mantido como documento de registro em rota própria, e um blog persistido em
+banco. Ver [DESIGN.md](../../DESIGN.md) para as regras normativas de UI/UX.
+
+### TASK-050: Sistema de design e tokens
+**US Relacionada**: US-01, US-03  
+**Prioridade**: Crítica  
+**Status**: 🟢 Concluída  
+**Estimativa**: 6h  
+**Realizado**: 6h  
+
+**Descrição**: Traduzir o protótipo de referência (`design-assets/`) em tokens de
+design utilizáveis pelo código, sem recriar literais nos componentes.
+
+**O Que Foi Feito**:
+- ✅ `DESIGN.md` na raiz como regra normativa (cor, tipografia, layout, elevação,
+  forma, componentes, a11y, performance, anti-padrões)
+- ✅ Tokens Tailwind v4 em `src/app/globals.css` (`@theme`) reproducing os nomes
+  de classe do protótipo — `text-display-hero`, `bg-surface-raised`,
+  `p-space-xl`, `font-label-mono` — sem *magic numbers* nos componentes
+- ✅ Fontes self-hosted via `next/font` (Manrope, JetBrains Mono, Playfair Display)
+- ✅ Setores de grid de micro-pontos, trilhas de foco e `prefers-reduced-motion`
+- ✅ Conjunto local de ícones SVG (sem CDN de fonte de ícones)
+- ✅ Primitivas de UI: `Section`, `SectionHeading`, `StatusPill`, `Chip`, `ChannelLink`
+
+**Critérios de Conclusão**:
+- [x] `DESIGN.md` normativo na raiz
+- [x] Nomes de classe do protótipo resolvendo para tokens reais
+- [x] Zero dependência de CDN em tempo de execução
+- [x] Foco visível e `prefers-reduced-motion` respeitados
+- [x] `npm run lint` e `npm run typecheck` limpos
+
+**Arquivos Existentes**:
+- `DESIGN.md` ✅
+- `src/app/globals.css` ✅
+- `src/components/ui/icon.tsx` ✅
+- `src/components/ui/primitives.tsx` ✅
+- `src/app/[locale]/layout.tsx` ✅
+
+**Instruções para Agente**:
+1. Nunca adicione hex, px ou tamanho de fonte literal em um componente
+2. Se um valor não tem token, adicione o token primeiro
+3. Contradições com `DESIGN.md` são bugs, não preferências
+
+---
+
+### TASK-051: Home executiva com conteúdo configurável
+**US Relacionada**: US-01, US-03  
+**Prioridade**: Crítica  
+**Status**: 🟢 Concluída  
+**Estimativa**: 8h  
+**Realizado**: 9h  
+
+**Descrição**: Home como landing page executiva com cada seção em um componente
+independente e todo texto vindo de dados bilíngues.
+
+**O Que Foi Feito**:
+- ✅ `HomeContent` em `src/domain/portfolio/home-content.ts` (vocabulário fechado
+  de acentos, ícones, escalas de estatística)
+- ✅ Catálogos bilíngues em `src/infrastructure/content/home/`
+- ✅ Seções desacopladas: `HomeHeroSection`, `KpiMatrixSection`,
+  `TechArsenalSection`, `TrackRecordSection`, `BlogPreviewSection`,
+  `ContactGatewaySection`, `PortraitFrame`
+- ✅ `HomeView` apenas resolve dados e compõe seções
+- ✅ Trajetória renderizada a partir dos dados do currículo, unida por `company`
+- ✅ Formulário de contato substituído por briefing pré-preenchido em `mailto:`
+- ✅ Boot sequence não bloqueante, apenas na primeira visita, ciente de
+  `prefers-reduced-motion`
+
+**Critérios de Conclusão**:
+- [x] Cada seção em um componente com contrato próprio
+- [x] Nenhum texto de usuário final em markup
+- [x] Estrutura idêntica entre `pt-BR` e `en-US`
+- [x] Anotações da trajetória casam 1:1 com as experiências do currículo
+- [x] Nenhum componente com conteúdo virou Client Component
+
+**Arquivos Existentes**:
+- `src/domain/portfolio/home-content.ts` ✅
+- `src/infrastructure/content/home/` ✅
+- `src/components/home/` ✅
+- `src/components/site/` ✅
+
+**Instruções para Agente**:
+1. Adicionar seção = dado + um componente, nunca editar layout compartilhado
+2. Rode `tests/unit/presentation/home-content.test.ts` após qualquer mudança de dados
+
+---
+
+### TASK-052: Rota do currículo como documento de registro
+**US Relacionada**: US-01, US-04  
+**Prioridade**: Alta  
+**Status**: 🟢 Concluída  
+**Estimativa**: 3h  
+**Realizado**: 3h  
+
+**Descrição**: Mover o currículo completo para `/[locale]/resume`, mantendo todo o
+conteúdo original intacto.
+
+**O Que Foi Feito**:
+- ✅ `ResumeDocument` renderizando a estrutura editorial original (resumo,
+  habilidades, experiência com estudos de caso, formação, idiomas)
+- ✅ Nenhum fato, ordem ou texto do currículo alterado
+- ✅ Rota com `alternates` e `openGraph` próprios (o layout é substituído, não mesclado)
+- ✅ `resume-view.tsx` removido; o e2e existente continua verde
+
+**Critérios de Conclusão**:
+- [x] Todos os 24 estudos de caso preservados
+- [x] Paridade de conteúdo inalterada
+- [x] `alternates` completo em rotas aninhadas
+
+**Arquivos Existentes**:
+- `src/components/resume/resume-document.tsx` ✅
+- `src/app/[locale]/resume/page.tsx` ✅
+
+---
+
+### TASK-053: Blog persistido em banco
+**US Relacionada**: US-03  
+**Prioridade**: Alta  
+**Status**: 🟢 Concluída  
+**Estimativa**: 10h  
+**Realizado**: 11h  
+
+**Descrição**: Blog com artigos stored no banco, lidos através de uma porta de
+domínio, com fallback versionado para builds sem credenciais.
+
+**O Que Foi Feito**:
+- ✅ Domínio: `ArticleBlock`, `BlogArticle`, `ArticleSummary`, `ArticleSlug`
+  (value object com invariantes de URL), `compareArticleSummaries`
+- ✅ Aplicação: `ArticleRepository` (porta), `ListArticles`, `GetArticle`,
+  `FallbackArticleRepository`
+- ✅ Infra: `SupabaseArticleRepository` com validação de fronteira, deadline de
+  2s e circuit breaker de 60s no composition root
+- ✅ Migration `blog_articles` com RLS, índices parciais e seed bilíngue
+- ✅ Catálogo versionado bilíngue como seed e fallback
+- ✅ Rotas `/[locale]/blog` e `/[locale]/blog/[slug]` com `BlogPosting` JSON-LD
+- ✅ Sitemap e `hreflang` por artigo
+
+**Critérios de Conclusão**:
+- [x] Artigos lidos do banco
+- [x] Build e runtime funcionam sem banco configurado
+- [x] Draft invisível para o papel anônimo
+- [x] Slug malformado vira 404, sem ida ao banco
+- [x] Artigo publicado após o build é acessível sem novo deploy
+
+**Arquivos Existentes**:
+- `src/domain/blog/` ✅
+- `src/application/blog/` ✅
+- `src/infrastructure/repositories/supabase-article-repository.ts` ✅
+- `src/infrastructure/repositories/index.ts` ✅
+- `src/infrastructure/content/blog/` ✅
+- `supabase/migrations/20260928000100_blog_articles.sql` ✅
+- `src/app/[locale]/blog/` ✅
+
+**Instruções para Agente**:
+1. Nunca renderizar corpo de artigo a partir de HTML cru
+2. Um novo bloco é um novo tipo em `ArticleBlock` — erro de compilação, não um buraco
+3. Seed e `supabase/migrations` descrevem os mesmos documentos; os `id` são a chave
+
+---
+
+### TASK-054: Cobertura e gates de qualidade
+**US Relacionada**: -  
+**Prioridade**: Média  
+**Status**: 🟢 Concluída  
+**Estimativa**: 2h  
+**Realizado**: 2h  
+
+**Descrição**: O gate de cobertura de 90% estava vermelho na `main` (56.61%).
+Corrigir a causa e elevá-lo acima do limiar.
+
+**O Que Foi Feito**:
+- ✅ Exclusão de módulos apenas-de-tipos do gate (compilam para nada; v8 os
+  reportava como 0% e o limiar global era inalcançável)
+- ✅ `DomainError` coberto (comportamento de `isOperational` é o que decide se
+  uma mensagem interna vaza)
+- ✅ Suíte e2e reorganizada em `pdf-download` / `home-overview` / `blog`
+- ✅ `playwright.config.ts` serializado: workers paralelos corrompiam o cache do
+  `next dev` e geravam falhas sem relação com o código
+- ✅ Supabase não configurado no e2e, para exercitar o caminho degradado
+
+**Critérios de Conclusão**:
+- [x] `npm run test:unit:coverage` acima de 90% em todas as métricas
+- [x] `npm run test:e2e` verde e determinístico
+- [x] `npm run build` sem erro
+
+**Arquivos Existentes**:
+- `vitest.config.ts` ✅
+- `playwright.config.ts` ✅
+- `tests/unit/domain/errors.test.ts` ✅
+- `tests/unit/presentation/home-content.test.ts` ✅
+- `tests/unit/presentation/blog-catalog.test.ts` ✅
+
+---
+
 ## Backlog de Evolução (Pós-MVP)
 
 | ID | Descrição | Épico | Prioridade | Dependências |
@@ -845,6 +1043,11 @@ Template funcional. Validar visualmente PDF gerado e ajustar detalhes finos se n
 | FEAT-08 | Lint automático e regras para Markdown | - | Média | TASK-011 |
 | FEAT-09 | Adicionar novo idioma (ex.: es-ES) seguindo o contrato de locale | EPIC-02 | Baixa | TASK-014, TASK-015 |
 | FEAT-10 | Verificação de texto fixado residual em componentes (regra de lint) | EPIC-02 | Média | TASK-015 |
+| FEAT-11 | Fotografia no hero (`hero.portrait.src` para um arquivo em `public/`) | EPIC-05 | Baixa | TASK-050 |
+| FEAT-12 | Rascunhos de artigo (`status: 'draft'`) com service-role e preview por token | EPIC-05 | Média | TASK-053 |
+| FEAT-13 | Índice de sumário automático a partir dos blocos `heading` do artigo | EPIC-05 | Baixa | TASK-053 |
+| FEAT-14 | Sincronização do blog com o repositório de conteúdo versionado (CLI) | EPIC-05 | Média | TASK-053 |
+| FEAT-15 | RSS/Atom do blog a partir da tabela `blog_articles` | EPIC-05 | Média | TASK-053 |
 
 ---
 
@@ -862,6 +1065,11 @@ Template funcional. Validar visualmente PDF gerado e ajustar detalhes finos se n
 | TASK-032 | Alta | Alto | Médio | Alto | 8 |
 | TASK-004 | Alta | Médio | Baixo | Baixo | 9 |
 | TASK-012 | Média | Médio | Baixo | Baixo | 10 |
+| TASK-050 | Crítica | Alto | Médio | Baixo | 1 |
+| TASK-051 | Crítica | Alto | Alto | Médio | 2 |
+| TASK-053 | Alta | Alto | Alto | Médio | 3 |
+| TASK-052 | Alta | Alto | Baixo | Baixo | 4 |
+| TASK-054 | Média | Médio | Baixo | Baixo | 5 |
 
 ---
 
@@ -897,6 +1105,7 @@ Template funcional. Validar visualmente PDF gerado e ajustar detalhes finos se n
 
 | Data | Tarefa | Mudança | Autor |
 |------|--------|---------|-------|
+| 2026-09-28 | TASK-050..054 | ÉPICO 05: home executiva com design system tokenizado, currículo movido para `/[locale]/resume`, blog persistido em `blog_articles` com fallback versionado, e gate de cobertura corrigido (a `main` estava em 56.61%) | opencode |
 | 2026-09-28 | TASK-019 | Títulos de seção do PDF movidos dos literais do renderer para os catálogos | opencode |
 | 2026-09-28 | TASK-012, TASK-018 | Versão EN-US reescrita como tradução completa do PT-BR (fonte da verdade), com paridade de estrutura e fatos verificada em CI | opencode |
 | 2026-09-28 | TASK-010, TASK-014..017 | Roteamento i18n, catálogos tipados, SEO por idioma e Server Components. EN-US passou a ser o locale padrão. Ver [ADR-005](../../docs/adr/ADR-005-internationalization-strategy.md) | opencode |
