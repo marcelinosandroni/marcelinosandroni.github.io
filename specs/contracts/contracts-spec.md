@@ -136,6 +136,35 @@ Regras transversais de SEO que também são contrato:
   com o endpoint de PDF.
 - **Metadados de arquivo** não são traduzidos: o PDF mantém o nome do autor.
 
+### Contrato de Paridade de Conteúdo do Currículo
+
+**PT-BR é a fonte da verdade.** A versão EN-US é uma tradução completa e fiel do
+currículo em português, nunca uma versão resumida.
+
+| Elemento | Invariante |
+|---|---|
+| Identidade e contatos | Idênticos entre idiomas |
+| Experiências | Mesmo número, mesma ordem, mesmas empresas |
+| Período | Mesmos dígitos; apenas nomes de mês são traduzidos (`Dez` → `Dec`, `Presente` → `Present`) |
+| Cargo | Traduzido sem perder senioridade nem o papel de liderança |
+| Highlights | Mesmo número por experiência; tamanho comparável ao original |
+| Case studies | Mesmo número, com `challenge`, `solution` e `result` preenchidos |
+| Métricas | Mesmo número; `icon` idêntico; `value` com os mesmos dígitos |
+| Figuras | Todo número citado em EN-US também existe em PT-BR |
+| `technologies`, `teamSize`, `scope` | Presentes e alinhados |
+| `education`, `skillGroups`, `languages` | Mesmo número de entradas |
+
+**Regras de tradução**
+1. Termos técnicos compartilhados podem permanecer iguais entre idiomas
+   (ex.: `Frontend & Performance`). Não é divergência.
+2. Números escritos por extenso são traduzidos (`100 milhões` → `100 million`),
+   portanto a invariante é sobre os **dígitos**, não sobre a string.
+3. `**negrito**` não é suportado pelos renderizadores de PDF e não deve ser
+   introduzido em texto traduzido.
+
+**Validação**: `tests/unit/presentation/content-locale.test.ts` executa no CI a
+cada build. Uma versão EN-US abreviada ou com fatos divergentes falha o build.
+
 ---
 
 ## Contrato de Conteúdo do Currículo

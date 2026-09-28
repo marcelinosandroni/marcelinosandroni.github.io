@@ -351,29 +351,95 @@ Este documento lista todas as tarefas derivadas das User Stories, organizadas po
 ### TASK-012: Criar validador de sincronização PT-BR/EN-US
 **US Relacionada**: US-02  
 **Prioridade**: Média  
-**Status**: 🔴 Não iniciada  
+**Status**: 🟡 Em progresso (validador automatizado concluído; CLI manual pendente)  
 **Estimativa**: 2h  
+**Realizado**: 1h  
 
 **Descrição**: Implementar validador que verifica consistência entre versões PT-BR e EN-US.
 
+**O Que Foi Feito**:
+- ✅ Validador implementado como suíte de testes em
+  `tests/unit/presentation/content-locale.test.ts`, executando no CI a cada build
+- ✅ PT-BR declarado explicitamente como **fonte da verdade** no teste
+- ✅ Valida identidade e contatos idênticos entre idiomas
+- ✅ Valida mesma lista de experiências, na mesma ordem
+- ✅ Valida as datas de cada período (dígitos idênticos; apenas meses são traduzidos)
+- ✅ Valida contagem de highlights, case studies, métricas, tecnologias, `teamSize` e `scope`
+- ✅ Valida education e skill groups
+- ✅ Valida que todo número citado em resumo, highlights, `scope` e case studies
+  existe também na versão EN (figuras financeiras e de performance preservadas)
+- ✅ Valida que a prosa traduzida é substantiva, evitando regressão para resumos
+  abreviados
+
 **Critérios de Conclusão**:
-- [ ] Compara número de experiências
-- [ ] Valida equivalência de períodos (start/end dates)
-- [ ] Verifica habilidades equivalentes
-- [ ] Alerta para divergências de fatos
-- [ ] Integra no CI como check opcional
+- [x] Compara número de experiências
+- [x] Valida equivalência de períodos (start/end dates)
+- [x] Verifica habilidades equivalentes
+- [x] Alerta para divergências de fatos
+- [x] Integra no CI como check (via `npm run test:unit`)
 - [ ] Script CLI para validação manual
 
-**Arquivos Esperados**:
-- `src/application/use-cases/validate-language-sync.ts`
-- `scripts/validate-i18n-sync.ts`
-- `.github/workflows/validate-i18n.yml`
+**Arquivos Existentes**:
+- `tests/unit/presentation/content-locale.test.ts` ✅
+
+**Arquivos Pendentes**:
+- `scripts/validate-i18n-sync.ts` — CLI para relatar divergências com contexto
+  legível, reaproveitando as mesmas regras do teste
 
 **Instruções para Agente**:
-1. Compare estruturas, não traduções literais
-2. Foque em fatos (datas, cargos, empresas)
-3. Gere relatório legível de divergências
-4. Permita falsos positivos controlados
+1. PT-BR é a fonte da verdade: a versão EN-US é uma tradução, nunca uma resumida
+2. Compare estruturas e fatos, não traduções literais
+3. Números escritos por extenso são traduzidos ("100 milhões" → "100 million"),
+   portanto a invariante é sobre os dígitos, não sobre a string completa
+4. Termos técnicos compartilhados entre os idiomas (ex.: "Frontend & Performance")
+   são aceitáveis e não devem ser tratados como divergência
+
+---
+
+### TASK-018: Traduzir o currículo EN-US a partir da fonte PT-BR
+**US Relacionada**: US-02  
+**Prioridade**: Alta  
+**Status**: 🟢 Concluída  
+**Estimativa**: 4h  
+**Realizado**: 4h  
+
+**Descrição**: A versão EN-US estava muito abreviada em relação ao PT-BR (4 highlights
+e nenhum case study em DGT, cargos e datas divergentes em Antlia, Itaú e Pollux).
+Reescrever a versão EN-US como tradução completa e fiel do PT-BR.
+
+**O Que Foi Feito**:
+- ✅ `summary`, `highlights`, `scope` e `role` traduzidos integralmente em todas
+  as 5 experiências
+- ✅ 24 case studies traduzidos (challenge, solution, result e metrics)
+- ✅ `technologies`, `teamSize` e `scope` adicionados onde faltavam
+- ✅ `skillGroups` alinhados à estrutura do PT-BR (6 grupos equivalentes)
+- ✅ `education` com períodos e descrições completos do PT-BR
+- ✅ Correção de divergências factuais: cargo do DGT, cargo e período da Antlia
+  (`Dec/2022 – Dec/2025` → `Jul/2024 – Dec/2025`), cargo do Itaú e cargo do Pollux
+- ✅ `languages` alinhado ao conteúdo do PT-BR
+
+**Paridade medida**:
+| Métrica | PT-BR | EN-US | EN/PT |
+|---|---|---|---|
+| Highlights | 35 | 35 | 100% |
+| Case studies | 24 | 24 | 100% |
+| Métricas de case study | 96 | 96 | 100% |
+| Tecnologias | 123 | 123 | 100% |
+| Palavras em highlights | 1035 | 992 | 96% |
+| Palavras em case studies | 4115 | 3880 | 94% |
+| Palavras em summaries | 319 | 314 | 98% |
+
+A leve vantagem de contagem de palavras do inglês é esperada: o inglês é
+naturalmente mais compacto que o português para o mesmo conteúdo.
+
+**Nota**: os textos em PT-BR usam marcação markdown (`** Banco de Dados **`),
+que os renderizadores LaTeX e PDFKit não interpretam e exibem como asteriscos
+literais no PDF. Limitado ao PT-BR por estar fora do escopo desta tarefa;
+registrado como follow-up.
+
+**Arquivos Esperados**:
+- `src/infrastructure/content/resume-data-en-us.ts` ✅
+- `tests/unit/presentation/content-locale.test.ts` ✅
 
 ---
 
@@ -786,5 +852,6 @@ Template funcional. Validar visualmente PDF gerado e ajustar detalhes finos se n
 
 | Data | Tarefa | Mudança | Autor |
 |------|--------|---------|-------|
+| 2026-09-28 | TASK-012, TASK-018 | Versão EN-US reescrita como tradução completa do PT-BR (fonte da verdade), com paridade de estrutura e fatos verificada em CI | opencode |
 | 2026-09-28 | TASK-010, TASK-014..017 | Roteamento i18n, catálogos tipados, SEO por idioma e Server Components. EN-US passou a ser o locale padrão. Ver [ADR-005](../../docs/adr/ADR-005-internationalization-strategy.md) | opencode |
 | 2025-01-15 | Todas | Criação inicial do catálogo | System |
