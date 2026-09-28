@@ -1,7 +1,7 @@
 import { Section, SectionHeading } from "@/components/ui";
 import { ACCENT_TEXT, Icon } from "@/components/ui/icon";
 import type { AccentTone, HomeKpi, HomeKpiSection } from "@/domain/portfolio";
-export interface KpiMatrixSectionProps {
+export interface KpiSectionProps {
   section: HomeKpiSection;
 }
 
@@ -19,7 +19,7 @@ const HOVER_ACCENT = {
 } as const satisfies Record<AccentTone, string>;
 
 /**
- * Executive KPI matrix (DESIGN.md §8.2).
+ * Executive KPI grid (DESIGN.md §8.2).
  *
  * Each card is a claim plus its proof: the monumental statistic is the claim and
  * the footer strip is the measurement. Stat scale is a data decision
@@ -27,7 +27,7 @@ const HOVER_ACCENT = {
  * qualitative one at 32px — the eye finds the number that matters instead of
  * scanning four equally loud values.
  */
-export function KpiMatrixSection({ section }: KpiMatrixSectionProps) {
+export function KpiSection({ section }: KpiSectionProps) {
   return (
     <Section id={section.id} surface="raised">
       <div className="space-y-space-xl">

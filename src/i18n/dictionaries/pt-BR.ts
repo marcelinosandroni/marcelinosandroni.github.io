@@ -92,7 +92,7 @@ export const ptBR: Dictionary = {
     available: "Disponível para conversas",
   },
   experience: {
-    title: "Trajetória: Experiência em Sistemas Mission-Critical",
+    title: "Experiência: Execução em Sistemas de Produção",
     subtitle: "Uma trajetória entre tecnologia, operação e negócio.",
     teamLabel: "Time",
   },

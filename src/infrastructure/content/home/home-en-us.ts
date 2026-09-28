@@ -6,32 +6,38 @@ import type { HomeContent } from "@/domain/portfolio";
  * Structurally identical to the pt-BR catalog (enforced by the `satisfies
  * HomeContent` contract and by the bilingual content tests), but independently
  * written: it states the same career in the language an international hiring
- * panel actually reads.
+ * panel actually reads. American spelling throughout, because the audience is
+ * US-based recruiters and a British spelling is a tell that the copy was
+ * translated rather than written.
+ *
+ * The same copy rules apply as in pt-BR: no fiction naming, every figure
+ * measurable and traceable to the resume, and the career arithmetic stated
+ * explicitly.
  */
 export const homeContentEnUS: HomeContent = {
   locale: "en-US",
 
   hero: {
-    statusPill: "Executive Engineering // AnimateMatrix Spec v6.0",
+    statusPill: "Available for fractional leadership and consulting",
     name: "Marcelino Sandroni Dias",
-    headlineLead: "Engineering the future of",
-    headlineAccent: "AI & financial",
-    headlineTail: "systems.",
+    headlineLead: "Software engineering that moves",
+    headlineAccent: "revenue and",
+    headlineTail: "scale.",
     role: "Senior Software Engineer & Tech Lead",
     narrative:
-      "21 years connecting corporate financial governance, high-volume AI pipelines and ultra-high-concurrency fintech architectures. A proven record of protecting millions in mission-critical public-safety and banking contracts — and of turning every technical decision into auditable financial return.",
+      "15 years of corporate financial governance (2005–2020) plus 6 years of software engineering (2021–2026): 21 years of combined expertise. Working end to end across architecture, backend, frontend, mobile and DevOps, with measured results of R$ 24 million/year in protected contracts, 100 million messages processed per day and 10x throughput gains.",
     metaDescription:
-      "Living resume of Marcelino Sandroni Dias: 15 years across financial governance, AI pipelines and high-concurrency fintech — R$ 24M/year and 100M msgs/day of measured impact.",
+      "Living resume of Marcelino Sandroni Dias: 21 years of combined expertise across financial governance and software engineering — R$ 24M/year and 100M msgs/day of measured impact.",
     primaryAction: {
-      label: "Schedule an executive call",
+      label: "Schedule a conversation",
       href: "#contact",
       icon: "calendar",
     },
     secondaryAction: {
-      label: "Explore the trajectory",
+      label: "See the track record",
       href: "#experience",
     },
-    availability: "Available for fractional leadership, architecture consulting and technical advisory",
+    availability: "Available for fractional leadership, architecture consulting and mentoring",
     channels: [
       {
         id: "github",
@@ -51,7 +57,7 @@ export const homeContentEnUS: HomeContent = {
       },
       {
         id: "email",
-        label: "DIRECT EMAIL",
+        label: "EMAIL",
         href: "mailto:marcelino.sandroni@gmail.com",
         value: "marcelino.sandroni@gmail.com",
         icon: "mail",
@@ -61,63 +67,63 @@ export const homeContentEnUS: HomeContent = {
     portrait: {
       src: "/portrait.jpg",
       alt: "Portrait of Marcelino Sandroni Dias, Tech Lead and Software Architect",
-      cornerMarks: ["// SEC_ID: NEO-001", "[SYS_OK]", "// CIPHER: HEX-256", "LATENCY < 0.1ms"],
-      badge: "ZERO FALSE POSITIVE",
-      caption: "NEO // TECH ARCHITECT",
-      captionMeta: "Distributed Cores · SOX · GenAI",
-      ticker: ["UPLINK: ACTIVE // 100M MSGS/DAY", "100% SLA COMPLIANT"],
+      cornerMarks: ["// ID: MSD-01", "[NOMINAL]", "// STACK: FULL", "LATENCY < 0.1ms"],
+      badge: "100% ACCURACY",
+      caption: "// TECH LEAD & SOFTWARE ARCHITECT",
+      captionMeta: "Go · .NET · Java · Kafka",
+      ticker: ["THROUGHPUT: 100M MSGS/DAY", "100% SLA COMPLIANT"],
     },
   },
 
   kpis: {
     id: "kpis",
-    kicker: "// HARD METRICS & FISCAL IMPACT",
-    title: "Engineering rigor measured in capital and speed",
-    note: "Zero vanity metrics. Auditable balance-sheet returns, zero-downtime architectures and deep compliance stewardship.",
+    kicker: "// FINANCIAL & OPERATIONAL IMPACT",
+    title: "Engineering measured in capital, scale and availability",
+    note: "Zero vanity metrics. Auditable return, zero-downtime architecture and compliance under stewardship.",
     items: [
       {
-        id: "finance",
-        label: "FINANCIAL SOVEREIGNTY",
-        value: "15 Yrs",
+        id: "track",
+        label: "COMBINED EXPERIENCE",
+        value: "21 years",
         scale: "monumental",
         description:
-          "Corporate accounting and strategy foundation. IFRS, SOX controls and tax governance translated directly into zero-deficit software architectures.",
+          "15 years of corporate financial governance (2005–2020) plus 6 years of software engineering (2021–2026). The accounting background is what lets me price compute cost and operational risk as balance-sheet liability.",
         icon: "account",
         accent: "primary",
-        footnote: { label: "CLOSING CYCLE", value: "-83% COMPRESSION" },
+        footnote: { label: "MONTH-END", value: "30→5 DAYS (-83%)" },
       },
       {
         id: "throughput",
-        label: "HIGH-THROUGHPUT BACKEND",
+        label: "BACKEND CORE",
         value: "100M+",
         scale: "monumental",
         description:
-          "Daily telemetry messages processed through distributed Go pipelines, Apache Kafka partitioning, ClickHouse analytics and sub-10ms p99 edge latency.",
-        icon: "bolt",
+          "Telemetry messages processed per day across distributed pipelines, with Apache Kafka partitioning, ClickHouse columnar storage and p99 edge latency under 10ms.",
+        icon: "server",
         accent: "secondary",
         footnote: { label: "PROTECTED REVENUE", value: "R$ 24M/YEAR" },
       },
       {
-        id: "product",
-        label: "DESIGN SYSTEM & UX",
-        value: "Pixel-perfect",
-        scale: "headline",
+        id: "platform",
+        label: "DEVOPS & CLOUD",
+        value: "-95%",
+        scale: "monumental",
         description:
-          "Flawless frontend systems and microfrontends built with Next.js, React, Tailwind and Flutter. Zero regressions, AA accessibility and instant load times.",
-        icon: "brush",
+          "Deploy time cut from 4 hours to 15 minutes, with automatic rollback in under 2 minutes, 80% fewer production incidents and infrastructure as code across AWS, Azure and GCP.",
+        icon: "cloud",
         accent: "primary",
-        footnote: { label: "REUSABILITY", value: "+40% SPRINT VELOCITY" },
+        footnote: { label: "DEPLOY", value: "4H → 15MIN" },
       },
       {
         id: "ai",
-        label: "AI & COGNITIVE SWARMS",
-        value: "Applied AI",
-        scale: "headline",
+        label: "ARTIFICIAL INTELLIGENCE",
+        value: "100%",
+        scale: "monumental",
         description:
-          "Autonomous agents, enterprise RAG workflows, pgvector similarity clustering and TensorRT-optimised models for real-time video stream inference.",
-        icon: "brain",
+          "100% accuracy on license-plate recognition with computer vision, alongside enterprise RAG, pgvector similarity search and TensorRT-optimized real-time video inference.",
+        icon: "cpu",
         accent: "secondary",
-        footnote: { label: "MODEL RECALL", value: "100% RATE" },
+        footnote: { label: "RECALL", value: "100% PROD" },
       },
     ],
   },
@@ -125,78 +131,78 @@ export const homeContentEnUS: HomeContent = {
   stack: {
     id: "arsenal",
     kicker: "// TECHNICAL ARSENAL",
-    title: "Purpose-built for scale, resiliency and speed",
-    note: "No dogmatic attachments. Every language, database and broker is chosen strictly to resolve high-concurrency bottlenecks and enforce business stability.",
+    title: "Four disciplines, one decision per problem",
+    note: "Closed categories, each traceable to the resume. Every technology listed here appears in the resume, in the category it appears in here.",
     clusters: [
       {
         id: "frontend",
-        title: "Frontend Engineering & Design Systems",
+        title: "Frontend & UI",
         description:
-          "Enterprise microfrontends, accessible component libraries, state management and high-frequency real-time updates.",
+          "Enterprise microfrontends, accessible design systems and high-frequency rendering with no performance regression.",
         icon: "devices",
         accent: "primary",
         items: [
           "React",
-          "Next.js (SSR/RSC)",
+          "Next.js (RSC, SSR)",
           "Angular",
-          "React Native",
           "Flutter",
+          "React Native",
           "Tailwind CSS",
-          "Module Federation",
-          "Design Systems",
+          "Design System",
+          "Storybook",
         ],
       },
       {
         id: "backend",
-        title: "Backend & Distributed Architecture",
+        title: "Backend Core",
         description:
-          "Domain-Driven Design, Hexagonal Architecture, CQRS, the transactional outbox pattern and high-volume partition routing.",
+          "Hexagonal architecture, domain-driven design, high-throughput messaging and both relational and columnar data modeling.",
         icon: "server",
         accent: "secondary",
         items: [
-          "Go (Golang)",
-          "Node.js (NestJS)",
-          "C# .NET Core",
+          "Go",
           "Java (Spring Boot)",
-          "Python",
+          "C# (.NET Core)",
+          "Node.js (NestJS)",
           "Apache Kafka",
-          "ClickHouse",
           "PostgreSQL",
+          "ClickHouse",
+          "Redis",
         ],
       },
       {
         id: "platform",
-        title: "DevOps, Cloud & Site Reliability",
+        title: "DevOps & Cloud",
         description:
-          "Infrastructure as code, immutable deployments, automated canary rollouts, distributed telemetry and zero-trust policies.",
+          "Infrastructure as code, Kubernetes orchestration, distributed observability and continuous delivery with quality gates.",
         icon: "cloud",
         accent: "primary",
         items: [
-          "Kubernetes (K8s)",
           "Docker",
-          "Terraform (IaC)",
-          "AWS Cloud",
+          "K8s (Helm, HPA)",
+          "IaC (Terraform)",
+          "AWS",
           "Azure",
           "GCP",
           "OpenTelemetry",
-          "Datadog",
+          "CI/CD",
         ],
       },
       {
         id: "intelligence",
-        title: "AI, Multi-Agent Swarms & Inference",
+        title: "Artificial Intelligence",
         description:
-          "Production GenAI integration, low-latency video analytics, contextual embeddings and automated dev-team copilots.",
+          "GenAI applied to the development cycle, context-augmented retrieval and real-time edge inference.",
         icon: "cpu",
         accent: "secondary",
         items: [
-          "LLM (GPT/Claude)",
-          "pgvector & Qdrant",
-          "RAG Pipelines",
-          "TensorRT Edge",
+          "LLM Integration (OpenAI, Claude, Gemini)",
+          "RAG",
+          "pgvector",
+          "Qdrant",
+          "TensorRT",
           "LangChain",
-          "Autonomous Swarms",
-          "Playwright AI QA",
+          "Autonomous Agents",
         ],
       },
     ],
@@ -204,9 +210,9 @@ export const homeContentEnUS: HomeContent = {
 
   trackRecord: {
     id: "experience",
-    kicker: "// CAREER VELOCITY",
-    title: "Track Record: Mission-Critical Experience",
-    note: "PUNCHY SCANNABLE DATA // ZERO FLUFF",
+    kicker: "// TRACK RECORD",
+    title: "Track Record: Production Systems Experience",
+    note: "THREE OUTCOMES PER EMPLOYER // PROVABLE IMPACT ONLY",
     ctaLabel: "Open the full resume",
     resumeCtaLabel: "FULL RESUME",
     currentCompany: "DGT Tecnologia",
@@ -214,52 +220,51 @@ export const homeContentEnUS: HomeContent = {
       {
         company: "DGT Tecnologia",
         impact: { label: "IMPACT", value: "R$ 24M/YEAR SAVED", accent: "primary" },
-        blueprintLabel: "// STACK BLUEPRINT",
-        blueprint: ["Go", "ClickHouse", "Kafka", "TensorRT", "Kubernetes", "Playwright"],
-        teamLine: "TEAM LEADERSHIP: 10 ENGINEERS (DEVS, QA, BA, PO, PM)",
+        blueprintLabel: "// ROLE STACK",
+        blueprint: ["Go", "ClickHouse", "Kafka", "Docker", "Kubernetes", "Playwright"],
+        teamLine: "LEADERSHIP: 10 PEOPLE (DEV, QA, BA, PO, PM)",
       },
       {
         company: "Antlia",
         impact: { label: "IMPACT", value: "+45% ASSETS UNDER MGMT", accent: "secondary" },
-        blueprintLabel: "// STACK BLUEPRINT",
-        blueprint: [
-          "Java Spring Boot",
-          "Kafka",
-          "Angular MFE",
-          "Hexagonal Arch",
-          "Kubernetes",
-        ],
-        teamLine: "TEAM LEADERSHIP: 8 DEVS (3 PRINCIPAL/SENIOR), PO, QA, 2 BAs",
+        blueprintLabel: "// ROLE STACK",
+        blueprint: ["Java Spring", "Kafka", "Angular", "Hexagonal Architecture", "Kubernetes"],
+        teamLine: "LEADERSHIP: 8 DEVELOPERS (3 PRINCIPAL) + PO, QA, PM, 2 BAs",
       },
       {
         company: "Banco Itaú",
         impact: { label: "SCALE", value: "+R$ 100B UNDER CUSTODY", accent: "primary" },
-        blueprintLabel: "// STACK BLUEPRINT",
-        blueprint: ["C# .NET", "Flutter", "Angular", "AWS", "Kafka"],
-        teamLine: "COHORT: 9-ENGINEER MULTI-DISCIPLINE SQUAD",
+        blueprintLabel: "// ROLE STACK",
+        blueprint: [".NET Core", "Flutter", "Angular", "AWS", "Messaging"],
+        teamLine: "MULTI-DISCIPLINE SQUAD: 9 PEOPLE",
       },
       {
         company: "Pollux Technologies",
         impact: { label: "CLOUD SAVINGS", value: "-50% INFRA COSTS", accent: "secondary" },
-        blueprintLabel: "// STACK BLUEPRINT",
-        blueprint: ["Node.js", "TypeScript", "AWS Serverless", "React"],
-        teamLine: "METRIC: 80% OF PROJECTS DELIVERED AHEAD OF SCHEDULE",
+        blueprintLabel: "// ROLE STACK",
+        blueprint: ["TypeScript", "AWS", "Serverless", "React", "Python"],
+        teamLine: "PROMOTED JUNIOR TO MID-LEVEL IN 3 MONTHS // 80% OF PROJECTS AHEAD OF SCHEDULE",
       },
       {
         company: "Accounting Consulting Firms",
         impact: { label: "MONTH-END", value: "30 DAYS → 5 DAYS (-83%)", accent: "primary" },
-        blueprintLabel: "// CORE DISCIPLINES",
-        blueprint: ["IFRS / SOX", "Tax Planning", "ERP Integration", "Auditing"],
-        teamLine: "QUALIFICATION: BSc in Accounting (Estácio)",
+        blueprintLabel: "// DISCIPLINES",
+        blueprint: [
+          "Integrated Accounting Systems",
+          "Integration APIs",
+          "Cloud Platforms",
+          "ERP Management Systems",
+        ],
+        teamLine: "BSC IN ACCOUNTING // 20+ PEOPLE REALLOCATED",
       },
     ],
   },
 
   blog: {
     id: "blog",
-    kicker: "// INTELLECTUAL CAPITAL",
-    title: "Selected architectural whitepapers",
-    note: "ENGINEERING & FISCAL STRATEGY",
+    kicker: "// TECHNICAL WRITING",
+    title: "Whitepapers and field notes",
+    note: "DATA ENGINEERING AND TECHNICAL LEADERSHIP",
     ctaLabel: "Read all articles",
     limit: 3,
     items: [
@@ -267,29 +272,29 @@ export const homeContentEnUS: HomeContent = {
         slug: "resilient-agent-swarms-on-kafka",
         category: "DISTRIBUTED SYSTEMS",
         readingTimeMinutes: 8,
-        title: "Architecting resilient swarms with Kafka event streams",
+        title: "Architecting resilient agent swarms with Kafka event streams",
         excerpt:
-          "Designing zero-loss event brokers, partition strategies and idempotent consumers when orchestrating distributed AI agent fleets.",
+          "Zero-loss event brokers, partition strategies and idempotent consumers when orchestrating distributed AI agent fleets.",
         ctaLabel: "READ ESSAY",
         accent: "primary",
       },
       {
         slug: "rds-to-clickhouse-100m-messages-a-day",
-        category: "HIGH-THROUGHPUT OLAP",
+        category: "DATA PLATFORMS",
         readingTimeMinutes: 12,
         title: "From RDS to ClickHouse: 100M messages/day at p99 under 10ms",
         excerpt:
-          "A deep-dive benchmark into eliminating lock contention in relational databases and moving to columnar storage for sub-second telemetry lookups.",
+          "How to eliminate concurrency contention in relational databases and move analytics to columnar storage with sub-second queries.",
         ctaLabel: "READ BENCHMARK",
         accent: "secondary",
       },
       {
         slug: "dual-core-leader-accounting-rigor",
-        category: "TECH EXECUTIVE",
+        category: "TECHNICAL LEADERSHIP",
         readingTimeMinutes: 6,
         title: "The dual-core leader: why accounting rigor makes better software architects",
         excerpt:
-          "How financial discipline converts technical debt into calculated liabilities and shifts development velocity from cost centre to profit engine.",
+          "How financial discipline converts technical debt into a calculated liability and moves development velocity from cost center to profit engine.",
         ctaLabel: "READ ESSAY",
         accent: "primary",
       },
@@ -298,12 +303,12 @@ export const homeContentEnUS: HomeContent = {
 
   contact: {
     id: "contact",
-    kicker: "// INITIATE ENGAGEMENT",
+    kicker: "// CONTACT",
     title: "Let's talk.",
     narrative:
-      "Retain an architect who can calculate the financial depreciation of your cloud infrastructure before writing a single line of distributed Go or Java.",
-    portalLabel: "// EXECUTIVE ACCESS PORTAL",
-    statusNote: "STATUS: ALL SYSTEMS NOMINAL // ZERO TRUST // SUB-MS CONSENSUS",
+      "Hire an architect who prices the depreciation of your infrastructure before writing the first line of distributed Go, Java or .NET.",
+    portalLabel: "// DIRECT CONTACT CHANNEL",
+    statusNote: "RESPONSE WITHIN 1 BUSINESS DAY // NO FORM, NO TRACKING",
     channels: [
       {
         id: "email",
@@ -317,13 +322,13 @@ export const homeContentEnUS: HomeContent = {
         id: "location",
         label: "BASE",
         href: "https://www.google.com/maps/search/?api=1&query=Fortaleza+CE+Brazil",
-        value: "Fortaleza, CE (Remote global / available for key onsite summits)",
+        value: "Fortaleza, CE (remote worldwide)",
         icon: "location",
         external: true,
       },
       {
         id: "response",
-        label: "RESPONSE TIME",
+        label: "RESPONSE",
         href: "mailto:marcelino.sandroni@gmail.com",
         value: "Within 1 business day",
         icon: "verified",
@@ -332,34 +337,34 @@ export const homeContentEnUS: HomeContent = {
     ],
     brief: {
       ctaLabel: "Open a pre-filled brief",
-      subject: "Executive conversation — {company}",
+      subject: "Technical conversation — {company}",
       bodyTemplate:
-        "Hello Marcelino,\n\nContext: {company}\nScope: {scope}\n\nGoal for the conversation:\n\nDesired timeline:\n\nThank you!",
+        "Hello Marcelino,\n\nCompany: {company}\nScope: {scope}\n\nGoal for the conversation:\n\nDesired timeline:\n\nThank you!",
     },
   },
 
   footer: {
     id: "footer",
-    kicker: "// CONTACT GATEWAY",
-    title: "Let's talk architecture, scale & ROI",
+    kicker: "// CONTACT",
+    title: "Architecture, scale and financial return",
     narrative:
-      "Available for strategic advisory, principal architecture consulting and selective fractional leadership roles in high-throughput enterprise systems.",
+      "Available for strategic advisory, principal architecture consulting and fractional leadership in high-volume enterprise systems.",
     columns: [
       {
         id: "direct",
-        title: "DIRECT CHANNELS",
+        title: "DIRECT",
         items: [
           {
             id: "session",
-            label: "Book an executive session",
+            label: "Schedule a conversation",
             href: "#contact",
-            value: "Book session",
+            value: "Schedule a conversation",
             icon: "calendar",
             external: false,
           },
           {
             id: "mail",
-            label: "Direct email",
+            label: "Email",
             href: "mailto:marcelino.sandroni@gmail.com",
             value: "marcelino.sandroni@gmail.com",
             icon: "mail",
@@ -381,7 +386,7 @@ export const homeContentEnUS: HomeContent = {
         items: [
           {
             id: "github",
-            label: "GitHub profile",
+            label: "GitHub",
             href: "https://github.com/marcelinosandroni",
             value: "github.com/marcelinosandroni",
             icon: "code",
@@ -389,7 +394,7 @@ export const homeContentEnUS: HomeContent = {
           },
           {
             id: "linkedin",
-            label: "LinkedIn profile",
+            label: "LinkedIn",
             href: "https://linkedin.com/in/marcelinosandroni",
             value: "linkedin.com/in/marcelinosandroni",
             icon: "external",
@@ -397,7 +402,7 @@ export const homeContentEnUS: HomeContent = {
           },
           {
             id: "blog",
-            label: "Engineering blog",
+            label: "Technical blog",
             href: "/blog",
             value: "Whitepapers",
             icon: "document",

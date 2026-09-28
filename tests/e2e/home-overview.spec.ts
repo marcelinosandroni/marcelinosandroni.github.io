@@ -32,20 +32,36 @@ test.describe("Home executive overview", () => {
     }
   });
 
-  test("shows the fiscal KPI matrix with the configured proof strips", async ({ page }) => {
+  test("shows the fiscal KPI grid with the configured proof strips", async ({ page }) => {
     await page.goto("/en-us");
 
     await expect(page.locator("#kpis article")).toHaveCount(4);
     await expect(page.locator("#kpis")).toContainText("R$ 24M/YEAR");
-    await expect(page.locator("#kpis")).toContainText("-83% COMPRESSION");
+    await expect(page.locator("#kpis")).toContainText("-83%");
+    await expect(page.locator("#kpis")).toContainText("21 years");
   });
 
-  test("shows the technical arsenal as four categorised clusters", async ({ page }) => {
+  test("states the career arithmetic the way the filter requires", async ({ page }) => {
     await page.goto("/en-us");
 
-    await expect(page.locator("#arsenal article")).toHaveCount(4);
-    await expect(page.locator("#arsenal")).toContainText("ClickHouse");
-    await expect(page.locator("#arsenal")).toContainText("Kafka");
+    const hero = page.locator("#top");
+
+    await expect(hero).toContainText("15 years");
+    await expect(hero).toContainText("2005");
+    await expect(hero).toContainText("6 years");
+    await expect(hero).toContainText("21 years");
+  });
+
+  test("groups the arsenal into exactly the four required categories", async ({ page }) => {
+    await page.goto("/en-us");
+
+    const titles = page.locator("#arsenal h3");
+
+    await expect(titles).toHaveCount(4);
+    await expect(titles.nth(0)).toHaveText("Frontend & UI");
+    await expect(titles.nth(1)).toHaveText("Backend Core");
+    await expect(titles.nth(2)).toHaveText("DevOps & Cloud");
+    await expect(titles.nth(3)).toHaveText("Artificial Intelligence");
   });
 
   test("renders the track record from the resume, with every impact badge", async ({ page }) => {
@@ -56,6 +72,30 @@ test.describe("Home executive overview", () => {
     await expect(page.locator("#experience")).toContainText("Banco Itaú");
     await expect(page.locator("#experience")).toContainText("R$ 24M/YEAR SAVED");
     await expect(page.locator("#experience")).toContainText("+R$ 100B UNDER CUSTODY");
+  });
+
+  /**
+   * The compression rule, asserted on rendered output: three bullets per
+   * employer, so the track record cannot grow back into a text wall.
+   */
+  test("keeps the track record to three bullets per employer", async ({ page }) => {
+    await page.goto("/en-us");
+
+    const rows = page.locator("#experience article");
+
+    for (let index = 0; index < (await rows.count()); index += 1) {
+      await expect(rows.nth(index).locator("li"), `row ${index}`).toHaveCount(3);
+    }
+  });
+
+  test("carries no fiction naming anywhere in the rendered home", async ({ page }) => {
+    await page.goto("/en-us");
+
+    const html = await page.content();
+
+    for (const term of ["AnimateMatrix", "Minority Report", "NEO //", "cognitive matrix"]) {
+      expect(html, term).not.toContain(term);
+    }
   });
 
   test("localizes the track record annotations", async ({ page }) => {

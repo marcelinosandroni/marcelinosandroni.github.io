@@ -8,7 +8,7 @@
  * Values intentionally widen to `string` (no `as const`) so translated
  * catalogs are not forced to repeat the English literals.
  *
- * Division of labour with the content modules (`DESIGN.md` §12):
+ * Division of labor with the content modules (`DESIGN.md` §12):
  * - **Dictionary** = UI chrome. Structural labels, aria text, units, formats and
  *   anything that is a property of the *interface* rather than of the page.
  * - **Content modules** (`home`, `resume-data`, blog articles) = what this
@@ -100,7 +100,7 @@ export const enUS = {
     available: "Available for opportunities",
   },
   experience: {
-    title: "Track Record: Mission-Critical Experience",
+    title: "Track Record: Production Systems Experience",
     subtitle: "A trajectory across technology, operations and business.",
     teamLabel: "Team",
   },

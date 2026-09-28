@@ -173,6 +173,7 @@ test.describe("Localized routing and PDF download", () => {
 
     expect(bundle.length).toBeGreaterThan(0);
     expect(bundle).not.toContain("Minority Report");
+    expect(bundle).not.toContain("AnimateMatrix");
     expect(bundle).not.toContain("skillGroups");
     expect(bundle).not.toContain("Bacharelado");
   });
