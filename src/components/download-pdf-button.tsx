@@ -1,24 +1,44 @@
 "use client";
 
 import { useState } from "react";
+
+import type { Locale } from "@/domain/i18n";
 import {
   DEFAULT_RESUME_TEMPLATE,
-  RESUME_TEMPLATES,
   type ResumeTemplateId,
 } from "@/infrastructure/pdf/resume-template-registry";
 
-interface DownloadPDFButtonProps {
-  locale: "pt-BR" | "en-US";
-  label?: string;
+export interface PdfButtonMessages {
+  download: string;
+  generating: string;
+  failed: string;
+  unknownError: string;
+  chooseTemplate: string;
 }
 
-export function DownloadPDFButton({ locale, label }: DownloadPDFButtonProps) {
+export interface PdfTemplateOption {
+  id: ResumeTemplateId;
+  label: string;
+  description: string;
+}
+
+interface DownloadPDFButtonProps {
+  locale: Locale;
+  messages: PdfButtonMessages;
+  templates: ReadonlyArray<PdfTemplateOption>;
+}
+
+/**
+ * The only interactive island on the page.
+ *
+ * Every string and every template description arrives already translated as
+ * props from the parent Server Component, so this Client Component carries no
+ * dictionary and no locale data of its own.
+ */
+export function DownloadPDFButton({ locale, messages, templates }: DownloadPDFButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const defaultLabel = label ?? (locale === "en-US" ? "Download PDF" : "Baixar PDF");
-  const loadingLabel = locale === "en-US" ? "Generating..." : "Gerando...";
 
   const handleDownload = async (templateId: ResumeTemplateId = DEFAULT_RESUME_TEMPLATE) => {
     setIsLoading(true);
@@ -28,7 +48,7 @@ export function DownloadPDFButton({ locale, label }: DownloadPDFButtonProps) {
     try {
       const response = await fetch(`/api/resume/${locale}/pdf?template=${templateId}`);
       if (!response.ok) {
-        throw new Error(locale === "en-US" ? "Failed to download PDF" : "Falha ao baixar PDF");
+        throw new Error(messages.failed);
       }
 
       const blob = await response.blob();
@@ -41,7 +61,7 @@ export function DownloadPDFButton({ locale, label }: DownloadPDFButtonProps) {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro desconhecido");
+      setError(err instanceof Error ? err.message : messages.unknownError);
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +78,7 @@ export function DownloadPDFButton({ locale, label }: DownloadPDFButtonProps) {
             aria-busy={isLoading}
             type="button"
           >
-            {isLoading ? loadingLabel : defaultLabel}
+            {isLoading ? messages.generating : messages.download}
           </button>
           <button
             onClick={() => setIsMenuOpen((open) => !open)}
@@ -66,7 +86,7 @@ export function DownloadPDFButton({ locale, label }: DownloadPDFButtonProps) {
             className="button button-quiet download-toggle"
             aria-expanded={isMenuOpen}
             aria-haspopup="menu"
-            aria-label={locale === "en-US" ? "Choose PDF template" : "Escolher modelo de PDF"}
+            aria-label={messages.chooseTemplate}
             type="button"
           >
             <span aria-hidden="true">⌄</span>
@@ -74,7 +94,7 @@ export function DownloadPDFButton({ locale, label }: DownloadPDFButtonProps) {
         </div>
         {isMenuOpen && (
           <div className="download-options" role="menu">
-            {RESUME_TEMPLATES.map((template) => (
+            {templates.map((template) => (
               <button
                 key={template.id}
                 className="download-option"
@@ -82,14 +102,18 @@ export function DownloadPDFButton({ locale, label }: DownloadPDFButtonProps) {
                 role="menuitem"
                 type="button"
               >
-                <strong>{template.label[locale]}</strong>
-                <small>{template.description[locale]}</small>
+                <strong>{template.label}</strong>
+                <small>{template.description}</small>
               </button>
             ))}
           </div>
         )}
       </div>
-      {error && <small style={{ color: "#d9534f" }}>{error}</small>}
+      {error && (
+        <small role="alert" style={{ color: "#d9534f" }}>
+          {error}
+        </small>
+      )}
     </>
   );
 }
