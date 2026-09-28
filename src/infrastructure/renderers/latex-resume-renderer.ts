@@ -6,42 +6,23 @@ export class LaTeXResumeRenderer implements ResumeDocumentRenderer {
   constructor(private readonly templateId: ResumeTemplateId = DEFAULT_RESUME_TEMPLATE) {}
 
   async render(input: ResumeDocumentInput): Promise<ResumeDocument> {
-    const { version, locale, content } = input;
-    const isEnglish = locale === "en-US";
-    const labels = this.templateId === "REFERENCE"
-      ? isEnglish
-        ? {
-            summary: "Executive Summary",
-            skills: "Core Skills & Software Architecture",
-            experience: "Professional Experience",
-            education: "Education & Certifications",
-            languages: "Languages",
-          }
-        : {
-            summary: "Resumo Executivo",
-            skills: "Core Skills & Arquitetura de Software",
-            experience: "Experiência Profissional",
-            education: "Formação Acadêmica & Certificações",
-            languages: "Idiomas",
-          }
-      : isEnglish
-        ? { summary: "Summary", skills: "Skills", experience: "Experience", education: "Education", languages: "Languages" }
-        : { summary: "Resumo", skills: "Habilidades", experience: "Experiência", education: "Formação", languages: "Idiomas" };
-    const sections = this.templateId === "REFERENCE"
-      ? [
-          this.renderSection(labels.summary, this.escapeLatex(content.summary)),
-          this.renderSkills(content.skillGroups, labels.skills),
-          this.renderExperiences(content.experiences, labels.experience),
-          this.renderEducation(content.education, labels.education),
-          this.renderLanguages(content.languages, labels.languages),
-        ]
-      : [
-          this.renderSection(labels.summary, this.escapeLatex(content.summary)),
-          this.renderExperiences(content.experiences, labels.experience),
-          this.renderSkills(content.skillGroups, labels.skills),
-          this.renderEducation(content.education, labels.education),
-          this.renderLanguages(content.languages, labels.languages),
-        ];
+    const { version, locale, content, labels } = input;
+    const sections =
+      this.templateId === "REFERENCE"
+        ? [
+            this.renderSection(labels.summary, this.escapeLatex(content.summary)),
+            this.renderSkills(content.skillGroups, labels.skills),
+            this.renderExperiences(content.experiences, labels.experience),
+            this.renderEducation(content.education, labels.education),
+            this.renderLanguages(content.languages, labels.languages),
+          ]
+        : [
+            this.renderSection(labels.summary, this.escapeLatex(content.summary)),
+            this.renderExperiences(content.experiences, labels.experience),
+            this.renderSkills(content.skillGroups, labels.skills),
+            this.renderEducation(content.education, labels.education),
+            this.renderLanguages(content.languages, labels.languages),
+          ];
     const body = sections.filter(Boolean).join("\n\n");
 
     const texContent = resumeLatexTemplate({

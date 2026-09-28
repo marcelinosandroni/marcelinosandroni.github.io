@@ -101,6 +101,24 @@ export const ptBR: Dictionary = {
     failed: "Falha ao baixar PDF",
     unknownError: "Erro desconhecido",
     chooseTemplate: "Escolher modelo de PDF",
+    /**
+     * Seções impressas no PDF gerado. "Core Skills & Arquitetura de Software" é
+     * intencional: o modelo REFERENCE reproduz os títulos do PDF de referência.
+     */
+    sections: {
+      summary: "Resumo",
+      skills: "Habilidades",
+      experience: "Experiência",
+      education: "Formação",
+      languages: "Idiomas",
+    },
+    referenceSections: {
+      summary: "Resumo Executivo",
+      skills: "Core Skills & Arquitetura de Software",
+      experience: "Experiência Profissional",
+      education: "Formação Acadêmica & Certificações",
+      languages: "Idiomas",
+    },
     templates: {
       CLEAN: {
         label: "CLEAN",
