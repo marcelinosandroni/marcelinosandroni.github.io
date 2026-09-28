@@ -1,4 +1,3 @@
-```
 # Dependencies
 node_modules/
 venv/
@@ -10,6 +9,7 @@ dist/
 build/
 target/
 .gradle/
+.next/
 
 # Compiled files
 *.pyc
@@ -61,4 +61,6 @@ htmlcov/
 *.Z
 *.lz
 *.lzo
-```
+
+# Genered files
+*.pdf
