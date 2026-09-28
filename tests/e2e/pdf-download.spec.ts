@@ -121,6 +121,10 @@ test.describe("Localized routing and PDF download", () => {
     });
 
     await page.goto("/pt-br");
+    // The loading state only exists once the client island has hydrated, so wait
+    // for the page to be interactive before clicking. Without this the click can
+    // land on a not-yet-hydrated button and no state is ever set.
+    await page.waitForLoadState("networkidle");
 
     const downloadButton = page.getByRole("button", { name: /baixar pdf/i });
     const downloadPromise = page.waitForEvent("download");

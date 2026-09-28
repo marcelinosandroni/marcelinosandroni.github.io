@@ -8,22 +8,30 @@
  * Values intentionally widen to `string` (no `as const`) so translated
  * catalogs are not forced to repeat the English literals.
  *
+ * Division of labour with the content modules (`DESIGN.md` §12):
+ * - **Dictionary** = UI chrome. Structural labels, aria text, units, formats and
+ *   anything that is a property of the *interface* rather than of the page.
+ * - **Content modules** (`home`, `resume-data`, blog articles) = what this
+ *   particular site says. Titles, narratives, metrics, tags, article bodies.
+ *
  * Placeholders use `{name}` and are filled by `formatMessage`.
  */
 export const enUS = {
   metadata: {
-    title: "Marcelino Sandroni Dias | Senior Software Engineer",
-    jobTitle: "Senior Software Engineer",
+    title: "Marcelino Sandroni Dias | Senior Software Engineer & Tech Lead",
+    jobTitle: "Senior Software Engineer & Tech Lead",
     description:
-      "Living, interactive resume of Marcelino Sandroni Dias. Senior full-stack software engineer specialised in distributed systems, scalable architecture and corporate finance.",
-    siteName: "Marcelino Sandroni Dias — Resume",
+      "Marcelino Sandroni Dias — senior software engineer and tech lead. Executive engineering across distributed systems, AI pipelines and financial infrastructure, with R$ 24M/year and 100M messages/day of measured impact.",
+    siteName: "Marcelino Sandroni Dias",
     openGraphDescription:
-      "Living resume of Marcelino Sandroni Dias, senior full-stack software engineer.",
+      "Senior Software Engineer & Tech Lead. Distributed systems, AI pipelines and financial infrastructure — with measured fiscal impact.",
     structuredDataDescription:
-      "Senior full-stack software engineer combining cutting-edge engineering with 15 years of experience in business and accounting.",
+      "Senior full-stack software engineer and tech lead combining cutting-edge engineering with 15 years of experience in corporate finance and accounting.",
     keywords: [
       "Marcelino Sandroni Dias",
       "Senior Software Engineer",
+      "Tech Lead",
+      "Software Architect",
       "Full Stack",
       "TypeScript",
       "Node.js",
@@ -39,7 +47,10 @@ export const enUS = {
       "Docker",
       "Cloud",
       "Microservices",
+      "Distributed Systems",
       "DDD",
+      "Apache Kafka",
+      "ClickHouse",
     ],
     knowsAbout: [
       "Software Engineering",
@@ -47,6 +58,7 @@ export const enUS = {
       "Cloud Computing",
       "DDD",
       "CQRS",
+      "Hexagonal Architecture",
       "TypeScript",
       "C#",
       ".NET",
@@ -55,7 +67,16 @@ export const enUS = {
       "Python",
       "React",
       "Next.js",
+      "Apache Kafka",
+      "ClickHouse",
     ],
+  },
+  /** UI-only affordances that must exist even with content removed. */
+  a11y: {
+    skipToContent: "Skip to main content",
+    mainContent: "Main content",
+    decorative: "Decorative",
+    opensInNewTab: "Opens in a new tab",
   },
   nav: {
     backToTop: "Back to top",
@@ -63,22 +84,25 @@ export const enUS = {
     experience: "Experience",
     skills: "Skills",
     education: "Education",
+    home: "Overview",
+    arsenal: "Arsenal",
+    trackRecord: "Track record",
+    blog: "Writing",
+    resume: "Resume",
+    contact: "Contact",
   },
   hero: {
     liveResume: "Live Resume · v{version} · Updated {period}",
-    exploreTrajectory: "Explore trajectory",
-    getInTouch: "Get in touch",
-    profileLabel: "Professional profile",
     note: "Engineering connecting distributed systems, product and financial outcomes.",
+    backToOverview: "Back to overview",
   },
   signal: {
     available: "Available for opportunities",
-    disciplines: "Backend · Frontend · Cloud · Architecture",
-    localePair: "EN-US / PT-BR",
   },
   experience: {
-    title: "Experience",
+    title: "Track Record: Mission-Critical Experience",
     subtitle: "A trajectory across technology, operations and business.",
+    teamLabel: "Team",
   },
   skills: {
     titleLead: "Tools to",
@@ -92,9 +116,49 @@ export const enUS = {
     languagesTitle: "Bilingual Fluency",
     languagesDescription: "Full professional proficiency in English and native Portuguese.",
   },
+  resume: {
+    kicker: "// DOCUMENT OF RECORD",
+    title: "Complete resume",
+    subtitle:
+      "Every role, deliverable and measured outcome, in full. This page is the document of record; the overview is the summary.",
+    documentLabel: "Resume document",
+    technologiesLabel: "Core technologies",
+    scopeLabel: "Scope",
+    teamLabel: "Team",
+    caseStudiesLabel: "Case study",
+    problem: "Problem",
+    solution: "Solution",
+    result: "Result",
+    backToOverview: "Back to overview",
+  },
+  blog: {
+    indexKicker: "// ENGINEERING WRITING",
+    indexTitle: "Whitepapers, benchmarks and field notes",
+    indexSubtitle:
+      "Long-form writing on distributed systems, data platforms and the craft of technical leadership.",
+    allArticles: "Read the writing",
+    readingTime: "{minutes} min read",
+    publishedOn: "Published",
+    updatedOn: "Updated",
+    tagsLabel: "Tags",
+    backToIndex: "All articles",
+    emptyTitle: "No articles published yet",
+    emptyDescription: "The first whitepaper is being written. Check back shortly.",
+    notFoundTitle: "Article not found",
+    notFoundDescription:
+      "This article does not exist in this language, or it has been unpublished.",
+  },
+  contact: {
+    briefNote:
+      "Opens a pre-filled draft in your own mail client. Nothing is sent from this page.",
+  },
+  boot: {
+    skip: "Skip intro",
+    hint: "Press Enter to skip",
+  },
   footer: {
-    tagline: "Let's build something solid.",
     versionedResume: "Versioned Resume",
+    legal: "All rights reserved.",
   },
   pdf: {
     download: "Download PDF",

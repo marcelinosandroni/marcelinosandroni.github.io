@@ -7,6 +7,7 @@ export {
   canonicalizeSegment,
   getAlternateLocale,
   getAlternateLanguageMap,
+  getAlternateOpenGraphLocales,
   isLocale,
   isLocaleSegment,
   resolveLocale,
