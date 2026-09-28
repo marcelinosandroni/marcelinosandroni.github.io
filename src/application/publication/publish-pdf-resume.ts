@@ -1,6 +1,9 @@
 import type { Locale, ResumeContent } from "@/domain/resume/types";
 import type { ResumeVersion } from "@/domain/publication/resume-version";
-import type { ResumeDocumentRenderer } from "@/application/publication/build-resume-document";
+import type {
+  ResumeDocumentRenderer,
+  ResumeSectionLabels,
+} from "@/application/publication/build-resume-document";
 
 export type ResumeArtifact = {
   version: ResumeVersion;
@@ -17,7 +20,13 @@ export interface PDFCompiler {
 export class PublishPDFResume {
   constructor(
     private readonly documentBuilder: {
-      execute: (input: { version: ResumeVersion; locale: Locale; content: ResumeContent; templateId?: string }) => Promise<{ filename: string; content: string }>;
+      execute: (input: {
+        version: ResumeVersion;
+        locale: Locale;
+        content: ResumeContent;
+        templateId?: string;
+        labels: ResumeSectionLabels;
+      }) => Promise<{ filename: string; content: string }>;
     },
     private readonly renderer: ResumeDocumentRenderer,
     private readonly compiler: PDFCompiler,
@@ -27,6 +36,7 @@ export class PublishPDFResume {
     version: ResumeVersion,
     locale: Locale,
     content: ResumeContent,
+    labels: ResumeSectionLabels,
     templateId = "CLEAN",
   ): Promise<ResumeArtifact> {
     const document = await this.documentBuilder.execute({
@@ -34,6 +44,7 @@ export class PublishPDFResume {
       locale,
       content,
       templateId,
+      labels,
     });
 
     const pdfBuffer = await this.compiler.compile(document.content, document.filename);

@@ -102,6 +102,25 @@ export const enUS = {
     failed: "Failed to download PDF",
     unknownError: "Unknown error",
     chooseTemplate: "Choose PDF template",
+    /**
+     * Section headings printed in the generated PDF. Kept apart from the web UI
+     * because the document follows its own editorial structure, and the
+     * REFERENCE template reproduces the headings of the original reference PDF.
+     */
+    sections: {
+      summary: "Summary",
+      skills: "Skills",
+      experience: "Experience",
+      education: "Education",
+      languages: "Languages",
+    },
+    referenceSections: {
+      summary: "Executive Summary",
+      skills: "Core Skills & Software Architecture",
+      experience: "Professional Experience",
+      education: "Education & Certifications",
+      languages: "Languages",
+    },
     templates: {
       CLEAN: {
         label: "CLEAN",

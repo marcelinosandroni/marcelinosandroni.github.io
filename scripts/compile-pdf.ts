@@ -19,6 +19,8 @@ import { PublishPDFResume, type PDFCompiler } from "../src/application/publicati
 import { LaTeXResumeRenderer } from "../src/infrastructure/renderers/latex-resume-renderer";
 import { DockerPDFCompiler } from "../src/infrastructure/pdf/docker-pdf-compiler";
 import { PdfKitPDFCompiler } from "../src/infrastructure/pdf/pdfkit-pdf-compiler";
+import { getPdfSectionLabels } from "../src/infrastructure/pdf/pdf-section-labels";
+import { loadDictionary } from "../src/i18n/dictionaries/loader";
 import { getResumeContent } from "../src/infrastructure/content";
 import {
   DEFAULT_RESUME_TEMPLATE,
@@ -62,17 +64,19 @@ async function compileResumePDF(options: CompileOptions = {}): Promise<void> {
     for (const locale of locales) {
       console.log(`\n📄 Compiling resume for ${locale}...`);
       const content = getResumeContent(locale);
-      const renderer = new LaTeXResumeRenderer(options.template ?? DEFAULT_RESUME_TEMPLATE);
+      const templateId = options.template ?? DEFAULT_RESUME_TEMPLATE;
+      const sectionLabels = getPdfSectionLabels(await loadDictionary(locale), templateId);
+      const renderer = new LaTeXResumeRenderer(templateId);
       const builder = new BuildResumeDocument(renderer);
       const publisher = new PublishPDFResume(builder, renderer, compiler);
 
       let artifact;
       try {
-        artifact = await publisher.execute(version, locale, content, options.template ?? DEFAULT_RESUME_TEMPLATE);
+        artifact = await publisher.execute(version, locale, content, sectionLabels, templateId);
       } catch (err) {
         console.warn("⚠️ Preferred compiler failed, falling back to PDFKit compiler:", err);
         const fallbackPublisher = new PublishPDFResume(builder, renderer, new PdfKitPDFCompiler());
-        artifact = await fallbackPublisher.execute(version, locale, content, options.template ?? DEFAULT_RESUME_TEMPLATE);
+        artifact = await fallbackPublisher.execute(version, locale, content, sectionLabels, templateId);
       }
 
       const filepath = join(outputDir, artifact.filename);

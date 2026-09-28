@@ -2,26 +2,22 @@ import { locale } from "next/root-params";
 import { notFound } from "next/navigation";
 
 import { toLocale, type Locale } from "@/domain/i18n";
+import { loadDictionary } from "./loader";
 import type { Dictionary } from "./en-US";
 
 /**
  * Server-only message catalog access.
  *
- * Dictionaries are loaded through dynamic `import()` calls keyed by locale, so
- * each catalog lands in its own server chunk. Because every consumer is a
- * Server Component, translated copy never reaches the browser JavaScript
- * bundle — only the rendered HTML does.
+ * Because every consumer is a Server Component, translated copy never reaches
+ * the browser JavaScript bundle — only the rendered HTML does.
  *
  * No `import "server-only"` is needed: importing `next/root-params` below
  * already fails the build if this module is pulled into a Client Component.
  */
-const CATALOGS: Readonly<Record<Locale, () => Promise<Dictionary>>> = {
-  "en-US": () => import("./en-US").then((module) => module.enUS),
-  "pt-BR": () => import("./pt-BR").then((module) => module.ptBR),
-};
 
+/** Loads the catalog for an explicit locale. */
 export async function getDictionary(locale: Locale): Promise<Dictionary> {
-  return CATALOGS[locale]();
+  return loadDictionary(locale);
 }
 
 /**
@@ -34,8 +30,8 @@ export async function getDictionary(locale: Locale): Promise<Dictionary> {
  * Importing this module from a Client Component is a build error by design.
  */
 export async function getDictionaryForRoute(): Promise<Dictionary> {
-  const locale = await requireLocaleForRoute();
-  return getDictionary(locale);
+  const resolved = await requireLocaleForRoute();
+  return loadDictionary(resolved);
 }
 
 /** Resolves the canonical locale for the current route, or renders a 404. */
