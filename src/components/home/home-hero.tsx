@@ -28,7 +28,19 @@ export function HomeHeroSection({ hero, locale, t, pdfTemplates }: HomeHeroSecti
     <section
       id="top"
       aria-labelledby="hero-heading"
-      className="relative w-full bg-surface-base"
+      /*
+       * `overflow-x-clip` contains the decorative backdrops below.
+       *
+       * They are 24rem and 20rem blurred circles anchored to the viewport
+       * edges, so on a 390px phone the left one lands at 25% + 384px and pushed
+       * the whole document 92px wider than the screen — a horizontal scrollbar
+       * on the most common device width there is.
+       *
+       * Clipping is the correct tool rather than `overflow-hidden`: it contains
+       * the decoration without creating a scroll container, so it cannot break
+       * `position: sticky` further down the page.
+       */
+      className="relative w-full overflow-x-clip bg-surface-base"
     >
       <div className="mx-auto w-full max-w-[1320px] px-margin py-space-2xl md:px-margin-tablet lg:px-margin-desktop lg:py-space-3xl">
         {/* Diffused radial backdrops — atmospheric depth only, never a hard edge. */}

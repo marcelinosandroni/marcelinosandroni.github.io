@@ -21,7 +21,7 @@ export function LocaleSwitcher({ locale, t }: LocaleSwitcherProps) {
 
   return (
     <Link
-      className="language"
+      className="language tap-target"
       href={`/${toLocaleSegment(alternate)}`}
       hrefLang={alternate}
       aria-label={formatMessage(t.localeSwitcher.switchTo, { language: target.endonym })}

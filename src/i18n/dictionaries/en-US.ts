@@ -1,4 +1,4 @@
-﻿/**
+/**
  * English (en-US) message catalog — the reference locale.
  *
  * This module defines the `Dictionary` contract: every other locale must

@@ -156,17 +156,26 @@ export function ClickAnalytics({ labels }: ClickAnalyticsProps) {
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
         aria-label={isOpen ? labels.close : labels.open}
-        className="fixed bottom-14 right-4 z-40 inline-flex items-center gap-2 rounded-full border border-border-prominent bg-surface-raised/90 px-3 py-1.5 font-label-mono text-label-mono uppercase tracking-widest text-text-secondary backdrop-blur-md transition-colors hover:border-primary-container hover:text-primary-container"
+        title={isOpen ? labels.close : labels.open}
+        /*
+         * Icon-only, and it sits in the corner rather than floating over the
+         * content. The first version was a full-width labelled pill fixed above
+         * the bottom bar, which on a phone landed on top of the hero paragraph
+         * and made the page look broken. A 44px square never covers running
+         * text, and the label stays available to assistive technology.
+         */
+        className="tap-target min-w-11 justify-center gap-2 rounded-full border border-border-subtle bg-surface-overlay/70 px-3 font-label-mono text-label-mono uppercase tracking-widest text-text-secondary transition-colors hover:border-primary-container hover:text-primary-container"
       >
-        <span aria-hidden="true">{isOpen ? "▾" : "▸"}</span>
-        {isOpen ? labels.close : labels.open}
+        <span aria-hidden="true" className="text-sm leading-none">
+          {isOpen ? "✕" : "◎"}
+        </span>
       </button>
 
       {isOpen && (
         <div
           role="region"
           aria-label={labels.panelLabel}
-          className="fixed inset-x-0 bottom-24 z-30 mx-auto w-full max-w-[1320px] px-margin md:px-margin-tablet lg:px-margin-desktop"
+          className="mt-space-md"
         >
           <div className="border border-border-subtle bg-surface-raised/95 p-space-md backdrop-blur-md">
             <h2 className="font-headline-sm text-headline-sm text-text-primary">{labels.title}</h2>

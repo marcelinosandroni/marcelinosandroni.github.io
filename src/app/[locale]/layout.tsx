@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { JetBrains_Mono, Manrope, Playfair_Display } from "next/font/google";
 
