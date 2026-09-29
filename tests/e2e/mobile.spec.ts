@@ -1,5 +1,7 @@
 import { expect, test, devices } from "@playwright/test";
 
+import { version } from "../../package.json";
+
 /**
  * Mobile is not a smaller desktop, it is the primary way a large share of
  * visitors arrive. These checks exist because a real survey of the site at phone
@@ -71,10 +73,20 @@ test.describe("Mobile responsiveness", () => {
         const rect = el.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) continue;
 
-        // The skip link is visually hidden until focused and expands to a full
-        // 153x44 target on focus, which is the correct pattern rather than a
-        // defect, so it is exempt here and asserted separately.
+        // Two exemptions, both deliberate and both marked in the markup rather
+        // than allowlisted by element, so a new offender cannot slip through by
+        // coincidence of label or position.
+        //
+        // `.sr-only` is visually hidden until focused and expands to a full
+        // 153x44 target on focus — asserted separately below.
         if (el.classList.contains("sr-only")) continue;
+
+        // `.tap-target-inline` marks a link that sits inside a sentence of
+        // running text, which WCAG 2.5.8 explicitly exempts from the minimum.
+        // The footer version link is one: making it 44px tall would stretch the
+        // line of dots around it. The class is opt-in and only used where the
+        // exemption genuinely applies.
+        if (el.classList.contains("tap-target-inline")) continue;
 
         if (rect.height < 44 || rect.width < 44) {
           const label = (el.getAttribute("aria-label") || el.textContent || "").trim().replace(/\s+/g, " ");
@@ -143,6 +155,30 @@ test.describe("Mobile responsiveness", () => {
       expect(box.height).toBeGreaterThanOrEqual(44);
       expect(box.width).toBeGreaterThanOrEqual(44);
     }
+
+    await context.close();
+  });
+
+  test("links the footer version to the release that produced it", async ({ browser }) => {
+    const context = await browser.newContext({
+      ...devices["Desktop Chrome"],
+      viewport: { width: 1280, height: 900 },
+    });
+    const page = await context.newPage();
+    await page.goto("/en-us", { waitUntil: "networkidle" });
+
+    /*
+     * The version is a claim unless it can be checked. It has to track
+     * `package.json`, and the link has to carry the same number, so a release
+     * that bumps one and not the other is visible here rather than in a bug
+     * report.
+     */
+    const link = page.locator(`footer a[href*="/releases/tag/v${version}"]`);
+
+    await expect(link).toHaveText(`v${version}`);
+    await expect(link).toHaveAttribute("href", new RegExp(`/releases/tag/v${version.replace(/\./g, "\\.")}$`));
+    await expect(link).toHaveAttribute("target", "_blank");
+    await expect(link).toHaveAttribute("rel", /noopener/);
 
     await context.close();
   });

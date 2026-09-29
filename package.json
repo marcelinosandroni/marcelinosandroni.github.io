@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "lint:commit": "commitlint --verbose",
     "typecheck": "next typegen && tsc --noEmit",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
@@ -31,6 +32,8 @@
     "resend": "^6.30.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
