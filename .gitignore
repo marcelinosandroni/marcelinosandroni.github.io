@@ -71,3 +71,7 @@ public/artifacts/cache/
 # The example file documents required configuration and must stay tracked.
 # *.env.* above would otherwise hide it from anyone cloning the repo.
 !.env.example
+
+# Playwright HTML report is a generated artifact of a local run.
+playwright-report/
+test-results/
