@@ -15,8 +15,10 @@ import type { BlogArticle } from "@/domain/blog";
  * primary proof of engineering depth for a technical evaluator, so a degraded
  * blog is not acceptable.
  *
- * `id` values are stable UUIDs: they are the join key between this file and the
- * database rows, and must never be regenerated.
+ * `id` values are stable UUIDs: they are the primary key of `blog_articles`, so
+ * every row needs its own — one per `(article, locale)`, never shared between
+ * translations. The cross-locale join is `slug`, which is the stable key. The
+ * ids must never be regenerated once a row exists.
  */
 export const articlesPtBR: BlogArticle[] = [
   {
@@ -25,9 +27,9 @@ export const articlesPtBR: BlogArticle[] = [
     slug: "resilient-agent-swarms-on-kafka",
     category: "distributed-systems",
     status: "published",
-    title: "Arquitetando enxames resilientes com event streams Kafka",
+    title: "Arquitetando swarms resilientes com event streams Kafka",
     excerpt:
-      "Broker de eventos sem perda, estratégias de particionamento e consumidores idempotentes ao orquestrar frotas de agentes de IA distribuídos.",
+      "Broker de eventos sem perda, estratégias de particionamento e consumidores idempotentes ao orquestrar swarms de agentes de IA distribuídos.",
     readingTimeMinutes: 8,
     publishedAt: "2026-06-18",
     updatedAt: "2026-07-02",
@@ -36,7 +38,7 @@ export const articlesPtBR: BlogArticle[] = [
     body: [
       {
         type: "paragraph",
-        text: "Um enxame de agentes de IA parece um problema de orquestração. Na prática, é um problema de entrega de mensagens. Cada agente é um consumidor que pode morrer no meio de um efeito colateral, e o orquestrador precisa poder retomar sem duplicar trabalho e sem perder trabalho.",
+        text: "Um swarm de agentes de IA parece um problema de orquestração. Na prática, é um problema de entrega de mensagens. Cada agente é um consumidor que pode morrer no meio de um efeito colateral, e o orquestrador precisa poder retomar sem duplicar trabalho e sem perder trabalho.",
       },
       {
         type: "paragraph",
@@ -62,7 +64,7 @@ export const articlesPtBR: BlogArticle[] = [
         text: "Particionamento é uma decisão de domínio" },
       {
         type: "paragraph",
-        text: "Round-robin distribui a carga e destrói a ordem. Chave-por-entidade preserva a ordem e cria pontos quentes. Em um enxame de agentes, o padrão certo é chave-por-entidade com uma camada de sal, aplicada apenas quando um agregado específico passa a dominar o tráfego.",
+        text: "Round-robin distribui a carga e destrói a ordem. Chave-por-entidade preserva a ordem e cria pontos quentes. Em um swarm de agentes, o padrão certo é chave-por-entidade com uma camada de sal, aplicada apenas quando um agregado específico passa a dominar o tráfego.",
       },
       {
         type: "code",
@@ -78,7 +80,7 @@ export const articlesPtBR: BlogArticle[] = [
       { type: "heading", level: 2, text: "Consumidores idempotentes na prática" },
       {
         type: "paragraph",
-        text: "A idempotência não vem de uma biblioteca. Vem de uma restrição de banco ou de um registro de deduplicação consultado antes do efeito. Em sistemas com agentes de IA, há uma camada extra: a resposta do modelo precisa ser addressed pelo hash do prompt mais o da versão do modelo, senão um rebalance reexecuta inferência paga.",
+        text: "A idempotência não vem de uma biblioteca. Vem de uma restrição de banco ou de um registro de deduplicação consultado antes do efeito. Em sistemas com agentes de IA, há uma camada extra: a resposta do modelo precisa ser identificada pelo hash do prompt mais o da versão do modelo, senão um rebalance reexecuta inferência paga.",
       },
       {
         type: "callout",
@@ -93,7 +95,7 @@ export const articlesPtBR: BlogArticle[] = [
       },
       {
         type: "quote",
-        text: "Um enxame de agentes é um sistema distribuído com custo por tentativa. Se você não comissionou cada tentativa, você está pagando duas vezes.",
+        text: "Um swarm de agentes é um sistema distribuído com custo por tentativa. Se você não comissionou cada tentativa, você está pagando duas vezes.",
       },
       {
         type: "paragraph",
@@ -119,7 +121,7 @@ export const articlesPtBR: BlogArticle[] = [
     body: [
       {
         type: "paragraph",
-        text: "O sintoma era sempre o mesmo: o dashboard de telemetria levava 30 segundos para responder, e o time deinfraestrutura respondia que o banco estava são. Estava. Ele só nunca foi desenhado para a pergunta que estávamos fazendo.",
+        text: "O sintoma era sempre o mesmo: o dashboard de telemetria levava 30 segundos para responder, e o time de infraestrutura respondia que o banco estava são. Estava. Ele só nunca foi desenhado para a pergunta que estávamos fazendo.",
       },
       { type: "heading", level: 2, text: "A causa raiz é o modelo de acesso, não o volume" },
       {
@@ -128,7 +130,7 @@ export const articlesPtBR: BlogArticle[] = [
       },
       {
         type: "paragraph",
-        text: "Bancos colares invertem todas essas decisões. Colunas são independentes, então uma agregação lê apenas as colunas necessárias. Partições por tempo tornam a poda quase gratuita. E a compressão por coluna reduz a varredura em uma ordem de grandeza.",
+        text: "Bancos colunares invertem todas essas decisões. Colunas são independentes, então uma agregação lê apenas as colunas necessárias. Partições por tempo tornam a poda quase gratuita. E a compressão por coluna reduz a varredura em uma ordem de grandeza.",
       },
       { type: "heading", level: 2, text: "O caminho, na ordem em que funciona" },
       {
@@ -177,7 +179,7 @@ export const articlesPtBR: BlogArticle[] = [
       { type: "heading", level: 2, text: "Quando não migrar" },
       {
         type: "paragraph",
-        text: "Se a consulta é por chave primária, se o volume cabe folgadamente na memória e se ninguém precisa agregar milhões de linhas, o relacional continua sendo a escolha certa. Arquitetura séria inclui saber quando não usar a ferramenta que você acabou de mastering.",
+        text: "Se a consulta é por chave primária, se o volume cabe folgadamente na memória e se ninguém precisa agregar milhões de linhas, o relacional continua sendo a escolha certa. Arquitetura séria inclui saber quando não usar a ferramenta que você acabou de dominar.",
       },
     ],
   },
@@ -204,7 +206,7 @@ export const articlesPtBR: BlogArticle[] = [
       { type: "heading", level: 2, text: "A contabilidade já tinha a resposta" },
       {
         type: "paragraph",
-        text: "Dívida técnica é, em termos estritamente contábeis, um passivo. Ela consome capital ao longo do tempo, aparece como despesa de manutenção, e — este é o ponto que quase todo mundo perde — raramente aparece na lista que o comitê financeiro aprova. Fica na planilha do engineering, invisível para quem decide sobre orçamento.",
+        text: "Dívida técnica é, em termos estritamente contábeis, um passivo. Ela consome capital ao longo do tempo, aparece como despesa de manutenção, e — este é o ponto que quase todo mundo perde — raramente aparece na lista que o comitê financeiro aprova. Fica na planilha da engenharia, invisível para quem decide sobre orçamento.",
       },
       {
         type: "list",
@@ -218,7 +220,7 @@ export const articlesPtBR: BlogArticle[] = [
       { type: "heading", level: 2, text: "O que isso muda na prática de liderar" },
       {
         type: "paragraph",
-        text: "Três comportamentos concretos, que transferi da contabilidade para a engenharia sem esforço: orçar em vez de estimar, medir antes de otimizar, e privatizar o custo antes de privatizar o benefício. Um tech lead que consegue dizer o custo anual de uma decisão técnica em uma frase tem uma vantagem competitive que nenhum framework entrega.",
+        text: "Três comportamentos concretos, que transferi da contabilidade para a engenharia sem esforço: orçar em vez de estimar, medir antes de otimizar, e privatizar o custo antes de privatizar o benefício. Um tech lead que consegue dizer o custo anual de uma decisão técnica em uma frase tem uma vantagem competitiva que nenhum framework entrega.",
       },
       {
         type: "quote",
@@ -232,7 +234,126 @@ export const articlesPtBR: BlogArticle[] = [
       },
       {
         type: "paragraph",
-        text: "Não estou dizendo que se precisa de formação contábil. Estou dizendo que a capacidade de tratar software como um ativo e um passivo — e não como magia — é o que separa um time que entrega custo de um time que entrega_feature. E essa capacidade se aprende, mas é muito mais rápida quando já se viu um fechamento mensal.",
+        text: "Não estou dizendo que se precisa de formação contábil. Estou dizendo que a capacidade de tratar software como um ativo e um passivo — e não como magia — é o que separa um time que entrega custo de um time que entrega valor. E essa capacidade se aprende, mas é muito mais rápida quando já se viu um fechamento mensal.",
+      },
+    ],
+  },
+
+  {
+    id: "4d9a6b3e-1c72-4f85-a0d4-6b8e2f1c7a96",
+    locale: "pt-BR",
+    slug: "engineering-delivery-with-ai-agents",
+    category: "ai-ml",
+    status: "published",
+    title: "O que mudou na entrega: engenharia com agentes de IA",
+    excerpt:
+      "O diff deixou de ser a unidade de trabalho e a revisão virou o gargalo. O que um engenheiro precisa dominar agora para continuar responsável pelo resultado.",
+    readingTimeMinutes: 9,
+    publishedAt: "2026-09-22",
+    updatedAt: null,
+    featured: true,
+    tags: [
+      "agentes de IA",
+      "entrega",
+      "revisão de código",
+      "engenharia de software",
+      "dívida técnica",
+    ],
+    body: [
+      {
+        type: "paragraph",
+        text: "Meus 21 anos de carreira — 15 em governança financeira corporativa e 6 em engenharia de software — me deram um critério único para julgar qualquer mudança: o que ela altera no balanço. A entrada dos agentes de IA na entrega de software passa por esse critério sem dificuldade, e é por isso que acho a discussão improdutiva quando ela sai da pergunta útil. Ninguém precisa acreditar que agentes escrevem código. A pergunta é o que acontece com a atividade de revisão quando a quantidade de código plausível deixa de ser o recurso escasso.",
+      },
+      {
+        type: "paragraph",
+        text: "Quando comecei, a entrega era limitada por três coisas ao mesmo tempo: digitar, revisar e ter contexto de domínio. A digitação deixou de ser o gargalo, e o contexto de domínio nunca esteve escrito em lugar nenhum — sempre morou em quem revisava. O que continua escasso é atenção de revisão, e esse recurso não aparece em nenhum dashboard. É por isso que a entrega mudou de forma: não porque escrever ficou mais rápido, mas porque revisar ficou mais caro.",
+      },
+      { type: "heading", level: 2, text: "A unidade de trabalho deixou de ser o diff" },
+      {
+        type: "paragraph",
+        text: "Um diff grande não é uma entrega grande, é um custo de leitura grande. Com agentes, a tentação natural é delegar a implementação e revisar no fim. Funciona até a primeira vez em que a revisão deixa de ser leitura e vira auditoria, porque ninguém no processo tem contexto sobre por que cada decisão foi tomada. O que posso delegar com segurança é a implementação; o critério de aceitação nunca é delegável.",
+      },
+      {
+        type: "callout",
+        tone: "primary",
+        title: "A regra",
+        text: "Eu reviso o plano, não a digitação. Se não consigo descrever em uma tela por que a mudança está correta, ainda não é hora de gerar mil linhas.",
+      },
+      { type: "heading", level: 2, text: "Verificação substituiu autoria" },
+      {
+        type: "paragraph",
+        text: "Durante décadas, autoria era o sinal de qualidade: quem escreveu, entendeu. Com agentes, o sinal mais forte passa a ser o teste que prova o comportamento. A assimetria é favorável à engenharia: escrever 300 linhas de teste é muito mais barato que escrever 3.000 de implementação, e é exatamente o inverso do que a pressa promote. O ofício não encolheu; deslocou-se para o artefato que o código não pode substituir.",
+      },
+      {
+        type: "list",
+        ordered: true,
+        items: [
+          "Escreva a asserção antes de delegar. Sem critério de aceitação executável, um agente otimiza para parecer correto — e parecer correto é o modo de falha mais difícil de detectar em code review.",
+          "Trate a suíte de testes como especificação executável. É o único artefato que sobrevive à regeneração do código, e o único que um auditor aceita sem refazer o trabalho.",
+          "Automatize o que você não quer revisar. Uma verificação barata e automática vale mais que um bloco de código revisado com atenção parcial.",
+        ],
+      },
+      { type: "heading", level: 2, text: "O custo por tentativa é uma linha do demonstrativo" },
+      {
+        type: "paragraph",
+        text: "Um agente que chama uma API de terceiros, executa inferência paga ou toca um sistema de produção cobra por tentativa. E retry, nesse contexto, não é recuperação: é despesa. Na contabilidade isso se chama custo por tentativa, e é exatamente o número que desaparece quando a entrega parece gratuita.",
+      },
+      {
+        type: "quote",
+        text: "Se a entrega ficou mais barata para solicitar e mais cara para auditar, o saldo continua o mesmo. Só mudou para onde ele aparece.",
+      },
+      {
+        type: "paragraph",
+        text: "O antídoto não é disciplinear o time, é tornar a tentativa visível: orçamento por operação, idempotência onde existe efeito colateral e custo registrado no mesmo caminho da métrica de latência. Onde o time não consegue enxergar o custo, ele não consegue reduzi-lo.",
+      },
+      { type: "heading", level: 2, text: "Contexto é o novo gargalo de design" },
+      {
+        type: "paragraph",
+        text: "Antes, o design vivia no código e na cabeça de quem desenhou. Agora ele precisa viver no enunciado — o que é uma melhora, porque enunciado escrito e revisado é melhor que design implícito. Também é mais trabalho, e trabalho que não pode ser pulado. Um agente entrega exatamente o escopo que foi descrito, nem mais nem menos. A qualidade do escopo passa a ser a qualidade da entrega.",
+      },
+      {
+        type: "code",
+        language: "yaml",
+        code: [
+          "tarefa:",
+          "  contexto: \"<o domínio em três linhas>\"",
+          "  invariantes:",
+          "    - \"<o que não pode quebrar>\"",
+          "  interface: \"<assinatura pública, sem detalhe interno>\"",
+          "  exemplos:",
+          "    - \"<entrada> -> <saída esperada>\"",
+          "  nao_fazer:",
+          "    - \"<o que está fora do escopo>\"",
+          "  aceitacao: \"<o comando que prova que terminou>\"",
+        ].join("\n"),
+      },
+      {
+        type: "paragraph",
+        text: "O item que a maioria dos prompts esquece é o nao_fazer. Sem ele, o agente otimiza por parecer completo e entrega refatoração, cobertura extra e abstração que ninguém pediu. Escopo declarado é o equivalente, na engenharia, de uma reconciliação: sem ela, qualquer número parece bonito e não significa nada.",
+      },
+      { type: "heading", level: 2, text: "O que não mudou" },
+      {
+        type: "paragraph",
+        text: "A responsabilidade pelo resultado continua sendo de uma pessoa, e a diferença é que essa pessoa agora precisa entender o suficiente para discordar. Quem não consegue avaliar o que foi gerado não deveria estar aprovando o que foi gerado. Isso valia há cinco anos; agora vale ainda mais, porque a quantidade aprovada é muito maior.",
+      },
+      {
+        type: "list",
+        ordered: false,
+        items: [
+          "O dono do resultado. Assinar o merge é assumir o comportamento em produção, inclusive o que o agente sugeriu.",
+          "A contabilidade da decisão. Toda mudança é um passivo com juros. Agente não altera essa equação; só aumenta a velocidade com que se contrai o passivo.",
+          "O ofício de revisar. Julgar código com rigor leva anos e não terceiriza para uma máquina que gera código plausível mais rápido do que se lê.",
+        ],
+      },
+      {
+        type: "paragraph",
+        text: "A soma é simples: 15 anos me ensinaram a ler demonstrativo, 6 anos a ler código. A combinação me faz desconfiar de qualquer promessa de que a atividade técnica deixou de exigir julgamento. Ela passou a exigir mais julgamento por unidade de código, e é por isso que a próxima década vai pertencer a quem sabe escolher o que revisar.",
+      },
+      {
+        type: "callout",
+        tone: "secondary",
+        title: "Para quem está contratando",
+        text: "Pergunte ao candidato o que ele delegaria a um agente, o que ele não delegaria e por quê. A resposta separa quem multiplicou a geração de código de quem entendeu que a única parte que não pode ser automatizada é o critério.",
       },
     ],
   },

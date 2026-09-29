@@ -1,16 +1,16 @@
-﻿import type { BlogArticle } from "@/domain/blog";
+import type { BlogArticle } from "@/domain/blog";
 
 /**
  * Versioned article catalog — en-US.
  *
  * Same two jobs as the pt-BR catalog: the seed for the `blog_articles` table and
- * the build-time fallback behind `FallbackArticleRepository`. The `id` values are
- * identical across locales so the two catalogs describe the same three
- * documents and can be reconciled with a single join.
+ * the build-time fallback behind `FallbackArticleRepository`. The two catalogs
+ * describe the same four documents and reconcile on `slug`; the `id` values
+ * differ per row because `id` is the table's primary key.
  */
 export const articlesEnUS: BlogArticle[] = [
   {
-    id: "1f0c9d2a-7b3e-4a51-9c6d-0e2f7a4b8d31",
+    id: "7b1c4e2a-9d55-4a3c-8f71-2e0b6d4a9c13",
     locale: "en-US",
     slug: "resilient-agent-swarms-on-kafka",
     category: "distributed-systems",
@@ -90,7 +90,7 @@ export const articlesEnUS: BlogArticle[] = [
   },
 
   {
-    id: "2b7e4c1d-8a95-4f62-bd70-1c3e5f9a2d44",
+    id: "8c2d5f3b-0e66-4b4d-9082-3f1c7e5b0d24",
     locale: "en-US",
     slug: "rds-to-clickhouse-100m-messages-a-day",
     category: "data-platforms",
@@ -170,7 +170,7 @@ export const articlesEnUS: BlogArticle[] = [
   },
 
   {
-    id: "3c8f5d2e-9ab6-4e73-8c81-2d4f6a0b3e55",
+    id: "9d3e604c-1f77-4c5e-a193-402d8f6c1e35",
     locale: "en-US",
     slug: "dual-core-leader-accounting-rigor",
     category: "leadership",
@@ -220,6 +220,119 @@ export const articlesEnUS: BlogArticle[] = [
       {
         type: "paragraph",
         text: "I am not arguing that you need an accounting degree. I am arguing that treating software as both an asset and a liability — rather than as magic — is what separates a team that ships cost from a team that ships features. And that capability is learnable, but it is learned far faster once you have watched a month-end close.",
+      },
+    ],
+  },
+
+  {
+    id: "5e0b7c4f-2d83-4a96-b1e5-7c9f3a2d8b07",
+    locale: "en-US",
+    slug: "engineering-delivery-with-ai-agents",
+    category: "ai-ml",
+    status: "published",
+    title: "What changed in delivery: engineering with AI agents",
+    excerpt:
+      "The diff stopped being the unit of work and review became the bottleneck. What an engineer now has to master to stay accountable for the outcome.",
+    readingTimeMinutes: 9,
+    publishedAt: "2026-09-22",
+    updatedAt: null,
+    featured: true,
+    tags: ["AI agents", "delivery", "code review", "software engineering", "technical debt"],
+    body: [
+      {
+        type: "paragraph",
+        text: "My 21 years of career — 15 in corporate financial governance, 6 in software engineering — left me with one criterion for judging any change: what it does to the balance sheet. The arrival of AI agents in software delivery passes that criterion without difficulty, which is why I find the discussion unproductive when it drifts from the useful question. Nobody has to believe that agents write code. The question is what happens to the act of review once the amount of plausible code stops being the scarce resource.",
+      },
+      {
+        type: "paragraph",
+        text: "When I started, delivery was constrained by three things at once: typing, reviewing, and holding domain context. Typing stopped being the bottleneck, and domain context was never written down anywhere — it always lived in whoever was reviewing. What is still scarce is review attention, and that resource shows up on no dashboard. That is why delivery changed in shape: not because writing got faster, but because reviewing got more expensive.",
+      },
+      { type: "heading", level: 2, text: "The unit of work is no longer the diff" },
+      {
+        type: "paragraph",
+        text: "A large diff is not a large delivery; it is a large cost of reading. With agents the natural temptation is to delegate the implementation and review at the end. That works until the first time review stops being reading and becomes an audit, because nobody in the process knows why each decision was made. What I can safely delegate is the implementation. The acceptance criterion never is.",
+      },
+      {
+        type: "callout",
+        tone: "primary",
+        title: "The rule",
+        text: "I review the plan, not the typing. If I cannot describe on one screen why the change is correct, it is not time to generate a thousand lines.",
+      },
+      { type: "heading", level: 2, text: "Verification replaced authorship" },
+      {
+        type: "paragraph",
+        text: "For decades, authorship was the quality signal: the one who wrote it understood it. With agents, the strongest signal becomes the test that proves the behavior. The asymmetry favors engineering: writing 300 lines of test is far cheaper than writing 3,000 lines of implementation, and it is the exact inverse of what urgency rewards. The craft did not shrink; it moved to the artifact that code cannot replace.",
+      },
+      {
+        type: "list",
+        ordered: true,
+        items: [
+          "Write the assertion before you delegate. Without an executable acceptance criterion, an agent optimizes for looking correct — and looking correct is the hardest failure mode to catch in code review.",
+          "Treat the test suite as an executable specification. It is the only artifact that survives regeneration of the code, and the only one an auditor accepts without redoing the work.",
+          "Automate whatever you do not want to read. A cheap automatic check is worth more than a block of code reviewed at partial attention.",
+        ],
+      },
+      { type: "heading", level: 2, text: "Cost per attempt is a line on the statement" },
+      {
+        type: "paragraph",
+        text: "An agent that calls a third-party API, runs paid inference, or touches a production system charges you per attempt. And a retry, in that context, is not recovery: it is expense. In accounting terms that is cost per attempt, and it is exactly the number that goes missing when delivery appears to be free.",
+      },
+      {
+        type: "quote",
+        text: "If delivery got cheaper to request and more expensive to audit, the balance is unchanged. Only the line it appears on moved.",
+      },
+      {
+        type: "paragraph",
+        text: "The remedy is not to police the team; it is to make the attempt visible: a budget per operation, idempotency wherever a side effect exists, and cost recorded along the same path as the latency metric. Where the team cannot see the cost, the team cannot reduce it.",
+      },
+      { type: "heading", level: 2, text: "Context is the new design bottleneck" },
+      {
+        type: "paragraph",
+        text: "Design used to live in the code and in the head of whoever drew it. Now it has to live in the brief — which is an improvement, because a written and reviewed brief beats implicit design. It is also more work, and work that cannot be skipped. An agent delivers exactly the scope it was given, no more and no less. Scope quality is now delivery quality.",
+      },
+      {
+        type: "code",
+        language: "yaml",
+        code: [
+          "task:",
+          "  context: \"<the domain in three lines>\"",
+          "  invariants:",
+          "    - \"<what must not break>\"",
+          "  interface: \"<public signature, no internal detail>\"",
+          "  examples:",
+          "    - \"<input> -> <expected output>\"",
+          "  do_not:",
+          "    - \"<what is out of scope>\"",
+          "  acceptance: \"<the command that proves it is done>\"",
+        ].join("\n"),
+      },
+      {
+        type: "paragraph",
+        text: "The item most prompts omit is do_not. Without it, an agent optimizes for appearing complete and hands you refactoring, extra coverage and abstractions nobody asked for. A declared scope is the engineering equivalent of a reconciliation: without it, every number looks clean and means nothing.",
+      },
+      { type: "heading", level: 2, text: "What did not change" },
+      {
+        type: "paragraph",
+        text: "Accountability for the outcome still belongs to a person, and the difference is that this person now has to understand enough to disagree. Someone who cannot evaluate what was generated should not be approving what was generated. That was true five years ago. It matters more now, because the volume being approved is much larger.",
+      },
+      {
+        type: "list",
+        ordered: false,
+        items: [
+          "Ownership of the outcome. Signing the merge means owning the production behavior, including the part the agent suggested.",
+          "The accounting of the decision. Every change is a liability with interest. Agents do not change that equation; they only raise the speed at which you take on the liability.",
+          "The craft of review. Judging code rigorously takes years and does not outsource to a machine that produces plausible code faster than a human can read it.",
+        ],
+      },
+      {
+        type: "paragraph",
+        text: "The arithmetic is simple: 15 years taught me to read a financial statement, 6 years taught me to read code. The combination makes me skeptical of any promise that technical work no longer requires judgment. It now requires more judgment per line of code, which is why the next decade belongs to whoever knows what not to review.",
+      },
+      {
+        type: "callout",
+        tone: "secondary",
+        title: "If you are hiring",
+        text: "Ask the candidate what they would delegate to an agent, what they would not, and why. The answer separates someone who multiplied code generation from someone who understood that the only part that cannot be automated is the criterion.",
       },
     ],
   },

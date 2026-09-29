@@ -13,9 +13,13 @@ import {
  * `blog_articles` table and the build-time fallback.
  *
  * The migration and this file must describe the same documents, so the invariants
- * that make the two reconcilable are asserted here: one `id` per document across
- * locales, one slug per document, valid slugs, and identical block structure so a
- * translation cannot quietly change the shape of an article.
+ * that make the two reconcilable are asserted here.
+ *
+ * Documents reconcile on `slug`, not on `id`: `slug` is the shared key across
+ * locales, while `id` is the primary key of `blog_articles` and must be unique per
+ * row. Sharing one id between the pt-BR and en-US translations would make the seed
+ * INSERT fail on a duplicate key, so the two are deliberately different values and
+ * only `slug` pairs a document with its translation.
  */
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -41,17 +45,22 @@ describe("versioned article catalog", () => {
     expect(ALL.every((article) => article.status === "published")).toBe(true);
   });
 
-  it("uses valid, stable UUIDs so the database rows reconcile on one key", () => {
+  it("uses valid, stable UUIDs", () => {
     for (const article of ALL) {
       expect(article.id, article.slug).toMatch(UUID_PATTERN);
     }
   });
 
-  it("reuses one id per document across locales", () => {
-    const ptIds = articlesPtBR.map((article) => article.id);
-    const enIds = articlesEnUS.map((article) => article.id);
+  it("gives every row its own id, because id is the primary key", () => {
+    const shared = articlesPtBR
+      .map((pt) => {
+        const en = articlesEnUS.find((candidate) => candidate.slug === pt.slug);
+        return en && en.id === pt.id ? pt.slug : null;
+      })
+      .filter((slug) => slug !== null);
 
-    expect([...enIds].sort()).toEqual([...ptIds].sort());
+    expect(shared, "these slugs share an id across locales and would break the seed").toEqual([]);
+    expect(new Set(ALL.map((article) => article.id)).size).toBe(ALL.length);
   });
 
   it("reuses one slug per document across locales", () => {
@@ -145,7 +154,7 @@ describe("versioned article catalog", () => {
   it("does not ship an untranslated English string into the Portuguese catalog", () => {
     for (const article of articlesPtBR) {
       expect(article.title).not.toBe(
-        articlesEnUS.find((candidate) => candidate.id === article.id)?.title,
+        articlesEnUS.find((candidate) => candidate.slug === article.slug)?.title,
       );
     }
   });
@@ -155,6 +164,7 @@ describe("versioned article catalog", () => {
 
     expect(new Set(slugs).size).toBe(articlesPtBR.length);
     expect(slugs).toContain("resilient-agent-swarms-on-kafka");
+    expect(slugs).toContain("engineering-delivery-with-ai-agents");
   });
 });
 
@@ -210,8 +220,8 @@ describe("VersionedArticleRepository", () => {
 
 function documents(): [BlogArticle, BlogArticle][] {
   return articlesPtBR.map((pt) => {
-    const en = articlesEnUS.find((candidate) => candidate.id === pt.id);
-    expect(en, `missing en-US translation for ${pt.id}`).toBeDefined();
+    const en = articlesEnUS.find((candidate) => candidate.slug === pt.slug);
+    expect(en, `missing en-US translation for ${pt.slug}`).toBeDefined();
     return [pt, en as BlogArticle];
   });
 }

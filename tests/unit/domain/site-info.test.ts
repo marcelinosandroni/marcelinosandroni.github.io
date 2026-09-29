@@ -18,6 +18,39 @@ describe("site identity", () => {
     expect(new URL(SITE_URL).origin).toBe(SITE_URL);
   });
 
+  /**
+   * The canonical origin is the single value behind every absolute URL the site
+   * emits — metadata, canonical links, hreflang, Open Graph, `sitemap.xml` and
+   * `robots.txt`. It has to be the apex domain on https, because a canonical
+   * pointing at a deployment host (`vercel.app`, `*.github.io`) splits the
+   * ranking signal across hosts and turns every URL into a redirect. This test
+   * is what makes a domain migration a deliberate, reviewed edit.
+   */
+  it("is the apex domain on https, with no path and no trailing slash", () => {
+    const url = new URL(SITE_URL);
+
+    expect(url.protocol).toBe("https:");
+    expect(url.hostname).toBe("marcelinosandroni.com");
+    expect(url.port).toBe("");
+    expect(url.pathname).toBe("/");
+    expect(SITE_URL).toBe("https://marcelinosandroni.com");
+  });
+
+  it("emits no absolute URL that still points at a deployment host", async () => {
+    const [{ getHomeContent }, { getResumeContent }, { SUPPORTED_LOCALES }] = await Promise.all([
+      import("@/infrastructure/content/home"),
+      import("@/infrastructure/content"),
+      import("@/domain/i18n"),
+    ]);
+
+    const content = SUPPORTED_LOCALES.map((locale) =>
+      JSON.stringify([getHomeContent(locale), getResumeContent(locale)]),
+    ).join(" ");
+
+    expect(`${SITE_URL} ${content}`).not.toMatch(/marcelinosandroni\.github\.io/);
+    expect(`${SITE_URL} ${content}`).not.toMatch(/vercel\.app/);
+  });
+
   it("keeps the content freshness stamp in YYYY.MM form", () => {
     expect(CONTENT_PERIOD).toMatch(/^\d{4}\.\d{2}$/);
   });

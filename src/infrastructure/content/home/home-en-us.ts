@@ -275,17 +275,27 @@ export const homeContentEnUS: HomeContent = {
 
   blog: {
     id: "blog",
-    kicker: "// TECHNICAL WRITING",
+    kicker: "// TECHNICAL BLOG",
     title: "Whitepapers and field notes",
     note: "DATA ENGINEERING AND TECHNICAL LEADERSHIP",
     ctaLabel: "Read all articles",
-    limit: 3,
+    limit: 4,
     items: [
+      {
+        slug: "engineering-delivery-with-ai-agents",
+        category: "AI AGENTS",
+        readingTimeMinutes: 9,
+        title: "What changed in delivery: engineering with AI agents",
+        excerpt:
+          "The diff stopped being the unit of work and review became the bottleneck. What an engineer now has to master to stay accountable for the outcome.",
+        ctaLabel: "READ ESSAY",
+        accent: "primary",
+      },
       {
         slug: "resilient-agent-swarms-on-kafka",
         category: "DISTRIBUTED SYSTEMS",
         readingTimeMinutes: 8,
-        title: "Architecting resilient agent swarms with Kafka event streams",
+        title: "Architecting resilient swarms with Kafka event streams",
         excerpt:
           "Zero-loss event brokers, partition strategies and idempotent consumers when orchestrating distributed AI agent fleets.",
         ctaLabel: "READ ESSAY",

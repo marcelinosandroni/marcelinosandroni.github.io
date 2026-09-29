@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { DEFAULT_LOCALE, type Locale } from "@/domain/i18n";
+import { articlesPtBR } from "@/infrastructure/content/blog";
 import { RESUME_TEMPLATE_IDS } from "@/infrastructure/pdf/resume-template-registry";
 import { formatMessage } from "@/i18n/format-message";
 import { enUS } from "@/i18n/dictionaries/en-US";
@@ -172,6 +173,40 @@ describe("message catalog parity", () => {
 
       expect(`${locale}:${placeholdersOf(template).join(",")}`).toBe(`${locale}:language`);
     }
+  });
+});
+
+describe("untranslated product nouns", () => {
+  /**
+   * `blog` is a product noun, not a Portuguese word to translate. The pt-BR
+   * catalog used to render it as "Escritos" / "Ler os escritos", which made the
+   * navigation look like a different destination in each language and left a
+   * reader on /pt-br guessing whether the section they clicked was the blog.
+   */
+  it("calls the section `blog` in pt-BR, never a translated synonym", () => {
+    expect(ptBR.nav.blog).toBe("blog");
+    expect(ptBR.blog.indexKicker).toContain("BLOG");
+    expect(ptBR.blog.allArticles).toContain("blog");
+  });
+
+  it("never reintroduces the translated label anywhere in the pt-BR catalog", () => {
+    const text = JSON.stringify(ptBR);
+
+    expect(text).not.toMatch(/escritos/i);
+  });
+
+  /**
+   * The mirror image of the rule above: a technical term that the industry uses
+   * in English stays in English. "Swarm" is the name of the pattern, so the
+   * Portuguese article talks about `swarms`, not "enxames" — and a translated
+   * synonym sends a reader looking for a term they will not find in any doc.
+   */
+  it("keeps established English technical terms untranslated in pt-BR", () => {
+    const text = JSON.stringify(articlesPtBR);
+
+    expect(text).not.toMatch(/enxame/i);
+    expect(text).not.toMatch(/\bfrotas?\b/i);
+    expect(text.toLowerCase()).toContain("swarms");
   });
 });
 
