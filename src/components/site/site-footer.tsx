@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ClickAnalytics } from "@/components/analytics/click-analytics";
+import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 
 import { Icon } from "@/components/ui/icon";
 import { toWhatsAppHref } from "@/domain/portfolio";
@@ -97,7 +98,6 @@ export function SiteFooter({ footer, locale, t, email, phone }: SiteFooterProps)
 
             <div className="flex flex-wrap items-center justify-between gap-space-md">
               <p className="font-label-mono text-label-mono text-text-muted">
-                © {COPYRIGHT_YEAR} · {t.footer.versionedResume}{" "}
                 {/*
                   The version links to the release that produced it, so the
                   number is a fact the reader can check rather than a claim.
@@ -105,6 +105,7 @@ export function SiteFooter({ footer, locale, t, email, phone }: SiteFooterProps)
                   between two dots; an underline here would read as a new element
                   rather than a detail.
                 */}
+                © {COPYRIGHT_YEAR} · {t.footer.versionedResume}{" "}
                 <a
                   href={SITE_RELEASE_URL}
                   target="_blank"
@@ -124,6 +125,22 @@ export function SiteFooter({ footer, locale, t, email, phone }: SiteFooterProps)
                 a reader needs mid-article.
               */}
               <ClickAnalytics labels={t.analytics} />
+            </div>
+
+            {/*
+              The theme control sits on its own row, below the legal line.
+
+              Not because it is important — it is a preference — but because it
+              is the only control on the page a reader is expected to press, and
+              putting it next to the analytics toggle made both read as
+              instrument-panel furniture. On its own row it is the one element in
+              the footer that is obviously meant to be touched.
+            */}
+            <div className="flex flex-wrap items-center justify-between gap-space-md border-t border-border-subtle pt-space-sm">
+              <p className="font-label-mono text-label-mono text-text-muted">
+                {t.footer.themeLabel}
+              </p>
+              <ThemeSwitcher />
             </div>
           </div>
         </div>
