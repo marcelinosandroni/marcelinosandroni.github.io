@@ -1,4 +1,4 @@
-﻿import { DownloadPDFButton } from "@/components/download-pdf-button";
+import { DownloadPDFButton } from "@/components/download-pdf-button";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Icon } from "@/components/ui/icon";
 import { CONTENT_PERIOD, SITE_VERSION } from "@/domain/site/site-info";

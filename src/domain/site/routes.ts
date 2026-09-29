@@ -1,4 +1,4 @@
-﻿import { toLocaleSegment, type Locale } from "@/domain/i18n";
+import { toLocaleSegment, type Locale } from "@/domain/i18n";
 
 /**
  * Canonical internal route table.
