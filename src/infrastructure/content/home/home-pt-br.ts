@@ -277,19 +277,29 @@ export const homeContentPtBR: HomeContent = {
 
   blog: {
     id: "blog",
-    kicker: "// ESCRITOS TÉCNICOS",
+    kicker: "// BLOG TÉCNICO",
     title: "Whitepapers e notas de campo",
     note: "ENGENHARIA DE DADOS E LIDERANÇA TÉCNICA",
     ctaLabel: "Ver todos os artigos",
-    limit: 3,
+    limit: 4,
     items: [
+      {
+        slug: "engineering-delivery-with-ai-agents",
+        category: "AGENTES DE IA",
+        readingTimeMinutes: 9,
+        title: "O que mudou na entrega: engenharia com agentes de IA",
+        excerpt:
+          "O diff deixou de ser a unidade de trabalho e a revisão virou o gargalo. O que um engenheiro precisa dominar agora para continuar responsável pelo resultado.",
+        ctaLabel: "LER O ENSAIO",
+        accent: "primary",
+      },
       {
         slug: "resilient-agent-swarms-on-kafka",
         category: "SISTEMAS DISTRIBUÍDOS",
         readingTimeMinutes: 8,
-        title: "Arquitetando enxames resilientes com event streams Kafka",
+        title: "Arquitetando swarms resilientes com event streams Kafka",
         excerpt:
-          "Broker de eventos sem perda, estratégias de particionamento e consumidores idempotentes ao orquestrar frotas de agentes de IA distribuídos.",
+          "Broker de eventos sem perda, estratégias de particionamento e consumidores idempotentes ao orquestrar swarms de agentes de IA distribuídos.",
         ctaLabel: "LER O ENSAIO",
         accent: "primary",
       },

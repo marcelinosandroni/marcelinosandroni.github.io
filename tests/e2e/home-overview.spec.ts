@@ -156,13 +156,47 @@ test.describe("Home executive overview", () => {
     await expect(page.locator("footer")).toContainText("marcelino.sandroni@gmail.com");
   });
 
-  test("teases three articles on the home route", async ({ page }) => {
+  test("teases all four articles on the home route, newest first", async ({ page }) => {
     await page.goto("/en-us");
 
     const teasers = page.locator("#blog article");
 
-    await expect(teasers).toHaveCount(3);
-    await expect(teasers.first()).toContainText("Kafka");
+    await expect(teasers).toHaveCount(4);
+    // Newest first: the delivery-with-agents essay leads, Kafka follows.
+    await expect(teasers.first()).toContainText("What changed in delivery");
+    await expect(teasers.nth(1)).toContainText("Kafka");
+  });
+
+  test("sends the header blog link straight to the blog index", async ({ page }) => {
+    await page.goto("/en-us");
+
+    const blogLink = page.locator("header nav a", { hasText: /blog|writing/i });
+
+    await expect(blogLink).toHaveCount(1);
+    // A path, not an in-page anchor: the reader asked for the blog, not a teaser.
+    await expect(blogLink).toHaveAttribute("href", "/en-us/blog");
+
+    await blogLink.click();
+    await expect(page).toHaveURL(/\/en-us\/blog$/);
+  });
+
+  test("publishes the canonical domain in metadata and machine-readable URLs", async ({ page }) => {
+    await page.goto("/en-us");
+
+    const canonical = await page.locator("link[rel=canonical]").getAttribute("href");
+    const ogUrl = await page.locator("meta[property='og:url']").getAttribute("content");
+
+    for (const value of [canonical, ogUrl]) {
+      expect(value, "canonical URL").toBeTruthy();
+      expect(new URL(value ?? "").hostname, "canonical host").toBe("marcelinosandroni.com");
+    }
+
+    const robots = await (await page.request.get("/robots.txt")).text();
+    const sitemap = await (await page.request.get("/sitemap.xml")).text();
+
+    expect(robots).toContain("https://marcelinosandroni.com/sitemap.xml");
+    expect(sitemap).toContain("https://marcelinosandroni.com/en-us");
+    expect(`${robots}${sitemap}`).not.toContain("github.io");
   });
 
   test("keeps the full content in the server-rendered HTML", async ({ page }) => {
@@ -237,7 +271,7 @@ test.describe("Home executive overview", () => {
     const links = page.locator("#blog article h3 a");
     const count = await links.count();
 
-    expect(count).toBe(3);
+    expect(count).toBe(4);
 
     for (let index = 0; index < count; index += 1) {
       const href = await links.nth(index).getAttribute("href");

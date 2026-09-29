@@ -79,7 +79,7 @@ export const ptBR: Dictionary = {
     home: "Visão geral",
     arsenal: "Arsenal",
     trackRecord: "Trajetória",
-    blog: "Escritos",
+    blog: "blog",
     resume: "Currículo",
     contact: "Contato",
   },
@@ -124,11 +124,11 @@ export const ptBR: Dictionary = {
     backToOverview: "Voltar para a visão geral",
   },
   blog: {
-    indexKicker: "// ESCRITOS DE ENGENHARIA",
+    indexKicker: "// BLOG DE ENGENHARIA",
     indexTitle: "Whitepapers, benchmarks e notas de campo",
     indexSubtitle:
       "Textos longos sobre sistemas distribuídos, plataformas de dados e o ofício da liderança técnica.",
-    allArticles: "Ler os escritos",
+    allArticles: "Ler o blog",
     readingTime: "leitura de {minutes} min",
     publishedOn: "Publicado em",
     updatedOn: "Atualizado em",
