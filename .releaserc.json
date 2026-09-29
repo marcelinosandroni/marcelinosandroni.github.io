@@ -13,6 +13,7 @@
             { "type": "feat", "section": "Features" },
             { "type": "fix", "section": "Bug Fixes" },
             { "type": "perf", "section": "Performance" },
+            { "type": "refactor", "section": "Maintenance" },
             { "type": "revert", "section": "Reverts", "hidden": false }
           ]
         },
@@ -20,6 +21,7 @@
           { "type": "feat", "release": "minor" },
           { "type": "fix", "release": "patch" },
           { "type": "perf", "release": "patch" },
+          { "type": "refactor", "release": "patch" },
           { "breaking": true, "release": "major" }
         ]
       }
@@ -33,6 +35,7 @@
             { "type": "feat", "section": "Features" },
             { "type": "fix", "section": "Bug Fixes" },
             { "type": "perf", "section": "Performance" },
+            { "type": "refactor", "section": "Maintenance" },
             { "type": "revert", "section": "Reverts", "hidden": false }
           ]
         },
