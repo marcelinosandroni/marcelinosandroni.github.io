@@ -67,3 +67,7 @@ htmlcov/
 # Generated build artifacts and caches
 tsconfig.tsbuildinfo
 public/artifacts/cache/
+
+# The example file documents required configuration and must stay tracked.
+# *.env.* above would otherwise hide it from anyone cloning the repo.
+!.env.example
