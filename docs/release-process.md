@@ -32,6 +32,31 @@ instável e um `0.2.0` comunica mais que um `1.0.0` prematuro.
 Uma tag `vX.Y.Z` **não** deve ser criada à mão. Para quebrar o contrato, use
 `BREAKING CHANGE:` no corpo do commit.
 
+### A próxima versão é 1.0.0, não 0.2.0
+
+Existe um `BREAKING CHANGE` real no histórico desde a tag `v0.1.5`, e ele não é
+acidental:
+
+```
+feat(i18n)!: serve localized static routes and render the resume on the server
+
+BREAKING CHANGE: "/" now redirects to "/en-us" and EN-US is the default
+```
+
+A URL raiz passou a redirecionar, que é uma quebra do contrato público do site.
+O semantic-release vai computar `major` por causa disso, e a primeira release
+automática será **1.0.0**, não 0.2.0 — independentemente de quão pequeno for o
+commit que a dispara. A regra `breaking` olha todo o intervalo desde a última
+tag, não só o último commit.
+
+Se isso for indesejado, existem duas saídas honestas:
+
+1. Aceitar. A mudança de URL foi anunciada e tem redirect; `1.0.0` descreve o
+   estado real do contrato.
+2. Criar manualmente uma tag `v0.2.0` com o changelog que você considera
+   correto, e deixar o semantic-release seguir a partir dela. Nunca invente
+   changelog: o conteúdo da tag precisa descrever o que está no histórico.
+
 ## A versão exibida no site
 
 O rodapé renderiza `v{SITE_VERSION}`, e `SITE_VERSION` é lido de
