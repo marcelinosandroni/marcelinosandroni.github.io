@@ -61,7 +61,7 @@ jobs:
 
       - name: Determine release
         id: release
-        uses: semantic-release/semantic-release-action@v4
+        uses: cycjimmy/semantic-release-action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -75,24 +75,30 @@ jobs:
           dry_run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run || false }}
 
       - name: Summary
-        if: steps.release.outputs.nextRelease_version != ''
+        if: steps.release.outputs.new_release_version != ''
+        env:
+          VERSION: ${{ steps.release.outputs.new_release_version }}
+          PUBLISHED: ${{ steps.release.outputs.new_release_published }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           {
-            echo "## Released \`${{ steps.release.outputs.nextRelease_version }}\`"
+            echo "## Released \`v${VERSION}\`"
             echo ""
-            echo "${{ steps.release.outputs.nextRelease_notes }}"
+            # The notes live in the release body, not in an action output, so
+            # they are read back from the release that was just published.
+            gh release view "v${VERSION}" --json body --jq '.body' || echo "_Changelog unavailable._"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Report that nothing needed a release
-        if: steps.release.outputs.nextRelease_version == ''
+        if: steps.release.outputs.new_release_version == ''
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none yet")
           {
-            echo "No release."
+            echo "## No release"
             echo ""
-            echo "No commit since \`$LAST_TAG\` carries \`feat\`, \`fix\`, \`perf\` or a \`BREAKING CHANGE\`,"
+            echo "No commit since \`${LAST_TAG}\` carries \`feat\`, \`fix\`, \`perf\` or a \`BREAKING CHANGE\`,"
             echo "so the version was left alone."
             echo ""
             echo "\`chore\`, \`ci\`, \`docs\`, \`refactor\`, \`test\`, \`build\` and \`revert\` are recorded in"
-            echo "the history but do not move the version."
+            echo "the history but do not move the number."
           } >> "$GITHUB_STEP_SUMMARY"
