@@ -31,7 +31,17 @@ export function SiteHeader({ locale, t, sections }: SiteHeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-border-subtle bg-surface-base/82 backdrop-blur-xl">
       <div className="mx-auto w-full max-w-[1320px] px-margin md:px-margin-tablet lg:px-margin-desktop">
-        <div className="flex h-16 items-center justify-between gap-space-md">
+        {/*
+         * The header is two rows on a phone and one from tablet up.
+         *
+         * Sharing a single row put the brand, six nav labels and two controls
+         * into 390px, which left room for two of the six labels and cut the rest
+         * off mid-word. Wrapping the nav onto its own full-width row is the
+         * honest arrangement: the reader sees most of the navigation, and the
+         * remainder scrolls with a visible fade instead of being silently
+         * truncated.
+         */}
+        <div className="flex flex-wrap items-center gap-x-space-md gap-y-1 py-2 md:h-16 md:flex-nowrap md:gap-space-md md:py-0">
           <Link
             href={localePath(locale, "home")}
             className="shrink-0 font-headline-lg text-headline-lg font-extrabold tracking-tight text-text-primary"
@@ -40,25 +50,31 @@ export function SiteHeader({ locale, t, sections }: SiteHeaderProps) {
             MSD<span className="text-primary-container">.</span>
           </Link>
 
+          <div className="ml-auto flex shrink-0 items-center gap-space-xs md:order-last">
+            <AdminLock t={t} />
+            <LocaleSwitcher locale={locale} t={t} />
+          </div>
+
           <nav
             aria-label={t.nav.mainNavigation}
-            className="-mx-1 flex min-w-0 flex-1 items-center gap-space-md overflow-x-auto px-1 md:justify-center md:gap-space-lg"
+            /*
+             * `order-last` plus `w-full` puts the nav on the second row while
+             * `md:` restores the single-row arrangement. The mask fades the
+             * trailing edge so the scroller reads as scrollable rather than as a
+             * label that got cut off.
+             */
+            className="nav-scroller order-last -mx-1 flex w-full min-w-0 items-center gap-space-md overflow-x-auto px-1 md:order-none md:w-auto md:flex-1 md:justify-center md:gap-space-lg"
           >
             {sections.map((section) => (
               <Link
                 key={section.key}
                 href={section.href}
-                className="shrink-0 whitespace-nowrap font-label-mono text-label-mono uppercase tracking-widest text-text-secondary transition-colors hover:text-primary-container"
+                className="tap-target shrink-0 scroll-mx-1 whitespace-nowrap font-label-mono text-label-mono uppercase tracking-widest text-text-secondary transition-colors hover:text-primary-container"
               >
                 {section.label}
               </Link>
             ))}
           </nav>
-
-          <div className="flex shrink-0 items-center gap-space-sm">
-            <AdminLock t={t} />
-            <LocaleSwitcher locale={locale} t={t} />
-          </div>
         </div>
       </div>
     </header>

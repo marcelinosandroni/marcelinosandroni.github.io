@@ -1,4 +1,4 @@
-﻿import { Section } from "@/components/ui";
+import { Section } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
 import { toWhatsAppHref } from "@/domain/portfolio";
 /**
@@ -94,7 +94,7 @@ export function ContactGatewaySection({ section, email, phone, t }: ContactGatew
                       <a
                         href={channel.href}
                         data-click={CONTACT_CLICK_IDS[channel.id] ?? undefined}
-                        className="truncate font-bold transition-colors hover:text-primary-container"
+                        className="tap-target truncate font-bold transition-colors hover:text-primary-container"
                         {...(channel.external
                           ? { target: "_blank", rel: "noreferrer noopener" }
                           : {})}

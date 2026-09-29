@@ -118,7 +118,7 @@ This is the part a reviewer can check mechanically, so it is worth being precise
 | Practice | Where it is enforced |
 |---|---|
 | Strict TypeScript, no `any` | `tsconfig.json`, 0 lint errors |
-| Tests written against behaviour | 311 unit + 65 e2e |
+| Tests written against behaviour | 311 unit + 74 e2e |
 | Bilingual content parity as a **build gate** | PT-BR is the source of truth; every figure, date and count is asserted |
 | No visible string outside a catalog | Enforced by test, including for PDF headings |
 | Accessibility | Semantic landmarks, real accessible names, keyboard-operable, `prefers-reduced-motion` |

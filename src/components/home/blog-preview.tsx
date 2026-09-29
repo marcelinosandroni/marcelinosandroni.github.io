@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { Section } from "@/components/ui";
 import { ACCENT_TEXT, Icon } from "@/components/ui/icon";
@@ -42,7 +42,7 @@ export function BlogPreviewSection({ section, locale, t }: BlogPreviewSectionPro
           </div>
           <Link
             href={`/${segment}/blog`}
-            className="inline-flex shrink-0 items-center gap-space-xs font-label-mono text-label-mono text-primary-container transition-colors hover:text-text-primary"
+            className="tap-target shrink-0 items-center gap-space-xs font-label-mono text-label-mono text-primary-container transition-colors hover:text-text-primary"
           >
             {section.ctaLabel}
             <Icon name="arrow-right" size={16} />
