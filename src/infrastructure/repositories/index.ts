@@ -1,6 +1,6 @@
 import { versionedArticleRepository } from "@/infrastructure/content/blog";
 import { FallbackArticleRepository, GetArticle, ListArticles } from "@/application/blog";
-import { isSupabaseConfigured } from "@/infrastructure/supabase/config";
+import { isSupabaseContentConfigured } from "@/infrastructure/supabase/server";
 import type { ArticleRepository } from "@/application/blog";
 
 /**
@@ -40,7 +40,7 @@ function isBreakerOpen(): boolean {
 async function buildArticleRepository(): Promise<ArticleRepository> {
   const fallback = versionedArticleRepository;
 
-  if (!isSupabaseConfigured()) {
+  if (!isSupabaseContentConfigured()) {
     return fallback;
   }
 

@@ -74,14 +74,16 @@ Refusal is a first-class code path, not an error. Two retrieval bugs were found 
 
 ### 🔐 Passwordless owner access, restricted by construction
 
-`/admin` is protected by magic-link authentication. The interesting part is not the login screen, it is the authorisation:
+`/admin` is protected by passwordless magic-link authentication through Supabase Auth. The interesting part is not the login screen, it is the authorisation:
 
 - **Exact set membership, never a substring test.** `includes("a@b.com")` is true for `xa@b.com` and for `a@b.com.attacker.test`. That is the textbook allowlist bypass, so the comparison is `Set.has` on a normalised address — and there is a test asserting every near-miss is refused.
-- **The allowlist gates token creation, not token use.** A stranger never receives a token in the first place.
+- **The allowlist gates token creation, not token use.** The sign-in request is handled by a Route Handler that evaluates the allowlist *before* asking Supabase for a message, so a stranger never causes a token to exist.
 - **Fails closed.** An unset `ADMIN_EMAIL` authorises *nobody*. Failing open would put an admin area behind no check.
-- **No enumeration.** The same confirmation is shown whether an address is the owner or not.
+- **No enumeration.** The endpoint returns the identical status and body whether an address is the owner, is not on the list, or is not an address at all.
+- **Re-derived per request.** Authorisation is recomputed from the allowlist on every hit, so a session minted before `ADMIN_EMAIL` changed stops working immediately. Supabase allows open sign-ups by default, so this is the boundary, not the token.
+- **No credential in the browser.** The sign-in request never leaves the server, so the client bundle contains no Supabase key at all — verified by a test that greps the built output.
 
-→ [`src/domain/admin/admin-identity.ts`](src/domain/admin/admin-identity.ts)
+→ [`src/domain/admin/admin-identity.ts`](src/domain/admin/admin-identity.ts) · [`src/app/api/auth/magic-link/route.ts`](src/app/api/auth/magic-link/route.ts) · **[docs/supabase-setup.md](docs/supabase-setup.md)** for the dashboard steps
 
 ### 📊 Analytics that cannot hold personal data
 
@@ -118,11 +120,12 @@ This is the part a reviewer can check mechanically, so it is worth being precise
 | Practice | Where it is enforced |
 |---|---|
 | Strict TypeScript, no `any` | `tsconfig.json`, 0 lint errors |
-| Tests written against behaviour | 320 unit + 75 e2e |
+| Tests written against behaviour | 339 unit + 80 e2e |
 | Bilingual content parity as a **build gate** | PT-BR is the source of truth; every figure, date and count is asserted |
 | No visible string outside a catalog | Enforced by test, including for PDF headings |
 | Accessibility | Semantic landmarks, real accessible names, keyboard-operable, `prefers-reduced-motion` |
 | Privacy by schema, not by promise | Asserted against the migration SQL |
+| No credential in the client bundle | Asserted by test; content reads stay behind RLS |
 | Version derived from commits, never typed | `semantic-release` on every merge to `main`; one source, `package.json` |
 
 A few examples of tests that are worth more than their line count:
@@ -161,7 +164,7 @@ without publishing.
 
 **Frontend** — Next.js 16 (App Router, RSC), React 19, TypeScript strict, Tailwind v4 with a token-based design system
 
-**Backend** — Node.js, PostgreSQL (Supabase) with RLS, Auth.js, event-driven messaging (Kafka, RabbitMQ)
+**Backend** — Node.js, PostgreSQL (Supabase) with RLS, Supabase Auth, event-driven messaging (Kafka, RabbitMQ)
 
 **Data** — ClickHouse for high-volume analytics, Redis, Databricks ETL
 
