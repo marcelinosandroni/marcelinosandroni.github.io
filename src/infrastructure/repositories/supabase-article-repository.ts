@@ -9,7 +9,7 @@ import {
   type BlogArticle,
 } from "@/domain/blog";
 import type { Locale } from "@/domain/i18n";
-import { supabase } from "@/infrastructure/supabase/supabase-client";
+import { getSupabaseClient } from "@/infrastructure/supabase/supabase-client";
 
 /** Column list shared by the list and the single-row queries. */
 const COLUMNS =
@@ -61,7 +61,7 @@ const STATUSES: ReadonlySet<string> = new Set<ArticleStatus>(["published", "draf
  */
 export class SupabaseArticleRepository implements ArticleRepository {
   async listPublished(locale: Locale, limit?: number): Promise<ArticleSummary[]> {
-    const scoped = supabase
+    const scoped = getSupabaseClient()
       .from("blog_articles")
       .select(COLUMNS)
       .eq("locale", locale)
@@ -89,7 +89,7 @@ export class SupabaseArticleRepository implements ArticleRepository {
 
   async findPublishedBySlug(locale: Locale, slug: ArticleSlug): Promise<BlogArticle | null> {
     const { data, error } = await this.withDeadline(
-      supabase
+      getSupabaseClient()
         .from("blog_articles")
         .select(COLUMNS)
         .eq("locale", locale)

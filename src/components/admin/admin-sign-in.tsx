@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { signIn } from "next-auth/react";
 
 import type { Dictionary } from "@/i18n";
 
@@ -18,13 +17,19 @@ export interface AdminSignInProps {
  * reuse, phish or leak from a breach, which is the entire security argument for
  * passwordless auth on a single-owner surface.
  *
- * The form never reveals whether an address is on the allowlist: Auth.js answers
- * the same way either way, and this component keeps it that way. Telling a
- * stranger "that address is not the owner" hands them the one fact they came for.
+ * The request goes to a Route Handler rather than to Supabase from the browser.
+ * That is what keeps the allowlist ahead of the email: the server decides
+ * whether to ask Supabase for a message at all, so a stranger's address never
+ * causes a token to exist, and no Supabase credential is in the bundle.
+ *
+ * The form never reveals whether an address is on the allowlist. The endpoint
+ * answers identically either way, and this component shows the same message
+ * whatever the response. Telling a stranger "that address is not the owner"
+ * hands them the one fact they came for.
  */
 export function AdminSignIn({ t, isConfigured }: AdminSignInProps) {
   const [email, setEmail] = useState("");
-  const [state, setState] = useState<"idle" | "done">("idle");
+  const [state, setState] = useState<"idle" | "done" | "unavailable">("idle");
   const [isPending, startTransition] = useTransition();
 
   if (!isConfigured) {
@@ -47,17 +52,28 @@ export function AdminSignIn({ t, isConfigured }: AdminSignInProps) {
         <p role="status" className="mt-space-md text-body-sm text-body-sm text-text-secondary">
           {t.admin.sent}
         </p>
+      ) : state === "unavailable" ? (
+        <p role="alert" className="mt-space-md text-body-sm text-body-sm text-text-secondary">
+          {t.admin.unavailable}
+        </p>
       ) : (
         <form
           className="mt-space-md flex flex-col gap-space-sm sm:flex-row"
           onSubmit={(event) => {
             event.preventDefault();
             startTransition(async () => {
-              await signIn("resend", { email, redirect: false });
-              // Deliberately no branch on the result: the message is the same
-              // whether the address is the owner or not, so this cannot be used
-              // to discover who is on the allowlist.
-              setState("done");
+              // Only two outcomes are distinguished, and neither is about the
+              // address: `ok` (which covers both "link sent" and "not on the
+              // list") and "this deployment cannot send mail". A provider
+              // failure is a deployment problem and says nothing about the
+              // address, so reporting it leaks nothing.
+              const response = await fetch("/api/auth/magic-link", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ email }),
+              });
+
+              setState(response.ok ? "done" : "unavailable");
             });
           }}
         >

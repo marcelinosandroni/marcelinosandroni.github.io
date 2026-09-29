@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Analytics } from "@vercel/analytics/next";
 import { JetBrains_Mono, Manrope, Playfair_Display } from "next/font/google";
 
 import {
@@ -140,6 +141,17 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           }}
         />
         {children}
+        {/*
+          Page views only, and aggregate: no cookie, no cross-site identifier,
+          no fingerprint. It is the one piece of traffic data a portfolio can
+          collect without collecting anybody.
+
+          It lives in the locale layout rather than a root layout, so the private
+          `/admin` area is outside the tree it applies to. That is deliberate —
+          owner traffic is not part of the public signal, and the less that is
+          measured the better.
+        */}
+        <Analytics />
         <TelemetryBar labels={t.telemetry} />
       </body>
     </html>

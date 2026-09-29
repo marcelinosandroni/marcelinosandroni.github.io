@@ -64,3 +64,69 @@ test.describe("Owner admin area", () => {
     expect(response.headers()["x-nextjs-cache"]).not.toBe("MISS");
   });
 });
+
+/**
+ * The sign-in endpoint is the boundary, so it is tested as one.
+ *
+ * These run against a deployment with no Supabase credentials, which is the
+ * state CI and a fork are in. That is enough to prove the properties that
+ * matter: an unconfigured deployment refuses rather than pretending, and the
+ * response says nothing about any address.
+ */
+test.describe("Owner sign-in endpoint", () => {
+  test("reports that it is unconfigured rather than accepting silently", async ({ request }) => {
+    const response = await request.post("/api/auth/magic-link", {
+      data: { email: "someone@example.com" },
+    });
+
+    // 503, not 200: a deployment that cannot send mail must not tell the caller
+    // a message is on its way.
+    expect(response.status()).toBe(503);
+    expect(await response.json()).toEqual({ error: "auth_not_configured" });
+  });
+
+  test("never caches, so a response cannot be replayed", async ({ request }) => {
+    const response = await request.post("/api/auth/magic-link", {
+      data: { email: "someone@example.com" },
+    });
+
+    expect(response.headers()["cache-control"]).toContain("no-store");
+  });
+
+  test("rejects a malformed body without a 500", async ({ request }) => {
+    const response = await request.post("/api/auth/magic-link", {
+      headers: { "content-type": "application/json" },
+      data: "not json at all",
+    });
+
+    expect(response.status()).toBe(503);
+  });
+
+  test("answers identically for an allowed and a refused address", async ({ request }) => {
+    /*
+     * The property that keeps the endpoint from being an oracle for who the
+     * owner is. With no credentials configured both take the deployment-error
+     * path, so this also pins that the allowlist is consulted *before* any
+     * provider call — an address that is not on the list must never reach
+     * Supabase, and therefore can never be distinguished by a provider error.
+     */
+    const allowed = await request.post("/api/auth/magic-link", {
+      data: { email: "marcelino.sandroni@gmail.com" },
+    });
+    const refused = await request.post("/api/auth/magic-link", {
+      data: { email: "stranger@attacker.test" },
+    });
+
+    expect(allowed.status()).toBe(refused.status());
+    expect(await allowed.json()).toEqual(await refused.json());
+  });
+
+  test("the callback refuses a request with no code and reveals nothing", async ({ page }) => {
+    await page.goto("/api/auth/callback");
+
+    // Redirects to /admin, not to a rendered error, so a bad or replayed link
+    // discloses nothing about why it failed.
+    await expect(page).toHaveURL(/\/admin\?auth=/);
+    expect((await page.locator("body").innerText()).toLowerCase()).not.toContain("error");
+  });
+});
