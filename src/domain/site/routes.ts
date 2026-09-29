@@ -1,4 +1,4 @@
-import { toLocaleSegment, type Locale } from "@/domain/i18n";
+﻿import { toLocaleSegment, type Locale } from "@/domain/i18n";
 
 /**
  * Canonical internal route table.
@@ -24,6 +24,9 @@ export function localePath(locale: Locale, route: RouteName): string {
 export const homePath = (locale: Locale): string => localePath(locale, "home");
 export const resumePath = (locale: Locale): string => localePath(locale, "resume");
 export const blogPath = (locale: Locale): string => localePath(locale, "blog");
+
+/** Owner area. Locale-independent on purpose: it is a private tool, not a document. */
+export const adminPath = (): string => "/admin";
 
 export function articlePath(locale: Locale, slug: string): string {
   return `${blogPath(locale)}/${slug}`;
