@@ -70,6 +70,14 @@ export function applyTheme(theme: string): boolean {
 
   document.documentElement.setAttribute(THEME_ATTRIBUTE, theme);
 
+  /*
+   * Tell the picker. It reads the theme from this attribute rather than from
+   * React state, so without the notification it would keep showing the previous
+   * theme as pressed — the page would change and the control would disagree with
+   * it, which is worse than not having a state at all.
+   */
+  window.dispatchEvent(new Event("msd:themechange"));
+
   try {
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);
   } catch {

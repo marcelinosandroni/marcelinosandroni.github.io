@@ -150,6 +150,7 @@ export const ptBR: Dictionary = {
   },
   footer: {
     versionedResume: "Currículo versionado",
+    themeLabel: "TEMA",
     legal: "Todos os direitos reservados.",
   },
   pdf: {
