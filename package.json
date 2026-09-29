@@ -14,7 +14,8 @@
     "test:e2e": "playwright test",
     "test:e2e:debug": "playwright test --debug",
     "compile:pdf": "tsx scripts/compile-pdf.ts",
-    "compile:pdf:watch": "node --watch scripts/compile-pdf.ts"
+    "compile:pdf:watch": "node --watch scripts/compile-pdf.ts",
+    "generate:blog-seed": "tsx scripts/generate-blog-seed.ts"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.9.0",

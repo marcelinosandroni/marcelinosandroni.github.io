@@ -9,7 +9,7 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import type { Locale } from "@/domain/i18n";
 import type { ResumeContent } from "@/domain/resume/types";
-import { resumePath } from "@/domain/site/routes";
+import { blogPath, resumePath } from "@/domain/site/routes";
 import { RESUME_TEMPLATES, type ResumeTemplateId } from "@/infrastructure/pdf/resume-template-registry";
 import { getDictionary } from "@/i18n";
 import { getHomeContent } from "@/infrastructure/content/home";
@@ -47,7 +47,7 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
     { key: "kpis", label: t.nav.home, href: `#${home.kpis.id}` },
     { key: "arsenal", label: t.nav.arsenal, href: `#${home.stack.id}` },
     { key: "experience", label: t.nav.experience, href: `#${home.trackRecord.id}` },
-    { key: "blog", label: t.nav.blog, href: `#${home.blog.id}` },
+    { key: "blog", label: t.nav.blog, href: blogPath(locale) },
     { key: "resume", label: t.nav.resume, href: resumePath(locale) },
     { key: "contact", label: t.nav.contact, href: `#${home.contact.id}` },
   ];

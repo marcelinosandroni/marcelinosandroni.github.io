@@ -13,7 +13,7 @@ test.describe("Blog", () => {
     await page.goto("/en-us/blog");
 
     await expect(page.locator("h1")).toContainText("Whitepapers");
-    await expect(page.locator("main article")).toHaveCount(3);
+    await expect(page.locator("main article")).toHaveCount(4);
     await expect(page.locator("main")).toContainText("Kafka");
   });
 
@@ -75,7 +75,7 @@ test.describe("Blog", () => {
     const links = page.locator("main article h3 a");
     const count = await links.count();
 
-    expect(count).toBe(3);
+    expect(count).toBe(4);
 
     for (let index = 0; index < count; index += 1) {
       const href = await links.nth(index).getAttribute("href");

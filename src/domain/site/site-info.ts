@@ -9,7 +9,15 @@ import { version as packageVersion } from "../../../package.json";
  */
 export const SITE_VERSION: string = packageVersion;
 
-export const SITE_URL = "https://marcelinosandroni.github.io";
+/**
+ * Canonical origin for every absolute URL the site emits: metadata, canonical
+ * links, hreflang alternates, Open Graph, `sitemap.xml` and `robots.txt`.
+ *
+ * The apex, not a subdomain and not the deployment host, because a canonical that
+ * points at `vercel.app` or `*.github.io` splits the ranking signal across hosts
+ * and makes every URL a redirect. Changing this constant is the whole cutover.
+ */
+export const SITE_URL = "https://marcelinosandroni.com";
 
 export const SITE_OWNER = {
   name: "Marcelino Sandroni Dias",
