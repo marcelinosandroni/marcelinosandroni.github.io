@@ -36,7 +36,8 @@
             { "type": "revert", "section": "Reverts", "hidden": false }
           ]
         },
-        "writerOpts": { "commitsSort": ["scope", "description"] }
+        "writerOpts": { "commitsSort": ["scope", "description"] },
+        "parserOpts": { "referenceActions": [] }
       }
     ],
     "@semantic-release/npm",

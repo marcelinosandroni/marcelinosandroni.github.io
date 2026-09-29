@@ -109,3 +109,24 @@ jobs:
             echo "\`chore\`, \`ci\`, \`docs\`, \`refactor\`, \`test\`, \`build\` and \`revert\` are recorded in"
             echo "the history but do not move the number."
           } >> "$GITHUB_STEP_SUMMARY"
+
+    outputs:
+      new_release_version: ${{ steps.release.outputs.new_release_version }}
+
+  # The resume PDFs are part of a release, not a separate concern that happens
+  # to watch for tags.
+  #
+  # GitHub does not start a workflow run for actions taken with `GITHUB_TOKEN`,
+  # which is the token semantic-release uses to push the tag. A
+  # `push: tags` trigger therefore could never fire for an automated release,
+  # and the v1.0.0 release has no artifacts because of it. Calling the build
+  # from here removes the dependency on a second workflow being woken up, and
+  # needs no personal access token to work.
+  pdf:
+    needs: release
+    if: needs.release.outputs.new_release_version != ''
+    uses: ./.github/workflows/compile-pdf.yml
+    permissions:
+      contents: write
+    with:
+      version: ${{ needs.release.outputs.new_release_version }}
