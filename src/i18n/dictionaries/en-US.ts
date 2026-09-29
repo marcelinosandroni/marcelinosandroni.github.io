@@ -149,8 +149,8 @@ export const enUS = {
       "This article does not exist in this language, or it has been unpublished.",
   },
   contact: {
-    briefNote:
-      "Opens a pre-filled draft in your own mail client. Nothing is sent from this page.",
+      briefNote:
+        "WhatsApp opens the conversation with the context already suggested; email opens a filled-in draft. Nothing is sent from this page and there is no form to submit.",
   },
   boot: {
     skip: "Skip intro",

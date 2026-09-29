@@ -82,10 +82,21 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
           openResumeLabel={home.trackRecord.resumeCtaLabel}
         />
         <BlogPreviewSection section={home.blog} locale={locale} t={t} />
-        <ContactGatewaySection section={home.contact} email={resume.contact.email} t={t} />
+        <ContactGatewaySection
+          section={home.contact}
+          email={resume.contact.email}
+          phone={resume.contact.phone}
+          t={t}
+        />
       </main>
 
-      <SiteFooter footer={home.footer} locale={locale} t={t} email={resume.contact.email} />
+      <SiteFooter
+        footer={home.footer}
+        locale={locale}
+        t={t}
+        email={resume.contact.email}
+        phone={resume.contact.phone}
+      />
     </>
   );
 }

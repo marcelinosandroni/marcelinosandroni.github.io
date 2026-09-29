@@ -1,4 +1,10 @@
 import type { HomeContent } from "@/domain/portfolio";
+import { toWhatsAppHref } from "@/domain/portfolio";
+import { SITE_OWNER } from "@/domain/site/site-info";
+
+/** Prefixed message, so the conversation starts with context instead of "oi". */
+const WHATSAPP_MESSAGE =
+  "Olá Marcelino,\n\nEmpresa: {company}\nPreciso de ajuda com: {scope}\n";
 
 /**
  * Home page content — pt-BR.
@@ -54,6 +60,14 @@ export const homeContentPtBR: HomeContent = {
         href: "https://linkedin.com/in/marcelinosandroni",
         value: "linkedin.com/in/marcelinosandroni",
         icon: "external",
+        external: true,
+      },
+      {
+        id: "whatsapp",
+        label: "WHATSAPP",
+        href: toWhatsAppHref(SITE_OWNER.phone),
+        value: SITE_OWNER.phone,
+        icon: "whatsapp",
         external: true,
       },
       {
@@ -305,12 +319,20 @@ export const homeContentPtBR: HomeContent = {
   contact: {
     id: "contact",
     kicker: "// CONTATO",
-    title: "Vamos conversar.",
+    title: "Vamos resolver isso.",
     narrative:
-      "Contrate um arquiteto que dimensiona o custo de depreciação da sua infraestrutura antes de escrever a primeira linha de Go, Java ou .NET distribuído.",
+      "Descreva o problema no WhatsApp e desenrolamos a partir daí. Se preferir escrever por e-mail, o briefing abaixo já vem preenchido com a estrutura certa.",
     portalLabel: "// CANAL DE CONTATO DIRETO",
-    statusNote: "RESPOSTA EM ATÉ 1 DIA ÚTIL // SEM FORMULÁRIO, SEM RASTREAMENTO",
+    statusNote: "WHATSAPP OU EMAIL // RESPOSTA EM 1 DIA ÚTIL",
     channels: [
+      {
+        id: "whatsapp",
+        label: "WHATSAPP",
+        href: toWhatsAppHref(SITE_OWNER.phone),
+        value: SITE_OWNER.phone,
+        icon: "whatsapp",
+        external: true,
+      },
       {
         id: "email",
         label: "E-MAIL",
@@ -334,10 +356,15 @@ export const homeContentPtBR: HomeContent = {
         value: "Até 1 dia útil",
         icon: "verified",
         external: false,
+        link: false,
       },
     ],
+    whatsapp: {
+      ctaLabel: "Falar no WhatsApp",
+      message: WHATSAPP_MESSAGE,
+    },
     brief: {
-      ctaLabel: "Abrir briefing pré-preenchido",
+      ctaLabel: "Abrir briefing por e-mail",
       subject: "Conversa técnica — {company}",
       bodyTemplate:
         "Olá Marcelino,\n\nEmpresa: {company}\nEscopo: {scope}\n\nObjetivo da conversa:\n\nPrazo desejado:\n\nObrigado!",
@@ -362,6 +389,14 @@ export const homeContentPtBR: HomeContent = {
             value: "Agendar conversa",
             icon: "calendar",
             external: false,
+          },
+          {
+            id: "whatsapp",
+            label: "WhatsApp",
+            href: toWhatsAppHref(SITE_OWNER.phone),
+            value: SITE_OWNER.phone,
+            icon: "whatsapp",
+            external: true,
           },
           {
             id: "mail",

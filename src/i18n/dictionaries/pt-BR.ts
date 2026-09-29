@@ -141,8 +141,8 @@ export const ptBR: Dictionary = {
       "Este artigo não existe neste idioma ou foi removido de publicação.",
   },
   contact: {
-    briefNote:
-      "Abre um rascunho pré-preenchido no seu próprio cliente de e-mail. Nada é enviado a partir desta página.",
+      briefNote:
+        "O WhatsApp abre a conversa com o contexto já sugerido; o e-mail abre um rascunho preenchido. Nada é enviado a partir desta página e não há formulário para preencher.",
   },
   boot: {
     skip: "Pular introdução",

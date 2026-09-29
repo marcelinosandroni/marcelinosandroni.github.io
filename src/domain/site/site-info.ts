@@ -16,6 +16,12 @@ export const SITE_OWNER = {
   linkedin: "https://linkedin.com/in/marcelinosandroni",
   github: "https://github.com/marcelinosandroni",
   email: "marcelino.sandroni@gmail.com",
+  /**
+   * Single source of truth for the phone number. The resume content references
+   * this rather than repeating the literal, so a `wa.me` link can never drift
+   * from the number printed on the document.
+   */
+  phone: "+55 11 91446-1993",
   location: "Fortaleza, CE, Brasil",
 } as const;
 

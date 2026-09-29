@@ -1,4 +1,9 @@
 import type { HomeContent } from "@/domain/portfolio";
+import { toWhatsAppHref } from "@/domain/portfolio";
+import { SITE_OWNER } from "@/domain/site/site-info";
+
+/** Prefilled message, so the conversation starts with context instead of "hi". */
+const WHATSAPP_MESSAGE = "Hi Marcelino,\n\nCompany: {company}\nI need help with: {scope}\n";
 
 /**
  * Home page content — en-US.
@@ -53,6 +58,14 @@ export const homeContentEnUS: HomeContent = {
         href: "https://linkedin.com/in/marcelinosandroni",
         value: "linkedin.com/in/marcelinosandroni",
         icon: "external",
+        external: true,
+      },
+      {
+        id: "whatsapp",
+        label: "WHATSAPP",
+        href: toWhatsAppHref(SITE_OWNER.phone),
+        value: SITE_OWNER.phone,
+        icon: "whatsapp",
         external: true,
       },
       {
@@ -304,12 +317,20 @@ export const homeContentEnUS: HomeContent = {
   contact: {
     id: "contact",
     kicker: "// CONTACT",
-    title: "Let's talk.",
+    title: "Let's solve it.",
     narrative:
-      "Hire an architect who prices the depreciation of your infrastructure before writing the first line of distributed Go, Java or .NET.",
+      "Describe the problem on WhatsApp and we will work it from there. If you would rather write, the brief below is already structured for you.",
     portalLabel: "// DIRECT CONTACT CHANNEL",
-    statusNote: "RESPONSE WITHIN 1 BUSINESS DAY // NO FORM, NO TRACKING",
+    statusNote: "WHATSAPP OR EMAIL // RESPONSE WITHIN 1 BUSINESS DAY",
     channels: [
+      {
+        id: "whatsapp",
+        label: "WHATSAPP",
+        href: toWhatsAppHref(SITE_OWNER.phone),
+        value: SITE_OWNER.phone,
+        icon: "whatsapp",
+        external: true,
+      },
       {
         id: "email",
         label: "EMAIL",
@@ -333,10 +354,15 @@ export const homeContentEnUS: HomeContent = {
         value: "Within 1 business day",
         icon: "verified",
         external: false,
+        link: false,
       },
     ],
+    whatsapp: {
+      ctaLabel: "Message on WhatsApp",
+      message: WHATSAPP_MESSAGE,
+    },
     brief: {
-      ctaLabel: "Open a pre-filled brief",
+      ctaLabel: "Open the email brief",
       subject: "Technical conversation — {company}",
       bodyTemplate:
         "Hello Marcelino,\n\nCompany: {company}\nScope: {scope}\n\nGoal for the conversation:\n\nDesired timeline:\n\nThank you!",
@@ -361,6 +387,14 @@ export const homeContentEnUS: HomeContent = {
             value: "Schedule a conversation",
             icon: "calendar",
             external: false,
+          },
+          {
+            id: "whatsapp",
+            label: "WhatsApp",
+            href: toWhatsAppHref(SITE_OWNER.phone),
+            value: SITE_OWNER.phone,
+            icon: "whatsapp",
+            external: true,
           },
           {
             id: "mail",

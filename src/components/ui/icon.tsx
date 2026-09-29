@@ -24,6 +24,13 @@ const PATHS: Readonly<Record<IconName, string>> = {
   calendar: "M5 5.5h14a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1zM4 10.5h16M8 3v4M16 3v4",
   location: "M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
   mail: "M3 6.5h18v11H3zM3.5 7.5 12 13.5l8.5-6",
+  /**
+   * Handset rather than the full WhatsApp mark: at 16px in a mono channel row
+   * the adjacent label carries the meaning, and a legible handset beats a
+   * detailed glyph that turns to mush.
+   */
+  whatsapp:
+    "M7.5 3.5 10 7 8.6 8.4a11 11 0 0 0 5 5L15 12l3.5 2.5-1 3.5a2 2 0 0 1-2.2 1.4A16 16 0 0 1 3.1 4.7 2 2 0 0 1 4.5 2.5z",
   verified: "M12 2.5 14.2 5l3.3-.4.9 3.2 2.8 1.8-1.4 3 1.4 3-2.8 1.8-.9 3.2-3.3-.4L12 21.5 9.8 19l-3.3.4-.9-3.2L2.8 14.4l1.4-3-1.4-3 2.8-1.8.9-3.2L9.8 5zM9 12l2.2 2.2L15.5 10",
   external: "M14 4h6v6M20 4l-8.5 8.5M18 14.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4.5",
   terminal: "M5 5h14v14H5zM8.5 10l2.5 2.5L8.5 15M13 15h3.5",
