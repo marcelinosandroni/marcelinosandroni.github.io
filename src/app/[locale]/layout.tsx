@@ -15,6 +15,8 @@ import {
 import { SITE_OWNER, SITE_URL } from "@/domain/site/site-info";
 import { getDictionary } from "@/i18n";
 import { TelemetryBar } from "@/components/telemetry/telemetry-bar";
+import { ThemeBootstrapScript } from "@/components/theme/theme-script";
+import { DEFAULT_THEME_ID, themeColorFor } from "@/domain/theme/theme";
 import "../globals.css";
 
 /*
@@ -134,6 +136,20 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
       className={`${manrope.variable} ${jetBrainsMono.variable} ${playfairDisplay.variable}`}
     >
       <body className="pb-10">
+        {/*
+          The theme is applied before first paint by a script placed in the
+          document head by Next.js itself.
+
+          An explicit `<head>` element here was tried first and broke hydration
+          intermittently: the PDF download button stopped being interactive on
+          roughly half of runs, and it cost several attempts to attribute,
+          because the failure was "element not found" rather than a parse error.
+          The fix is to not declare `<head>` at all — React 19 hoists `<script>`
+          and `<meta>` rendered inside `<body>` into the head automatically,
+          which keeps the script early without taking ownership of the element.
+        */}
+        <ThemeBootstrapScript />
+        <meta name="theme-color" content={themeColorFor(DEFAULT_THEME_ID)} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
