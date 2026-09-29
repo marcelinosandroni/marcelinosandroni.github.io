@@ -1,4 +1,4 @@
-﻿import { Chip, Section } from "@/components/ui";
+import { Chip, Section } from "@/components/ui";
 import { ACCENT_TEXT, Icon } from "@/components/ui/icon";
 import type { HomeStackSection } from "@/domain/portfolio";
 

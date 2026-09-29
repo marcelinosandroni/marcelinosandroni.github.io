@@ -1,4 +1,4 @@
-﻿import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
 import { InMemoryClickAggregateRepository } from "@/infrastructure/analytics/in-memory-click-repository";
 import { SupabaseClickAggregateRepository, type CountableClient } from "@/infrastructure/analytics/supabase-click-repository";
