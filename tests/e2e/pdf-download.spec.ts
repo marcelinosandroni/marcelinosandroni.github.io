@@ -115,8 +115,21 @@ test.describe("Localized routing and PDF download", () => {
   });
 
   test("displays a loading state during PDF generation", async ({ page }) => {
+    /*
+     * 700ms of injected latency was not reliably slower than the assertion that
+     * reads the state, so the test passed or failed depending on machine load —
+     * four consecutive runs gave two passes and two failures. The window has to
+     * be comfortably longer than any plausible scheduling delay, and the route
+     * handler is held open until the assertion has had its chance rather than
+     * racing it.
+     */
+    let release: () => void = () => {};
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+
     await page.route("**/api/resume/**/pdf", async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 700));
+      await held;
       await route.continue();
     });
 
@@ -128,9 +141,13 @@ test.describe("Localized routing and PDF download", () => {
 
     const downloadButton = page.getByRole("button", { name: /baixar pdf/i });
     const downloadPromise = page.waitForEvent("download");
-    await downloadButton.click();
 
-    await expect(page.getByRole("button", { name: /gerando/i })).toBeVisible({ timeout: 5000 });
+    await downloadButton.click();
+    // The request is parked, so the state below is guaranteed to still be
+    // present when it is read.
+    await expect(page.getByRole("button", { name: /gerando/i })).toBeVisible({ timeout: 10_000 });
+
+    release();
     expect((await downloadPromise).suggestedFilename()).toContain(".pdf");
   });
 

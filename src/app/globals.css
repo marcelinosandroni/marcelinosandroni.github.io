@@ -159,6 +159,139 @@
    BASE
    ========================================================================== */
 
+/* ==========================================================================
+   THEMES
+   ==========================================================================
+   Each block below redefines the @theme tokens above. Tailwind v4 compiles
+   utilities to var(--color-*), so overriding the variable restyles every
+   component that uses it -- there is no per-component theming to maintain.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   THEME: CARBON (default)
+   Every token from @theme is restated. A theme that omits one silently inherits
+   it from the previous theme, and the page renders 95% correct, which is much
+   harder to notice than a page that is obviously wrong.
+   Identical to the @theme values, restated so all three themes sit together and
+   can be compared line by line.
+   -------------------------------------------------------------------------- */
+[data-theme="carbon"] {
+    --color-surface-base: #0a0d12;
+    --color-surface-raised: #11151c;
+    --color-surface-overlay: #181e27;
+    --color-surface-bright: #36393f;
+    --color-border-subtle: #1e2633;
+    --color-border-prominent: #2d384b;
+    --color-text-primary: #f4f1ea;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted: #56657a;
+    --color-primary-container: #baf336;
+    --color-primary-fixed-dim: #a1d811;
+    --color-on-primary-container: #253600;
+    --color-secondary: #34d399;
+    --color-secondary-container: #00bd85;
+    --color-on-secondary-container: #00452e;
+    --color-tertiary: #93c5fd;
+    --color-tertiary-container: #cce2ff;
+    --color-on-tertiary-container: #306698;
+    --color-surface: #111319;
+    --color-surface-container-low: #191c21;
+    --color-surface-container: #1d2025;
+    --color-surface-container-high: #272a30;
+    --color-surface-container-highest: #32353b;
+    --color-on-surface: #e1e2ea;
+    --color-on-surface-variant: #c3c9af;
+    --color-outline: #8d937b;
+    --color-outline-variant: #434935;
+    --color-error: #ffb4ab;
+    --color-on-error: #690005;
+    --color-kpi-accent-glow: rgba(186, 243, 54, 0.12);
+    --color-mint-accent-glow: rgba(52, 211, 153, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   THEME: PAPER
+   Every token from @theme is restated. A theme that omits one silently inherits
+   it from the previous theme, and the page renders 95% correct, which is much
+   harder to notice than a page that is obviously wrong.
+   Warm off-white for daylight and print, ink text, accents darkened so they
+   hold contrast on a light ground.
+   -------------------------------------------------------------------------- */
+[data-theme="paper"] {
+    --color-surface-base: #faf8f3;
+    --color-surface-raised: #ffffff;
+    --color-surface-overlay: #f2efe7;
+    --color-surface-bright: #e2ddd0;
+    --color-border-subtle: #e6e1d5;
+    --color-border-prominent: #c8c1b0;
+    --color-text-primary: #1a1c20;
+    --color-text-secondary: #4a4f57;
+    --color-text-muted: #6d737d;
+    --color-primary-container: #4a6b00;
+    --color-primary-fixed-dim: #5c8300;
+    --color-on-primary-container: #f7ffe8;
+    --color-secondary: #006b4f;
+    --color-secondary-container: #008f68;
+    --color-on-secondary-container: #02170f;
+    --color-tertiary: #1d4f8f;
+    --color-tertiary-container: #d6e6ff;
+    --color-on-tertiary-container: #0c2d55;
+    --color-surface: #faf8f3;
+    --color-surface-container-low: #ffffff;
+    --color-surface-container: #f5f2ea;
+    --color-surface-container-high: #eeebe1;
+    --color-surface-container-highest: #e6e2d6;
+    --color-on-surface: #1a1c20;
+    --color-on-surface-variant: #4a4f57;
+    --color-outline: #6d737d;
+    --color-outline-variant: #c8c1b0;
+    --color-error: #a40000;
+    --color-on-error: #fff5f5;
+    --color-kpi-accent-glow: rgba(74, 107, 0, 0.10);
+    --color-mint-accent-glow: rgba(0, 107, 79, 0.08);
+}
+
+/* --------------------------------------------------------------------------
+   THEME: MATRIX
+   Every token from @theme is restated. A theme that omits one silently inherits
+   it from the previous theme, and the page renders 95% correct, which is much
+   harder to notice than a page that is obviously wrong.
+   Black ground and phosphor green, no blue in the ramp.
+   -------------------------------------------------------------------------- */
+[data-theme="matrix"] {
+    --color-surface-base: #000000;
+    --color-surface-raised: #030705;
+    --color-surface-overlay: #060d08;
+    --color-surface-bright: #0d1a10;
+    --color-border-subtle: #0a1a0e;
+    --color-border-prominent: #123d1c;
+    --color-text-primary: #39ff7a;
+    --color-text-secondary: #2fbf60;
+    --color-text-muted: #1f8040;
+    --color-primary-container: #39ff7a;
+    --color-primary-fixed-dim: #2fbf60;
+    --color-on-primary-container: #001a08;
+    --color-secondary: #39ff7a;
+    --color-secondary-container: #0a7a2c;
+    --color-on-secondary-container: #b6ffcd;
+    --color-tertiary: #4dffa0;
+    --color-tertiary-container: #0b6b28;
+    --color-on-tertiary-container: #c6ffdb;
+    --color-surface: #000000;
+    --color-surface-container-low: #030705;
+    --color-surface-container: #060d08;
+    --color-surface-container-high: #0a140c;
+    --color-surface-container-highest: #0f1d12;
+    --color-on-surface: #39ff7a;
+    --color-on-surface-variant: #2fbf60;
+    --color-outline: #2fbf60;
+    --color-outline-variant: #123d1c;
+    --color-error: #ff6b6b;
+    --color-on-error: #2b0000;
+    --color-kpi-accent-glow: rgba(57, 255, 122, 0.12);
+    --color-mint-accent-glow: rgba(57, 255, 122, 0.10);
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
