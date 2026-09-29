@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, devices } from "@playwright/test";
 
 /**
  * The theme mechanism, proven in a browser.
@@ -73,6 +73,116 @@ async function seedTheme(page: import("@playwright/test").Page, theme: string) {
   await page.waitForTimeout(200);
 }
 
+
+test.describe("Theme picker", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/en-us", { waitUntil: "networkidle" });
+  });
+
+  test("is reachable and offers every theme", async ({ page }) => {
+    const group = page.getByRole("group", { name: "Theme" });
+
+    await expect(group).toBeVisible();
+    await expect(group.getByRole("button")).toHaveCount(3);
+  });
+
+  test("switching with the picker actually repaints the page", async ({ page }) => {
+    const before = await tokens(page);
+
+    await page.getByRole("button", { name: "Matrix theme" }).click();
+    await page.waitForTimeout(150);
+
+    const after = await tokens(page);
+
+    expect(after.bodyBackground).not.toBe(before.bodyBackground);
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "matrix");
+  });
+
+  test("marks the active theme, so the control is not just three equal buttons", async ({ page }) => {
+    const carbon = page.getByRole("button", { name: "Dark theme" });
+    const paper = page.getByRole("button", { name: "Light theme" });
+
+    await expect(carbon).toHaveAttribute("aria-pressed", "true");
+    await expect(paper).toHaveAttribute("aria-pressed", "false");
+
+    await paper.click();
+    await page.waitForTimeout(150);
+
+    /*
+     * `aria-pressed` rather than a visual-only marker: three identical buttons
+     * with no state is a control a screen reader announces as three identical
+     * choices, and a sighted reader has to remember which one they pressed.
+     */
+    await expect(paper).toHaveAttribute("aria-pressed", "true");
+    await expect(carbon).toHaveAttribute("aria-pressed", "false");
+  });
+
+  test("the picker persists across a reload", async ({ page }) => {
+    await page.getByRole("button", { name: "Matrix theme" }).click();
+    await page.waitForTimeout(150);
+
+    await page.reload({ waitUntil: "networkidle" });
+    await page.waitForTimeout(200);
+
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "matrix");
+    await expect(page.getByRole("button", { name: "Matrix theme" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  test("the picker updates the browser chrome colour too", async ({ page }) => {
+    /*
+     * `meta[name=theme-color]` is a separate surface from the page and does not
+     * follow `data-theme`. Left stale it keeps the old colour in the mobile
+     * address bar, which reads as a rendering bug even though the page is right.
+     */
+    const before = await page.getAttribute('meta[name="theme-color"]', "content");
+    await page.getByRole("button", { name: "Matrix theme" }).click();
+    await page.waitForTimeout(150);
+    const after = await page.getAttribute('meta[name="theme-color"]', "content");
+
+    expect(after).not.toBe(before);
+    expect(after).toBe("#000000");
+  });
+
+  test("every picker button is a usable tap target on a phone", async ({ browser }) => {
+    const context = await browser.newContext({
+      ...devices["Desktop Chrome"],
+      viewport: { width: 390, height: 844 },
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await context.newPage();
+    await page.goto("/en-us", { waitUntil: "networkidle" });
+
+    const small = await page
+      .getByRole("group", { name: "Theme" })
+      .getByRole("button")
+      .evaluateAll((buttons) =>
+        buttons
+          .map((b) => {
+            const r = b.getBoundingClientRect();
+            return { label: b.getAttribute("aria-label"), w: Math.round(r.width), h: Math.round(r.height) };
+          })
+          .filter((entry) => entry.w < 44 || entry.h < 44),
+      );
+
+    expect(small, `picker buttons under 44px: ${JSON.stringify(small)}`).toEqual([]);
+
+    await context.close();
+  });
+
+  test("the picker does not push the footer into overflow on a phone", async ({ page }) => {
+    const before = await page.evaluate(() => document.documentElement.scrollWidth);
+    const after = await page.evaluate(() => {
+      document.documentElement.getAttribute("data-theme");
+      return document.documentElement.clientWidth;
+    });
+
+    expect(before).toBeLessThanOrEqual(after);
+  });
+});
 
 test.describe("Theme switching", () => {
   test.beforeEach(async ({ page }) => {

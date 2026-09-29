@@ -158,6 +158,7 @@ export const enUS = {
   },
   footer: {
     versionedResume: "Versioned Resume",
+    themeLabel: "THEME",
     legal: "All rights reserved.",
   },
   pdf: {
