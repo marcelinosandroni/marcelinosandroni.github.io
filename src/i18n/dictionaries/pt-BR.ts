@@ -230,6 +230,7 @@ export const ptBR: Dictionary = {
     sent: "Verifique sua caixa de entrada. O link expira em pouco tempo e só pode ser usado uma vez.",
     invalidEmail: "Isso não parece um endereço de e-mail válido.",
     notAllowed: "Este endereço não está autorizado neste site.",
+    notConfigured: "O acesso do dono não está configurado neste deploy. Defina ADMIN_EMAIL, AUTH_SECRET e RESEND_API_KEY.",
     backToSite: "Voltar para o site",
     signOut: "Sair",
     signedInAs: "Conectado como {email}",

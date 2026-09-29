@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { AdminLock } from "@/components/admin/admin-lock";
 import { localePath } from "@/domain/site/routes";
 import type { Locale } from "@/domain/i18n";
 import type { Dictionary } from "@/i18n";
@@ -54,7 +55,8 @@ export function SiteHeader({ locale, t, sections }: SiteHeaderProps) {
             ))}
           </nav>
 
-          <div className="shrink-0">
+          <div className="flex shrink-0 items-center gap-space-sm">
+            <AdminLock t={t} />
             <LocaleSwitcher locale={locale} t={t} />
           </div>
         </div>
