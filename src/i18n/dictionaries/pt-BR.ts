@@ -1,4 +1,4 @@
-import type { Dictionary } from "./en-US";
+﻿import type { Dictionary } from "./en-US";
 
 /**
  * Brazilian Portuguese (pt-BR) message catalog.
@@ -245,12 +245,10 @@ export const ptBR: Dictionary = {
     unknownElement: "outros",
   },
   telemetry: {
-    label: "Métricas reais da requisição",
+    label: "Métricas reais de carregamento desta página",
     ttfb: "TTFB",
     domContentLoaded: "DOM pronto",
     loadComplete: "Carregado",
-    edgeRegion: "Região da borda",
-    region: "Local",
-    collecting: "medindo…",
+    unavailable: "não mensurável neste navegador",
   },
 };
