@@ -4,6 +4,7 @@ import { HomeHeroSection } from "@/components/home/home-hero";
 import { KpiSection } from "@/components/home/kpi-grid";
 import { TechArsenalSection } from "@/components/home/tech-arsenal";
 import { TrackRecordSection } from "@/components/home/track-record";
+import { ResumeCopilot } from "@/components/ai/resume-copilot";
 import { BootSequence } from "@/components/site/boot-sequence";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
@@ -81,6 +82,7 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
           locale={locale}
           openResumeLabel={home.trackRecord.resumeCtaLabel}
         />
+        <ResumeCopilot locale={locale} labels={t.copilot} />
         <BlogPreviewSection section={home.blog} locale={locale} t={t} />
         <ContactGatewaySection
           section={home.contact}
