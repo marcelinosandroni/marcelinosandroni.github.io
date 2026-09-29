@@ -54,10 +54,17 @@ jobs:
         with:
           node-version: "22"
 
-      # No `npm ci` here. semantic-release loads its own plugins into a
-      # temporary directory, and installing this project's dependencies (Playwright
-      # browsers, Turbopack, eslint-config-next) would cost minutes and change
-      # nothing about the version calculation.
+      # The dependency tree has to exist before semantic-release starts.
+      #
+      # semantic-release installs its own `@semantic-release/*` plugins on
+      # demand, but the `conventionalcommits` preset named in .releaserc.json is
+      # `require`d by the commit-analyzer and the notes generator, and nothing
+      # installs that. It is a declared devDependency, so it has to be on disk.
+      #
+      # `--ignore-scripts` skips Playwright's browser download, which a release
+      # never needs, and turns a two-minute install into a thirty-second one.
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Determine release
         id: release
