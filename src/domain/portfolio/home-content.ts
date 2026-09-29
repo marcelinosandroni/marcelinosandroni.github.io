@@ -36,6 +36,7 @@ export type IconName =
   | "calendar"
   | "location"
   | "mail"
+  | "whatsapp"
   | "verified"
   | "external"
   | "terminal"
@@ -67,6 +68,11 @@ export type HomeChannel = {
   href: string;
   icon: IconName;
   external: boolean;
+  /**
+   * `false` for rows whose value is a fact rather than a destination — a
+   * response-time promise is not something you click. Defaults to a link.
+   */
+  link?: boolean;
 };
 
 /**
@@ -204,9 +210,18 @@ export type HomeContact = {
   statusNote: string;
   channels: HomeChannel[];
   /**
-   * There is no server behind this site, so the "request" affordance opens a
-   * pre-addressed mail draft instead of posting to a void (DESIGN.md §9).
+   * The primary "let's solve it" channel.
+   *
+   * WhatsApp is the fastest route for a reader who wants an answer, so it leads
+   * and the email brief is the fallback for anyone who prefers to write. Both
+   * exist: this site never gates one behind the other.
    */
+  whatsapp: {
+    ctaLabel: string;
+    /** Prefilled message. `{company}` and `{scope}` are left as visible dashes. */
+    message: string;
+  };
+  /** Pre-addressed email draft. See `whatsapp.message` for the placeholder rule. */
   brief: { ctaLabel: string; subject: string; bodyTemplate: string };
 };
 

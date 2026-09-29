@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 
 import { BlogIndex } from "@/components/blog/blog-index";
 import { SiteFooter } from "@/components/site/site-footer";
@@ -91,7 +91,13 @@ export default async function Page({ params }: PageProps<"/[locale]/blog">) {
         <BlogIndex articles={articles} locale={locale} t={t} />
       </main>
 
-      <SiteFooter footer={home.footer} locale={locale} t={t} email={resume.contact.email} />
+      <SiteFooter
+        footer={home.footer}
+        locale={locale}
+        t={t}
+        email={resume.contact.email}
+        phone={resume.contact.phone}
+      />
     </>
   );
 }

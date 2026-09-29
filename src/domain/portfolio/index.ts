@@ -1,3 +1,4 @@
+export { toWhatsAppHref, toWhatsAppNumber } from "./contact";
 export type {
   AccentTone,
   HomeAction,

@@ -115,6 +115,47 @@ test.describe("Home executive overview", () => {
     ).toHaveCount(1);
   });
 
+  test("leads the contact section with a working WhatsApp link", async ({ page }) => {
+    await page.goto("/en-us");
+
+    const waHref = "https://wa.me/5511914461993";
+
+    // The primary action, prefilled and opened in a new tab.
+    const cta = page.locator(`#contact a.button[href^="${waHref}?text="]`);
+    await expect(cta).toHaveCount(1);
+    await expect(cta).toHaveAttribute("target", "_blank");
+    await expect(cta).toHaveAttribute("rel", /noopener/);
+    expect(new URL((await cta.getAttribute("href")) ?? "").searchParams.get("text")).toContain(
+      "Company:",
+    );
+
+    // The channel list, with no prefilled text.
+    const listed = page.locator(`#contact a[href="${waHref}"]`);
+    await expect(listed).toHaveCount(1);
+    await expect(listed).toHaveText("+55 11 91446-1993");
+
+    // Email still works: WhatsApp is added beside it, never instead of it.
+    await expect(
+      page.locator('#contact a[href^="mailto:marcelino.sandroni@gmail.com?subject="]'),
+    ).toHaveCount(1);
+  });
+
+  test("repeats the WhatsApp channel in the footer and on the resume", async ({ page }) => {
+    const waLink = 'a[href="https://wa.me/5511914461993"]';
+
+    // Home: the site footer prints the number, and the `direct` column links
+    // WhatsApp the same way it already links email.
+    await page.goto("/en-us");
+    await expect(page.locator(`footer ${waLink}`)).toHaveCount(2);
+    await expect(page.locator("footer")).toContainText("+55 11 91446-1993");
+
+    // Resume: the document footer is the only footer on that route, and it
+    // carries the direct channel beside the email.
+    await page.goto("/en-us/resume");
+    await expect(page.locator(waLink)).toHaveCount(1);
+    await expect(page.locator("footer")).toContainText("marcelino.sandroni@gmail.com");
+  });
+
   test("teases three articles on the home route", async ({ page }) => {
     await page.goto("/en-us");
 

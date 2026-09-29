@@ -1,12 +1,15 @@
 import { Section } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
+import { toWhatsAppHref } from "@/domain/portfolio";
 import type { HomeContact } from "@/domain/portfolio";
 import type { Dictionary } from "@/i18n";
+import { formatMessage } from "@/i18n/format-message";
 
 export interface ContactGatewaySectionProps {
   section: HomeContact;
-  /** Where the pre-filled brief is addressed. */
+  /** Where the prefilled brief and the WhatsApp thread are addressed. */
   email: string;
+  phone: string;
   t: Dictionary;
 }
 
@@ -15,15 +18,23 @@ export interface ContactGatewaySectionProps {
  *
  * The reference prototype shipped a form that posted nowhere and answered with
  * `alert()` — DESIGN.md §13 forbids both, and a form that silently discards a
- * recruiter's message is worse than no form at all. The affordance is preserved
- * and made honest: the primary action opens a pre-addressed draft in the
- * visitor's own mail client, so a structured brief reaches the inbox without the
- * site needing a server, a spam filter or a queue.
+ * recruiter's message is worse than no form at all. Both affordances here work
+ * with no server at all, and neither depends on the other:
  *
- * The full subject and body templates are configuration, so the tone of the
+ *  - **WhatsApp leads.** A reader who wants an answer wants a conversation, not a
+ *    form. The link opens a thread with the context fields already framed.
+ *  - **The email brief is the fallback** for anyone who prefers to write, opening
+ *    a pre-addressed draft with the same structure.
+ *
+ * The subject, body and message templates are configuration, so the tone of the
  * outreach is editable per language without touching the component.
  */
-export function ContactGatewaySection({ section, email, t }: ContactGatewaySectionProps) {
+export function ContactGatewaySection({ section, email, phone, t }: ContactGatewaySectionProps) {
+  // `{company}` and `{scope}` stay as visible dashes in the reader's own client,
+  // which is what makes the draft a template rather than a form that swallowed
+  // their input.
+  const values = { company: "—", scope: "—" };
+
   return (
     <Section id={section.id} surface="overlay">
       <div className="relative overflow-hidden rounded-2xl bg-surface-raised p-space-2xl shadow-2xl">
@@ -55,23 +66,28 @@ export function ContactGatewaySection({ section, email, t }: ContactGatewaySecti
                       name={channel.icon}
                       size={18}
                       className={
-                        channel.icon === "mail" ? "text-primary-container" : "text-secondary"
+                        channel.icon === "whatsapp" || channel.icon === "mail"
+                          ? "text-primary-container"
+                          : "text-secondary"
                       }
                     />
                     <span className="hidden sm:inline">{channel.label}</span>
                   </dt>
                   <dd className="min-w-0 text-text-primary">
-                    {channel.href.startsWith("mailto:") ? (
-                      <a
-                        href={channel.href}
-                        className="truncate font-bold transition-colors hover:text-primary-container"
-                      >
-                        {channel.value}
-                      </a>
-                    ) : (
+                    {channel.link === false ? (
                       <span className="font-body-sm text-body-sm text-text-secondary">
                         {channel.value}
                       </span>
+                    ) : (
+                      <a
+                        href={channel.href}
+                        className="truncate font-bold transition-colors hover:text-primary-container"
+                        {...(channel.external
+                          ? { target: "_blank", rel: "noreferrer noopener" }
+                          : {})}
+                      >
+                        {channel.value}
+                      </a>
                     )}
                   </dd>
                 </div>
@@ -87,11 +103,33 @@ export function ContactGatewaySection({ section, email, t }: ContactGatewaySecti
               <span className="msd-pulse h-2 w-2 rounded-full bg-secondary" />
             </div>
 
-            <BriefLauncher
-              brief={section.brief}
-              email={email}
-              note={t.contact.briefNote}
-            />
+            <div className="space-y-space-sm">
+              <a
+                href={toWhatsAppHref(phone, formatMessage(section.whatsapp.message, values))}
+                className="button button-primary w-full"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                <Icon name="whatsapp" size={20} />
+                {section.whatsapp.ctaLabel}
+              </a>
+
+              <a
+                href={`mailto:${email}?subject=${encodeURIComponent(
+                  section.brief.subject.replace("{company}", "—"),
+                )}&body=${encodeURIComponent(
+                  formatMessage(section.brief.bodyTemplate, values),
+                )}`}
+                className="button button-quiet w-full"
+              >
+                <Icon name="mail" size={20} />
+                {section.brief.ctaLabel}
+              </a>
+
+              <p className="pt-space-xs font-body-sm text-body-sm text-text-muted">
+                {t.contact.briefNote}
+              </p>
+            </div>
 
             <p className="pt-space-xs text-center font-label-mono text-[10px] tracking-wider text-text-muted">
               {section.statusNote}
@@ -100,35 +138,5 @@ export function ContactGatewaySection({ section, email, t }: ContactGatewaySecti
         </div>
       </div>
     </Section>
-  );
-}
-
-/**
- * Builds the `mailto:` URL. `{company}` and `{scope}` are left as visible
- * placeholders inside the draft body so the reader fills them in their own mail
- * client — which is exactly what makes the draft feel like a template rather
- * than a form that swallowed their input.
- */
-function BriefLauncher({
-  brief,
-  email,
-  note,
-}: {
-  brief: HomeContact["brief"];
-  email: string;
-  note: string;
-}) {
-  const href = `mailto:${email}?subject=${encodeURIComponent(
-    brief.subject.replace("{company}", "—"),
-  )}&body=${encodeURIComponent(brief.bodyTemplate.replace("{company}", "—").replace("{scope}", "—"))}`;
-
-  return (
-    <div className="space-y-space-sm">
-      <a href={href} className="button button-primary w-full">
-        <Icon name="mail" size={20} />
-        {brief.ctaLabel}
-      </a>
-      <p className="font-body-sm text-body-sm text-text-muted">{note}</p>
-    </div>
   );
 }

@@ -3,6 +3,7 @@ import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Icon } from "@/components/ui/icon";
 import { CONTENT_PERIOD, SITE_VERSION } from "@/domain/site/site-info";
 import { blogPath, homePath, resumePath } from "@/domain/site/routes";
+import { toWhatsAppHref } from "@/domain/portfolio";
 import type { Locale } from "@/domain/i18n";
 import type { ResumeContent, ResumeExperience, ResumeEducation } from "@/domain/resume/types";
 import { RESUME_TEMPLATES, type ResumeTemplateId } from "@/infrastructure/pdf/resume-template-registry";
@@ -135,13 +136,22 @@ export async function ResumeDocument({ locale, resume }: ResumeDocumentProps) {
         <ResumeEducationSection resume={resume} t={t} />
 
         <footer className="mt-space-2xl border-t border-border-subtle pt-space-xl">
-          <p className="font-label-mono text-label-mono text-text-muted">
-            {t.blog.allArticles} ·{" "}
+          <p className="flex flex-wrap items-center gap-x-space-lg gap-y-space-sm font-label-mono text-label-mono text-text-muted">
+            <span>{t.blog.allArticles}</span>
             <a
               href={`mailto:${resume.contact.email}`}
               className="text-primary-container underline-offset-4 hover:underline"
             >
               {resume.contact.email}
+            </a>
+            <a
+              href={toWhatsAppHref(resume.contact.phone)}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-space-xs text-secondary underline-offset-4 hover:underline"
+            >
+              <Icon name="whatsapp" size={14} />
+              {resume.contact.phone}
             </a>
           </p>
         </footer>

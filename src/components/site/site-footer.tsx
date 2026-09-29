@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Icon } from "@/components/ui/icon";
+import { toWhatsAppHref } from "@/domain/portfolio";
 import { COPYRIGHT_YEAR, SITE_VERSION } from "@/domain/site/site-info";
 import type { HomeFooter } from "@/domain/portfolio";
 import type { Locale } from "@/domain/i18n";
@@ -13,6 +14,8 @@ export interface SiteFooterProps {
   t: Dictionary;
   /** Email surfaced as the primary contact line. */
   email: string;
+  /** WhatsApp number, shown next to the email. */
+  phone: string;
 }
 
 /**
@@ -22,7 +25,7 @@ export interface SiteFooterProps {
  * columns are editable data rather than markup. External links get
  * `rel="noreferrer noopener"`; internal ones go through `next/link`.
  */
-export function SiteFooter({ footer, locale, t, email }: SiteFooterProps) {
+export function SiteFooter({ footer, locale, t, email, phone }: SiteFooterProps) {
   const segment = toLocaleSegment(locale);
 
   return (
@@ -46,11 +49,23 @@ export function SiteFooter({ footer, locale, t, email }: SiteFooterProps) {
             <p className="max-w-xl font-body-lg text-body-lg text-text-secondary">
               {footer.narrative}
             </p>
-            <p className="pt-space-sm font-code-inline text-code-inline text-primary-container">
-              <a href={`mailto:${email}`} className="underline-offset-4 hover:underline">
+            <div className="flex flex-wrap items-center gap-x-space-lg gap-y-space-sm pt-space-sm font-code-inline text-code-inline">
+              <a
+                href={`mailto:${email}`}
+                className="text-primary-container underline-offset-4 hover:underline"
+              >
                 {email}
               </a>
-            </p>
+              <a
+                href={toWhatsAppHref(phone)}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-space-xs text-secondary underline-offset-4 hover:underline"
+              >
+                <Icon name="whatsapp" size={16} />
+                {phone}
+              </a>
+            </div>
           </div>
 
           <div className="flex flex-col justify-between gap-space-lg lg:col-span-6">
