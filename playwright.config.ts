@@ -37,8 +37,26 @@ export default defineConfig({
     },
   ],
 
+  /**
+   * Runs against the production build, not `next dev`.
+   *
+   * This is a fix, not a preference. `next dev` compiles with Turbopack, whose
+   * `next/font/google` transform emits CSS referencing
+   * `@vercel/turbopack-next/internal/font/google/font` — a module that does not
+   * exist in the published `next` package. Every route importing a Google font
+   * then fails to compile, and the e2e job dies on the first page load.
+   *
+   * It was invisible locally because the dev server was usually already running
+   * and `reuseExistingServer` skipped starting a second one. The `verify` job
+   * always passed, because `next build` does not use that transform — so the
+   * failure only ever appeared in the one job that ran on a clean machine.
+   *
+   * Testing the built output is also the more honest suite: it is the artefact
+   * that gets deployed, it starts in seconds rather than compiling a route per
+   * test, and the 30s `webServer` timeout below stops being tight.
+   */
   webServer: {
-    command: "npm run dev -- --hostname 127.0.0.1 --port 3001",
+    command: "npm run start -- --hostname 127.0.0.1 --port 3001",
     url: "http://127.0.0.1:3001",
     reuseExistingServer: !process.env.CI,
     /**
