@@ -47,6 +47,7 @@ interface ManifestShape {
   name: string;
   version: string;
   private: boolean;
+  devDependencies?: Record<string, string>;
 }
 
 const RELEASERC = readJson<ReleasercShape>(".releaserc.json");
@@ -147,6 +148,36 @@ describe("release contract", () => {
      */
     expect(MANIFEST.version).toMatch(/^\d+\.\d+\.\d+$/);
     expect(MANIFEST.version).not.toBe("0.0.0");
+  });
+
+  it("declares every changelog preset the configuration names", () => {
+    /*
+     * semantic-release installs its own plugins on demand, so a plugin name
+     * resolves without being in package.json. A *preset* is different: the
+     * commit-analyzer and the notes generator load it with `require`, and
+     * nothing installs it. Naming `conventionalcommits` without declaring
+     * `conventional-changelog-conventionalcommits` therefore fails at the
+     * moment a release runs — the first time, and only in CI, after the tag
+     * step has already been scheduled.
+     *
+     * That is the same shape of failure this file exists to prevent: green
+     * until the one moment the green matters.
+     */
+    const declared = new Set(Object.keys(MANIFEST.devDependencies ?? {}));
+    const presets = new Set<string>();
+
+    for (const [, options] of RELEASERC.plugins as Array<[string, { preset?: string }]>) {
+      if (options?.preset) presets.add(options.preset);
+    }
+
+    expect(presets.size).toBeGreaterThan(0);
+
+    for (const preset of presets) {
+      expect(
+        declared,
+        `preset "${preset}" is named in .releaserc.json but conventional-changelog-${preset} is not a declared dependency`,
+      ).toContain(`conventional-changelog-${preset}`);
+    }
   });
 
   it("keeps the version single-sourced in package.json", () => {
