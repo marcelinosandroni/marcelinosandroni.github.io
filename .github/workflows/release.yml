@@ -1,13 +1,34 @@
 name: Release
 
+# Runs on merge to main, not on a pull request. semantic-release reads the
+# commit range since the last tag, computes the next SemVer from the Conventional
+# Commit types, writes it back to package.json, tags, and opens the GitHub
+# Release — in one pass, with no pull request waiting for a human.
+#
+# This replaces release-please, which was configured in this repository and
+# produced nothing: six consecutive runs reported success while collecting zero
+# commits (`Set(0) {}`), so no release PR, tag, GitHub Release or CHANGELOG.md
+# was ever created and the version sat at 0.1.5 indefinitely.
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Report the next version without changing anything"
+        type: boolean
+        default: true
 
+# contents: write  — push the tag and the release commit that updates package.json
+# issues: write    — create the GitHub Release
+# Least privilege: the job does not touch pull requests or packages.
 permissions:
   contents: write
-  pull-requests: write
+  issues: write
 
+# Never let two releases race. `cancel-in-progress: false` because cancelling a
+# half-applied release — tag created, version not yet written back — is worse
+# than waiting for the first one to finish.
 concurrency:
   group: release
   cancel-in-progress: false
@@ -15,10 +36,63 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
-      - name: Create release pull request or publish release
-        uses: googleapis/release-please-action@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          config-file: release-please-config.json
-          manifest-file: .release-please-manifest.json
+          # Full history: semantic-release needs the commits since the last tag,
+          # and a shallow clone makes it see none of them.
+          fetch-depth: 0
+          # The release commit is pushed by the job itself. Without this, a
+          # personal fork's token cannot push to the branch it is releasing.
+          persist-credentials: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # No `npm ci` here. semantic-release loads its own plugins into a
+      # temporary directory, and installing this project's dependencies (Playwright
+      # browsers, Turbopack, eslint-config-next) would cost minutes and change
+      # nothing about the version calculation.
+
+      - name: Determine release
+        id: release
+        uses: semantic-release/semantic-release-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # npmPublish is false in .releaserc.json, so no registry token is
+          # needed. The package is private and is never published.
+          #
+          # A push to main always releases. Only a manual run may be a dry run,
+          # and that is decided by the event name, not by whether `inputs` is
+          # empty: on a push `inputs.dry-run` is null, and a truthiness test on
+          # it would silently report a dry run for every real release.
+          dry_run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run || false }}
+
+      - name: Summary
+        if: steps.release.outputs.nextRelease_version != ''
+        run: |
+          {
+            echo "## Released \`${{ steps.release.outputs.nextRelease_version }}\`"
+            echo ""
+            echo "${{ steps.release.outputs.nextRelease_notes }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report that nothing needed a release
+        if: steps.release.outputs.nextRelease_version == ''
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none yet")
+          {
+            echo "No release."
+            echo ""
+            echo "No commit since \`$LAST_TAG\` carries \`feat\`, \`fix\`, \`perf\` or a \`BREAKING CHANGE\`,"
+            echo "so the version was left alone."
+            echo ""
+            echo "\`chore\`, \`ci\`, \`docs\`, \`refactor\`, \`test\`, \`build\` and \`revert\` are recorded in"
+            echo "the history but do not move the version."
+          } >> "$GITHUB_STEP_SUMMARY"

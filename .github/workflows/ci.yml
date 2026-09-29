@@ -1,0 +1,95 @@
+name: CI
+
+# This repository had no pull request checks at all: only `compile-pdf`, which
+# runs on tags, and `Release`, which runs on main. Vercel built the app, so a
+# broken test suite or a failed typecheck surfaced as a red preview deployment
+# rather than as a blocked pull request.
+on:
+  pull_request:
+    branches: [main]
+
+# Read-only. CI reports; it never writes to the repository.
+permissions:
+  contents: read
+
+# A new push supersedes the previous run. Nothing here is worth finishing — the
+# release job is a separate workflow and is not cancelled by this.
+concurrency:
+  group: ci-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # commitlint is given `--from origin/main`, which needs the merge base.
+          # The default shallow clone does not have it, and the range would
+          # silently come back empty — the same "zero commits, looks like it
+          # passed" failure that release-please had.
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Lint commit messages
+        run: npm run lint:commit -- --from origin/${{ github.base_ref }} --to HEAD
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Build
+        run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      # Playwright fetches its own browser binaries; the `--with-deps` step
+      # installs the shared libraries the Chromium build links against, which
+      # are not present on a bare runner image.
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: End-to-end tests
+        run: npm run test:e2e
+
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

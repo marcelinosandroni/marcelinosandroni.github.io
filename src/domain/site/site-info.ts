@@ -4,8 +4,11 @@ import { version as packageVersion } from "../../../package.json";
  * Static site identity. Single source of truth so version strings are never
  * duplicated across components, metadata and footers.
  *
- * The version is read from `package.json` because release automation
- * (release-please) is the only thing allowed to change it.
+ * The version is read from `package.json` because the release automation is the
+ * only thing allowed to change it. `semantic-release` writes the new number
+ * there on every release, commits that change, and tags it; the deployment
+ * built from that commit therefore renders the version it was released as,
+ * rather than a number typed into a component.
  */
 export const SITE_VERSION: string = packageVersion;
 
@@ -18,6 +21,9 @@ export const SITE_VERSION: string = packageVersion;
  * and makes every URL a redirect. Changing this constant is the whole cutover.
  */
 export const SITE_URL = "https://marcelinosandroni.com";
+
+/** Repository slug, used to build the release link shown in the footer. */
+const SITE_REPOSITORY = "marcelinosandroni.github.io";
 
 export const SITE_OWNER = {
   name: "Marcelino Sandroni Dias",
@@ -32,6 +38,20 @@ export const SITE_OWNER = {
   phone: "+55 11 91446-1993",
   location: "Fortaleza, CE, Brasil",
 } as const;
+
+/**
+ * Where the version in the footer can be checked.
+ *
+ * A version in a footer is a claim. Linking it to the release that produced it
+ * lets a reader confirm the claim instead of taking it on trust, which is the
+ * point of publishing one on a repository people are asked to evaluate.
+ *
+ * Built from `SITE_OWNER` and `SITE_VERSION`, so a renamed repository or a
+ * version bump moves this link by construction rather than by remembering to
+ * update it. Declared after both, because a `const` cannot be read before it is
+ * initialised.
+ */
+export const SITE_RELEASE_URL = `${SITE_OWNER.github}/${SITE_REPOSITORY}/releases/tag/v${SITE_VERSION}`;
 
 /** Content freshness stamp shown in the hero (YYYY.MM). */
 export const CONTENT_PERIOD = "2026.08";

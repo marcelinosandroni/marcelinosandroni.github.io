@@ -20,19 +20,31 @@ Não misture mudanças sem relação no mesmo commit. O corpo pode explicar moti
 
 ## Releases
 
-O workflow de Release Please observa a branch `main` e cria um pull request de release. Ao fazer merge:
+O workflow de Release observa a branch `main` e faz tudo em uma passagem, sem
+nenhum pull request intermediário para alguém lembrar de aprovar:
 
-1. atualiza `package.json`, `package-lock.json` e `CHANGELOG.md`;
-2. cria uma tag `vX.Y.Z` seguindo SemVer;
-3. publica a GitHub Release.
+1. lê os commits desde a última tag;
+2. atualiza `package.json`, `package-lock.json` e `CHANGELOG.md`;
+3. cria uma tag `vX.Y.Z` seguindo SemVer;
+4. publica a GitHub Release.
 
 Regras SemVer:
 
 - `fix` e `perf`: patch;
 - `feat`: minor;
-- `BREAKING CHANGE` ou `!`: major.
+- `BREAKING CHANGE` ou `!`: major;
+- `chore`, `ci`, `docs`, `refactor`, `test`, `build`: sem bump.
 
-A aplicação na Vercel deve ser ligada à `main` e usar o commit/tag publicado como referência de produção.
+A mensagem do commit é validada pelo commitlint no CI
+(`npm run lint:commit`). Um type inválido falha o pull request em vez de passar
+despercebido e não gerar versão.
+
+A versão exibida no rodapé vem de `package.json` — não escreva a versão em
+nenhum outro arquivo. Para ver a próxima versão sem publicar, rode o workflow
+`Release` manualmente pelo GitHub Actions: a execução manual é dry run por
+padrão.
+
+Detalhes em [docs/release-process.md](docs/release-process.md).
 
 ## Validação local
 

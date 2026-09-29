@@ -118,17 +118,42 @@ This is the part a reviewer can check mechanically, so it is worth being precise
 | Practice | Where it is enforced |
 |---|---|
 | Strict TypeScript, no `any` | `tsconfig.json`, 0 lint errors |
-| Tests written against behaviour | 311 unit + 74 e2e |
+| Tests written against behaviour | 320 unit + 75 e2e |
 | Bilingual content parity as a **build gate** | PT-BR is the source of truth; every figure, date and count is asserted |
 | No visible string outside a catalog | Enforced by test, including for PDF headings |
 | Accessibility | Semantic landmarks, real accessible names, keyboard-operable, `prefers-reduced-motion` |
 | Privacy by schema, not by promise | Asserted against the migration SQL |
+| Version derived from commits, never typed | `semantic-release` on every merge to `main`; one source, `package.json` |
 
 A few examples of tests that are worth more than their line count:
 
 - **Content parity** — the English resume must mirror the Portuguese one in period, role, seniority, highlight count and case-study count. An abbreviated English version fails CI rather than shipping a weaker impression to an international recruiter.
 - **Never hardcoded** — a test reads the renderer source and fails if a user-facing string reappears in it.
 - **Honest telemetry** — a test fails if the metrics bar claims "uptime" or "99.99%".
+- **Releases cannot be silent** — a commit type that bumps the version but has no changelog section fails a test, so a release can never ship a set of changes its own notes do not mention.
+
+## How a version happens
+
+The footer shows `v0.1.5` and links to the release that produced it. Nobody edits
+that number. On every merge to `main`, `semantic-release` reads the commits since
+the last tag, maps the Conventional Commit type to a SemVer bump, writes the new
+number to `package.json`, commits it, tags `vX.Y.Z`, and opens the GitHub
+Release with a changelog. `feat` is a minor bump, `fix` and `perf` are patch, a
+`BREAKING CHANGE:` is major. `chore`, `ci`, `docs`, `refactor`, `test` and
+`build` are recorded in the history and do not move the number.
+
+There is no release pull request waiting for someone to merge it, because that
+step is where the previous setup stopped: the repository used release-please,
+which reported six consecutive green runs while collecting zero commits and
+producing no tag, no release and no changelog. A green badge on a release job is
+a claim, and a tool that fails quietly is worse than no tool — so a malformed
+commit type now fails commitlint in CI instead, and
+`tests/unit/config/release-contract.test.ts` fails if the commit types, the
+version bumps and the changelog sections stop agreeing with each other.
+
+`docs/release-process.md` has the full flow, including how to run a dry run
+without publishing.
+
 
 ---
 
