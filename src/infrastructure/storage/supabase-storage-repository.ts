@@ -1,10 +1,11 @@
 import type { ResumeArtifact } from "@/application/publication/publish-pdf-resume";
 import type { ArtifactStorageRepository } from "@/application/publication/store-resume-artifact";
-import { supabase } from "@/infrastructure/supabase/supabase-client";
+import { getSupabaseClient } from "@/infrastructure/supabase/supabase-client";
 
 export class SupabaseStorageRepository implements ArtifactStorageRepository {
   async upload(artifact: ResumeArtifact, bucket: string): Promise<string> {
     const path = `${artifact.version.toString()}/${artifact.locale}/${artifact.filename}`;
+    const supabase = getSupabaseClient();
 
     const { data, error } = await supabase.storage
       .from(bucket)
@@ -25,7 +26,7 @@ export class SupabaseStorageRepository implements ArtifactStorageRepository {
   }
 
   async download(path: string, bucket: string): Promise<Buffer> {
-    const { data, error } = await supabase.storage
+    const { data, error } = await getSupabaseClient().storage
       .from(bucket)
       .download(path);
 

@@ -28,6 +28,7 @@ Documentação técnica detalhada e guias específicos:
 | [`pdf-reference-contract.md`](./pdf-reference-contract.md) | Contrato de referência para geração de PDF |
 | [`latex-template-authoring.md`](./latex-template-authoring.md) | Guia para criação de templates LaTeX |
 | [`release-process.md`](./release-process.md) | Processo de release e versionamento |
+| [`supabase-setup.md`](./supabase-setup.md) | Variáveis, autenticação do dono e analytics |
 | [`EXPERIENCES-ENRICHMENT.md`](./EXPERIENCES-ENRICHMENT.md) | Diretrizes para enriquecimento de experiências |
 
 ### 2.1 Architecture Decision Records (ADR) 📋
