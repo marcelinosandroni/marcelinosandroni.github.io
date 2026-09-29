@@ -1,10 +1,11 @@
-import { BlogPreviewSection } from "@/components/home/blog-preview";
+﻿import { BlogPreviewSection } from "@/components/home/blog-preview";
 import { ContactGatewaySection } from "@/components/home/contact-gateway";
 import { HomeHeroSection } from "@/components/home/home-hero";
 import { KpiSection } from "@/components/home/kpi-grid";
 import { TechArsenalSection } from "@/components/home/tech-arsenal";
 import { TrackRecordSection } from "@/components/home/track-record";
 import { ResumeCopilot } from "@/components/ai/resume-copilot";
+import { ClickAnalytics } from "@/components/analytics/click-analytics";
 import { BootSequence } from "@/components/site/boot-sequence";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
@@ -91,6 +92,8 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
           t={t}
         />
       </main>
+
+      <ClickAnalytics labels={t.analytics} />
 
       <SiteFooter
         footer={home.footer}

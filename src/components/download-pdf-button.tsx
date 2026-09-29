@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -75,6 +75,7 @@ export function DownloadPDFButton({ locale, messages, templates }: DownloadPDFBu
             onClick={() => handleDownload()}
             disabled={isLoading}
             className="button button-quiet download-main"
+            data-click="download-pdf"
             aria-busy={isLoading}
             type="button"
           >
@@ -84,6 +85,7 @@ export function DownloadPDFButton({ locale, messages, templates }: DownloadPDFBu
             onClick={() => setIsMenuOpen((open) => !open)}
             disabled={isLoading}
             className="button button-quiet download-toggle"
+            data-click="download-pdf-template-menu"
             aria-expanded={isMenuOpen}
             aria-haspopup="menu"
             aria-label={messages.chooseTemplate}

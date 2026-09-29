@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useId, useState } from "react";
 
@@ -83,6 +83,7 @@ export function ResumeCopilot({ locale, labels }: ResumeCopilotProps) {
           aria-expanded={isOpen}
           aria-controls={transcriptId}
           aria-label={isOpen ? labels.open : labels.openLabel}
+          data-click="copilot-open"
           className="inline-flex items-center gap-space-sm rounded-full border border-border-prominent px-space-md py-space-sm font-label-mono text-label-mono uppercase tracking-widest text-text-secondary transition-colors hover:border-primary-container hover:text-primary-container"
         >
           <span aria-hidden="true">{isOpen ? "▾" : "▸"}</span>
@@ -145,6 +146,7 @@ export function ResumeCopilot({ locale, labels }: ResumeCopilotProps) {
                       <button
                         type="button"
                         onClick={() => void ask(example)}
+                        data-click="copilot-example"
                         className="border border-border-subtle px-space-sm py-1 text-body-sm text-body-sm text-text-secondary transition-colors hover:border-primary-container hover:text-primary-container"
                       >
                         {example}

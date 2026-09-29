@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { Icon } from "@/components/ui/icon";
 import { ACCENT_TEXT } from "@/components/ui/icon";
@@ -80,6 +80,7 @@ export function ArticleCard({ article, locale, t, featured = false }: ArticleCar
         <h3 className="font-headline-md text-headline-md text-text-primary">
           <Link
             href={articlePath(locale, article.slug)}
+            data-click="blog-article"
             className="transition-colors after:absolute after:inset-0 hover:text-primary-container"
           >
             {article.title}
