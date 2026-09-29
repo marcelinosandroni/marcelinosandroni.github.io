@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { Chip, Section, SectionHeading } from "@/components/ui";
 import { ACCENT_TEXT, Icon } from "@/components/ui/icon";

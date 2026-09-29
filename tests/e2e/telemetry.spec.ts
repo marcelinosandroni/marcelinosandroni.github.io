@@ -1,4 +1,4 @@
-﻿import { test, expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 test.describe("Telemetry bar reports only real measurements", () => {
   test("shows timings measured by the browser, not hardcoded values", async ({ page }) => {

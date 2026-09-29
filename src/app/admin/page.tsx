@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 
 import { adminGateFromEnv } from "@/domain/admin";
 import { auth, isAuthEnabled } from "@/infrastructure/auth/auth";
