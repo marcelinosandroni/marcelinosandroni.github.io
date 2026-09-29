@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 
 import { getAlternateLanguageMap, SUPPORTED_LOCALES, type Locale } from "@/domain/i18n";
 import { ArticleSlug } from "@/domain/blog";
+import { toWhatsAppNumber } from "@/domain/portfolio";
+import { SITE_OWNER } from "@/domain/site/site-info";
 import { getHomeContent } from "@/infrastructure/content/home";
 import { getResumeContent } from "@/infrastructure/content";
 import { articlesEnUS, articlesPtBR } from "@/infrastructure/content/blog";
@@ -44,6 +46,7 @@ const ICON_NAMES = new Set([
   "calendar",
   "location",
   "mail",
+  "whatsapp",
   "verified",
   "external",
   "terminal",
@@ -513,6 +516,72 @@ describe("home content: link targets", () => {
   it("keeps the contact brief addressable by a real mailto", () => {
     const email = getResumeContent("en-US").contact.email;
     expect(email).toMatch(/^[^@\s]+@[^@\s]+\.[^@\s]+$/);
+  });
+});
+
+describe("home content: WhatsApp alongside email", () => {
+  const expectedNumber = toWhatsAppNumber(getResumeContent("en-US").contact.phone);
+
+  it("derives one wa.me target from the phone printed on the resume", () => {
+    expect(expectedNumber).toBe("5511914461993");
+  });
+
+  for (const locale of LOCALES) {
+    it(`offers WhatsApp next to email in the ${locale} hero`, () => {
+      const hero = getHomeContent(locale).hero.channels;
+      const whatsapp = hero.find((channel) => channel.id === "whatsapp");
+      const email = hero.find((channel) => channel.id === "email");
+
+      expect(whatsapp?.href).toBe(`https://wa.me/${expectedNumber}`);
+      expect(whatsapp?.icon).toBe("whatsapp");
+      expect(whatsapp?.external).toBe(true);
+      expect(email?.href.startsWith("mailto:")).toBe(true);
+    });
+
+    it(`offers WhatsApp next to email in the ${locale} contact section`, () => {
+      const channels = getHomeContent(locale).contact.channels;
+      const ids = channels.map((channel) => channel.id);
+
+      expect(ids).toContain("whatsapp");
+      expect(ids).toContain("email");
+      // WhatsApp leads: a reader who wants an answer should not have to hunt.
+      expect(ids.indexOf("whatsapp")).toBeLessThan(ids.indexOf("email"));
+      expect(channels.find((channel) => channel.id === "whatsapp")?.href).toBe(
+        `https://wa.me/${expectedNumber}`,
+      );
+    });
+
+    it(`keeps the ${locale} response-time row a fact rather than a link`, () => {
+      const response = getHomeContent(locale).contact.channels.find(
+        (channel) => channel.id === "response",
+      );
+      expect(response?.link).toBe(false);
+    });
+
+    it(`leaves a usable WhatsApp invitation in the ${locale} contact copy`, () => {
+      const contact = getHomeContent(locale).contact;
+
+      expect(contact.whatsapp.ctaLabel.trim().length).toBeGreaterThan(0);
+      expect(contact.whatsapp.message).toContain("{company}");
+      expect(contact.whatsapp.message).toContain("{scope}");
+      expect(contact.narrative).toMatch(/whatsapp/i);
+      expect(contact.statusNote).toMatch(/whatsapp/i);
+    });
+  }
+
+  it("links WhatsApp from the footer in both locales", () => {
+    for (const locale of LOCALES) {
+      const items = getHomeContent(locale)
+        .footer.columns.flatMap((column) => column.items.map((item) => item.href));
+
+      expect(items, locale).toContain(`https://wa.me/${expectedNumber}`);
+    }
+  });
+
+  it("prints the resume phone from the single owner constant", () => {
+    for (const locale of LOCALES) {
+      expect(getResumeContent(locale).contact.phone).toBe(SITE_OWNER.phone);
+    }
   });
 });
 

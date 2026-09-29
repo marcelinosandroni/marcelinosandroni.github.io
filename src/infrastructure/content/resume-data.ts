@@ -1,4 +1,5 @@
 import type { ResumeContent } from "@/domain/resume/types";
+import { SITE_OWNER } from "@/domain/site/site-info";
 
 export const resumeContent: ResumeContent = {
   locale: "pt-BR",
@@ -6,7 +7,7 @@ export const resumeContent: ResumeContent = {
   title: "Engenheiro de Software Sênior",
   location: "Fortaleza, CE (Remoto)",
   contact: {
-    phone: "+55 11 91446-1993",
+    phone: SITE_OWNER.phone,
     email: "marcelino.sandroni@gmail.com",
     linkedin: "linkedin.com/in/marcelinosandroni",
   },

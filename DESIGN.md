@@ -345,6 +345,25 @@ Supporting note      ← body-sm, text-muted, max-w-md, right-aligned on desktop
 uppercase text. Colour of the dot encodes availability: lime = open to work,
 mint = systems healthy, tertiary = in progress.
 
+### 8.9 Contact channels (normative)
+
+- **WhatsApp is the primary contact affordance; email is never removed.** Every
+  surface that shows an email address also shows the WhatsApp number: hero
+  channels, the contact section, the site footer, and the resume document footer.
+- **One phone number, one source.** `SITE_OWNER.phone` is the only literal. The
+  resume content, the rendered links and the PDF all read from it, so a
+  `wa.me` link cannot drift from the number printed on the document.
+- **Links are built, not typed.** `toWhatsAppHref` strips formatting to digits and
+  percent-encodes the prefilled message. A literal `wa.me` URL in content is a
+  defect waiting to happen; the helper is covered by unit tests.
+- **The prefilled message is a template, not a form.** `{company}` and `{scope}`
+  stay visible as em dashes in the reader's own client. Nothing is submitted and
+  nothing is stored.
+- **No tracking, no form, no server dependency** — the same rule that retired the
+  reference form applies to both channels.
+- The response-time row is a fact, not a destination: it renders as plain text
+  (`link: false`) rather than a `mailto:` dressed up as a link.
+
 ---
 
 ## 9. Deliberate deviations from the reference prototype
@@ -363,6 +382,7 @@ behaviours were **deliberately rejected** because they damage the primary goal
 | Codename and pop-culture naming (`NEO`, `AnimateMatrix`, `Minority Report`, "neural uplink") | Systems named for what they do; identifiers reduced to `// ID: MSD-01` | See §1.1. A codename borrowed from a film is a tell that the copy was dressed up rather than earned, and it invites the question of what else is invented. |
 | Boot sequence labelled `COGNITIVE SYS_INIT` / `NEURAL UPLINK READY` | `// SESSION INIT` / `READY. AWAITING INSTRUCTION...`, with the career arithmetic as the payload | The one thing a reader can usefully learn in the first second is the 15 + 6 = 21 progression, not a joke. |
 | Material Symbols icon font | Local inline SVG icon component | No third-party font request, no FOUT, no layout shift, tree-shakeable. |
+| Contact form posting nowhere and answering with `alert()` | Two serverless channels: a primary WhatsApp thread and a pre-addressed email brief | See §8.9. A form that silently discards a message is worse than no form, and a reader who wants an answer wants a conversation, not a form. |
 
 Anything else in the reference that can be reproduced faithfully **must** be
 reproduced faithfully.
