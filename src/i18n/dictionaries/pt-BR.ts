@@ -1,4 +1,4 @@
-﻿import type { Dictionary } from "./en-US";
+import type { Dictionary } from "./en-US";
 
 /**
  * Brazilian Portuguese (pt-BR) message catalog.

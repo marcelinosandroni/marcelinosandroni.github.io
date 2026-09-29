@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { adminPath } from "@/domain/site/routes";
+import { Icon } from "@/components/ui/icon";
 import type { Dictionary } from "@/i18n";
 
 export interface AdminLockProps {
@@ -26,9 +27,11 @@ export function AdminLock({ t }: AdminLockProps) {
       href={adminPath()}
       aria-label={t.admin.accessLabel}
       title={t.admin.accessLabel}
-      className="inline-flex items-center px-2 py-1 text-text-muted opacity-50 transition-opacity hover:opacity-100 focus:opacity-100"
+      className="tap-target min-w-11 justify-center text-text-muted opacity-50 transition-opacity hover:opacity-100 focus:opacity-100"
     >
-      <span aria-hidden="true">🔒</span>
+      {/* The local stroke icon, not a lock emoji: an emoji renders in colour
+          from the OS font and broke the monochrome instrument-panel language. */}
+      <Icon name="shield" size={16} />
     </Link>
   );
 }

@@ -246,7 +246,7 @@
   /* --- Buttons (DESIGN.md §8.1) ----------------------------------------- */
   .button {
     @apply inline-flex cursor-pointer items-center justify-center gap-space-xs rounded-lg font-headline-sm text-headline-sm font-semibold no-underline transition-all duration-200;
-    min-height: 2.5rem;
+    min-height: 2.75rem;
     padding: 0.625rem 1.5rem;
   }
 
@@ -319,7 +319,7 @@
   /* --- Locale switcher (DESIGN.md §7: pill reserved for status only, so
          this is a squared 4px control, not a pill) ------------------------ */
   .language {
-    @apply inline-flex items-center rounded border border-border-subtle bg-surface-overlay px-3 py-2 font-label-mono text-label-mono text-text-secondary uppercase transition-colors;
+    @apply inline-flex min-w-11 items-center justify-center rounded border border-border-subtle bg-surface-overlay px-3 py-2 font-label-mono text-label-mono text-text-secondary uppercase transition-colors;
   }
   .language:hover {
     @apply border-text-secondary text-primary-container;
@@ -331,6 +331,89 @@
   /* --- Editorial rules --------------------------------------------------- */
   .rule {
     @apply block w-12 border-t-2 border-text-primary;
+  }
+}
+
+/* ==========================================================================
+   TOUCH TARGETS
+   ==========================================================================
+
+   A survey of this site at phone widths found 29 interactive elements under
+   the 44px floor: navigation links at 16px, footer links at 18px, the locale
+   switcher at 34px, the icon-only controls at 30-39px. Every one of them was
+   technically clickable and practically missable with a thumb.
+
+   WCAG 2.5.8 (Target Size Minimum, AA) sets the floor at 24px and exempts
+   targets inside a sentence of running text; Apple's HIG and the Material
+   guidance both settle on 44px, which is the number used here.
+*/
+
+@layer components {
+  /*
+     Applied to standalone controls. Opt-in rather than a global `*` rule
+     because a blanket `min-height` on every link would stretch links inside
+     paragraphs and break the text flow.
+  */
+  .tap-target {
+    @apply inline-flex min-h-11 items-center;
+  }
+
+  /*
+     Fades the right edge of a horizontal scroller.
+
+     The header nav holds six labels and cannot fit beside the brand and the
+     controls on a phone. Rather than wrap — which would push the controls onto
+     a second row and double the header height — it scrolls, and this mask is
+     what signals that. Without it the final label is simply cut off and reads
+     as a bug rather than as an invitation to scroll.
+  */
+  .nav-scroller {
+    mask-image: linear-gradient(to right, transparent 0, black 12px, black calc(100% - 24px), transparent 100%);
+  }
+
+  @media (min-width: 48rem) {
+    /* Everything fits from tablet up, so the fade is removed. */
+    .nav-scroller {
+      mask-image: none;
+    }
+  }
+
+  /*
+     For links that live inside running text — an email address in a
+     definition list, a mention in a paragraph. WCAG exempts these from the
+     minimum, but they still get vertical breathing room so the line above and
+     below are easy to hit without the layout shifting.
+  */
+  .tap-target-inline {
+    @apply inline-block py-1;
+  }
+}
+
+/*
+   Coarse-pointer safety net.
+
+   The classes above are applied deliberately, but a new control added later
+   should not silently ship a 16px target. This catches what the classes miss,
+   restricted to coarse pointers so a mouse-driven desktop layout is untouched.
+
+   `pointer: coarse` rather than a width media query, because it keys off how
+   the device actually reports input: a touchscreen laptop and a phone at desktop
+   width both get real targets, and a mouse never does.
+*/
+@media (pointer: coarse) {
+  :where(button, [role="button"], summary, input:not([type="hidden"])) {
+    min-block-size: 44px;
+  }
+
+  /*
+     `min-block-size` is ignored on an inline box, so this only reaches links
+     that establish a block formatting context — which is the standalone
+     controls worth enforcing. Links inside a running paragraph are inline by
+     layout and are exempt under WCAG 2.5.8 anyway, so widening them here
+     would only reflow the text.
+  */
+  :where(a[href]:not(.tap-target-inline)) {
+    min-block-size: 44px;
   }
 }
 

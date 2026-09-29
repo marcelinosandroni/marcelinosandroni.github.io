@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useId, useState } from "react";
 
@@ -84,7 +84,7 @@ export function ResumeCopilot({ locale, labels }: ResumeCopilotProps) {
           aria-controls={transcriptId}
           aria-label={isOpen ? labels.open : labels.openLabel}
           data-click="copilot-open"
-          className="inline-flex items-center gap-space-sm rounded-full border border-border-prominent px-space-md py-space-sm font-label-mono text-label-mono uppercase tracking-widest text-text-secondary transition-colors hover:border-primary-container hover:text-primary-container"
+          className="tap-target gap-space-sm rounded-full border border-border-prominent px-space-md py-space-sm font-label-mono text-label-mono uppercase tracking-widest text-text-secondary transition-colors hover:border-primary-container hover:text-primary-container"
         >
           <span aria-hidden="true">{isOpen ? "▾" : "▸"}</span>
           {isOpen ? labels.open : labels.title}

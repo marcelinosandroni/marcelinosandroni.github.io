@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { Icon } from "@/components/ui/icon";
 import { ACCENT_TEXT } from "@/components/ui/icon";

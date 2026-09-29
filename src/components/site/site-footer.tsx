@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { ClickAnalytics } from "@/components/analytics/click-analytics";
+
 import { Icon } from "@/components/ui/icon";
 import { toWhatsAppHref } from "@/domain/portfolio";
 import { COPYRIGHT_YEAR, SITE_VERSION } from "@/domain/site/site-info";
@@ -52,7 +54,7 @@ export function SiteFooter({ footer, locale, t, email, phone }: SiteFooterProps)
             <div className="flex flex-wrap items-center gap-x-space-lg gap-y-space-sm pt-space-sm font-code-inline text-code-inline">
               <a
                 href={`mailto:${email}`}
-                className="text-primary-container underline-offset-4 hover:underline"
+                className="tap-target text-primary-container underline-offset-4 hover:underline"
               >
                 {email}
               </a>
@@ -60,7 +62,7 @@ export function SiteFooter({ footer, locale, t, email, phone }: SiteFooterProps)
                 href={toWhatsAppHref(phone)}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="inline-flex items-center gap-space-xs text-secondary underline-offset-4 hover:underline"
+                className="tap-target gap-space-xs text-secondary underline-offset-4 hover:underline"
               >
                 <Icon name="whatsapp" size={16} />
                 {phone}
@@ -93,9 +95,20 @@ export function SiteFooter({ footer, locale, t, email, phone }: SiteFooterProps)
               ))}
             </div>
 
-            <p className="font-label-mono text-label-mono text-text-muted">
-              © {COPYRIGHT_YEAR} · {t.footer.versionedResume} · v{SITE_VERSION} · {footer.legalNote}
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-space-md">
+              <p className="font-label-mono text-label-mono text-text-muted">
+                © {COPYRIGHT_YEAR} · {t.footer.versionedResume} · v{SITE_VERSION} · {footer.legalNote}
+              </p>
+
+              {/*
+                The engagement panel lives in the footer rather than floating
+                over the page. Fixed to the corner it sat on top of running text
+                on a phone — full-bleed paragraphs leave no gutter for a
+                floating control — and it is a tool for the owner, not something
+                a reader needs mid-article.
+              */}
+              <ClickAnalytics labels={t.analytics} />
+            </div>
           </div>
         </div>
       </div>
@@ -115,7 +128,7 @@ function FooterLink({
   children: React.ReactNode;
 }) {
   const classes =
-    "flex items-center gap-space-xs font-body-sm text-body-sm text-text-secondary transition-colors hover:text-primary-container";
+    "tap-target flex items-center gap-space-xs font-body-sm text-body-sm text-text-secondary transition-colors hover:text-primary-container";
 
   if (external) {
     return (

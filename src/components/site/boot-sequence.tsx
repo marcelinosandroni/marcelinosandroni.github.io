@@ -220,31 +220,44 @@ export function BootSequence({
       >
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full opacity-45" />
 
-        <div className="relative z-10 mx-auto flex w-full max-w-5xl items-center justify-between font-label-mono text-label-mono text-text-muted">
-          <span className="flex items-center gap-space-xs">
-            <span className="msd-pulse inline-block h-2 w-2 rounded-full bg-primary-container" />
-            <span className="font-bold tracking-widest text-primary-container">{statusLabel}</span>
+        <div className="relative z-10 mx-auto flex w-full max-w-5xl items-center justify-between gap-space-sm font-label-mono text-label-mono text-text-muted">
+          {/*
+            `min-w-0` plus wrapping: the status line is a full sentence in a
+            monospaced face with wide tracking, so on a phone it is far wider
+            than the viewport. A flex child defaults to `min-width: auto` and
+            therefore refuses to shrink, which pushed the overlay 90px past the
+            screen edge. Letting it wrap is better than truncating it, because
+            the whole sentence is the message.
+          */}
+          <span className="flex min-w-0 flex-wrap items-center gap-space-xs">
+            <span className="msd-pulse inline-block h-2 w-2 shrink-0 rounded-full bg-primary-container" />
+            <span className="min-w-0 break-words font-bold tracking-widest text-primary-container">
+              {statusLabel}
+            </span>
           </span>
-          <span className="hidden text-text-secondary sm:inline">SESSION // 001</span>
+          <span className="hidden shrink-0 text-text-secondary sm:inline">SESSION // 001</span>
         </div>
 
-        <div className="relative z-10 mx-auto w-full max-w-xl rounded-xl bg-surface-raised/90 p-space-xl shadow-2xl backdrop-blur-xl">
-          <div className="flex items-center justify-between pb-space-sm">
+        <div className="relative z-10 mx-auto w-full max-w-xl rounded-xl bg-surface-raised/90 p-space-lg shadow-2xl backdrop-blur-xl sm:p-space-xl">
+          <div className="flex items-center justify-between gap-space-sm pb-space-sm">
             <span className="font-label-mono text-label-mono uppercase tracking-widest text-text-secondary">
               {"// SESSION INIT"}
             </span>
-            <span className="font-label-mono text-label-mono text-primary-container">[SECURE]</span>
+            <span className="shrink-0 font-label-mono text-label-mono text-primary-container">[SECURE]</span>
           </div>
           <div className="space-y-space-xs font-code-inline text-code-inline text-text-muted">
             {diagnostics.map((line, index) => (
               <p
                 key={line}
+                // `break-words` because these are terminal-style lines in a
+                // monospaced face; a long token such as an identifier must wrap
+                // rather than force the overlay wider than a phone screen.
                 className={
                   index === diagnostics.length - 1
-                    ? "font-bold text-primary-container"
+                    ? "break-words font-bold text-primary-container"
                     : index % 2 === 0
-                      ? "text-text-secondary"
-                      : "text-on-surface"
+                      ? "break-words text-text-secondary"
+                      : "break-words text-on-surface"
                 }
               >
                 {line}
@@ -263,7 +276,7 @@ export function BootSequence({
         type="button"
         onClick={dismiss}
         aria-label={skipLabel}
-        className="pointer-events-auto absolute bottom-4 right-4 cursor-pointer rounded border border-border-subtle bg-surface-overlay/90 px-space-sm py-2 font-label-mono text-label-mono uppercase text-text-primary backdrop-blur-md transition-colors hover:border-primary-container hover:text-primary-container"
+        className="tap-target pointer-events-auto absolute bottom-4 right-4 cursor-pointer rounded border border-border-subtle bg-surface-overlay/90 px-space-sm py-2 font-label-mono text-label-mono uppercase text-text-primary backdrop-blur-md transition-colors hover:border-primary-container hover:text-primary-container"
       >
         {skipLabel}
       </button>

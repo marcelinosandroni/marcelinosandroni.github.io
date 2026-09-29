@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { readFile } from "node:fs/promises";
 import { ResumeVersion } from "@/domain/publication/resume-version";
 import { LaTeXResumeRenderer } from "@/infrastructure/renderers/latex-resume-renderer";
