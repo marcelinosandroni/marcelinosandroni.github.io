@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { JetBrains_Mono, Manrope, Playfair_Display } from "next/font/google";
 
@@ -13,6 +13,7 @@ import {
 } from "@/domain/i18n";
 import { SITE_OWNER, SITE_URL } from "@/domain/site/site-info";
 import { getDictionary } from "@/i18n";
+import { TelemetryBar } from "@/components/telemetry/telemetry-bar";
 import "../globals.css";
 
 /*
@@ -131,7 +132,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
       data-scroll-behavior="smooth"
       className={`${manrope.variable} ${jetBrainsMono.variable} ${playfairDisplay.variable}`}
     >
-      <body>
+      <body className="pb-10">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -139,6 +140,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           }}
         />
         {children}
+        <TelemetryBar labels={t.telemetry} />
       </body>
     </html>
   );

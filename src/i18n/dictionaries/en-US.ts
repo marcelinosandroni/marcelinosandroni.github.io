@@ -1,4 +1,4 @@
-/**
+﻿/**
  * English (en-US) message catalog — the reference locale.
  *
  * This module defines the `Dictionary` contract: every other locale must
@@ -253,13 +253,11 @@ export const enUS = {
     unknownElement: "other",
   },
   telemetry: {
-    label: "Live request metrics",
+    label: "This page's real load metrics",
     ttfb: "TTFB",
     domContentLoaded: "DOM ready",
     loadComplete: "Loaded",
-    edgeRegion: "Edge region",
-    region: "Local",
-    collecting: "measuring…",
+    unavailable: "not measurable in this browser",
   },
 };
 
