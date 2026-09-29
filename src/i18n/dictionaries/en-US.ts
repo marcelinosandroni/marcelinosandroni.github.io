@@ -238,6 +238,7 @@ export const enUS = {
     sent: "Check your inbox. The link expires shortly and can be used once.",
     invalidEmail: "That does not look like a valid email address.",
     notAllowed: "This address is not authorised for this site.",
+    notConfigured: "Owner sign-in is not configured on this deployment. Set ADMIN_EMAIL, AUTH_SECRET and RESEND_API_KEY.",
     backToSite: "Back to the site",
     signOut: "Sign out",
     signedInAs: "Signed in as {email}",
