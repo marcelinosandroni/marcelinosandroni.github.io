@@ -4,7 +4,7 @@ import { ClickAnalytics } from "@/components/analytics/click-analytics";
 
 import { Icon } from "@/components/ui/icon";
 import { toWhatsAppHref } from "@/domain/portfolio";
-import { COPYRIGHT_YEAR, SITE_VERSION } from "@/domain/site/site-info";
+import { COPYRIGHT_YEAR, SITE_RELEASE_URL, SITE_VERSION } from "@/domain/site/site-info";
 import type { HomeFooter } from "@/domain/portfolio";
 import type { Locale } from "@/domain/i18n";
 import { toLocaleSegment } from "@/domain/i18n";
@@ -97,7 +97,23 @@ export function SiteFooter({ footer, locale, t, email, phone }: SiteFooterProps)
 
             <div className="flex flex-wrap items-center justify-between gap-space-md">
               <p className="font-label-mono text-label-mono text-text-muted">
-                © {COPYRIGHT_YEAR} · {t.footer.versionedResume} · v{SITE_VERSION} · {footer.legalNote}
+                © {COPYRIGHT_YEAR} · {t.footer.versionedResume}{" "}
+                {/*
+                  The version links to the release that produced it, so the
+                  number is a fact the reader can check rather than a claim.
+                  `no-underline` because the string sits inside a sentence
+                  between two dots; an underline here would read as a new element
+                  rather than a detail.
+                */}
+                <a
+                  href={SITE_RELEASE_URL}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="tap-target-inline no-underline transition-colors hover:text-text-secondary hover:underline"
+                >
+                  v{SITE_VERSION}
+                </a>{" "}
+                · {footer.legalNote}
               </p>
 
               {/*
