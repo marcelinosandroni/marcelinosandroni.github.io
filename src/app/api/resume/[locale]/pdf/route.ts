@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { join, dirname } from "node:path";
 import { readFileSync, mkdirSync } from "node:fs";
-import { ResumeVersion } from "@/domain/publication/resume-version";
+import { CURRENT_RESUME_VERSION } from "@/domain/publication/current-resume-version";
 import { BuildResumeDocument } from "@/application/publication/build-resume-document";
 import { PublishPDFResume } from "@/application/publication/publish-pdf-resume";
 import { LaTeXResumeRenderer } from "@/infrastructure/renderers/latex-resume-renderer";
@@ -62,7 +62,7 @@ export async function GET(
       throw new InvalidTemplateError(`Invalid template: ${requestedTemplate}`, { providedTemplate: requestedTemplate });
     }
 
-    const version = ResumeVersion.create("0.1.28");
+    const version = CURRENT_RESUME_VERSION;
     const renderer = new LaTeXResumeRenderer(templateId);
     const compiler = new DockerPDFCompiler(30000);
     const builder = new BuildResumeDocument(renderer);

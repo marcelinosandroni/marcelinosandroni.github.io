@@ -130,7 +130,13 @@ describe("release contract", () => {
     const bumpTypes = new Set(RELEASE_RULES.filter((r) => r.type).map((r) => r.type as string));
     const silent = COMMIT_TYPES.filter((type) => !sectionTypes.has(type) && !bumpTypes.has(type));
 
-    expect(silent.sort()).toEqual(["build", "chore", "ci", "docs", "refactor", "test"]);
+    /*
+     * `refactor` moved out of this list and into the bumping set: a refactor
+     * changes shipped behaviour, and the owner's rule is that the app version
+     * moves on anything that affects the app or the resume. What is left here is
+     * genuinely invisible to a reader of the site — it is process, not product.
+     */
+    expect(silent.sort()).toEqual(["build", "chore", "ci", "docs", "test"]);
   });
 
   it("treats a breaking change as a major bump regardless of its type", () => {
@@ -177,6 +183,33 @@ describe("release contract", () => {
         declared,
         `preset "${preset}" is named in .releaserc.json but conventional-changelog-${preset} is not a declared dependency`,
       ).toContain(`conventional-changelog-${preset}`);
+    }
+  });
+
+  it("moves the app version on anything that changes the app or the resume", () => {
+    /*
+     * The owner's rule, encoded: the app version is not a release train, it is a
+     * statement about what a reader can currently do. So anything that changes
+     * shipped behaviour bumps it.
+     *
+     * `refactor` is the one that is easy to get wrong. It was previously silent,
+     * on the assumption that an internal rearrangement is not a change to the
+     * product — but a refactor that moves a module, renames a token or rewrites a
+     * route is a change the next reader has to review, and a version that does
+     * not move is a version that lies about it.
+     *
+     * `chore`, `ci`, `test`, `build` and `docs` stay silent on purpose: they are
+     * process, not product, and bumping for a lockfile change would train a
+     * reader to ignore the number.
+     */
+    const bumps = new Set(RELEASE_RULES.filter((rule) => rule.type).map((rule) => rule.type as string));
+
+    for (const type of ["feat", "fix", "perf", "refactor"]) {
+      expect(bumps, `${type} changes the app but does not move the version`).toContain(type);
+    }
+
+    for (const type of ["chore", "ci", "test", "build", "docs"]) {
+      expect(bumps.has(type), `${type} is process, not product, and must not bump`).toBe(false);
     }
   });
 
