@@ -1,6 +1,18 @@
-import { Section } from "@/components/ui";
+﻿import { Section } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
 import { toWhatsAppHref } from "@/domain/portfolio";
+/**
+ * Contact channels mapped onto the aggregate allowlist.
+ *
+ * Only the destinations that represent a real decision are counted. Social
+ * profiles are excluded on purpose: "did they click LinkedIn" is a question
+ * about a person's browsing habits, and the portfolio has no use for the answer.
+ */
+const CONTACT_CLICK_IDS: Record<string, string | undefined> = {
+  email: "contact-email",
+  whatsapp: "contact-whatsapp",
+  phone: "contact-phone",
+};
 import type { HomeContact } from "@/domain/portfolio";
 import type { Dictionary } from "@/i18n";
 import { formatMessage } from "@/i18n/format-message";
@@ -81,6 +93,7 @@ export function ContactGatewaySection({ section, email, phone, t }: ContactGatew
                     ) : (
                       <a
                         href={channel.href}
+                        data-click={CONTACT_CLICK_IDS[channel.id] ?? undefined}
                         className="truncate font-bold transition-colors hover:text-primary-container"
                         {...(channel.external
                           ? { target: "_blank", rel: "noreferrer noopener" }
