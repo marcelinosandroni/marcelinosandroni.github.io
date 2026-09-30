@@ -6,7 +6,7 @@ import { TechArsenalSection } from "@/components/home/tech-arsenal";
 import { TrackRecordSection } from "@/components/home/track-record";
 import { ResumeCopilot } from "@/components/ai/resume-copilot";
 import { VisitorChat } from "@/components/chat/visitor-chat";
-import { BootSequence } from "@/components/site/boot-sequence";
+import { FirstVisitIntro } from "@/components/site/first-visit-intro";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import type { Locale } from "@/domain/i18n";
@@ -56,13 +56,17 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
         {t.a11y.skipToContent}
       </a>
 
-      <BootSequence
-        statusLabel={home.hero.statusPill}
-        skipLabel={t.boot.skip}
-        hint={t.boot.hint}
-        ownerLine={resume.name}
-        diagnostics={BOOT_DIAGNOSTICS[locale]}
-      />
+      {/*
+        The arrival, for a reader who has not been here before. It replaces the
+        old boot sequence rather than sitting in front of it: two full-screen
+        openings on one page is one too many, and the old one told the reader
+        nothing except that the site had a splash screen.
+
+        The portrait is 640px. The 1280 derivative exists for retina but the
+        frame is capped at 26rem, so a reader on a 4K display gets a soft edge
+        rather than a 12MB image.
+      */}
+      <FirstVisitIntro portrait="/portrait-640.webp" logLines={BOOT_DIAGNOSTICS[locale]} />
 
       <SiteHeader locale={locale} t={t} sections={sections} />
 

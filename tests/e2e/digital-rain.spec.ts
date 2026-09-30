@@ -79,6 +79,16 @@ test.describe("Digital rain", () => {
   });
 
   test("the navigation overlay is the same component", async ({ page }) => {
+    // The first-visit arrival is a full-screen layer, and the click below would
+    // land on it and abandon it instead of navigating. Seed the intro as already
+    // seen so this test is about the overlay and nothing else.
+    await page.addInitScript(() => {
+      window.localStorage.setItem(
+        "msd:intro-seen:v1",
+        JSON.stringify({ seenAt: Date.now(), lastActiveAt: Date.now() }),
+      );
+    });
+
     await page.goto("/en-us");
 
     // Slow the route down so the overlay has a reason to appear.

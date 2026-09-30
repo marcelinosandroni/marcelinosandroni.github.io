@@ -9,6 +9,7 @@ import {
   earliestEasterEggAt,
   evaluateEasterEgg,
   firstEggDueAt,
+  isEasterEggId,
   pickEasterEgg,
   readEasterEggHistory,
   readForcedEasterEggId,
@@ -176,10 +177,21 @@ function readForcedId(): EasterEggId | null {
 }
 
 export function MatrixEasterEgg({
-  labels,
-}: {
-  labels: MatrixEasterEggLabels;
-}): React.ReactElement | null {
+      labels,
+      requestedId,
+    }: {
+      labels: MatrixEasterEggLabels;
+      /**
+       * Show this catalogue entry now, bypassing the *schedule* but not the gates.
+       *
+       * `/eastereggs` uses it to show one egg on demand; the e2e suite uses the
+       * same seam. The theme gate, the reduced-motion gate, the dialog check and
+       * the per-visit budget all still apply — which is the only way those four
+       * could be tested at all. What it skips is the wait, because a test cannot
+       * wait seven minutes for a reader to stop touching the page.
+       */
+      requestedId?: string;
+    }): React.ReactElement | null {
   const theme = useSyncExternalStore(subscribeToTheme, readRenderedTheme, readThemeOnServer);
   const prefersReducedMotion = useSyncExternalStore(
     NO_SUBSCRIPTION,
@@ -370,9 +382,9 @@ export function MatrixEasterEgg({
   /* The seam, read once per mount: it is a property of the URL, not of state. */
   useEffect(() => {
     armRef.current = arm;
-    forcedIdRef.current = readForcedId();
+    forcedIdRef.current = readForcedId() ?? (isEasterEggId(requestedId) ? requestedId : null);
     arm();
-  }, [arm]);
+  }, [arm, requestedId]);
 
   /*
      Deliberate interaction.
