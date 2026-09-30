@@ -14,6 +14,19 @@ test.describe("Localized routing and PDF download", () => {
     await expect(page.locator("h1")).toContainText("Marcelino Sandroni Dias");
     await expect(page.locator(".hero-title")).toContainText("Senior Software Engineer");
     await expect(page.locator("#experience h2")).toContainText("Experience");
+  });
+
+  test("keeps the PDF download off the hero and on the full resume page", async ({ page }) => {
+    /*
+     * The download is deliberately only on /[locale]/resume. A 200KB download is
+     * not a decision a visitor should have to make from the hero, before they know
+     * what they are getting, so its absence there is the contract.
+     */
+    await page.goto("/en-us");
+
+    await expect(page.getByRole("button", { name: /download pdf/i })).toHaveCount(0);
+
+    await page.goto("/en-us/resume");
 
     const downloadButton = page.getByRole("button", { name: /download pdf/i });
     await expect(downloadButton).toBeVisible();
@@ -32,6 +45,10 @@ test.describe("Localized routing and PDF download", () => {
     await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
     await expect(page.locator(".hero-title")).toContainText("Engenheiro de Software Sênior");
     await expect(page.locator("#experience h2")).toContainText("Experiência");
+
+    await expect(page.getByRole("button", { name: /baixar pdf/i })).toHaveCount(0);
+
+    await page.goto("/pt-br/resume");
 
     const downloadButton = page.getByRole("button", { name: /baixar pdf/i });
     const downloadPromise = page.waitForEvent("download");
@@ -133,7 +150,7 @@ test.describe("Localized routing and PDF download", () => {
       await route.continue();
     });
 
-    await page.goto("/pt-br");
+    await page.goto("/pt-br/resume");
     // The loading state only exists once the client island has hydrated, so wait
     // for the page to be interactive before clicking. Without this the click can
     // land on a not-yet-hydrated button and no state is ever set.
@@ -156,11 +173,10 @@ test.describe("Localized routing and PDF download", () => {
 
     await expect(page.getByLabel(/back to top/i)).toBeVisible();
     await expect(page.getByRole("navigation", { name: /main navigation/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /download pdf/i })).toBeEnabled();
   });
 
   test("downloads the selected alternate template from the arrow menu", async ({ page }) => {
-    await page.goto("/en-us");
+    await page.goto("/en-us/resume");
 
     await page.getByRole("button", { name: /choose pdf template/i }).click();
 

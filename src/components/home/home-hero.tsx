@@ -1,19 +1,13 @@
-import { DownloadPDFButton } from "@/components/download-pdf-button";
 import { ChannelLink, StatusPill } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
-import type { Locale } from "@/domain/i18n";
 import type { HomeHero } from "@/domain/portfolio";
-import type { ResumeTemplateId } from "@/infrastructure/pdf/resume-template-registry";
 import type { Dictionary } from "@/i18n";
 
 import { PortraitFrame } from "./portrait-frame";
 
 export interface HomeHeroSectionProps {
   hero: HomeHero;
-  locale: Locale;
   t: Dictionary;
-  /** Template metadata for the PDF island, already translated. */
-  pdfTemplates: { id: ResumeTemplateId; label: string; description: string }[];
 }
 
 /**
@@ -23,7 +17,7 @@ export interface HomeHeroSectionProps {
  * a separate element: it keeps a single, correctly-outlined `<h1>` while making
  * the name the first thing a recruiter's eye lands on.
  */
-export function HomeHeroSection({ hero, locale, t, pdfTemplates }: HomeHeroSectionProps) {
+export function HomeHeroSection({ hero, t }: HomeHeroSectionProps) {
   return (
     <section
       id="top"
@@ -88,17 +82,13 @@ export function HomeHeroSection({ hero, locale, t, pdfTemplates }: HomeHeroSecti
                 {hero.secondaryAction.label}
                 <Icon name="arrow-down" size={18} />
               </a>
-              <DownloadPDFButton
-                locale={locale}
-                templates={pdfTemplates}
-                messages={{
-                  download: t.pdf.download,
-                  generating: t.pdf.generating,
-                  failed: t.pdf.failed,
-                  unknownError: t.pdf.unknownError,
-                  chooseTemplate: t.pdf.chooseTemplate,
-                }}
-              />
+              {/*
+                The PDF download used to live here too. It is now only on the
+                full resume page (/[locale]/resume), which is where a visitor
+                goes when they actually want the document. Two entrances to the
+                same 200KB download was a decision the visitor had to make
+                before they knew what they were getting.
+              */}
             </div>
 
             <div className="flex flex-wrap items-center gap-x-space-lg gap-y-space-sm pt-space-md font-label-mono text-label-mono text-text-muted">

@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import { readFile } from "node:fs/promises";
 import { ResumeVersion } from "@/domain/publication/resume-version";
 import { LaTeXResumeRenderer } from "@/infrastructure/renderers/latex-resume-renderer";
+import { escapeLatex as escapeForTest } from "@/infrastructure/renderers/latex-escape";
 import { labelsFor } from "../../fixtures/pdf-labels";
+
+/** Labels that become a `\section{}` heading. */
+const SECTION_LABELS = ["summary", "skills", "experience", "education", "languages"] as const;
 
 const sampleContent = {
   locale: "pt-BR" as const,
@@ -42,16 +46,42 @@ const sampleContent = {
   languages: ["Português: Nativo", "Inglês: Profissional"],
 };
 
-/** Mirrors the escaping applied by the renderer before text reaches LaTeX. */
-function escapeLatex(text: string): string {
-  return text
-    .replace(/\\/g, "\\textbackslash{}")
-    .replace(/&/g, "\\&")
-    .replace(/%/g, "\\%")
-    .replace(/\$/g, "\\$")
-    .replace(/#/g, "\\#")
-    .replace(/_/g, "\\_");
-}
+/**
+ * The renderer is the one that escapes. This used to be a local copy of the
+ * escaping chain, which meant the test asserted against a second implementation
+ * of the rule rather than the one that runs — and the copy was missing the
+ * typography, so it agreed with the bug it should have caught.
+ */
+const escapeLatex = escapeForTest;
+
+/**
+ * Content carrying the fields only the REFERENCE template reads: scope, team
+ * size, the stack and case studies. Without these the detailed path is never
+ * exercised, and a test over it would pass without proving anything.
+ */
+const detailedSampleContent = {
+  ...sampleContent,
+  experiences: [
+    {
+      ...sampleContent.experiences[0],
+      scope: "Sistemas críticos de segurança pública",
+      teamSize: 10,
+      technologies: ["Go", ".NET", "ClickHouse"],
+      caseStudies: [
+        {
+          title: "Plataforma de segurança preditiva",
+          challenge: "Reação tardia a incidentes",
+          solution: "Integração de feeds em tempo real",
+          result: "Operacional em múltiplas cidades",
+          metrics: [
+            { value: "100M", label: "eventos diários" },
+            { value: "35%", label: "redução de crimes" },
+          ],
+        },
+      ],
+    },
+  ],
+};
 
 describe("LaTeXResumeRenderer", () => {
   it("renders valid LaTeX document with all sections", async () => {
@@ -123,7 +153,7 @@ describe("LaTeXResumeRenderer", () => {
     expect(result.content.indexOf("Core Skills \\& Arquitetura")).toBeLessThan(result.content.indexOf("Experiência Profissional"));
   });
 
-  it("prints the headings it is given, for any locale", async () => {
+  it("prints every section heading it is given, for any locale and template", async () => {
     // Guards the contract that no heading is hardcoded in the renderer: whatever
     // the catalog resolves must be what reaches the document, after escaping.
     for (const locale of ["pt-BR", "en-US"] as const) {
@@ -132,16 +162,72 @@ describe("LaTeXResumeRenderer", () => {
         const result = await new LaTeXResumeRenderer(templateId).render({
           version: ResumeVersion.create("1.0.0"),
           locale,
-          content: sampleContent,
+          content: detailedSampleContent,
           labels,
         });
 
-        for (const heading of Object.values(labels)) {
-          expect(result.content, `${locale}/${templateId} must print "${heading}"`).toContain(
-            `\\section{${escapeLatex(heading)}}`,
+        for (const key of SECTION_LABELS) {
+          expect(result.content, `${locale}/${templateId} must print "${key}"`).toContain(
+            `\\section{${escapeLatex(labels[key])}}`,
           );
         }
       }
+    }
+  });
+
+  it("prints the detail in REFERENCE, where it belongs", async () => {
+    for (const locale of ["pt-BR", "en-US"] as const) {
+      const labels = await labelsFor(locale, "REFERENCE");
+      const result = await new LaTeXResumeRenderer("REFERENCE").render({
+        version: ResumeVersion.create("1.0.0"),
+        locale,
+        content: detailedSampleContent,
+        labels,
+      });
+
+      const first = detailedSampleContent.experiences[0];
+
+      // teamSize is a template, not a literal: "{n}" has to be the real number,
+      // otherwise the document ships the placeholder to the reader.
+      expect(result.content).toContain(escapeLatex(labels.teamSize.replace("{n}", "10")));
+      expect(result.content).not.toContain("{n}");
+
+      // The stack heading and the technologies under it.
+      expect(result.content).toContain(escapeLatex(labels.stack));
+      expect(result.content).toContain("ClickHouse");
+
+      // The case study, label by label, with its text.
+      for (const [key, text] of [
+        ["challenge", first.caseStudies[0].challenge],
+        ["solution", first.caseStudies[0].solution],
+        ["result", first.caseStudies[0].result],
+      ] as const) {
+        expect(result.content, `${locale}/REFERENCE must use "${key}"`).toContain(escapeLatex(labels[key]));
+        expect(result.content, `${locale}/REFERENCE must carry the ${key} text`).toContain(escapeLatex(text));
+      }
+    }
+  });
+
+  it("keeps the detail out of CLEAN, which is the point of having two templates", async () => {
+    for (const locale of ["pt-BR", "en-US"] as const) {
+      const result = await new LaTeXResumeRenderer("CLEAN").render({
+        version: ResumeVersion.create("1.0.0"),
+        locale,
+        content: detailedSampleContent,
+        labels: await labelsFor(locale, "CLEAN"),
+      });
+
+      const first = detailedSampleContent.experiences[0];
+
+      // Asserted on content rather than on label text: the word "Stack" appears in
+      // this sample's summary as "Full Stack", so checking for the label string
+      // would fail for a reason that has nothing to do with the template.
+      expect(result.content, `${locale}/CLEAN must drop the case studies`).not.toContain(
+        escapeLatex(first.caseStudies[0].challenge),
+      );
+      expect(result.content, `${locale}/CLEAN must drop the technologies`).not.toContain("ClickHouse");
+      expect(result.content, `${locale}/CLEAN must drop the scope`).not.toContain(escapeLatex(first.scope));
+      expect(result.content, `${locale}/CLEAN must not leak the team size placeholder`).not.toContain("{n}");
     }
   });
 
