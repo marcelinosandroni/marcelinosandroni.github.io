@@ -91,7 +91,14 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
       ),
     },
     twitter: {
-      card: "summary",
+      /*
+        `summary_large_image`, not `summary`. X renders the small card for
+        `summary` and ignores `og:image` entirely, so every generated card —
+        including the per-article ones — would have been invisible on the network
+        where sharing happens most. Same metadata either way; only the card size
+        changes.
+      */
+      card: "summary_large_image",
       title: t.metadata.title,
       description: t.metadata.openGraphDescription,
     },

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { DEFAULT_LOCALE } from "@/domain/i18n";
 import { homePath } from "@/domain/site/routes";
+import { SITE_URL } from "@/domain/site/site-info";
 import { getDictionary } from "@/i18n";
 import "./globals.css";
 
@@ -22,6 +23,17 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "404",
   robots: { index: false, follow: false },
+  /*
+   * The root `opengraph-image.tsx` is collected for this page, because it renders
+   * at the root segment. Resolving that image to an absolute URL needs a
+   * `metadataBase`, and the locale layout's does not reach here — without it the
+   * 404 shipped `http://localhost:3000/opengraph-image` as its `og:image`.
+   *
+   * Harmless in practice (the page is `noindex` and nobody shares a 404), but a
+   * localhost URL in shipped metadata is the kind of thing that becomes a real
+   * problem the day a crawler starts fetching it.
+   */
+  metadataBase: new URL(SITE_URL),
 };
 
 export default async function GlobalNotFound() {

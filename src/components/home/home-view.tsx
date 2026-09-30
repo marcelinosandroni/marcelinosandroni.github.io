@@ -5,6 +5,7 @@ import { KpiSection } from "@/components/home/kpi-grid";
 import { TechArsenalSection } from "@/components/home/tech-arsenal";
 import { TrackRecordSection } from "@/components/home/track-record";
 import { ResumeCopilot } from "@/components/ai/resume-copilot";
+import { VisitorChat } from "@/components/chat/visitor-chat";
 import { BootSequence } from "@/components/site/boot-sequence";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
@@ -76,6 +77,18 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
           openResumeLabel={home.trackRecord.resumeCtaLabel}
         />
         <ResumeCopilot locale={locale} labels={t.copilot} />
+        {/*
+          The visitor's side of the conversation, and it renders nothing at all
+          until the owner has actually opened a conversation with that visitor.
+          That is the product rule — a chat nobody has asked for is an
+          interruption — so mounting it here is what costs a heartbeat and no
+          visible surface.
+
+          No `locale` prop: the component reads it from the document, so a
+          conversation started in one locale and continued in the other does not
+          silently switch the language of the owner's own replies.
+        */}
+        <VisitorChat labels={t.chat} />
         <BlogPreviewSection section={home.blog} locale={locale} t={t} />
         <ContactGatewaySection
           section={home.contact}

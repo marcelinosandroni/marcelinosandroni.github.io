@@ -8,6 +8,16 @@ import { getDictionary } from "@/i18n";
 import { DEFAULT_LOCALE } from "@/domain/i18n";
 import { AdminSignIn } from "@/components/admin/admin-sign-in";
 import { ThemeFeedbackPanel } from "@/components/admin/theme-feedback-panel";
+import { PostEditor } from "@/components/admin/post-editor";
+import { ChatConsole } from "@/components/admin/chat-console";
+import { ListOnlineVisitors } from "@/application/presence/track-visitors";
+import type { PresenceBoard } from "@/application/presence/track-visitors";
+import { ListConversations } from "@/application/chat/conversation";
+import { createPresenceRealtime } from "@/infrastructure/supabase/presence-realtime";
+import type { ConversationSummary } from "@/domain/chat/message";
+import { ListPosts } from "@/application/blog/manage-posts";
+import type { PostSummary } from "@/domain/blog/post-draft";
+import { getPostRepository } from "@/infrastructure/repositories/supabase-post-repository";
 
 /**
  * Never indexable. A private area that a search engine can read the existence of
@@ -63,6 +73,58 @@ export default async function AdminPage() {
     counts = [];
   }
 
+  /*
+   * The post list is read on the server for the same reason, and with one extra
+   * consequence: the editor then refetches only after a mutation, so there is no
+   * fetch-on-mount effect to cascade a render after hydration.
+   *
+   * Unlike the counts, a failure here is reported rather than rendered as an
+   * empty list. "You have written nothing" and "the CMS is broken" need opposite
+   * reactions, and a CMS that looked empty would be indistinguishable from a
+   * fresh one.
+   */
+  let postList: PostSummary[] | null = null;
+
+  try {
+    const repository = getPostRepository();
+
+    postList =
+      repository === null
+        ? null
+        : await new ListPosts(repository).execute();
+  } catch {
+    postList = null;
+  }
+
+  /*
+   * The presence board, read on the server for the same reason as the two lists
+   * above and with one extra consequence: the console then polls only, so there is
+   * no fetch-on-mount effect to cascade a render after hydration.
+   *
+   * Like the counts and unlike the post list, a failure is rendered as an empty
+   * state rather than reported as an error — but "nobody is online" and "the
+   * presence table is unreadable" are different facts, so the console is handed
+   * `null` and says the second one itself. That is the PostEditor's arrangement
+   * inverted on purpose: an empty visitor list is a plausible reading of a working
+   * site, so claiming it would be a guess.
+   */
+  let board: PresenceBoard | null = null;
+  let conversationList: ReadonlyArray<ConversationSummary> | null = null;
+
+  try {
+    const realtime = createPresenceRealtime();
+
+    if (realtime !== null) {
+      [board, conversationList] = await Promise.all([
+        new ListOnlineVisitors(realtime.presence).execute(),
+        new ListConversations(realtime.chat).execute(),
+      ]);
+    }
+  } catch {
+    board = null;
+    conversationList = null;
+  }
+
   return (
     <main className="mx-auto w-full max-w-[1320px] px-margin py-space-lg md:px-margin-tablet lg:px-margin-desktop">
       <section className="border border-border-subtle bg-surface-raised p-space-md">
@@ -74,6 +136,39 @@ export default async function AdminPage() {
 
       <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
         <ThemeFeedbackPanel counts={counts} />
+      </div>
+
+      {/*
+        Rendered only after the session is confirmed — the early return above
+        handles the unauthenticated case — so an anonymous request never receives
+        a post title, a slug or a status in its payload.
+      */}
+      <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+        <PostEditor t={t} locale={DEFAULT_LOCALE} initialPosts={postList} />
+      </div>
+
+      {/*
+        Last, and for the same reason: a session id and a last-seen time are the
+        only things in this section, and they are the owner's. Rendered after the
+        CMS so the writing surface — the thing an owner opens this page for — is
+        still the first thing below the sign-in header.
+      */}
+      <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+        <ChatConsole
+          /*
+           * `agentNotice` is composed rather than declared twice.
+           *
+           * The owner and the visitor have to read the *same* words over an
+           * automated message — two catalogs holding two versions of a sentence
+           * that exists to say "this is not a person" is exactly the kind of drift
+           * that eventually produces a machine calling itself a colleague. So the
+           * label lives in the visitor's catalog, where it is written, and the
+           * console borrows it.
+           */
+          labels={{ ...t.admin.chat, agentNotice: t.chat.agentNotice }}
+          initialBoard={board}
+          initialConversations={conversationList}
+        />
       </div>
     </main>
   );
