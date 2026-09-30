@@ -27,7 +27,13 @@ export function AdminLock({ t }: AdminLockProps) {
       href={adminPath()}
       aria-label={t.admin.accessLabel}
       title={t.admin.accessLabel}
-      className="tap-target min-w-11 justify-center text-text-muted opacity-50 transition-opacity hover:opacity-100 focus:opacity-100"
+      /*
+        `header-control`, and no `opacity-50`. At half opacity on a translucent bar
+        this read as a disabled control rather than as a link to the owner's sign-in,
+        which is the opposite of what a discreet-but-present affordance should
+        suggest.
+      */
+      className="header-control"
     >
       {/* The local stroke icon, not a lock emoji: an emoji renders in colour
           from the OS font and broke the monochrome instrument-panel language. */}

@@ -1,38 +1,8 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Manrope, Playfair_Display } from "next/font/google";
 
-import { ThemeBootstrapScript } from "@/components/theme/theme-script";
-import { DEFAULT_LOCALE } from "@/domain/i18n";
-import { DEFAULT_THEME_ID, themeColorFor } from "@/domain/theme/theme";
-import "../transitions.css";
+import { DocumentShell } from "@/components/layout/document-shell";
+import "../rain.css";
 import "../globals.css";
-
-/*
- * The same three families as the public layout, with the same CSS variable names.
- * They are declared again rather than imported because a root layout is the top of
- * its own tree, and a shared module would have to be a fourth file to hold three
- * identical calls. Same variable names means `globals.css` styles the admin area
- * with no extra wiring.
- */
-const manrope = Manrope({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--msd-font-manrope",
-});
-
-const jetBrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--msd-font-jetbrains",
-});
-
-const playfairDisplay = Playfair_Display({
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["500", "600"],
-  style: ["normal", "italic"],
-  variable: "--msd-font-playfair",
-});
 
 /**
  * The root layout for `/admin`.
@@ -59,11 +29,8 @@ const playfairDisplay = Playfair_Display({
  * `<Analytics />` and `<TelemetryBar />` are not here, and that is the point of a
  * separate root. The locale layout documents why: owner traffic is not part of the
  * public signal. Adding them here would have been a one-line copy that quietly
- * reversed a decision made on purpose.
- *
- * The language is fixed to the default locale rather than negotiated, because the
- * admin surface is locale-independent by design — its tests assert a stable path —
- * and because there is no `[locale]` segment here to negotiate from.
+ * reversed a decision made on purpose. `DocumentShell` is where that decision is
+ * now written down once, for this layout and the `/loading` preview alike.
  */
 export const metadata: Metadata = {
   title: "Owner",
@@ -73,22 +40,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html
-      lang={DEFAULT_LOCALE}
-      data-scroll-behavior="smooth"
-      className={`${manrope.variable} ${jetBrainsMono.variable} ${playfairDisplay.variable}`}
-    >
-      <body className="pb-10">
-        {/*
-          Same reasoning as the locale layout: no explicit `<head>`. React 19
-          hoists `<script>` and `<meta>` out of `<body>` on its own, and an
-          explicit head here broke hydration intermittently.
-        */}
-        <ThemeBootstrapScript />
-        <meta name="theme-color" content={themeColorFor(DEFAULT_THEME_ID)} />
-        {children}
-      </body>
-    </html>
-  );
+  return <DocumentShell>{children}</DocumentShell>;
 }
