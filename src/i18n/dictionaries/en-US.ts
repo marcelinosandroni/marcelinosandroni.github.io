@@ -187,6 +187,34 @@ export const enUS = {
     leave: "Prefer another",
     dismiss: "Dismiss this question",
   },
+
+  /**
+   * The occasional Matrix easter eggs.
+   *
+   * Five eggs and four of them are silent — a glitch, a reversed rain and a
+   * frozen rain say nothing at all, and they are here because an effect that
+   * talks is an interruption. The strings below are the whole spoken part: one
+   * status line, one takeover sentence, one quiet line, one key hint and one
+   * button.
+   *
+   * The takeover line is the site's own copy register, not a film quote. The
+   * reference in question is a joke nobody paid for; quoting it would make the
+   * page the thing it is making fun of. `handshake` is the word the boot
+   * sequence already uses for what this site does when you arrive, so the line
+   * lands on something the reader has already seen once.
+   *
+   * `wakeUp` is the fifteen-years jab at itself. Self-deprecating is the only
+   * version of that joke this site can afford — the alternative is a résumé
+   * congratulating itself, which is exactly the tone the rest of the catalog
+   * spends its effort avoiding.
+   */
+  easterEgg: {
+    dismiss: "Dismiss",
+    glitchStatus: "// DECODING RECORD",
+    whitePill: "Everything you have read so far was a handshake.",
+    whitePillHint: "Esc to continue",
+    wakeUp: "Wake up. This résumé has been loading for fifteen years.",
+  },
   pdf: {
     download: "Download PDF",
     generating: "Generating…",

@@ -171,6 +171,27 @@ export const ptBR: Dictionary = {
     leave: "Prefiro outro",
     dismiss: "Dispensar a pergunta",
   },
+
+  /**
+   * Os easter eggs ocasionais do tema Matrix.
+   *
+   * Cinco ovos, e quatro deles são silenciosos — o glitch, a chuva invertida e a
+   * chuva congelada não dizem nada, e estão aqui justamente porque um efeito que
+   * fala é uma interrupção. As chaves abaixo são toda a parte falada: uma linha
+   * de status, uma frase de tomada de tela, uma linha baixa, uma dica de tecla e
+   * um botão.
+   *
+   * `documento oficial` mantém o vocabulário do próprio site (`og.siteKicker`),
+   * então o glitch continua sendo uma piada sobre o documento que a página
+   * apresenta, e não sobre o filme.
+   */
+  easterEgg: {
+    dismiss: "Dispensar",
+    glitchStatus: "// DECODIFICANDO O REGISTRO",
+    whitePill: "Tudo o que você leu até agora foi um aperto de mãos.",
+    whitePillHint: "Esc para continuar",
+    wakeUp: "Acorde. Este currículo está carregando há quinze anos.",
+  },
   pdf: {
     download: "Baixar PDF",
     generating: "Gerando…",

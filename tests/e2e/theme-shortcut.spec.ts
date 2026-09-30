@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 /**
  * The `T` shortcut and the header control that advertises it.
@@ -8,8 +8,23 @@ import { expect, test } from "@playwright/test";
  * removed, and this site has a real text field to break: the terminal copilot.
  */
 test.describe("Theme shortcut", () => {
-  test("cycles all three themes with T and wraps", async ({ page }) => {
+  /**
+   * Waits for the island that owns the shortcut to be live.
+   *
+   * The `T` listener is attached in a `useEffect`, so a keypress that arrives
+   * before hydration is silently dropped — the page looks like the shortcut is
+   * broken. This raced: it passed three times in isolation and failed once in a
+   * 257-test run, where a busier machine meant a slower first hydration. Waiting
+   * on the server-rendered control being *interactive* is the honest signal, since
+   * the control only responds once React has taken over.
+   */
+  async function gotoHydrated(page: Page): Promise<void> {
     await page.goto("/en-us");
+    await expect(page.getByRole("button", { name: /change theme/i })).toBeEnabled();
+  }
+
+  test("cycles all three themes with T and wraps", async ({ page }) => {
+    await gotoHydrated(page);
 
     const html = page.locator("html");
     await expect(html).toHaveAttribute("data-theme", "carbon");
@@ -25,7 +40,7 @@ test.describe("Theme shortcut", () => {
   });
 
   test("does not fire while typing in the terminal", async ({ page }) => {
-    await page.goto("/en-us");
+    await gotoHydrated(page);
 
     await page.getByRole("button", { name: /open the resume terminal/i }).click();
 
@@ -42,7 +57,7 @@ test.describe("Theme shortcut", () => {
   });
 
   test("leaves browser-reserved combinations alone", async ({ page }) => {
-    await page.goto("/en-us");
+    await gotoHydrated(page);
 
     await page.keyboard.press("Control+t");
     await page.keyboard.press("Alt+t");
@@ -51,7 +66,7 @@ test.describe("Theme shortcut", () => {
   });
 
   test("shows the shortcut in the header, with a dark/light glyph", async ({ page }) => {
-    await page.goto("/en-us");
+    await gotoHydrated(page);
 
     const control = page.getByRole("button", { name: /change theme/i });
     await expect(control).toBeVisible();
@@ -66,7 +81,7 @@ test.describe("Theme shortcut", () => {
   });
 
   test("the header button advances the theme the same way T does", async ({ page }) => {
-    await page.goto("/en-us");
+    await gotoHydrated(page);
 
     const control = page.getByRole("button", { name: /change theme/i });
     await control.click();
@@ -77,7 +92,7 @@ test.describe("Theme shortcut", () => {
   });
 
   test("keeps the browser chrome in step with the theme", async ({ page }) => {
-    await page.goto("/en-us");
+    await gotoHydrated(page);
 
     const before = await page.locator('meta[name="theme-color"]').getAttribute("content");
 
@@ -92,7 +107,7 @@ test.describe("Theme shortcut", () => {
   });
 
   test("the full picker is still reachable from the header", async ({ page }) => {
-    await page.goto("/en-us");
+    await gotoHydrated(page);
 
     // A specific theme in one tap, rather than cycling to it.
     await page.locator('[data-theme-option="matrix"]').first().click();
@@ -104,9 +119,9 @@ test.describe("Theme shortcut", () => {
 
     await page.evaluate(() => window.localStorage.setItem("msd:theme:v1", "not-a-theme"));
     await page.reload();
-
     // Normalised to the default, and the shortcut still moves.
     await expect(page.locator("html")).toHaveAttribute("data-theme", "carbon");
+    await page.getByRole("button", { name: /change theme/i }).waitFor();
     await page.keyboard.press("t");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "paper");
   });

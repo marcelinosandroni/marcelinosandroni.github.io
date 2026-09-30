@@ -684,3 +684,293 @@
     height: 3.25rem;
   }
 }
+
+/* ==========================================================================
+   MATRIX EASTER EGGS
+   ==========================================================================
+   Five effects, chosen so that no two are the same *kind* of effect rather
+   than the same effect in another colour. The policy — when one may happen,
+   how often, and to whom — is in `@/domain/easter-egg` and is unit-tested
+   there; this block is only the drawing.
+
+   ## Why these rules are unlayered
+
+   Same reason as the header-compaction block above: the container's
+   `position`, `z-index` and the layer's `pointer-events` have to win against
+   utility classes on the same elements, and Tailwind emits the utilities layer
+   *after* `components`. Unlayered CSS sits outside the cascade layers and
+   wins without `!important`.
+
+   ## Two eggs reuse `MatrixRain` rather than reimplementing it
+
+   `.msd-rain--reverse` and `.msd-rain--frozen` are two one-line modifiers on
+   the component that already exists, which is the cheapest possible version of
+   "the rain does something different". Both are `background: transparent` over
+   the reader's own page: the rain in `rain.css` is opaque because it *is* the
+   page for as long as it is up, and here it is an overlay, so covering the
+   résumé behind it would be gratuitous. Exactly one egg here is opaque — the
+   `takeover` — and that is the one the catalogue calls a takeover.
+
+   ## Colour comes from tokens, never from literals
+
+   Every hue on this screen is `--color-*` from the theme block, which is what
+   makes an egg only render sensibly in the one theme it is gated to
+   (`EASTER_EGG_THEME`). A literal `#39ff7a` here would be a second, invisible
+   copy of the matrix palette that no theme change could reach.
+   ========================================================================== */
+
+.msd-egg__layer {
+  overflow: hidden;
+}
+
+/* --- 1. decode-glitch: the reader's own frame, and nothing added to it -----
+   A CSS-only RGB split needs a second copy of the page to shift, and copying
+   the page doubles the layout cost of delivering a joke. `backdrop-filter`
+   shifts what is *already painted*, so the reader's text tears and lands back
+   in place, and the cost is two composited bands rather than a second DOM.
+   `pointer-events: none` is inherited from the layer, so the page underneath
+   stays fully clickable while it happens. */
+
+.msd-egg__scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-surface-base) 55%, transparent) 0 1px,
+    transparent 1px 3px
+  );
+  opacity: 0.75;
+  animation: msd-egg-scan 90ms steps(2, end) infinite;
+}
+
+.msd-egg__tear {
+  position: absolute;
+  inset: 0;
+  -webkit-backdrop-filter: invert(1) hue-rotate(90deg);
+  backdrop-filter: invert(1) hue-rotate(90deg);
+  /*
+     Two bands rather than one full-width one: a single inverted band reads as
+     a rendering fault, and two at different offsets and hues read as a channel
+     disagreement, which is the thing the film actually does.
+  */
+  clip-path: polygon(0 11%, 100% 13%, 100% 24%, 0 22%);
+  animation: msd-egg-tear 150ms steps(3, end) infinite;
+}
+
+.msd-egg__tear::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  -webkit-backdrop-filter: hue-rotate(-90deg) saturate(1.4);
+  backdrop-filter: hue-rotate(-90deg) saturate(1.4);
+  clip-path: polygon(0 58%, 100% 55%, 100% 63%, 0 66%);
+}
+
+@keyframes msd-egg-scan {
+  from {
+    transform: translateY(-3px);
+  }
+  to {
+    transform: translateY(3px);
+  }
+}
+
+@keyframes msd-egg-tear {
+  0% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+  100% {
+    transform: translateX(-4px);
+  }
+}
+
+.msd-egg__status {
+  position: absolute;
+  top: var(--spacing-space-md);
+  left: var(--spacing-space-md);
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-label-mono);
+  line-height: var(--text-label-mono--line-height);
+  letter-spacing: var(--text-label-mono--letter-spacing);
+  color: var(--color-primary-container);
+  text-shadow: 0 0 8px var(--color-primary-container);
+}
+
+/* --- 2. white-pill: the one takeover --------------------------------------
+   The site's editorial serif at the editorial-quote size, not the display-hero
+   size. A takeover that shouts is a takeover that feels like an ad; one line
+   at reading scale, centred in a lot of black, is the same joke delivered at
+   the volume the rest of the site uses. */
+
+.msd-egg__takeover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-space-md);
+  padding: var(--spacing-space-lg);
+  background: var(--color-surface-base);
+  text-align: center;
+}
+
+.msd-egg__pill-line {
+  max-width: 24ch;
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-editorial-quote);
+  line-height: var(--text-editorial-quote--line-height);
+  letter-spacing: var(--text-editorial-quote--letter-spacing);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-shadow: 0 0 20px color-mix(in oklab, var(--color-primary-container) 35%, transparent);
+  animation: msd-egg-rise 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.msd-egg__pill-hint {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-label-mono);
+  line-height: var(--text-label-mono--line-height);
+  letter-spacing: var(--text-label-mono--letter-spacing);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+@keyframes msd-egg-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- 3 and 4. the rain, reversed and stopped -----------------------------
+   See the header of this block for why the background goes transparent. */
+
+.msd-egg__rain {
+  background: transparent;
+  opacity: 0.3;
+}
+
+/* `animation-direction: reverse` runs `msd-rain-fall` backwards, so the glyphs
+   rise instead of falling. The keyframes are untouched — this is the whole
+   implementation, which is the point of reusing the component. */
+.msd-rain--reverse .msd-rain__column {
+  animation-direction: reverse;
+}
+
+/*
+   Paused rather than `animation: none`.
+
+   `animation: none` would drop the `transform` with it and park every column at
+   the top of the frame — a row of glyph heads, not a wall of rain. Each column
+   already carries a negative delay, so pausing leaves each one at its own point
+   in its own fall, which is the staggered depth that makes the rain read as a
+   wall at all.
+*/
+.msd-rain--frozen .msd-rain__column {
+  animation-play-state: paused;
+}
+
+.msd-egg__rain.msd-rain--frozen {
+  /* Brighter than the moving one, because a held frame has no motion to sell it. */
+  opacity: 0.55;
+}
+
+/* --- 5. wake-up: one line, clipped on --------------------------------------
+   The reveal is a clip, stepped, not one keyframe per character: a
+   per-character reveal needs the length of the string, and the length of the
+   string is a number that changes with the locale. One caret and nothing else
+   moves. */
+
+.msd-egg__line {
+  position: absolute;
+  right: 0;
+  bottom: clamp(1.5rem, 8vh, 4rem);
+  left: 0;
+  display: flex;
+  justify-content: center;
+  padding-inline: var(--spacing-space-md);
+}
+
+.msd-egg__line-text {
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: var(--text-code-inline);
+  line-height: var(--text-code-inline--line-height);
+  letter-spacing: 0.02em;
+  color: var(--color-primary-container);
+  text-shadow: 0 0 10px color-mix(in oklab, var(--color-primary-container) 45%, transparent);
+  /* Matches `wake-up` in `EASTER_EGGS`, so the line finishes as it is removed
+     rather than being cut off mid-type by the unmount. */
+  animation: msd-egg-type 3.6s steps(22, end) forwards;
+}
+
+.msd-egg__line-text::after {
+  content: "";
+  display: inline-block;
+  width: 0.6ch;
+  height: 1em;
+  margin-left: 0.4ch;
+  vertical-align: -0.15em;
+  background: var(--color-primary-container);
+  animation: msd-egg-caret 1.06s steps(2, jump-none) infinite;
+}
+
+@keyframes msd-egg-type {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  18% {
+    clip-path: inset(0 0 0 0);
+  }
+  82% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+
+@keyframes msd-egg-caret {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION — THE BACKSTOP
+   ==========================================================================
+   `MatrixEasterEgg` already renders nothing under `prefers-reduced-motion`, and
+   that is the gate that matters. This rule exists because a decision made in
+   JavaScript is one failed matchMedia, one hydration gap or one thrown error
+   away from not being made at all, and the cost of that failure is a
+   full-screen animation on a reader who asked for none.
+
+   `display: none` rather than "stop the animations": the site already parks its
+   loading rain under reduced motion (`rain.css:189`) because a frozen wall of
+   characters is not a calmer version of an effect, it is a wall of text sitting
+   over the reader's content. An unannounced interruption is worse than that.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .msd-egg {
+    display: none;
+  }
+}
