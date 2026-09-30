@@ -1,0 +1,308 @@
+/* ==========================================================================
+   THE ARRIVAL
+   ==========================================================================
+   The first-visit sequence: three seconds of handshake, a door opening, a
+   portrait revealed inside it, and the frame going so the site is already there.
+
+   ## Everything is driven by one number
+
+   `--intro-progress` is 0 to 1 across the current phase, written once per frame
+   by a single `requestAnimationFrame` loop. Every rule below is a function of it.
+   That is what makes the four beats feel like one movement instead of four
+   animations that happen to be stacked: they share a clock, so they cannot drift
+   apart, and a dropped frame shortens nothing.
+
+   ## Why the door is a light and not a shape
+
+   A rectangle of light widening from a vertical seam is the cheapest possible
+   reading of "a door". Anything with perspective needs 3D transforms and a
+   perspective origin, and on a phone that is a compositor layer large enough to
+   drop frames during the one moment the reader is guaranteed to be watching.
+
+   So: a bright seam, widening, with the glyphs in front of it rather than
+   behind. The rain stays on top throughout, which is what sells the door as being
+   *inside* the Matrix rather than a transition laid over it.
+
+   ## Why the portrait is desaturated and then colour arrives
+
+   The reveal is a face coming into focus out of noise. A portrait that is already
+   sharp and full colour the instant it appears reads as a photo, not as a
+   recovery. So the frame starts desaturated and slightly blurred and resolves
+   across the beat — `filter` is the one property here that costs real work, which
+   is why it is on one small element and not on the layer.
+   ========================================================================== */
+
+.msd-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: var(--color-surface-base);
+  overflow: hidden;
+  /*
+    Belt and braces. The phases total under seven seconds and the clock removes
+    the layer when it passes them, but a timer that never fires would otherwise
+    leave this over the site with no way out. The animation is the backstop.
+  */
+  animation: msd-intro-ceiling 0ms linear forwards;
+  animation-delay: var(--intro-max, 7000ms);
+}
+
+@keyframes msd-intro-ceiling {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* --- The rain ------------------------------------------------------------ */
+
+.msd-intro__rain {
+  position: absolute;
+  inset: 0;
+  /*
+    Above the portrait, not below it.
+
+    The rain is not a backdrop — the reader is *inside* it, so the glyphs fall in
+    front of the face rather than behind it. With the layer at the default z-index
+    the door's glow painted over it and the rain washed out to nothing, which lost
+    the one thing that makes the shot read as the Matrix.
+
+    The background is cleared. `MatrixRain` paints an opaque
+    `--color-surface-base` behind its columns because on its own it is a full
+    screen of black with glyphs on it, which is right for the loading overlay and
+    catastrophic here: at opacity 1 it would hide the portrait the whole reveal is
+    built around.
+  */
+  z-index: 3;
+  opacity: 0;
+  background: none;
+  transition: opacity 420ms ease-out;
+}
+
+/*
+  Stays on through the door and the reveal rather than fading out at the handover.
+  The glyphs in front of the light are the whole trick; if the rain left at the
+  moment the door opened, the door would read as a transition *between* two things
+  instead of a thing opening inside one.
+*/
+.msd-intro__rain[data-visible="true"] {
+  opacity: 1;
+}
+
+/*
+  The columns themselves, dialled back.
+
+  The loading rain runs at full strength against a black screen where nothing else
+  is competing. Here it falls in front of a lit face, and at full strength the
+  columns are dense enough to obscure the thing the reveal exists to show — so the
+  same glyphs are dimmed rather than the layer being made invisible.
+*/
+.msd-intro__rain .msd-rain {
+  opacity: 0.42;
+  background: none;
+}
+
+/* --- The door ------------------------------------------------------------
+   A bright seam at the centre, widening to fill the frame. The width is a
+   percentage of the viewport so it behaves the same on a phone and a desktop. */
+
+.msd-intro__door {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  transform: translateX(-50%);
+  opacity: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-primary-container) 22%, transparent),
+    color-mix(in oklab, var(--color-primary-container) 6%, transparent)
+  );
+  box-shadow: 0 0 120px 40px color-mix(in oklab, var(--color-primary-container) 18%, transparent);
+}
+
+.msd-intro__door[data-visible="true"] {
+  /* Drawn in the first fifth of the door beat, then held while the portrait lands. */
+  animation: msd-intro-door-open 520ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes msd-intro-door-open {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: min(46rem, 100%);
+    opacity: 1;
+  }
+}
+
+/* --- The portrait --------------------------------------------------------
+   Starts as a small frame at the centre of the open door and pulls back. "Pulls
+   back" rather than "scales up" is the important word: the transform-origin is
+   the centre and the scale goes *down* from something larger, so the frame reads
+   as receding and the reader is left looking at the face. */
+
+.msd-intro__portrait {
+  position: relative;
+  z-index: 2;
+  opacity: 0;
+  display: grid;
+  place-items: center;
+}
+
+.msd-intro__portrait[data-visible="true"] {
+  animation: msd-intro-portrait-in 1500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes msd-intro-portrait-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.34);
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.msd-intro__frame {
+  position: relative;
+  width: min(74vmin, 26rem);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--color-primary-container) 45%, transparent);
+  background: var(--color-surface-raised);
+  animation: msd-intro-resolve 1500ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+/*
+  Out of focus and drained of colour, resolving to neither. The blur is small on
+  purpose: `filter: blur` on a full-viewport element is the one thing here that
+  would cost a dropped frame, and on a small 26rem frame it is affordable.
+*/
+@keyframes msd-intro-resolve {
+  from {
+    filter: grayscale(1) blur(6px) contrast(0.7);
+  }
+  to {
+    filter: grayscale(0) blur(0) contrast(1);
+  }
+}
+
+.msd-intro__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/*
+  A scanline sweeping down the portrait once, on the same beat. One pass, not a
+  loop: a looping scanline on a face is a surveillance aesthetic the site has no
+  business borrowing, and a single pass reads as a screen settling.
+*/
+.msd-intro__scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in oklab, var(--color-primary-container) 30%, transparent) 48%,
+    transparent 52%
+  );
+  transform: translateY(-100%);
+}
+
+.msd-intro__portrait[data-visible="true"] .msd-intro__scan {
+  animation: msd-intro-scan 1100ms cubic-bezier(0.4, 0, 0.2, 1) 120ms forwards;
+}
+
+@keyframes msd-intro-scan {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* --- The hand-off --------------------------------------------------------
+   The `enter` beat: the door light collapses and the whole layer lifts away. The
+   site underneath is already painted and interactive for its whole duration, so
+   this is a curtain rather than a load. */
+
+.msd-intro[data-phase="enter"] .msd-intro__portrait {
+  animation: msd-intro-leave 700ms cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+.msd-intro[data-phase="enter"] .msd-intro__door {
+  animation: msd-intro-door-close 700ms cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+.msd-intro[data-phase="enter"] .msd-intro__rain {
+  transition: opacity 320ms ease-in;
+  opacity: 0;
+}
+
+@keyframes msd-intro-leave {
+  to {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes msd-intro-door-close {
+  to {
+    width: 0;
+    opacity: 0;
+  }
+}
+
+/* --- The log -------------------------------------------------------------
+   Bottom-left, small, and gone before the portrait lands. Terminal copy because
+   the site speaks terminal everywhere else; a serif caption here would read as a
+   different site. */
+
+.msd-intro__log {
+  position: absolute;
+  left: clamp(1rem, 4vw, 2.5rem);
+  bottom: clamp(1rem, 5vh, 3rem);
+  z-index: 3;
+  font-family: var(--msd-font-jetbrains), ui-monospace, monospace;
+  font-size: 0.7rem;
+  line-height: 1.9;
+  letter-spacing: 0.06em;
+  color: var(--color-primary-container);
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+
+.msd-intro__log[data-visible="true"] {
+  opacity: 0.85;
+  animation: msd-intro-log-in 300ms ease-out forwards;
+}
+
+@keyframes msd-intro-log-in {
+  to {
+    opacity: 0.85;
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   ==========================================================================
+   The gate is in JavaScript and the intro simply does not mount. This is the
+   backstop for the case where that gate fails: a decision made in script is one
+   failed matchMedia or one hydration gap away from not being made, and the cost
+   of that failure is a full-screen animation on a reader who asked for none.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .msd-intro {
+    display: none;
+  }
+}

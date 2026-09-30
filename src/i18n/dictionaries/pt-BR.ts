@@ -192,6 +192,20 @@ export const ptBR: Dictionary = {
     whitePillHint: "Esc para continuar",
     wakeUp: "Acorde. Este currículo está carregando há quinze anos.",
   },
+
+  /**
+   * A página `/eastereggs`, que existe porque as regras de disparo tornam os
+   * efeitos realmente difíceis de ver de outro jeito.
+   */
+  easterEggs: {
+    title: "Todos os efeitos, sob demanda",
+    intro:
+      "Cinco ovos disparam no máximo uma vez por visita, numa janela depois de você ler por um tempo, e apenas no tema matrix. Esta página mostra cada um e declara as regras, para que o comportamento fique visível em vez de ser lenda.",
+    replay: "Repetir",
+    rulesHeading: "As regras",
+    back: "Voltar",
+    clear: "Limpar seleção",
+  },
   pdf: {
     download: "Baixar PDF",
     generating: "Gerando…",

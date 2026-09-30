@@ -20,6 +20,7 @@ import { MatrixEasterEgg } from "@/components/effects/matrix-easter-egg";
 import { ThemeBootstrapScript } from "@/components/theme/theme-script";
 import { DEFAULT_THEME_ID, themeColorFor } from "@/domain/theme/theme";
 import "../rain.css";
+import "../intro.css";
 import "../globals.css";
 
 /*
