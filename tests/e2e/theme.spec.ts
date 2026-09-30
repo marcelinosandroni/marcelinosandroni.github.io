@@ -73,7 +73,6 @@ async function seedTheme(page: import("@playwright/test").Page, theme: string) {
   await page.waitForTimeout(200);
 }
 
-
 test.describe("Theme picker", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/en-us", { waitUntil: "networkidle" });
@@ -86,7 +85,9 @@ test.describe("Theme picker", () => {
     await expect(group.getByRole("button")).toHaveCount(3);
   });
 
-  test("switching with the picker actually repaints the page", async ({ page }) => {
+  test("switching with the picker actually repaints the page", async ({
+    page,
+  }) => {
     const before = await tokens(page);
 
     await page.getByRole("button", { name: "Matrix theme" }).click();
@@ -98,7 +99,9 @@ test.describe("Theme picker", () => {
     await expect(page.locator("html")).toHaveAttribute("data-theme", "matrix");
   });
 
-  test("marks the active theme, so the control is not just three equal buttons", async ({ page }) => {
+  test("marks the active theme, so the control is not just three equal buttons", async ({
+    page,
+  }) => {
     const carbon = page.getByRole("button", { name: "Dark theme" });
     const paper = page.getByRole("button", { name: "Light theme" });
 
@@ -125,10 +128,9 @@ test.describe("Theme picker", () => {
     await page.waitForTimeout(200);
 
     await expect(page.locator("html")).toHaveAttribute("data-theme", "matrix");
-    await expect(page.getByRole("button", { name: "Matrix theme" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    await expect(
+      page.getByRole("button", { name: "Matrix theme" }),
+    ).toHaveAttribute("aria-pressed", "true");
   });
 
   test("the picker updates the browser chrome colour too", async ({ page }) => {
@@ -137,16 +139,24 @@ test.describe("Theme picker", () => {
      * follow `data-theme`. Left stale it keeps the old colour in the mobile
      * address bar, which reads as a rendering bug even though the page is right.
      */
-    const before = await page.getAttribute('meta[name="theme-color"]', "content");
+    const before = await page.getAttribute(
+      'meta[name="theme-color"]',
+      "content",
+    );
     await page.getByRole("button", { name: "Matrix theme" }).click();
     await page.waitForTimeout(150);
-    const after = await page.getAttribute('meta[name="theme-color"]', "content");
+    const after = await page.getAttribute(
+      'meta[name="theme-color"]',
+      "content",
+    );
 
     expect(after).not.toBe(before);
     expect(after).toBe("#000000");
   });
 
-  test("every picker button is a usable tap target on a phone", async ({ browser }) => {
+  test("every picker button is a usable tap target on a phone", async ({
+    browser,
+  }) => {
     const context = await browser.newContext({
       ...devices["Desktop Chrome"],
       viewport: { width: 390, height: 844 },
@@ -163,18 +173,29 @@ test.describe("Theme picker", () => {
         buttons
           .map((b) => {
             const r = b.getBoundingClientRect();
-            return { label: b.getAttribute("aria-label"), w: Math.round(r.width), h: Math.round(r.height) };
+            return {
+              label: b.getAttribute("aria-label"),
+              w: Math.round(r.width),
+              h: Math.round(r.height),
+            };
           })
           .filter((entry) => entry.w < 44 || entry.h < 44),
       );
 
-    expect(small, `picker buttons under 44px: ${JSON.stringify(small)}`).toEqual([]);
+    expect(
+      small,
+      `picker buttons under 44px: ${JSON.stringify(small)}`,
+    ).toEqual([]);
 
     await context.close();
   });
 
-  test("the picker does not push the footer into overflow on a phone", async ({ page }) => {
-    const before = await page.evaluate(() => document.documentElement.scrollWidth);
+  test("the picker does not push the footer into overflow on a phone", async ({
+    page,
+  }) => {
+    const before = await page.evaluate(
+      () => document.documentElement.scrollWidth,
+    );
     const after = await page.evaluate(() => {
       document.documentElement.getAttribute("data-theme");
       return document.documentElement.clientWidth;
@@ -189,6 +210,11 @@ test.describe("Theme switching", () => {
     await page.addInitScript(() => {
       try {
         window.localStorage.setItem("msd:boot-seen:v1", "1");
+        // The arrival replaced the boot sequence and keeps its own key.
+        window.localStorage.setItem(
+          "msd:intro-seen:v1",
+          JSON.stringify({ seenAt: Date.now(), lastActiveAt: Date.now() }),
+        );
       } catch {
         /* private mode */
       }
@@ -213,10 +239,14 @@ test.describe("Theme switching", () => {
      * themes sharing a background. Every theme has to be distinguishable from
      * every other, or the picker is offering a choice that does not exist.
      */
-    expect(unique.size, `backgrounds were: ${JSON.stringify(seen)}`).toBe(THEMES.length);
+    expect(unique.size, `backgrounds were: ${JSON.stringify(seen)}`).toBe(
+      THEMES.length,
+    );
   });
 
-  test("themes change the tokens the components actually consume", async ({ page }) => {
+  test("themes change the tokens the components actually consume", async ({
+    page,
+  }) => {
     await setTheme(page, "carbon");
     const carbon = await tokens(page);
 
@@ -239,7 +269,9 @@ test.describe("Theme switching", () => {
     expect(paper.bodyBackground).not.toBe(carbon.bodyBackground);
   });
 
-  test("text stays readable against its own surface in every theme", async ({ page }) => {
+  test("text stays readable against its own surface in every theme", async ({
+    page,
+  }) => {
     /**
      * A theme is not finished when it is different. It is finished when the
      * text is still legible, and the naive way to produce a light theme — invert
@@ -248,7 +280,12 @@ test.describe("Theme switching", () => {
      * WCAG relative luminance, so the threshold is the real one rather than a
      * guess at what "readable" means.
      */
-    const ratios: Array<{ theme: string; ratio: number; fg: string; bg: string }> = [];
+    const ratios: Array<{
+      theme: string;
+      ratio: number;
+      fg: string;
+      bg: string;
+    }> = [];
 
     for (const theme of THEMES) {
       await setTheme(page, theme);
@@ -263,8 +300,14 @@ test.describe("Theme switching", () => {
        */
       const isColour = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
-      expect(textPrimary, `theme "${theme}" text-primary is not a colour: "${textPrimary}"`).toMatch(isColour);
-      expect(surfaceBase, `theme "${theme}" surface-base is not a colour: "${surfaceBase}"`).toMatch(isColour);
+      expect(
+        textPrimary,
+        `theme "${theme}" text-primary is not a colour: "${textPrimary}"`,
+      ).toMatch(isColour);
+      expect(
+        surfaceBase,
+        `theme "${theme}" surface-base is not a colour: "${surfaceBase}"`,
+      ).toMatch(isColour);
 
       const parse = (value: string) => {
         let h = value.replace("#", "");
@@ -301,7 +344,9 @@ test.describe("Theme switching", () => {
     }
   });
 
-  test("a theme survives a reload, so the choice is not lost", async ({ page }) => {
+  test("a theme survives a reload, so the choice is not lost", async ({
+    page,
+  }) => {
     await seedTheme(page, "matrix");
 
     /*
@@ -313,13 +358,17 @@ test.describe("Theme switching", () => {
     expect(await page.getAttribute("html", "data-theme")).toBe("matrix");
   });
 
-  test("an unknown stored theme falls back instead of leaving the page unstyled", async ({ page }) => {
+  test("an unknown stored theme falls back instead of leaving the page unstyled", async ({
+    page,
+  }) => {
     await seedTheme(page, "theme-from-the-future");
 
     // Whatever the page decides, it must be one of the real themes and must have
     // painted. No attribute at all would mean the fallback chain broke.
     const attribute = await page.getAttribute("html", "data-theme");
-    expect(THEMES).toContain((attribute ?? "carbon") as (typeof THEMES)[number]);
+    expect(THEMES).toContain(
+      (attribute ?? "carbon") as (typeof THEMES)[number],
+    );
 
     const { bodyBackground } = await tokens(page);
     expect(bodyBackground).not.toBe("rgba(0, 0, 0, 0)");
@@ -331,7 +380,10 @@ test.describe("Theme switching", () => {
     // By href, not by accessible name. The header carries a "PT" locale link
     // whose text is not "Resume", and a name-based `.first()` reached it on some
     // runs — which navigated to /pt-br and made a working theme look broken.
-    await page.locator('nav[aria-label] a[href="/en-us/resume"]').first().click();
+    await page
+      .locator('nav[aria-label] a[href="/en-us/resume"]')
+      .first()
+      .click();
 
     // `waitForURL`, not `waitForLoadState`: this is a client-side transition,
     // which has no document load event, so the load state is already "complete"

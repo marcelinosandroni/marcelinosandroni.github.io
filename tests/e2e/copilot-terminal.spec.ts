@@ -16,6 +16,11 @@ async function openHome(page: Page) {
   await page.addInitScript(() => {
     try {
       window.localStorage.setItem("msd:boot-seen:v1", "1");
+      // The arrival replaced the boot sequence and keeps its own key.
+      window.localStorage.setItem(
+        "msd:intro-seen:v1",
+        JSON.stringify({ seenAt: Date.now(), lastActiveAt: Date.now() }),
+      );
     } catch {
       /* private mode */
     }
@@ -30,6 +35,11 @@ test.describe("Copilot terminal", () => {
     await page.addInitScript(() => {
       try {
         window.localStorage.setItem("msd:boot-seen:v1", "1");
+        // The arrival replaced the boot sequence and keeps its own key.
+        window.localStorage.setItem(
+          "msd:intro-seen:v1",
+          JSON.stringify({ seenAt: Date.now(), lastActiveAt: Date.now() }),
+        );
       } catch {
         /* private mode */
       }
@@ -116,16 +126,24 @@ test.describe("Copilot terminal", () => {
     expect(restored).not.toBe("hidden");
   });
 
-  test("offers the example questions before anything is asked", async ({ page }) => {
+  test("offers the example questions before anything is asked", async ({
+    page,
+  }) => {
     await openHome(page);
 
-    await expect(page.getByRole("button", { name: /Tell me about ClickHouse/i })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Tell me about ClickHouse/i }),
+    ).toBeVisible();
   });
 
-  test("shows the question it was asked, above the answer", async ({ page }) => {
+  test("shows the question it was asked, above the answer", async ({
+    page,
+  }) => {
     await openHome(page);
 
-    await page.getByRole("button", { name: /Tell me about ClickHouse/i }).click();
+    await page
+      .getByRole("button", { name: /Tell me about ClickHouse/i })
+      .click();
 
     // Echoed, prefixed as a terminal line, so the transcript reads in order.
     const log = page.getByRole("log");

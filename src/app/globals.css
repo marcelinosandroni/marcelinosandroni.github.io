@@ -674,16 +674,47 @@
   transition: padding 180ms ease-out;
 }
 
-.site-header[data-compact] .site-header__row {
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-}
-
-@media (min-width: 768px) {
   .site-header[data-compact] .site-header__row {
-    height: 3.25rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
   }
-}
+
+  /*
+    Compact, and deliberately more than "a bit shorter". The rail drops to 40px,
+    which is the point at which a bar stops being furniture and becomes a strip,
+    and the border fades because a 1px line under a 40px bar is already the whole
+    visual weight of the edge.
+
+    The curve is `cubic-bezier(0.22, 1, 0.36, 1)` rather than `ease-out`: the
+    default spends most of its time barely moving and then snaps, which on a
+    64px-to-40px change reads as a jump rather than a shrink. This one leaves fast
+    and arrives slowly, so the bar appears to settle.
+  */
+  .site-header,
+  .site-header__row,
+  .site-header__brand {
+    transition:
+      height 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      padding 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      font-size 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .site-header[data-compact] {
+    border-bottom-color: color-mix(in oklab, var(--color-border-subtle) 55%, transparent);
+  }
+
+  @media (min-width: 768px) {
+    .site-header[data-compact] .site-header__row {
+      height: 2.5rem;
+    }
+
+    /* The brand loses a step of type, which is what makes this read as minimal. */
+    .site-header[data-compact] .site-header__brand {
+      font-size: var(--text-headline-lg-mobile, 1.5rem);
+      line-height: 1;
+    }
+  }
 
 /* ==========================================================================
    MATRIX EASTER EGGS

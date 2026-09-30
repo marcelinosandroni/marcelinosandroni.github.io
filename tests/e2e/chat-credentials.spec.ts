@@ -33,6 +33,11 @@ async function visitHome(page: Page): Promise<void> {
   await page.addInitScript(() => {
     try {
       window.localStorage.setItem("msd:boot-seen:v1", "1");
+      // The arrival replaced the boot sequence and keeps its own key.
+      window.localStorage.setItem(
+        "msd:intro-seen:v1",
+        JSON.stringify({ seenAt: Date.now(), lastActiveAt: Date.now() }),
+      );
     } catch {
       /* private mode */
     }
@@ -47,7 +52,9 @@ test.describe("an anonymous visitor is offered no chat", () => {
     // The launcher is the only way into the panel, and it does not exist until the
     // owner has contacted this browser. Absent, not disabled: a greyed-out
     // "Talk to me" is still an invitation nobody intends to honour.
-    await expect(page.getByRole("button", { name: /open the direct line/i })).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: /open the direct line/i }),
+    ).toHaveCount(0);
     await expect(page.getByRole("dialog")).toHaveCount(0);
   });
 
@@ -62,7 +69,9 @@ test.describe("an anonymous visitor is offered no chat", () => {
     expect(html).not.toContain('aria-label="Open the direct line"');
   });
 
-  test("the server-rendered document offers a visitor no chat at all", async ({ request }) => {
+  test("the server-rendered document offers a visitor no chat at all", async ({
+    request,
+  }) => {
     /*
      * Asserted on the *markup*, not on the label text.
      *
@@ -88,7 +97,9 @@ test.describe("an anonymous visitor is offered no chat", () => {
     expect(html).not.toContain("msd:visitor-session");
   });
 
-  test("and the hydrated page still shows no chat control", async ({ page }) => {
+  test("and the hydrated page still shows no chat control", async ({
+    page,
+  }) => {
     /*
      * The same claim against the live DOM, which is the one a reader can act on.
      * On a credential-less deployment the heartbeat answers 204, so the widget can
@@ -96,7 +107,9 @@ test.describe("an anonymous visitor is offered no chat", () => {
      */
     await page.goto("/en-us");
 
-    await expect(page.getByRole("button", { name: /open the direct line/i })).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: /open the direct line/i }),
+    ).toHaveCount(0);
     await expect(page.locator("[data-chat]")).toHaveCount(0);
   });
 
@@ -125,7 +138,12 @@ test.describe("an anonymous visitor is offered no chat", () => {
     for (const body of [
       { session: SESSION, intent: "send", text: "hello", state: "open" },
       { session: SESSION, intent: "send", text: "hello", author: "owner" },
-      { session: SESSION, intent: "send", text: "hello", automated_notice: "not a machine" },
+      {
+        session: SESSION,
+        intent: "send",
+        text: "hello",
+        automated_notice: "not a machine",
+      },
       { session: SESSION, intent: "open" },
       { session: SESSION },
     ]) {
@@ -152,25 +170,35 @@ test.describe("an anonymous visitor is offered no chat", () => {
 });
 
 test.describe("the presence heartbeat", () => {
-  test("answers without a database and never fails the page", async ({ request }) => {
+  test("answers without a database and never fails the page", async ({
+    request,
+  }) => {
     /*
      * A heartbeat has to be unbreakable: it runs for every visitor of the site, and
      * a page that shows an error because a counter could not be written is a worse
      * outcome than a counter that is missing. `204` here is the whole contract.
      */
-    const response = await request.post("/api/presence", { data: { session: SESSION } });
+    const response = await request.post("/api/presence", {
+      data: { session: SESSION },
+    });
 
     expect(response.status()).toBe(204);
     expect(await response.text()).toBe("");
   });
 
-  test("never caches, so a stored response cannot be replayed", async ({ request }) => {
-    const response = await request.post("/api/presence", { data: { session: SESSION } });
+  test("never caches, so a stored response cannot be replayed", async ({
+    request,
+  }) => {
+    const response = await request.post("/api/presence", {
+      data: { session: SESSION },
+    });
 
     expect(response.headers()["cache-control"]).toContain("no-store");
   });
 
-  test("refuses anything but a session id, and refuses a bad one", async ({ request }) => {
+  test("refuses anything but a session id, and refuses a bad one", async ({
+    request,
+  }) => {
     for (const body of [
       {},
       { session: SESSION, lastSeenAt: 1 },
@@ -219,27 +247,35 @@ test.describe("owner routes refuse without an owner session", () => {
   });
 
   test("opening a conversation is refused", async ({ request }) => {
-    const response = await request.patch("/api/chat/messages", { data: { session: SESSION } });
+    const response = await request.patch("/api/chat/messages", {
+      data: { session: SESSION },
+    });
 
     expect(response.status()).toBe(unconfigured.status);
     expect(await response.json()).toEqual({ error: unconfigured.error });
   });
 
   test("closing a conversation is refused", async ({ request }) => {
-    const response = await request.delete(`/api/chat/messages?session=${SESSION}`);
+    const response = await request.delete(
+      `/api/chat/messages?session=${SESSION}`,
+    );
 
     expect(response.status()).toBe(unconfigured.status);
     expect(await response.json()).toEqual({ error: unconfigured.error });
   });
 
-  test("a refused owner route never leaks whether the body was valid", async ({ request }) => {
+  test("a refused owner route never leaks whether the body was valid", async ({
+    request,
+  }) => {
     /*
      * The guard runs before the body is read, so a malformed body and a well-formed
      * one are indistinguishable to an unauthenticated caller. That is what stops the
      * endpoint from being a validator for a stranger, and it is why the guard is
      * written first in the route rather than after a parse.
      */
-    const valid = await request.patch("/api/chat/messages", { data: { session: SESSION } });
+    const valid = await request.patch("/api/chat/messages", {
+      data: { session: SESSION },
+    });
     const invalid = await request.patch("/api/chat/messages", {
       headers: { "content-type": "application/json" },
       data: "not json at all",
@@ -252,7 +288,9 @@ test.describe("owner routes refuse without an owner session", () => {
   test("every refusal is uncached", async ({ request }) => {
     for (const response of [
       await request.get("/api/chat/messages"),
-      await request.put("/api/chat/messages", { data: { session: SESSION, text: "hi" } }),
+      await request.put("/api/chat/messages", {
+        data: { session: SESSION, text: "hi" },
+      }),
       await request.patch("/api/chat/messages", { data: { session: SESSION } }),
       await request.delete(`/api/chat/messages?session=${SESSION}`),
     ]) {
@@ -287,7 +325,9 @@ test.describe("the public site is unaffected", () => {
     expect(response.headers()["x-nextjs-cache"]).not.toBe("MISS");
   });
 
-  test("the resume, the blog and the contact links are untouched", async ({ request }) => {
+  test("the resume, the blog and the contact links are untouched", async ({
+    request,
+  }) => {
     for (const path of ["/en-us/resume", "/en-us/blog", "/pt-br"]) {
       const response = await request.get(path);
 

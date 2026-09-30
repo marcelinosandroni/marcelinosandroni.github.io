@@ -57,7 +57,13 @@ export function SiteHeader({ locale, t, sections }: SiteHeaderProps) {
         <div className="site-header__row flex flex-wrap items-center gap-x-space-md gap-y-1 py-2 md:h-16 md:flex-nowrap md:gap-space-md md:py-0">
           <Link
             href={localePath(locale, "home")}
-            className="shrink-0 font-headline-lg text-headline-lg font-extrabold tracking-tight text-text-primary"
+            /*
+              `site-header__brand` so the compact state can step the type down.
+              The size is a token, not a literal — the compact rule reaches for a
+              token too, and a pair of loose rem values would drift the moment
+              either scale changed.
+            */
+            className="site-header__brand shrink-0 font-headline-lg text-headline-lg font-extrabold tracking-tight text-text-primary"
             aria-label={t.nav.backToTop}
           >
             MSD<span className="text-primary-container">.</span>

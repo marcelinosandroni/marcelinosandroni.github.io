@@ -41,14 +41,19 @@ test.describe("Mobile responsiveness", () => {
           clientWidth: document.documentElement.clientWidth,
         }));
 
-        expect(scrollWidth, `${route} at ${width}px must not scroll sideways`).toBeLessThanOrEqual(clientWidth);
+        expect(
+          scrollWidth,
+          `${route} at ${width}px must not scroll sideways`,
+        ).toBeLessThanOrEqual(clientWidth);
       }
 
       await context.close();
     });
   }
 
-  test("keeps tap targets at or above the 44px floor on a phone", async ({ browser }) => {
+  test("keeps tap targets at or above the 44px floor on a phone", async ({
+    browser,
+  }) => {
     const context = await browser.newContext({
       ...devices["Desktop Chrome"],
       viewport: { width: 390, height: 844 },
@@ -59,6 +64,11 @@ test.describe("Mobile responsiveness", () => {
     await page.addInitScript(() => {
       try {
         window.localStorage.setItem("msd:boot-seen:v1", "1");
+        // The arrival replaced the boot sequence and keeps its own key.
+        window.localStorage.setItem(
+          "msd:intro-seen:v1",
+          JSON.stringify({ seenAt: Date.now(), lastActiveAt: Date.now() }),
+        );
       } catch {
         /* private mode */
       }
@@ -69,7 +79,11 @@ test.describe("Mobile responsiveness", () => {
     const tooSmall = await page.evaluate(() => {
       const offenders: string[] = [];
 
-      for (const el of Array.from(document.querySelectorAll<HTMLElement>("a[href], button, [role=button]"))) {
+      for (const el of Array.from(
+        document.querySelectorAll<HTMLElement>(
+          "a[href], button, [role=button]",
+        ),
+      )) {
         const rect = el.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) continue;
 
@@ -89,19 +103,27 @@ test.describe("Mobile responsiveness", () => {
         if (el.classList.contains("tap-target-inline")) continue;
 
         if (rect.height < 44 || rect.width < 44) {
-          const label = (el.getAttribute("aria-label") || el.textContent || "").trim().replace(/\s+/g, " ");
-          offenders.push(`${label.slice(0, 40)} ${Math.round(rect.width)}x${Math.round(rect.height)}`);
+          const label = (el.getAttribute("aria-label") || el.textContent || "")
+            .trim()
+            .replace(/\s+/g, " ");
+          offenders.push(
+            `${label.slice(0, 40)} ${Math.round(rect.width)}x${Math.round(rect.height)}`,
+          );
         }
       }
 
       return offenders;
     });
 
-    expect(tooSmall, `tap targets under 44px:\n${tooSmall.join("\n")}`).toEqual([]);
+    expect(tooSmall, `tap targets under 44px:\n${tooSmall.join("\n")}`).toEqual(
+      [],
+    );
     await context.close();
   });
 
-  test("keeps the navigation reachable rather than truncated", async ({ browser }) => {
+  test("keeps the navigation reachable rather than truncated", async ({
+    browser,
+  }) => {
     const context = await browser.newContext({
       ...devices["Desktop Chrome"],
       viewport: { width: 360, height: 800 },
@@ -135,7 +157,9 @@ test.describe("Mobile responsiveness", () => {
     await context.close();
   });
 
-  test("expands the skip link to a usable target when focused", async ({ browser }) => {
+  test("expands the skip link to a usable target when focused", async ({
+    browser,
+  }) => {
     const context = await browser.newContext({
       ...devices["Desktop Chrome"],
       viewport: { width: 390, height: 844 },
@@ -159,7 +183,9 @@ test.describe("Mobile responsiveness", () => {
     await context.close();
   });
 
-  test("links the footer version to the release that produced it", async ({ browser }) => {
+  test("links the footer version to the release that produced it", async ({
+    browser,
+  }) => {
     const context = await browser.newContext({
       ...devices["Desktop Chrome"],
       viewport: { width: 1280, height: 900 },
@@ -176,7 +202,10 @@ test.describe("Mobile responsiveness", () => {
     const link = page.locator(`footer a[href*="/releases/tag/v${version}"]`);
 
     await expect(link).toHaveText(`v${version}`);
-    await expect(link).toHaveAttribute("href", new RegExp(`/releases/tag/v${version.replace(/\./g, "\\.")}$`));
+    await expect(link).toHaveAttribute(
+      "href",
+      new RegExp(`/releases/tag/v${version.replace(/\./g, "\\.")}$`),
+    );
     await expect(link).toHaveAttribute("target", "_blank");
     await expect(link).toHaveAttribute("rel", /noopener/);
 
@@ -194,6 +223,11 @@ test.describe("Mobile responsiveness", () => {
     await page.addInitScript(() => {
       try {
         window.localStorage.setItem("msd:boot-seen:v1", "1");
+        // The arrival replaced the boot sequence and keeps its own key.
+        window.localStorage.setItem(
+          "msd:intro-seen:v1",
+          JSON.stringify({ seenAt: Date.now(), lastActiveAt: Date.now() }),
+        );
       } catch {
         /* private mode */
       }
@@ -206,19 +240,29 @@ test.describe("Mobile responsiveness", () => {
     const covered = await page.evaluate(() => {
       const offenders: string[] = [];
 
-      for (const el of Array.from(document.querySelectorAll<HTMLElement>("body *"))) {
+      for (const el of Array.from(
+        document.querySelectorAll<HTMLElement>("body *"),
+      )) {
         if (getComputedStyle(el).position !== "fixed") continue;
         const r = el.getBoundingClientRect();
         if (r.width === 0 || r.height === 0) continue;
         // The telemetry bar is meant to sit at the edge of the document.
         if (el.tagName === "ASIDE") continue;
 
-        for (const node of Array.from(document.querySelectorAll<HTMLElement>("p, h1, h2, li"))) {
+        for (const node of Array.from(
+          document.querySelectorAll<HTMLElement>("p, h1, h2, li"),
+        )) {
           const n = node.getBoundingClientRect();
           if (n.width === 0 || n.height === 0) continue;
-          const overlaps = r.left < n.right && r.right > n.left && r.top < n.bottom && r.bottom > n.top;
+          const overlaps =
+            r.left < n.right &&
+            r.right > n.left &&
+            r.top < n.bottom &&
+            r.bottom > n.top;
           if (overlaps) {
-            offenders.push(`${el.tagName} covers "${(node.textContent || "").trim().slice(0, 30)}"`);
+            offenders.push(
+              `${el.tagName} covers "${(node.textContent || "").trim().slice(0, 30)}"`,
+            );
             break;
           }
         }
@@ -227,7 +271,10 @@ test.describe("Mobile responsiveness", () => {
       return offenders;
     });
 
-    expect(covered, `floating controls over text:\n${covered.join("\n")}`).toEqual([]);
+    expect(
+      covered,
+      `floating controls over text:\n${covered.join("\n")}`,
+    ).toEqual([]);
     await context.close();
   });
 });

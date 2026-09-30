@@ -215,6 +215,20 @@ export const enUS = {
     whitePillHint: "Esc to continue",
     wakeUp: "Wake up. This résumé has been loading for fifteen years.",
   },
+
+  /**
+   * The `/eastereggs` page, which exists because the trigger rules make the
+   * effects genuinely hard to see otherwise.
+   */
+  easterEggs: {
+    title: "Every effect, on demand",
+    intro:
+      "Five eggs fire at most once per visit, in a window after you have been reading for a little while, and only in the matrix theme. This page shows each one and states the rules, so the gating is visible rather than folklore.",
+    replay: "Replay",
+    rulesHeading: "The rules",
+    back: "Back",
+    clear: "Clear selection",
+  },
   pdf: {
     download: "Download PDF",
     generating: "Generating…",
