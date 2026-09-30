@@ -36,6 +36,16 @@ type Line =
 const EXIT_KEYS = new Set(["c", "d", "z"]);
 
 /**
+ * How long the boot rain is on screen.
+ *
+ * Matched to the longest animation in the CSS (the slower of the two column sets,
+ * 880ms) plus a little, so the layer is never cut off mid-fall. The effect is
+ * decorative and this is its whole budget — long enough to read as a screen
+ * waking up, short enough that it is not in the way of a question.
+ */
+const BOOT_RAIN_MS = 920;
+
+/**
  * Grounded resume copilot, presented as a terminal.
  *
  * The only interactive island added for this feature, and it holds no data of its
@@ -49,6 +59,7 @@ const EXIT_KEYS = new Set(["c", "d", "z"]);
  */
 export function ResumeCopilot({ locale, labels }: ResumeCopilotProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isBooting, setIsBooting] = useState(false);
   const [lines, setLines] = useState<Line[]>([]);
   const [draft, setDraft] = useState("");
   const [isBusy, setIsBusy] = useState(false);
@@ -60,6 +71,34 @@ export function ResumeCopilot({ locale, labels }: ResumeCopilotProps) {
   const logId = useId();
 
   const close = useCallback(() => setIsOpen(false), []);
+
+  /**
+   * Opens the terminal behind a one-shot boot animation.
+   *
+   * The dialog is mounted and focusable immediately and the rain is drawn on top
+   * of it, rather than the dialog waiting for the rain to finish. A reader who
+   * typed fast should find a working prompt under the effect, not a locked one
+   * waiting out a decoration — and the effect clears itself, so there is nothing
+   * to get stuck behind.
+   */
+  const open = useCallback(() => {
+    setIsOpen(true);
+    setIsBooting(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isBooting) {
+      return;
+    }
+
+    /*
+     * Cleared rather than left to a CSS `animationend`: a backgrounded tab never
+     * fires that event, and the layer would then sit over the dialog until the tab
+     * was focused again.
+     */
+    const timer = setTimeout(() => setIsBooting(false), BOOT_RAIN_MS);
+    return () => clearTimeout(timer);
+  }, [isBooting]);
 
   const scrollToEnd = useCallback(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -204,7 +243,7 @@ export function ResumeCopilot({ locale, labels }: ResumeCopilotProps) {
       <div className="mx-auto w-full max-w-[1320px] px-margin py-space-lg md:px-margin-tablet lg:px-margin-desktop">
         <button
           type="button"
-          onClick={() => setIsOpen(true)}
+          onClick={open}
           aria-haspopup="dialog"
           aria-expanded={isOpen}
           aria-controls={dialogId}
@@ -231,8 +270,16 @@ export function ResumeCopilot({ locale, labels }: ResumeCopilotProps) {
               role="dialog"
               aria-modal="true"
               aria-labelledby={titleId}
-              className="flex max-h-[85vh] w-full max-w-3xl flex-col border border-border-prominent bg-surface-base font-mono shadow-[0_18px_40px_-18px_rgba(0,0,0,0.9)]"
+              className="relative flex max-h-[85vh] w-full max-w-3xl flex-col border border-border-prominent bg-surface-base font-mono shadow-[0_18px_40px_-18px_rgba(0,0,0,0.9)]"
             >
+              {/*
+                The boot rain, last in the dialog so it paints over everything.
+                `aria-hidden` because it is decoration: announcing a stack of
+                falling stripes to a screen reader would be noise, and
+                `pointer-events-none` in the CSS so the prompt underneath stays
+                clickable while it plays.
+              */}
+              {isBooting ? <div aria-hidden="true" className="msd-boot-rain" /> : null}
               <div className="flex items-center justify-between gap-space-md border-b border-border-subtle bg-surface-raised px-space-md py-space-sm">
                 <div className="flex items-center gap-space-sm">
                   <span aria-hidden="true" className="text-primary-container">

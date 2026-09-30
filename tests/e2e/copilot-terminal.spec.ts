@@ -5,7 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
  * page, it takes the keyboard, and every way a user with terminal muscle
  * memory tries to leave has to work.
  */
-const OPEN = /open the resume copilot/i;
+const OPEN = /open the resume terminal/i;
 
 /**
  * The boot overlay is an intro shown once per visitor and it covers the page
