@@ -161,6 +161,19 @@ export const enUS = {
     themeLabel: "THEME",
     legal: "All rights reserved.",
   },
+
+  /**
+   * The one question this site asks a reader. Wording matters: it is short
+   * enough to read in passing, and "still using" rather than "do you like"
+   * because the answer is about behaviour, not sentiment.
+   */
+  feedback: {
+    question: "New themes. Still using this one?",
+    keep: "Keep it",
+    unsure: "Not sure",
+    leave: "Prefer another",
+    dismiss: "Dismiss this question",
+  },
   pdf: {
     download: "Download PDF",
     generating: "Generating…",
