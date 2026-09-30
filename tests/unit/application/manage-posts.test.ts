@@ -10,9 +10,8 @@ import {
   PublishPost,
   SetPostArchived,
   UpdatePost,
-  type NewPostRecord,
-  type PostRepository,
 } from "@/application/blog/manage-posts";
+import type { NewPostRecord, PostRepository } from "@/domain/blog/post-repository";
 import {
   composePostDocument,
   toPostSummary,

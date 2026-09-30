@@ -330,6 +330,20 @@ export const ptBR: Dictionary = {
     signOut: "Sair",
     signedInAs: "Conectado como {email}",
     /**
+     * The sign-in email itself.
+     *
+     * `{link}` is filled in by the delivery adapter, which is the only party
+     * that knows the one-time link — see `MAGIC_LINK_PLACEHOLDER` in the domain.
+     */
+    email: {
+      magicLinkSubject: "Seu link de acesso",
+      magicLinkBody: `Use este link para entrar no seu site. Ele expira em pouco tempo e só pode ser usado uma vez.
+
+{link}
+
+Se você não pediu este link, ignore esta mensagem — nada foi alterado.`,
+    },
+    /**
      * The blog CMS.
      *
      * One entry per `PostIssueCode`, and the domain returns codes rather than
