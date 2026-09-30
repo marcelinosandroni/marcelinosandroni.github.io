@@ -17,7 +17,7 @@ import { createPresenceRealtime } from "@/infrastructure/supabase/presence-realt
 import type { ConversationSummary } from "@/domain/chat/message";
 import { ListPosts } from "@/application/blog/manage-posts";
 import type { PostSummary } from "@/domain/blog/post-draft";
-import { getPostRepository } from "@/infrastructure/repositories/supabase-post-repository";
+import { getPostRepository } from "@/infrastructure/repositories";
 
 /**
  * Never indexable. A private area that a search engine can read the existence of

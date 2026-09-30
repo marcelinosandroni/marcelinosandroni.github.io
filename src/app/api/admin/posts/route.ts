@@ -4,11 +4,10 @@ import {
   CreatePost,
   ListPosts,
   PostSlugConflictError,
-  type PostRepository,
 } from "@/application/blog/manage-posts";
-import { InvalidPostDraftError } from "@/domain/blog/post-draft";
+import { InvalidPostDraftError, type PostRepository } from "@/domain/blog";
 import { getOwnerSession, isAuthEnabled } from "@/infrastructure/auth/owner-session";
-import { getPostRepository } from "@/infrastructure/repositories/supabase-post-repository";
+import { getPostRepository } from "@/infrastructure/repositories";
 
 /**
  * The owner's post list, and the endpoint that creates one.
@@ -34,11 +33,23 @@ import { getPostRepository } from "@/infrastructure/repositories/supabase-post-r
  * that the endpoint is real on a deployment where it is not, and tell the owner
  * that their sign-in is broken when it is the environment that is.
  *
- * There is no fourth status for a missing Supabase content pair, because
- * `isAuthEnabled()` reads `SUPABASE_URL` and `SUPABASE_SECRET_KEY` — exactly the
- * pair `getPostRepository()` needs. Owner auth and CMS writes are configured by
- * the same two variables, so there is no deployment where one works and the
- * other does not.
+ * There is no fourth status for a missing Supabase content pair. `isAuthEnabled()`
+ * reads `SUPABASE_URL` and `SUPABASE_SECRET_KEY` — exactly the pair the default
+ * `CMS_STORAGE=supabase` adapter needs — so owner auth and CMS writes are
+ * configured by the same two variables, and there is no deployment where one
+ * works and the other does not.
+ *
+ * ## Storage is swappable; identity is not
+ *
+ * `getPostRepository()` picks an adapter from `CMS_STORAGE`, so
+ * `CMS_STORAGE=memory` gives a CMS with no database. It does *not* give a CMS
+ * with no identity: the guard above answers `503 auth_not_configured` before
+ * storage is ever resolved, because owner sign-in is Supabase's job
+ * (`docs/adr/ADR-008`). `cms_not_configured` is therefore only reachable when the
+ * selector itself cannot be built — an unknown `CMS_STORAGE`, or the Supabase
+ * pair missing under an explicit `CMS_STORAGE=supabase`. Neither is reachable
+ * through the default path, and neither is a `500` about a deployment the
+ * operator can fix.
  */
 
 /** Only this one field. Anything else is refused — see `assertOnlyDocument`. */
@@ -138,8 +149,10 @@ async function guard(): Promise<PostRepository | Response> {
   const repository = getPostRepository();
 
   if (repository === null) {
-    // Unreachable while `isAuthEnabled()` is true — same variables — but a
-    // `500` here would be a lie about a deployment the operator can fix.
+    // Unreachable under the default adapter while `isAuthEnabled()` is true —
+    // same variables — but a `500` here would be a lie about a deployment the
+    // operator can fix. `getPostRepository()` has already logged which of the two
+    // reasons it was.
     return NextResponse.json({ error: "cms_not_configured" }, { status: 503, headers: NO_STORE });
   }
 
