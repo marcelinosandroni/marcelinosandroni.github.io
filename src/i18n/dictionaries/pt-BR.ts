@@ -251,6 +251,44 @@ export const ptBR: Dictionary = {
     questionTooLong: "Essa pergunta está longa demais. Fique em uma frase.",
     error: "Não foi possível acessar o copiloto. Tente novamente.",
   },
+  /**
+   * A conversa do visitante.
+   *
+   * O visitante não recebe esta oferta. O dono abre a conversa primeiro, e só
+   * então aparece um widget — então a maior parte de quem lê este site nunca vê
+   * uma palavra disto, que é justamente o ponto: uma caixa de conversa em cada
+   * página é um convite a escrever para um desconhecido, e a resposta seria
+   * conteúdo que este site passaria a guardar.
+   *
+   * `agentNotice` e `agentReply` são as duas metades da resposta automática, e
+   * ambas estão aqui e não no código porque ambas são ditas a um desconhecido. O
+   * aviso é um rótulo renderizado *acima* da mensagem e lido por um leitor de
+   * tela; a resposta diz na primeira pessoa que é uma máquina. Nenhuma das duas
+   * pode ser confundida com o dono, e o domínio recusa construir a mensagem sem o
+   * aviso.
+   */
+  chat: {
+    title: "Linha direta",
+    open: "Fale comigo",
+    openLabel: "Abrir a linha direta",
+    closeLabel: "Fechar a conversa",
+    sendLabel: "Enviar a mensagem",
+    placeholder: "Escreva uma mensagem…",
+    transcriptLabel: "Conversa",
+    messageLabel: "Sua mensagem",
+    privacyNote:
+      "Guardado: um id aleatório neste navegador e a última vez que ele foi visto. Não guardado: seu endereço, seu dispositivo, o tamanho da sua tela, sua impressão digital.",
+    exitHint: "Esc ou um clique fora fecha isto",
+    waiting: "Enviada. Marcelino ainda não respondeu.",
+    youLabel: "Você",
+    ownerLabel: "Marcelino",
+    agentNotice: "RESPOSTA AUTOMÁTICA — não é uma pessoa",
+    agentReply:
+      "Sou o Agente Smith: um substituto automático, não o Marcelino. Sua mensagem chegou à mesa e esta resposta é a fila confirmando o recebimento. Se for importante, espere a pessoa nesta conversa em breve.",
+    failed: "A mensagem não foi enviada. Tente de novo.",
+    rateLimited: "Mensagens demais. Tente de novo em {seconds}s.",
+    withdrawn: "Esta conversa foi encerrada.",
+  },
   admin: {
     accessLabel: "Acesso do dono",
     signInTitle: "Entrada do dono",
@@ -270,6 +308,155 @@ export const ptBR: Dictionary = {
     backToSite: "Voltar para o site",
     signOut: "Sair",
     signedInAs: "Conectado como {email}",
+    /**
+     * The blog CMS.
+     *
+     * One entry per `PostIssueCode`, and the domain returns codes rather than
+     * sentences precisely so this table is the only place a reason is written
+     * down. Every key here exists because a string is needed; none of them is
+     * a translation of a message the English catalog happens to have.
+     */
+    posts: {
+      sectionTitle: "CMS do blog",
+      sectionDescription:
+        "Escreva um post em Markdown. Publicar compila o texto no mesmo artigo que o blog já renderiza, então nada aqui é um segundo tipo de página.",
+      listLabel: "Seus posts",
+      newPost: "Novo post",
+      empty: "Nenhum post ainda.",
+      loadFailed:
+        "Não foi possível acessar o CMS. Verifique se a migração blog_post_cms foi aplicada e se SUPABASE_SECRET_KEY está definida.",
+      statusLabel: "Situação",
+      statusDraft: "Rascunho",
+      statusPublished: "Publicado",
+      statusArchived: "Arquivado",
+      localeEnUS: "Inglês",
+      localePtBR: "Português",
+      formLabel: "Dados do post",
+      createTitle: "Novo post",
+      editTitle: "Editando {title}",
+      edit: "Editar",
+      fieldTitle: "Título",
+      fieldSlug: "Slug",
+      fieldSlugHint: "Deixe em branco para gerar a partir do título.",
+      fieldLocale: "Idioma",
+      fieldCategory: "Categoria",
+      fieldExcerpt: "Resumo",
+      fieldExcerptHint:
+        "Uma ou duas frases. Vira a descrição da página e o que buscadores exibem.",
+      fieldTags: "Tags",
+      fieldTagsHint: "Separadas por vírgula.",
+      fieldFeatured: "Destacar na página inicial",
+      fieldPublishedAt: "Data de publicação",
+      fieldBody: "Corpo (Markdown)",
+      bodyHint:
+        "Linha em branco entre blocos. ## e ### para títulos, - para lista, 1. para lista numerada, > para citação, três crases para código e ::: para callout.",
+      bodySafetyNote:
+        "HTML bruto não é renderizado. Qualquer coisa que pareça uma tag aparece como o texto digitado.",
+      inlineFormattingNote:
+        "Negrito, itálico e links ainda não são suportados e permanecem como os caracteres digitados.",
+      wordCount: "{count} palavras",
+      estimatedReading: "Cerca de {minutes} min de leitura",
+      previewLabel: "Pré-visualização",
+      previewEmpty: "Escreva algo e a pré-visualização aparece aqui.",
+      save: "Salvar rascunho",
+      saving: "Salvando…",
+      cancel: "Cancelar",
+      publish: "Publicar",
+      withdraw: "Arquivar",
+      restore: "Restaurar e publicar",
+      remove: "Excluir",
+      removeConfirm: "Confirmar exclusão",
+      removeCancel: "Manter",
+      removing: "Excluindo…",
+      removeWarning:
+        "Excluir remove o artigo do blog. O Markdown vai junto e não pode ser recuperado por aqui.",
+      savedDraft: "Salvo como rascunho.",
+      savedPublished: "Salvo e republicado.",
+      published: "Publicado. O post está no blog.",
+      archived: "Arquivado. O post saiu do blog e o texto foi mantido.",
+      restored: "Restaurado e publicado.",
+      removed: "Post excluído.",
+      failed: "O post não foi salvo. Nada foi alterado.",
+      slugTaken: "Esse slug já está em uso por outro post neste idioma.",
+      issuesLabel: "Corrija isto antes de salvar",
+      viewOnBlog: "Ver no blog",
+      issues: {
+        document_unreadable: "Não foi possível ler o post. Envie novamente.",
+        front_matter_missing:
+          "O documento precisa começar com uma linha ---, seguido dos campos e de outra linha ---.",
+        front_matter_unterminated: "Falta o --- que fecha os campos.",
+        front_matter_line_invalid: "Esta linha não é um campo. Use `nome: valor`.",
+        front_matter_key_unknown: "{field} não é um campo que este editor conheça.",
+        front_matter_key_repeated: "{field} aparece mais de uma vez.",
+        front_matter_key_missing: "{field} está faltando.",
+        value_not_a_string: "{field} precisa ser um valor único, não uma lista.",
+        value_required: "{field} é obrigatório.",
+        value_too_long: "{field} é longo demais.",
+        value_not_a_boolean: "{field} precisa ser true ou false.",
+        value_not_a_list: "{field} precisa ser uma lista separada por vírgulas.",
+        value_not_a_date: "{field} precisa ser uma data no formato AAAA-MM-DD.",
+        slug_invalid:
+          "O slug precisa ser palavras minúsculas separadas por um hífen, sem acentos nem espaços.",
+        locale_unknown: "Escolha um dos idiomas publicados.",
+        category_unknown: "Escolha uma categoria da lista.",
+        tags_too_many: "Tags demais.",
+        body_empty: "O corpo está vazio.",
+      },
+    },
+    /**
+     * O painel de presença e a metade do dono na conversa.
+     *
+     * `availabilityAnswering` e companhia nomeiam os três estados de
+     * `OwnerActivityState` em vez de descrevê-los, para que o rótulo e a regra não
+     * possam divergir: "Respondendo" aparece exatamente quando `canOwnerAnswer` é
+     * verdadeiro.
+     *
+     * As strings de "visto por último" são relativas porque um carimbo absoluto
+     * num painel ao vivo é lido como "quando eu olhei esta página". Três
+     * granularidades em vez de uma data formatada, porque um painel que mostra
+     * "27/09/2026 14:02:11" para quem está online *agora* enterrou o único fato
+     * que ele existe para transmitir.
+     */
+    chat: {
+      sectionTitle: "Quem está lendo",
+      sectionDescription:
+        "Visitantes anônimos no site agora, e as conversas que você iniciou. Um id aleatório e a última vez que foi visto — sem endereço, sem dispositivo, sem impressão digital, sem cookie.",
+      online: "{count} online",
+      onlineNone: "Ninguém está lendo",
+      lastSeenNow: "agora mesmo",
+      lastSeenMinutes: "há {minutes}m",
+      lastSeenHours: "há {hours}h",
+      visitorsLabel: "Visitantes",
+      noVisitors: "Nenhum visitante enviou sinal nas últimas 24 horas.",
+      availabilityLabel: "Você está",
+      availabilityAnswering: "respondendo",
+      availabilityIdle: "ocioso",
+      availabilitySignedOut: "desconectado",
+      availabilityHint:
+        "Respondendo enquanto esta página estiver aberta e sendo olhada, ocioso após uma hora de silêncio, desconectado no instante em que sua sessão terminar.",
+      startChat: "Iniciar uma conversa",
+      reopenChat: "Abrir de novo",
+      openTranscript: "Ler a transcrição",
+      started: "Conversa iniciada. O widget da pessoa acabou de aparecer.",
+      closeChat: "Parar de responder",
+      closeChatWarning: "Parar de responder mantém a transcrição. O visitante não recebe nada.",
+      conversationLabel: "Conversa com {session}",
+      replyPlaceholder: "Responder…",
+      sendReply: "Responder",
+      transcriptLabel: "Transcrição",
+      emptyConversation: "Nenhuma mensagem ainda.",
+      stateLabel: "Situação",
+      stateUnopened: "Não iniciada",
+      stateOpen: "Aberta",
+      stateClosed: "Encerrada",
+      youLabel: "Você",
+      visitorLabel: "Visitante",
+      failed: "Não foi possível. Nada foi alterado.",
+      rateLimited: "Mensagens demais. Tente de novo em {seconds}s.",
+      sessionEnded: "Sua sessão terminou. Recarregue a página para entrar de novo.",
+      loadFailed:
+        "Não foi possível acessar o console. Verifique se a migração presence_and_chat foi aplicada e se SUPABASE_SECRET_KEY está definida.",
+    },
   },
   analytics: {
     panelLabel: "Visão geral de engajamento",
@@ -287,5 +474,24 @@ export const ptBR: Dictionary = {
     domContentLoaded: "DOM pronto",
     loadComplete: "Carregado",
     unavailable: "não mensurável neste navegador",
+  },
+  /**
+   * Cartões Open Graph — a imagem 1200x630 que uma rede social mostra quando um
+   * link é compartilhado, e o `og:image:alt` que a acompanha. O `monogram` é
+   * igual em todos os idiomas de propósito: é a marca, e traduzir uma marca é
+   * rebatizá-la.
+   */
+  og: {
+    monogram: "MSD",
+    siteKicker: "// DOCUMENTO OFICIAL",
+    alt: "Marcelino Sandroni Dias — Engenheiro de Software Sênior & Tech Lead",
+    articleAlt: "Artigo do blog por Marcelino Sandroni Dias",
+    categories: {
+      "distributed-systems": "Sistemas Distribuídos",
+      "data-platforms": "Plataformas de Dados",
+      leadership: "Liderança",
+      "ai-ml": "IA & ML",
+      fintech: "Fintech",
+    },
   },
 };

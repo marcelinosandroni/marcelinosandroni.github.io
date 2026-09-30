@@ -15,6 +15,12 @@
  * answers the only question this data can honestly answer — "do people click the
  * download button?" — while making re-identification impossible rather than
  * merely unlikely.
+ *
+ * The chat and the console are on the list for the same reason the copilot is: an
+ * element id is a fact about a *control*, and a control either gets used or does
+ * not. Counting "the conversation panel was opened" is legitimate; counting
+ * anything about the person who opened it is not, and nothing on this list
+ * carries that.
  */
 export const TRACKABLE_ELEMENTS = [
   "download-pdf",
@@ -26,6 +32,12 @@ export const TRACKABLE_ELEMENTS = [
   "copilot-close",
   "copilot-send",
   "copilot-example",
+  "chat-open",
+  "chat-close",
+  "chat-send",
+  "console-start-chat",
+  "console-send-reply",
+  "console-close-chat",
   "soundtrack-on",
   "soundtrack-off",
   "blog-article",
