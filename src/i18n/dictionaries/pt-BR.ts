@@ -153,6 +153,19 @@ export const ptBR: Dictionary = {
     themeLabel: "TEMA",
     legal: "Todos os direitos reservados.",
   },
+
+  /**
+   * A única pergunta que este site faz a quem lê. A redação importa: curta o
+   * bastante para ser lida de passagem, e "continua usando" em vez de "gostou"
+   * porque a resposta é sobre comportamento, não sobre sentimento.
+   */
+  feedback: {
+    question: "Temas novos. Seguindo com este?",
+    keep: "Manter",
+    unsure: "Talvez",
+    leave: "Prefiro outro",
+    dismiss: "Dispensar a pergunta",
+  },
   pdf: {
     download: "Baixar PDF",
     generating: "Gerando…",
