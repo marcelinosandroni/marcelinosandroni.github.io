@@ -34,10 +34,18 @@ export async function getDictionaryForRoute(): Promise<Dictionary> {
   return loadDictionary(resolved);
 }
 
-/** Resolves the canonical locale for the current route, or renders a 404. */
+/**
+ * Resolves the canonical locale for the current route, or renders a 404.
+ *
+ * `undefined` is a real answer, not a type-checking formality. The site has two
+ * root layouts — `app/[locale]` for the public tree and `app/admin` for the owner
+ * area — and `next/root-params`' `locale()` reports `undefined` for the tree that
+ * has no `[locale]` segment above it. Treating that as "no locale here" is what
+ * makes the second root layout legitimate rather than a special case.
+ */
 export async function requireLocaleForRoute(): Promise<Locale> {
   const segment = await locale();
-  const resolved = toLocale(segment);
+  const resolved = segment === undefined ? null : toLocale(segment);
 
   if (!resolved) {
     notFound();
