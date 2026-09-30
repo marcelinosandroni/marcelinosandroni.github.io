@@ -47,7 +47,7 @@ export function HeaderThemeControl(): React.ReactElement {
         aria-label={SHORTCUT_LABEL}
         title={`${currentThemeName(current)} — ${SHORTCUT_LABEL}`}
         data-theme-advance="true"
-        className="tap-target inline-flex min-w-11 items-center justify-center gap-space-xs border border-border-subtle px-2 py-1 font-label-mono text-label-mono text-text-muted transition-colors hover:border-text-secondary hover:text-text-primary"
+        className="header-control gap-space-xs"
       >
         {/*
           A sun/moon pair rather than the single theme glyph, because the button

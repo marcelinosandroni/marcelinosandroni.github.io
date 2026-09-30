@@ -54,7 +54,10 @@ function getServerSnapshot(): SoundtrackState {
 }
 
 export function SoundtrackToggle({ labels }: { labels: SoundtrackToggleLabels }): React.ReactElement {
-  const stored = useSyncExternalStore(subscribe, getStoredSnapshot, getServerSnapshot);
+  // Subscribed so a choice made in another tab is reflected here, and so the store
+  // stays in step with what was persisted. Deliberately not rendered: the button
+  // reports what is audible, and coming back to the page must not start sound.
+  useSyncExternalStore(subscribe, getStoredSnapshot, getServerSnapshot);
   const [isOn, setIsOn] = useState(false);
   const [isWorking, setIsWorking] = useState(false);
   const trackRef = useRef<MatrixSoundtrack | null>(null);
@@ -129,17 +132,19 @@ export function SoundtrackToggle({ labels }: { labels: SoundtrackToggleLabels })
       aria-pressed={isOn}
       data-click={isOn ? "soundtrack-off" : "soundtrack-on"}
       title={isOn ? labels.stop : labels.start}
-      className="inline-flex min-h-11 items-center gap-space-xs border border-border-subtle px-space-sm py-space-xs font-label-mono text-label-mono text-text-muted transition-colors hover:border-border-prominent hover:text-text-primary disabled:opacity-60"
+      className="header-control gap-space-xs disabled:opacity-60"
     >
-      <span aria-hidden="true">{isOn ? "◼◼" : "◻◻"}</span>
-      <span>{isOn ? labels.stop : labels.start}</span>
       {/*
-        Present so the remembered choice is not invisible. Screen readers get it
-        as a status rather than as a second focusable control.
+        Two different notes rather than a speaker with and without its waves.
+
+        A speaker built from `(` and `.` was tried first and read as a filled dot
+        followed by two brackets at this size — there is no way to draw a speaker in
+        ASCII at 16px and have it survive. A note is unambiguous about the domain
+        (a soundtrack, not a phone call), and using a *different* note for the two
+        states means the current state is legible without relying on colour.
       */}
-      <span aria-live="polite" className="sr-only">
-        {stored === "on" ? labels.stop : labels.start}
-      </span>
+      <span aria-hidden="true">{isOn ? "♫" : "♪"}</span>
+      <span className="sr-only">{isOn ? labels.stop : labels.start}</span>
     </button>
   );
 }

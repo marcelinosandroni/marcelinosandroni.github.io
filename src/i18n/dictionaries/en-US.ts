@@ -159,11 +159,20 @@ export const enUS = {
   footer: {
     versionedResume: "Versioned Resume",
     themeLabel: "THEME",
-    soundtrack: {
-      start: "PLAY SOUNDTRACK",
-      stop: "STOP SOUNDTRACK",
-    },
     legal: "All rights reserved.",
+  },
+
+  /**
+   * The soundtrack control, which lives in the header.
+   *
+   * Muted by default, so these read as "turn it on" more often than not. A label
+   * that says "sound" alone would be ambiguous about the current state, and a
+   * button whose label changes with its state is the one a screen reader announces
+   * correctly for free.
+   */
+  soundtrack: {
+    start: "Unmute the soundtrack",
+    stop: "Mute the soundtrack",
   },
 
   /**

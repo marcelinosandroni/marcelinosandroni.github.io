@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
+import { MatrixRain } from "@/components/effects/matrix-rain";
 import type { Citation, CopilotAnswer } from "@/domain/ai";
 
 export interface CopilotLabels {
@@ -273,13 +274,12 @@ export function ResumeCopilot({ locale, labels }: ResumeCopilotProps) {
               className="relative flex max-h-[85vh] w-full max-w-3xl flex-col border border-border-prominent bg-surface-base font-mono shadow-[0_18px_40px_-18px_rgba(0,0,0,0.9)]"
             >
               {/*
-                The boot rain, last in the dialog so it paints over everything.
-                `aria-hidden` because it is decoration: announcing a stack of
-                falling stripes to a screen reader would be noise, and
-                `pointer-events-none` in the CSS so the prompt underneath stays
-                clickable while it plays.
+                The same rain the site loads under, drawn over the dialog. It is
+                one component and one stylesheet rather than a lookalike, so
+                "the effect I liked in the terminal" and "the effect I see when
+                the site loads" cannot drift apart.
               */}
-              {isBooting ? <div aria-hidden="true" className="msd-boot-rain" /> : null}
+              {isBooting ? <MatrixRain className="absolute inset-0" /> : null}
               <div className="flex items-center justify-between gap-space-md border-b border-border-subtle bg-surface-raised px-space-md py-space-sm">
                 <div className="flex items-center gap-space-sm">
                   <span aria-hidden="true" className="text-primary-container">

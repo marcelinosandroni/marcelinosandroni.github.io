@@ -151,11 +151,12 @@ export const ptBR: Dictionary = {
   footer: {
     versionedResume: "Currículo versionado",
     themeLabel: "TEMA",
-    soundtrack: {
-      start: "TOCAR TRILHA",
-      stop: "PARAR TRILHA",
-    },
     legal: "Todos os direitos reservados.",
+  },
+
+  soundtrack: {
+    start: "Ativar a trilha sonora",
+    stop: "Silenciar a trilha sonora",
   },
 
   /**

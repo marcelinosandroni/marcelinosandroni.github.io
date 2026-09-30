@@ -1,41 +1,32 @@
 "use client";
 
+import { MatrixRain } from "@/components/effects/matrix-rain";
+
+/**
+ * The loading effect for a route change, and for the terminal's boot.
+ *
+ * ## Why the rain rather than a spinner, and why not on a fast navigation
+ *
+ * A client transition on a warm cache is a few tens of milliseconds. A
+ * full-screen effect for that is a flash of green on every click, which reads as a
+ * glitch rather than as speed. So the overlay is armed by a timer and only mounts
+ * after `DELAY_MS`, and a navigation that finishes sooner never sets state. That
+ * is the whole difference between a loading state and a flicker.
+ *
+ * The effect itself is the digital rain: a wall of falling glyphs with a bright
+ * head on each column. It replaced a geometric grid, which was legible as "the
+ * screen is resolving" but not as the reference it was reaching for. The progress
+ * bar stays, because it is the cue every reader already understands and because it
+ * carries the state to assistive technology, where the rain — being decoration —
+ * cannot.
+ */
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
-/**
- * The gap between clicking a link and the new page appearing.
- *
- * ## Why the router is the only source
- *
- * `usePathname` is the one stable signal the App Router gives: it changes the
- * moment the new route is committed. Everything here is derived from comparing it
- * against the previous value.
- *
- * There is deliberately no `useLinkStatus` — it exists in the installed Next but
- * is not in the public documentation, so depending on it would be depending on
- * an export that can change without a major version.
- *
- * And there is no scroll listener, no `IntersectionObserver`, no timer guessing
- * how long a fetch will take, no animation frame loop. A system that predicted
- * the transition would have to know things the router already knows, and would
- * then be wrong in exactly the cases that matter: a slow network, a cold route,
- * a failed one.
- *
- * ## Why nothing renders on a fast navigation
- *
- * A client transition on a warm cache is a few tens of milliseconds. A
- * full-screen grid for that is a flash of green on every click, which reads as a
- * glitch rather than as speed. So the grid is armed by a timer and only mounts
- * after `DELAY_MS`, and a navigation that finishes sooner never sets state.
- *
- * This is the whole difference between a loading state and a flicker, and it is
- * why this is not three lines of `useState`.
- */
 const DELAY_MS = 120;
 
-/** How long the grid stays up after the route lands, so the resolve is seen. */
-const MIN_VISIBLE_MS = 200;
+/** How long the rain stays up after the route lands, so the resolve is seen. */
+const MIN_VISIBLE_MS = 260;
 
 export function NavigationTransition(): React.ReactElement | null {
   const pathname = usePathname();
@@ -89,7 +80,8 @@ export function NavigationTransition(): React.ReactElement | null {
    * A capture-phase listener on the document, because the click may be on any
    * link and a per-link handler would have to be attached to every one of them.
    * Modified clicks are excluded: opening in a new tab is not a transition on
-   * this page, and a grid for it would be claiming work that is not happening.
+   * this page, and a full-screen effect for it would be claiming work that is not
+   * happening.
    */
   useEffect(() => {
     function onPress(event: MouseEvent): void {
@@ -131,7 +123,7 @@ export function NavigationTransition(): React.ReactElement | null {
   }, [pathname]);
 
   /*
-   * The route landed. Cancel any armed timer and, if the grid is up, resolve it.
+   * The route landed. Cancel any armed timer and, if the rain is up, resolve it.
    *
    * This is the one effect that reads `pathname`, and the guard is what makes a
    * fast navigation a no-op: the arm timer is still pending, it gets cleared, and
@@ -144,10 +136,10 @@ export function NavigationTransition(): React.ReactElement | null {
     }
 
     /*
-     * Only resolve a grid that was mounted for a *different* route. The
-     * `shownFor` guard matters because the effect also runs on mount and on
-     * re-renders where `pathname` is unchanged; without it a re-render would
-     * schedule a hide for a grid that is not up.
+     * Only resolve an overlay mounted for a *different* route. The `shownFor`
+     * guard matters because the effect also runs on mount and on re-renders where
+     * `pathname` is unchanged; without it a re-render would schedule a hide for an
+     * overlay that is not up.
      */
     if (shownFor.current !== null && shownFor.current !== pathname) {
       shownFor.current = pathname;
@@ -178,12 +170,14 @@ export function NavigationTransition(): React.ReactElement | null {
       />
 
       {/*
-        `aria-hidden` because the progressbar above already carries the state.
-        Two elements announcing one transition is worse than one announcing it
-        late, and a decorative grid exposed as a live region is worse than
+        `aria-hidden` because the progressbar above already carries the state. Two
+        elements announcing one transition is worse than one announcing it late,
+        and a decorative wall of characters exposed as a live region is worse than
         silence.
       */}
-      <div className="msd-transition-grid" data-state="enter" aria-hidden="true" />
+      <div className="msd-transition-rain" data-state="enter" aria-hidden="true">
+        <MatrixRain />
+      </div>
     </>
   );
 }

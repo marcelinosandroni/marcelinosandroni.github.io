@@ -13,7 +13,7 @@ test.describe("Soundtrack toggle", () => {
   test("is off by default and never makes a sound unasked", async ({ page }) => {
     await page.goto("/en-us");
 
-    const toggle = page.getByRole("button", { name: /play soundtrack/i });
+    const toggle = page.getByRole("button", { name: /unmute the soundtrack/i });
     await expect(toggle).toBeVisible();
     await expect(toggle).toHaveAttribute("aria-pressed", "false");
 
@@ -25,7 +25,7 @@ test.describe("Soundtrack toggle", () => {
   test("starts on click, reports on, and stops again", async ({ page }) => {
     await page.goto("/en-us");
 
-    const toggle = page.getByRole("button", { name: /play soundtrack/i });
+    const toggle = page.getByRole("button", { name: /unmute the soundtrack/i });
     await toggle.click();
 
     // A real AudioContext in a running state is the only proof that sound is
@@ -38,18 +38,18 @@ test.describe("Soundtrack toggle", () => {
     });
     expect(["running", "suspended"]).toContain(state);
 
-    const stop = page.getByRole("button", { name: /stop soundtrack/i });
+    const stop = page.getByRole("button", { name: /mute the soundtrack/i });
     await expect(stop).toHaveAttribute("aria-pressed", "true");
 
     await stop.click();
-    await expect(page.getByRole("button", { name: /play soundtrack/i })).toHaveAttribute("aria-pressed", "false");
+    await expect(page.getByRole("button", { name: /unmute the soundtrack/i })).toHaveAttribute("aria-pressed", "false");
   });
 
   test("remembers the choice across a reload", async ({ page }) => {
     await page.goto("/en-us");
 
-    await page.getByRole("button", { name: /play soundtrack/i }).click();
-    await expect(page.getByRole("button", { name: /stop soundtrack/i })).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("button", { name: /unmute the soundtrack/i }).click();
+    await expect(page.getByRole("button", { name: /mute the soundtrack/i })).toHaveAttribute("aria-pressed", "true");
 
     await page.reload();
 
@@ -58,8 +58,8 @@ test.describe("Soundtrack toggle", () => {
      * live region, not by starting playback on load — coming back to a page
      * should not ambush anyone with sound.
      */
-    await expect(page.getByRole("button", { name: /stop soundtrack/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /stop soundtrack/i })).toHaveAttribute("aria-pressed", "false");
+    await expect(page.getByRole("button", { name: /mute the soundtrack/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /mute the soundtrack/i })).toHaveAttribute("aria-pressed", "false");
   });
 
   test("survives a preference written by something else", async ({ page }) => {
@@ -70,11 +70,11 @@ test.describe("Soundtrack toggle", () => {
     await page.reload();
 
     // A corrupt value must read as silence, not throw and not play.
-    await expect(page.getByRole("button", { name: /play soundtrack/i })).toHaveAttribute("aria-pressed", "false");
+    await expect(page.getByRole("button", { name: /unmute the soundtrack/i })).toHaveAttribute("aria-pressed", "false");
   });
 
   test("is translated", async ({ page }) => {
     await page.goto("/pt-br");
-    await expect(page.getByRole("button", { name: /tocar trilha/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /ativar a trilha sonora/i })).toBeVisible();
   });
 });

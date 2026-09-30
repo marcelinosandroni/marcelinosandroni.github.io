@@ -15,10 +15,10 @@ test.describe("Terminal boot rain", () => {
     await page.getByRole("button", { name: /open the resume terminal/i }).click();
 
     // Present immediately: the effect is part of opening, not a later flourish.
-    await expect(page.locator(".msd-boot-rain")).toBeAttached();
+    await expect(page.locator(".msd-rain")).toBeAttached();
 
     // And gone well before anyone could call it stuck.
-    await expect(page.locator(".msd-boot-rain")).toHaveCount(0, { timeout: 4_000 });
+    await expect(page.locator(".msd-rain")).toHaveCount(0, { timeout: 4_000 });
   });
 
   test("never blocks the prompt while it plays", async ({ page }) => {
@@ -39,7 +39,7 @@ test.describe("Terminal boot rain", () => {
 
     await page.getByRole("button", { name: /open the resume terminal/i }).click();
 
-    const rain = page.locator(".msd-boot-rain");
+    const rain = page.locator(".msd-rain");
     await expect(rain).toHaveAttribute("aria-hidden", "true");
 
     const pointerEvents = await rain.evaluate((element) => getComputedStyle(element).pointerEvents);
@@ -54,20 +54,20 @@ test.describe("Terminal boot rain", () => {
 
     // The dialog appears immediately, with no rain to sit through.
     await expect(page.getByRole("dialog")).toBeVisible();
-    await expect(page.locator(".msd-boot-rain")).toHaveCount(0);
+    await expect(page.locator(".msd-rain")).toHaveCount(0);
   });
 
   test("does replay on each opening of the terminal", async ({ page }) => {
     await page.goto("/en-us");
 
     await page.getByRole("button", { name: /open the resume terminal/i }).click();
-    await expect(page.locator(".msd-boot-rain")).toHaveCount(0, { timeout: 4_000 });
+    await expect(page.locator(".msd-rain")).toHaveCount(0, { timeout: 4_000 });
 
     await page.keyboard.press("Escape");
     await expect(page.getByRole("dialog")).toHaveCount(0);
 
     // Reopening replays it, because the boot is per session with the terminal.
     await page.getByRole("button", { name: /open the resume terminal/i }).click();
-    await expect(page.locator(".msd-boot-rain")).toBeAttached();
+    await expect(page.locator(".msd-rain")).toBeAttached();
   });
 });

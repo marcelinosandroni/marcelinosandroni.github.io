@@ -451,13 +451,18 @@
 
   /* --- Locale switcher (DESIGN.md §7: pill reserved for status only, so
          this is a squared 4px control, not a pill) ------------------------ */
+  /* Shares every declaration with the header controls, via a selector list rather
+     than @apply header-control: Tailwind v4's @apply resolves utilities, not
+     other component classes, and the build fails outright on one. */
+  .language,
+  .header-control {
+    @apply inline-flex min-h-11 min-w-11 items-center justify-center border border-border-subtle bg-surface-overlay px-2 py-1 font-label-mono text-label-mono text-text-secondary transition-colors;
+  }
+
+  /* The locale switcher carries a language pair, so it needs the room. */
   .language {
-    @apply inline-flex min-w-11 items-center justify-center rounded border border-border-subtle bg-surface-overlay px-3 py-2 font-label-mono text-label-mono text-text-secondary uppercase transition-colors;
-  }
-  .language:hover {
-    @apply border-text-secondary text-primary-container;
-  }
-  .language span {
+    @apply px-3;
+  }  .language span {
     @apply ml-2 text-primary-container;
   }
 
@@ -489,6 +494,51 @@
   */
   .tap-target {
     @apply inline-flex min-h-11 items-center;
+  }
+
+  /* ==========================================================================
+     HEADER CONTROLS
+     ==========================================================================
+     The four icon controls in the header rail — soundtrack, theme, owner, locale
+     — share one appearance so the row reads as a group of controls.
+
+     The complaint that prompted this was that they "did not look clickable", and
+     looking at the previous state the reason is plain: no border, muted text, and
+     in the owner's case `opacity-50`, which is the conventional way to draw
+     something disabled. A low-contrast glyph on a translucent sticky bar is
+     decoration until you try it.
+
+     A single class rather than four copies of the same utility chain, because the
+     moment they drift apart the row stops reading as a row. `.language` keeps its
+     own name — it is a link, not a button, and it already existed — but it now
+     carries the same visual contract.
+     ========================================================================== */
+
+  .header-control {
+    @apply inline-flex min-h-11 min-w-11 items-center justify-center border border-border-subtle bg-surface-overlay px-2 py-1 font-label-mono text-label-mono text-text-secondary transition-colors;
+  }
+
+  /* The hover is a fill, not just a colour change: at this size a border tint
+     alone is easy to miss on a phone. */
+  .header-control:hover {
+    @apply border-text-secondary bg-surface-raised text-primary-container;
+  }
+
+  /*
+     A visible focus ring, because the default one is easy to lose against the
+     translucent backdrop. `:focus-visible` rather than `:focus` so a mouse click
+     does not leave a ring behind.
+  */
+  .header-control:focus-visible {
+    @apply border-text-secondary outline-2 outline-offset-2 outline-primary-container;
+  }
+
+  .header-control[aria-pressed="true"] {
+    @apply border-text-secondary text-primary-container;
+  }
+
+  .site-header__row {
+    transition: padding 180ms ease-out;
   }
 
   /*
@@ -599,5 +649,38 @@
 
   .msd-pulse {
     animation: none;
+  }
+}
+
+/* ==========================================================================
+   HEADER COMPACTION
+   ==========================================================================
+   Set by `ScrollHeaderState` once the reader is a full header height past the top.
+   Below the fold the brand and the six labels do not need a 64px band reserving
+   their space; above it they do, because the reader is arriving at the top of the
+   page and the header is the first thing they meet.
+
+   ## Why this is unlayered
+
+   The row's height comes from `md:h-16`, a utility. In Tailwind v4 the utilities
+   layer is emitted *after* `components`, and layer order beats specificity — so a
+   `components`-layered `height` here is simply overruled and the header never
+   shrinks, no matter how specific the selector is. Unlayered CSS sits outside the
+   cascade layers entirely and wins. That is also why the rule is not `!important`:
+   the layering is the mechanism, and layering is the thing being fought.
+   ========================================================================== */
+
+.site-header__row {
+  transition: padding 180ms ease-out;
+}
+
+.site-header[data-compact] .site-header__row {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .site-header[data-compact] .site-header__row {
+    height: 3.25rem;
   }
 }

@@ -1,0 +1,230 @@
+/* ==========================================================================
+   THE DIGITAL RAIN
+   ==========================================================================
+   The site's loading language, and the thing the terminal boots behind.
+
+   ## What makes it read as the film
+
+   Not the colour — the structure. Three things carry it:
+
+     1. Columns of glyphs, not bars. A bar says "progress". A wall of falling
+        characters says "a machine is thinking".
+     2. A bright near-white head with a dim tail behind it. The head is what
+        makes a column look *written* rather than scrolled.
+     3. Uneven speed. Every column has its own duration and a negative delay, so
+        the wall never pulses in unison and never reads as a marquee.
+
+   ## Why the glyphs are sized in `ch`
+
+   The column width is one character wide, measured in the `ch` unit, so the
+   columns stay one glyph wide whatever the font size or the font. A fixed pixel
+   width drifts out of alignment the moment the font loads and the columns become
+   a ragged edge instead of a lattice.
+
+   ## Why `text-shadow` and not a gradient
+
+   The glow is what sells it. A gradient can fade a column's colour but cannot
+   make its leading edge look like it is emitting light, and an emitting edge is
+   the entire difference between "green text on black" and a screen you can
+   recognise. The tail is dimmed with an alpha gradient instead, because a tail
+   that glows just as brightly is no tail.
+   ========================================================================== */
+
+.msd-rain {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--color-surface-base);
+  font-family: var(--msd-font-jetbrains), ui-monospace, monospace;
+  /*
+     0.8rem rather than 0.9: the column pitch is the character width, so a
+     smaller glyph at a higher column count is what fills the frame. Density in
+     this effect is bought with columns, not with bigger characters — big glyphs
+     read as a marquee, small ones read as a screen.
+  */
+  font-size: 0.8rem;
+  line-height: 1.02;
+  letter-spacing: 0;
+  color: var(--color-primary-container);
+  /*
+     A faint bloom over the whole layer. Sells the phosphor without an image
+     filter, which would cost a compositing layer per navigation.
+  */
+  text-shadow: 0 0 6px color-mix(in oklab, var(--color-primary-container) 45%, transparent);
+}
+
+.msd-rain__column {
+  position: absolute;
+  top: 0;
+  width: 1ch;
+  /*
+     `pre` is what turns the newlines between glyphs into line breaks. Without it
+     the characters lay out sideways and the effect stops being rain.
+  */
+  white-space: pre;
+  will-change: transform;
+  animation-name: msd-rain-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  /*
+     The trail fading out rather than stopping.
+
+     This is the single most recognisable thing about the reference and it was
+     missing: without it a column is a uniformly dim run of glyphs with a hard
+     bottom edge, which reads as printed text hanging in the air. The film fades
+     each trail away, so a column has a defined head and dissolves into nothing.
+
+     Masked rather than coloured because the fade has to survive the glyphs being
+     different colours, and a gradient on `opacity` per child would need one
+     element per character.
+  */
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 18%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 18%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+}
+
+/*
+  The head is near-white and the brightest thing on the screen; the tail steps
+  down from the same hue so the column reads as one continuous stroke of light
+  rather than as two different pieces of text stacked.
+*/
+.msd-rain__head {
+  display: block;
+  color: color-mix(in oklab, var(--color-primary-container) 30%, #ffffff);
+  text-shadow: 0 0 8px var(--color-primary-container);
+}
+
+.msd-rain__tail {
+  display: block;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+@keyframes msd-rain-fall {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100vh);
+  }
+}
+
+/* --- Full-viewport variant, for the persistent preview route -------------- */
+.msd-rain--viewport {
+  position: fixed;
+}
+
+/* ==========================================================================
+   NAVIGATION
+   ==========================================================================
+   The rain is the loading state for a route change. The progress bar stays
+   because it is the one cue every reader already understands and it carries the
+   state to assistive technology, where the rain — being decorative — cannot.
+   ========================================================================== */
+
+.msd-transition-rain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 140ms ease-out;
+}
+
+.msd-transition-rain[data-state="enter"],
+.msd-transition-rain[data-state="exit"] {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   PROGRESS BAR
+   ==========================================================================
+   Two pixels at the top of the viewport: the convention every reader already
+   understands, so it needs no label. Its width is driven by `--msd-progress`
+   from the component, because a CSS-only animation cannot know how much is left
+   to fetch.
+   ========================================================================== */
+
+.msd-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 95;
+  height: 2px;
+  width: 100%;
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--color-primary-container), var(--color-secondary));
+  transform: scaleX(var(--msd-progress, 0));
+  transition: transform 200ms ease-out;
+}
+
+/*
+  Indeterminate sweep for the window where the router has said "pending" but no
+  progress number is available — which is most of it, since the App Router does
+  not expose one. The bar creeps towards 90% and waits, which is the honest
+  shape: it does not reach the end before the work does.
+*/
+.msd-progress[data-state="indeterminate"] {
+  animation: msd-progress-creep 1.1s ease-out infinite;
+}
+
+@keyframes msd-progress-creep {
+  from {
+    transform: scaleX(0.06);
+  }
+  to {
+    transform: scaleX(0.9);
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   ==========================================================================
+   The progress bar keeps its state — the reader still sees that something is
+   happening — but stops sweeping and just sits at a fixed width. Removing the
+   animation entirely would make a navigation look like a frozen page, which is a
+   worse signal than a still indicator.
+
+   The rain is stopped outright rather than shown static. A wall of characters
+   frozen mid-fall is not a calmer version of the effect, it is a wall of text
+   sitting over the reader's content, and the reduced-motion request is asking us
+   not to put that there. The bar alone still says "loading".
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .msd-transition-rain {
+    transition: none;
+  }
+
+  /*
+     Present but still. The project had already decided that a loading state which
+     vanishes is worse than one which arrives instantly — a frozen page reads as a
+     broken one — so the rain is parked rather than removed.
+
+     Hiding it entirely was tried first, on the grounds that a wall of characters
+     frozen mid-fall is not a calmer version of the effect. It is not, but removing
+     it also removes the only signal that anything is happening, which is the part
+     the reader actually needs. Static and dimmed is the compromise: no motion, no
+     animation cost, and the transition is still visible.
+  */
+  .msd-rain {
+    animation: none;
+    opacity: 0.7;
+  }
+
+  .msd-rain__column {
+    animation: none;
+    /* Parked at the top rather than mid-fall, so a reduced-motion reader gets a
+       quiet, stable texture instead of a snapshot of motion. */
+    transform: none;
+  }
+
+  .msd-progress {
+    transition: none;
+  }
+
+  .msd-progress[data-state="indeterminate"] {
+    animation: none;
+    transform: scaleX(0.35);
+  }
+}

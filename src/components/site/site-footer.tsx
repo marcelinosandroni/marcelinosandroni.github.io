@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { ClickAnalytics } from "@/components/analytics/click-analytics";
-import { SoundtrackToggle } from "@/components/audio/soundtrack-toggle";
 import { ThemeControls } from "@/components/theme/theme-controls";
 
 import { Icon } from "@/components/ui/icon";
@@ -139,19 +138,6 @@ export function SiteFooter({ footer, locale, t, email, phone }: SiteFooterProps)
                   unsure: t.feedback.unsure,
                   leave: t.feedback.leave,
                   dismiss: t.feedback.dismiss,
-                }}
-              />
-
-              {/*
-                Beside the theme picker rather than floating over the page, for
-                the same reason the analytics panel moved down here: a fixed
-                corner control sat on top of running text on a phone. It is also
-                a preference, and preferences live with the other preference.
-              */}
-              <SoundtrackToggle
-                labels={{
-                  start: t.footer.soundtrack.start,
-                  stop: t.footer.soundtrack.stop,
                 }}
               />
           </div>
