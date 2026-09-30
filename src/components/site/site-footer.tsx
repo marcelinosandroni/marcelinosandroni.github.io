@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { ClickAnalytics } from "@/components/analytics/click-analytics";
-import { ThemeSwitcher } from "@/components/theme/theme-switcher";
+import { ThemeControls } from "@/components/theme/theme-controls";
 
 import { Icon } from "@/components/ui/icon";
 import { toWhatsAppHref } from "@/domain/portfolio";
@@ -24,8 +24,11 @@ export interface SiteFooterProps {
 /**
  * Contact-gateway footer.
  *
- * Renders the localized footer block from the home configuration, so the
- * columns are editable data rather than markup. External links get
+ * A Server Component. The theme picker and the feedback prompt are client
+ * islands inside it — the prompt's state lives in `ThemeControls`, so this file
+ * stays free of hooks and keeps rendering on the server.
+ *
+ * Columns are editable data rather than markup. External links get
  * `rel="noreferrer noopener"`; internal ones go through `next/link`.
  */
 export function SiteFooter({ footer, locale, t, email, phone }: SiteFooterProps) {
@@ -127,21 +130,16 @@ export function SiteFooter({ footer, locale, t, email, phone }: SiteFooterProps)
               <ClickAnalytics labels={t.analytics} />
             </div>
 
-            {/*
-              The theme control sits on its own row, below the legal line.
-
-              Not because it is important — it is a preference — but because it
-              is the only control on the page a reader is expected to press, and
-              putting it next to the analytics toggle made both read as
-              instrument-panel furniture. On its own row it is the one element in
-              the footer that is obviously meant to be touched.
-            */}
-            <div className="flex flex-wrap items-center justify-between gap-space-md border-t border-border-subtle pt-space-sm">
-              <p className="font-label-mono text-label-mono text-text-muted">
-                {t.footer.themeLabel}
-              </p>
-              <ThemeSwitcher />
-            </div>
+                          <ThemeControls
+                labels={{
+                  caption: t.footer.themeLabel,
+                  question: t.feedback.question,
+                  keep: t.feedback.keep,
+                  unsure: t.feedback.unsure,
+                  leave: t.feedback.leave,
+                  dismiss: t.feedback.dismiss,
+                }}
+              />
           </div>
         </div>
       </div>

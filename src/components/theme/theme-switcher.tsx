@@ -23,23 +23,47 @@ import {
  * "current" element, so a screen reader announces the state on the same control
  * instead of leaving the reader to infer it from colour.
  */
-export function ThemeSwitcher(): React.ReactElement {
+export function ThemeSwitcher({
+  onAsk,
+}: {
+  /**
+   * Called with the newly chosen theme, so the owner can ask about it.
+   *
+   * Raising the question is the parent's decision, not the picker's: it is a
+   * question about the site, not about the control, and a switcher that decided
+   * on its own would be asking every reader who touched it.
+   */
+  onAsk?: (theme: ThemeId) => void;
+}): React.ReactElement {
   const current = useSyncExternalStore(subscribeToTheme, readTheme, readThemeOnServer);
 
-  const choose = useCallback((theme: ThemeId) => {
-    applyTheme(theme);
+  const choose = useCallback(
+    (theme: ThemeId) => {
+      applyTheme(theme);
 
-    /*
-     * The browser chrome is a separate surface and does not follow
-     * `data-theme`. Left stale, the mobile address bar keeps the previous
-     * theme's colour after a switch, which reads as a rendering bug even though
-     * the page itself is correct.
-     */
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta !== null) {
-      meta.setAttribute("content", themeColorFor(theme));
-    }
-  }, []);
+      /*
+       * The browser chrome is a separate surface and does not follow
+       * `data-theme`. Left stale, the mobile address bar keeps the previous
+       * theme's colour after a switch, which reads as a rendering bug even though
+       * the page itself is correct.
+       */
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta !== null) {
+        meta.setAttribute("content", themeColorFor(theme));
+      }
+
+      /*
+       * Ask once per visit, and only after a switch rather than on page load.
+       *
+       * Asking on load would put the question in front of every reader on every
+       * page, before they have any opinion, which is how a feedback prompt
+       * becomes an obstacle. Asking here means they have just used the control,
+       * so the question is answerable.
+       */
+      onAsk?.(theme);
+    },
+    [onAsk],
+  );
 
   return (
     <div
