@@ -70,6 +70,19 @@ export const ptBR: Dictionary = {
     decorative: "Decorativo",
     opensInNewTab: "Abre em uma nova aba",
   },
+  /**
+   * Atribuição de um still licenciado na camada de arte de uma seção
+   * (`docs/section-artwork.md`).
+   *
+   * A única string visível da camada. A camada em si é `aria-hidden`, mas um still
+   * de filme é uso de obra autoral de terceiros e atribuição não é decoração nem
+   * detalhe — então o crédito é texto normal, legível e traduzido como todo o
+   * resto. Só aparece quando há imagem configurada: a placa gerada é arte original
+   * e não deve crédito a ninguém.
+   */
+  artwork: {
+    credit: "Imagem: {title} — {rights}.",
+  },
   nav: {
     backToTop: "Voltar ao início",
     mainNavigation: "Navegação principal",
