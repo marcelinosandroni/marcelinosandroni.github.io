@@ -160,26 +160,43 @@ test.describe("the layer, assembled from the real parts", () => {
   test("is decorative: aria-hidden, unfocusable and untakeable", async ({ page }) => {
     await styleProbe(page);
 
-    const layer = page.locator(".msd-artwork");
+    const layer = page.locator('.msd-artwork[data-section-artwork="arsenal"]');
+    const all = page.locator(".msd-artwork");
 
-    await expect(layer).toHaveCount(1);
-    await expect(layer).toHaveAttribute("aria-hidden", "true");
+    // Five sections adopt the shell, so the decorativeness is claimed for every
+    // one of them. Asserting it on a single section would say nothing about the
+    // other four, which are five separate renderings of the same component.
+    await expect(all).toHaveCount(5);
 
-    expect(await layer.evaluate((node) => getComputedStyle(node).pointerEvents)).toBe("none");
+    for (let index = 0; index < 5; index += 1) {
+      const one = all.nth(index);
+      const name = (await one.getAttribute("data-section-artwork")) ?? String(index);
+
+      await expect(one, `${name} is not hidden from assistive tech`).toHaveAttribute(
+        "aria-hidden",
+        "true",
+      );
+      expect(
+        await one.evaluate((node) => getComputedStyle(node).pointerEvents),
+        `${name} took a pointer event`,
+      ).toBe("none");
+      expect(
+        await one.evaluate(
+          (node) =>
+            node.querySelectorAll('a[href], button, input, [tabindex]:not([tabindex="-1"])').length,
+        ),
+        `${name} put a focusable element in a decorative layer`,
+      ).toBe(0);
+    }
 
     // Nothing inside it can be reached with the keyboard, and the SVG states so.
-    const focusable = await layer.evaluate(
-      (node) => node.querySelectorAll('a[href], button, input, [tabindex]:not([tabindex="-1"])').length,
-    );
-
-    expect(focusable).toBe(0);
     await expect(layer.locator("svg")).toHaveAttribute("focusable", "false");
   });
 
   test("never animates, and says so under reduced motion", async ({ page }) => {
     await styleProbe(page);
 
-    const running = await page.locator(".msd-artwork *").evaluateAll((nodes) =>
+    const running = await page.locator('.msd-artwork[data-section-artwork="arsenal"] *').evaluateAll((nodes) =>
       nodes.map((node) => getComputedStyle(node).animationName),
     );
 
@@ -194,7 +211,7 @@ test.describe("the layer, assembled from the real parts", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
 
     const reduced = await page
-      .locator(".msd-artwork *")
+      .locator('.msd-artwork[data-section-artwork="arsenal"] *')
       .evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).animationName));
 
     expect(reduced.every((name) => name === "none")).toBe(true);
@@ -204,7 +221,7 @@ test.describe("the layer, assembled from the real parts", () => {
     await styleProbe(page);
 
     const opacity = await page
-      .locator(".msd-artwork")
+      .locator('.msd-artwork[data-section-artwork="arsenal"]')
       .evaluate((node) => getComputedStyle(node).opacity);
 
     expect(Number(opacity)).toBeCloseTo(ARTWORK_OPACITY_DEFAULT, 3);
@@ -217,38 +234,58 @@ test.describe("the layer, assembled from the real parts", () => {
     for (const width of [1280, 1440, 1920]) {
       await page.setViewportSize({ width, height: 900 });
 
-      const box = (await page.locator(".msd-artwork").boundingBox()) ?? { x: 0, width: 0 };
-      const host = (await page.locator("#artwork-probe").boundingBox()) ?? { width: 0 };
+      const box = (await page.locator('.msd-artwork[data-section-artwork="arsenal"]').boundingBox()) ?? { x: 0, width: 0 };
+      const host = (await page.locator("#arsenal").boundingBox()) ?? { width: 0 };
 
       // The outer quarter at most. A layer that reached the middle of the page
       // would be a background behind a paragraph, which is the one thing this
       // feature is not allowed to be.
       expect(box.width / host.width, `band is ${box.width}px at ${width}px`).toBeLessThanOrEqual(0.25);
-      expect(box.x + box.width, `band reaches the centre at ${width}px`).toBeLessThanOrEqual(
-        host.width / 2,
-      );
-      expect(box.x, `band is not at the edge at ${width}px`).toBe(0);
+
+      // The arsenal plate is anchored corner-top-right, so the assertion has to
+      // follow the placement rather than assume a side. The earlier version asked
+      // for x === 0, which was true of the left-anchored probe and false of the
+      // section that actually ships — a test that encodes the fixture's geometry
+      // instead of the component's contract.
+      const placement = await page
+        .locator('.msd-artwork[data-section-artwork="arsenal"]')
+        .getAttribute("data-artwork-placement");
+
+      expect(placement).toBe("corner-top-right");
+
+      if (placement === "corner-top-right") {
+        expect(box.x + box.width, `band does not reach the right edge at ${width}px`).toBeCloseTo(
+          host.width,
+          0,
+        );
+        expect(box.x, `band enters the central half at ${width}px`).toBeGreaterThanOrEqual(
+          host.width / 2,
+        );
+      } else {
+        expect(box.x, `band is not at the edge at ${width}px`).toBe(0);
+      }
     }
   });
 
   test("anchors to the corner it was given", async ({ page }) => {
     await styleProbe(page);
 
-    const layer = page.locator(".msd-artwork");
+    const layer = page.locator('.msd-artwork[data-section-artwork="arsenal"]');
 
     await expect(layer).toHaveAttribute("data-artwork-placement", "corner-top-right");
 
     const box = await layer.boundingBox();
-    const host = (await page.locator("#artwork-probe").boundingBox()) ?? { width: 0, height: 0 };
+    const host =
+      (await page.locator("#arsenal").boundingBox()) ?? { x: 0, y: 0, width: 0, height: 0 };
 
-    expect(box?.y).toBe(0);
+    expect(box?.y).toBeCloseTo(host.y, 0);
     expect((box?.x ?? 0) + (box?.width ?? 0)).toBeCloseTo(host.width, 0);
   });
 
   test("fades to nothing before the content column, by mask", async ({ page }) => {
     await styleProbe(page);
 
-    const mask = await page.locator(".msd-artwork").evaluate((node) => {
+    const mask = await page.locator('.msd-artwork[data-section-artwork="arsenal"]').evaluate((node) => {
       const style = getComputedStyle(node);
 
       return style.maskImage || style.webkitMaskImage;
@@ -265,21 +302,23 @@ test.describe("the layer, assembled from the real parts", () => {
 
     await page.setViewportSize({ width: 390, height: 780 });
     expect(
-      await page.locator(".msd-artwork").evaluate((node) => getComputedStyle(node).display),
+      await page.locator('.msd-artwork[data-section-artwork="arsenal"]').evaluate((node) => getComputedStyle(node).display),
     ).toBe("none");
 
     // ...and it comes back the moment there is room for it again.
     await page.setViewportSize({ width: 1440, height: 900 });
     expect(
-      await page.locator(".msd-artwork").evaluate((node) => getComputedStyle(node).display),
+      await page.locator('.msd-artwork[data-section-artwork="arsenal"]').evaluate((node) => getComputedStyle(node).display),
     ).not.toBe("none");
   });
 
   test("draws a plate with structure rather than a blank frame", async ({ page }) => {
     await styleProbe(page);
 
-    const plate = page.getByTestId("section-artwork-plate");
+    const plate = page.locator('.msd-artwork[data-section-artwork="arsenal"]').getByTestId("section-artwork-plate");
 
+    // Five sections draw a plate, one each.
+    await expect(page.getByTestId("section-artwork-plate")).toHaveCount(5);
     await expect(plate).toHaveCount(1);
     // The perspective grid: rays and rails, as two paths.
     await expect(plate.locator("path")).toHaveCount(2);
@@ -314,8 +353,8 @@ test.describe("theme awareness", () => {
     await page.goto("/en-us");
     await styleProbe(page);
 
-    const column = page.locator(".msd-artwork__column").first();
-    const grid = page.locator(".msd-artwork__grid").first();
+    const column = page.locator('.msd-artwork[data-section-artwork="arsenal"] .msd-artwork__column').first();
+    const grid = page.locator('.msd-artwork[data-section-artwork="arsenal"] .msd-artwork__grid').first();
     const seen: string[] = [];
 
     for (const theme of THEME_IDS) {
@@ -355,7 +394,7 @@ test.describe("theme awareness", () => {
       await page.evaluate((id) => document.documentElement.setAttribute("data-theme", id), theme);
 
       opacities.push(
-        await page.locator(".msd-artwork").evaluate((node) => getComputedStyle(node).opacity),
+        await page.locator('.msd-artwork[data-section-artwork="arsenal"]').evaluate((node) => getComputedStyle(node).opacity),
       );
     }
 

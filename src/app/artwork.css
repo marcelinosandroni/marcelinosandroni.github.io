@@ -71,6 +71,15 @@
 
 .msd-artwork {
   /*
+     Without this the four corner rules below are dead code. `Section` is
+     `position: relative`, so this resolves against the section and the band lands
+     in the margin beside the content; as a static box it ignored every `top`,
+     `right` and `bottom` below and sat in normal flow at the section's padding,
+     which is a 48px inset on the wrong side rather than a band in the gutter.
+  */
+  position: absolute;
+
+  /*
      Mirrors `max-w-[1320px]` in `Section`
      (`src/components/ui/primitives.tsx:160`). It has to move with that value or
      the band stops being the margin beside the content and starts being a
