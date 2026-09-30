@@ -16,6 +16,7 @@ import { SITE_OWNER, SITE_URL } from "@/domain/site/site-info";
 import { getDictionary } from "@/i18n";
 import { TelemetryBar } from "@/components/telemetry/telemetry-bar";
 import { NavigationTransition } from "@/components/navigation/navigation-transition";
+import { MatrixEasterEgg } from "@/components/effects/matrix-easter-egg";
 import { ThemeBootstrapScript } from "@/components/theme/theme-script";
 import { DEFAULT_THEME_ID, themeColorFor } from "@/domain/theme/theme";
 import "../rain.css";
@@ -177,6 +178,30 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           measured the better.
         */}
         <NavigationTransition />
+        {/*
+          The Matrix easter eggs, which are also client-rendered only because
+          they have to be — they read the theme attribute, the motion preference
+          and a query parameter, none of which exist on the server.
+
+          It sits next to `NavigationTransition` because it is the other
+          thing in this layout that owns the viewport for a moment, and because
+          they must never appear together: the transition overlay is a route
+          change and the eggs are gated behind seven minutes of the reader not
+          touching the page, so neither can interrupt the other.
+
+          Every label is passed in from this Server Component rather than
+          imported, so the island carries no dictionary into the browser bundle
+          and `next/root-params` never gets pulled into client code.
+        */}
+        <MatrixEasterEgg
+          labels={{
+            dismiss: t.easterEgg.dismiss,
+            glitchStatus: t.easterEgg.glitchStatus,
+            whitePill: t.easterEgg.whitePill,
+            whitePillHint: t.easterEgg.whitePillHint,
+            wakeUp: t.easterEgg.wakeUp,
+          }}
+        />
         <Analytics />
         <TelemetryBar labels={t.telemetry} />
       </body>
