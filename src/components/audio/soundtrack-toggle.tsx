@@ -3,9 +3,16 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import {
+  startFilePlayback,
+  stopPlayback,
+  isSynthPlayback,
+  type ActivePlayback,
+} from "@/application/audio/playback";
+import {
   MatrixSoundtrack,
   type AudioContextLike,
 } from "@/application/audio/matrix-soundtrack";
+import { resolveSoundtrackConfig } from "@/domain/audio/soundtrack-source";
 import {
   SOUNDTRACK_STORAGE_KEY,
   readSoundtrackPreference,
@@ -60,7 +67,8 @@ export function SoundtrackToggle({ labels }: { labels: SoundtrackToggleLabels })
   useSyncExternalStore(subscribe, getStoredSnapshot, getServerSnapshot);
   const [isOn, setIsOn] = useState(false);
   const [isWorking, setIsWorking] = useState(false);
-  const trackRef = useRef<MatrixSoundtrack | null>(null);
+  /* One slot, either adapter. Two refs would let both be "on" at once. */
+  const playRef = useRef<ActivePlayback>(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -68,7 +76,7 @@ export function SoundtrackToggle({ labels }: { labels: SoundtrackToggleLabels })
       mountedRef.current = false;
       // Leaving a loop running after the island unmounts is a tone that never
       // stops, so it is stopped here rather than trusted to be torn down.
-      void trackRef.current?.stop();
+      void stopPlayback(playRef);
     };
   }, []);
 
@@ -76,44 +84,79 @@ export function SoundtrackToggle({ labels }: { labels: SoundtrackToggleLabels })
     setIsWorking(true);
 
     try {
-      if (trackRef.current === null) {
-        /*
-         * Created inside the click, not lazily on mount. A context created
-         * outside a user gesture starts suspended and the failure is silent: the
-         * button flips to "on" and no sound ever comes out.
-         *
-         * The cast is at this one seam on purpose. `AudioContextLike` describes
-         * only the nodes this module actually touches, and the unit tests pin that
-         * surface by exercising the implementation against a fake — so the
-         * assertion that the two agree is behavioural, not a type-level promise.
-         */
-        const context = new AudioContext() as unknown as AudioContextLike;
-        trackRef.current = new MatrixSoundtrack(context);
-      }
-
       if (isOn) {
-        await trackRef.current.stop();
-        trackRef.current = null;
+        await stopPlayback(playRef);
+        playRef.current = null;
 
         if (mountedRef.current) {
           setIsOn(false);
           persist("off");
         }
-      } else {
-        await trackRef.current.start();
+        return;
+      }
 
-        if (mountedRef.current) {
-          setIsOn(true);
-          persist("on");
+      /*
+        Two adapters, and the file wins when one is named.
+
+        `SOUNDTRACK_FILE` is read at the point of use rather than at build time so
+        the decision is visible in one place and a dropped-in file needs no
+        rebuild of anything else. A file that fails to load falls back to the
+        synth rather than reporting silence: the reader asked for music, and the
+        synth is music.
+      */
+      /*
+        `NEXT_PUBLIC_` is deliberately not used. The value names a file, and a
+        path is not a secret, but inlining it into the bundle for no reason would
+        put a filesystem path in the JavaScript every reader downloads. Read at the
+        point of use instead, so the decision is visible in one place.
+      */
+      const config = resolveSoundtrackConfig({
+        get: (name) => (typeof process === "undefined" ? undefined : process.env?.[name]),
+      });
+
+      if (config.source === "file") {
+        try {
+          await startFilePlayback(config.path, config.loop, playRef);
+          if (mountedRef.current) {
+            setIsOn(true);
+            persist("on");
+          }
+          return;
+        } catch {
+          playRef.current = null;
         }
+      }
+
+      /*
+        The `AudioContext` is created inside the click, not lazily on mount. A
+        context created outside a user gesture starts suspended and the failure is
+        silent: the button flips to "on" and no sound ever comes out.
+      */
+      const context = new AudioContext() as unknown as AudioContextLike;
+
+      /*
+        The synth, unless a file is already playing. Narrowed rather than
+        asserted: reaching here means the file adapter either was not configured
+        or refused, and a failed `startFilePlayback` clears the slot, so the two
+        paths cannot overlap.
+      */
+      if (!isSynthPlayback(playRef.current)) {
+        playRef.current = new MatrixSoundtrack(context);
+      }
+
+      await playRef.current.start();
+
+      if (mountedRef.current) {
+        setIsOn(true);
+        persist("on");
       }
     } catch {
       /*
-       * No AudioContext, a blocked gesture, a device with no output. Ambient
-       * sound is not worth an error dialog, and the button going back to "off"
-       * is an honest report that nothing is playing — so the preference is left
-       * untouched rather than written as "on" for a loop that never sounded.
-       */
+        No AudioContext, a blocked gesture, a device with no output. Ambient sound
+        is not worth an error dialog, and the button going back to "off" is an
+        honest report that nothing is playing — so the preference is left untouched
+        rather than written as "on" for a loop that never sounded.
+      */
       if (mountedRef.current) {
         setIsOn(false);
       }
