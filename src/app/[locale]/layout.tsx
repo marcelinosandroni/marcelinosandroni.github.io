@@ -15,8 +15,10 @@ import {
 import { SITE_OWNER, SITE_URL } from "@/domain/site/site-info";
 import { getDictionary } from "@/i18n";
 import { TelemetryBar } from "@/components/telemetry/telemetry-bar";
+import { NavigationTransition } from "@/components/navigation/navigation-transition";
 import { ThemeBootstrapScript } from "@/components/theme/theme-script";
 import { DEFAULT_THEME_ID, themeColorFor } from "@/domain/theme/theme";
+import "../transitions.css";
 import "../globals.css";
 
 /*
@@ -167,6 +169,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           owner traffic is not part of the public signal, and the less that is
           measured the better.
         */}
+        <NavigationTransition />
         <Analytics />
         <TelemetryBar labels={t.telemetry} />
       </body>
