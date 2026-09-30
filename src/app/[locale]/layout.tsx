@@ -18,7 +18,7 @@ import { TelemetryBar } from "@/components/telemetry/telemetry-bar";
 import { NavigationTransition } from "@/components/navigation/navigation-transition";
 import { ThemeBootstrapScript } from "@/components/theme/theme-script";
 import { DEFAULT_THEME_ID, themeColorFor } from "@/domain/theme/theme";
-import "../transitions.css";
+import "../rain.css";
 import "../globals.css";
 
 /*

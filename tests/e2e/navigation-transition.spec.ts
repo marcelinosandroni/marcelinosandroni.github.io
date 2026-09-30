@@ -48,7 +48,7 @@ test.describe("Navigation transition", () => {
     await withSlowResume(page);
     await page.goto("/en-us", { waitUntil: "domcontentloaded" });
 
-    const grid = page.locator(".msd-transition-grid");
+    const grid = page.locator(".msd-rain");
 
     // The click itself does not await the navigation, so the overlay is
     // observable while the prefetch is still in flight.
@@ -73,7 +73,7 @@ test.describe("Navigation transition", () => {
 
     await page.goto("/en-us", { waitUntil: "networkidle" });
 
-    const grid = page.locator(".msd-transition-grid");
+    const grid = page.locator(".msd-rain");
     await page.locator(RESUME_LINK).first().click();
     await page.waitForURL("**/en-us/resume", { timeout: 20_000 });
 
@@ -93,7 +93,7 @@ test.describe("Navigation transition", () => {
 
     await page.locator(RESUME_LINK).first().click();
 
-    const grid = page.locator(".msd-transition-grid");
+    const grid = page.locator(".msd-rain");
     await expect(grid).toBeVisible({ timeout: 20_000 });
 
     /*
@@ -112,7 +112,7 @@ test.describe("Navigation transition", () => {
 
     await page.locator(RESUME_LINK).first().click();
 
-    const grid = page.locator(".msd-transition-grid");
+    const grid = page.locator(".msd-rain");
     await expect(grid).toBeVisible({ timeout: 20_000 });
 
     /*
@@ -133,7 +133,7 @@ test.describe("Navigation transition", () => {
     // A new tab is not a transition on this page, so nothing should mount. A grid
     // here would be claiming work that is not happening.
     await page.waitForTimeout(500);
-    await expect(page.locator(".msd-transition-grid")).toHaveCount(0);
+    await expect(page.locator(".msd-rain")).toHaveCount(0);
   });
 
   test("respects prefers-reduced-motion by arriving instantly, not by disappearing", async ({
@@ -151,7 +151,7 @@ test.describe("Navigation transition", () => {
     await page.goto("/en-us", { waitUntil: "domcontentloaded" });
     await page.locator(RESUME_LINK).first().click();
 
-    const grid = page.locator(".msd-transition-grid");
+    const grid = page.locator(".msd-rain");
     await expect(grid).toBeVisible({ timeout: 20_000 });
 
     /*
@@ -175,7 +175,7 @@ test.describe("Navigation transition", () => {
 
     await page.goto("/en-us", { waitUntil: "domcontentloaded" });
     await page.locator(RESUME_LINK).first().click();
-    await expect(page.locator(".msd-transition-grid")).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(".msd-rain")).toBeVisible({ timeout: 20_000 });
 
     const metrics = await page.evaluate(() => ({
       scroll: document.documentElement.scrollWidth,
