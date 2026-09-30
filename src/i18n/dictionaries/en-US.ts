@@ -159,6 +159,10 @@ export const enUS = {
   footer: {
     versionedResume: "Versioned Resume",
     themeLabel: "THEME",
+    soundtrack: {
+      start: "PLAY SOUNDTRACK",
+      stop: "STOP SOUNDTRACK",
+    },
     legal: "All rights reserved.",
   },
 
@@ -240,7 +244,7 @@ export const enUS = {
     send: "Ask",
     thinking: "Searching the resume…",
     sourcesLabel: "Sources",
-    openLabel: "Open the resume copilot",
+    openLabel: "Open the resume terminal",
     examplesLabel: "Try one of these",
     examples: [
       "How did you save the 24M contract?",

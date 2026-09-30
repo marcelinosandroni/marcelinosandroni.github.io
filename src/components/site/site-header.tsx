@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HeaderThemeControl } from "@/components/theme/header-theme-control";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { AdminLock } from "@/components/admin/admin-lock";
 import { localePath } from "@/domain/site/routes";
@@ -51,6 +52,7 @@ export function SiteHeader({ locale, t, sections }: SiteHeaderProps) {
           </Link>
 
           <div className="ml-auto flex shrink-0 items-center gap-space-xs md:order-last">
+            <HeaderThemeControl />
             <AdminLock t={t} />
             <LocaleSwitcher locale={locale} t={t} />
           </div>

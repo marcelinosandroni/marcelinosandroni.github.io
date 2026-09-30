@@ -50,6 +50,25 @@ export function isThemeId(value: unknown): value is ThemeId {
 }
 
 /**
+ * The next theme in the cycle, for the `T` shortcut.
+ *
+ * Wraps, and normalises the input first. `T` is pressed by someone who has not
+ * looked at which theme is active, and by someone whose stored value is stale or
+ * was hand-edited — so the current theme cannot be assumed to be a valid id, or
+ * the shortcut does nothing at all on exactly the page that is already broken.
+ *
+ * The order is the declaration order of `THEME_IDS`, which is deliberately dark,
+ * light, matrix: the two that most people mean by "theme" come first and the
+ * one that is a joke comes last.
+ */
+export function nextThemeInCycle(current: unknown): ThemeId {
+  const from = isThemeId(current) ? current : DEFAULT_THEME_ID;
+  const index = THEME_IDS.indexOf(from);
+
+  return THEME_IDS[(index + 1) % THEME_IDS.length];
+}
+
+/**
  * Coerces anything to a usable theme id.
  *
  * Always returns a valid id. A reader with a stale, corrupted or hostile stored
@@ -67,8 +86,7 @@ export function normalizeThemeId(value: unknown): ThemeId {
  * default. The explicit path exists so a switch is immediate even if the write
  * to storage fails — a private-mode reader must still see the theme they chose.
  */
-export function resolveTheme(requested: unknown, stored: unknown): ThemeId {
-  if (isThemeId(requested)) {
+export function resolveTheme(requested: unknown, stored: unknown): ThemeId {  if (isThemeId(requested)) {
     return requested;
   }
 

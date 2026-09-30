@@ -151,6 +151,10 @@ export const ptBR: Dictionary = {
   footer: {
     versionedResume: "Currículo versionado",
     themeLabel: "TEMA",
+    soundtrack: {
+      start: "TOCAR TRILHA",
+      stop: "PARAR TRILHA",
+    },
     legal: "Todos os direitos reservados.",
   },
 
@@ -231,7 +235,7 @@ export const ptBR: Dictionary = {
     send: "Perguntar",
     thinking: "Buscando no currículo…",
     sourcesLabel: "Fontes",
-    openLabel: "Abrir o copiloto do currículo",
+    openLabel: "Abrir o terminal do currículo",
     examplesLabel: "Experimente uma destas",
     examples: [
       "Como você salvou o contrato de 24 milhões?",

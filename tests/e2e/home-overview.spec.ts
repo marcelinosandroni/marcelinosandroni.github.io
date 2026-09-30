@@ -245,7 +245,7 @@ test.describe("Home executive overview", () => {
     // The copilot launcher, not the PDF button: the hero no longer offers a
     // download, and the launcher is an interactive element on the home route,
     // which is what this invariant is actually about.
-    const launcher = page.getByRole("button", { name: /open the resume copilot/i });
+    const launcher = page.getByRole("button", { name: /open the resume terminal/i });
 
     await expect(launcher).toBeEnabled();
     await launcher.click();
