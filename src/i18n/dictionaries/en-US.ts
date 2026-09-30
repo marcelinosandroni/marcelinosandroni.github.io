@@ -352,6 +352,28 @@ export const enUS = {
     signOut: "Sign out",
     signedInAs: "Signed in as {email}",
     /**
+     * The sign-in email itself.
+     *
+     * The one place a link is rendered, so `{link}` is a contract rather than a
+     * convenience: the delivery adapter substitutes the one-time link it
+     * generated, and `MAGIC_LINK_PLACEHOLDER` in the domain is the name both
+     * sides agree on. A body that lost the placeholder would still typecheck and
+     * would still send — an email with a hole where the link belongs — so the
+     * catalogs are asserted to carry it.
+     *
+     * Only the Resend adapter reads this. The Supabase adapter hands the wording
+     * back to the template in the Supabase dashboard, which is the price of
+     * keeping both.
+     */
+    email: {
+      magicLinkSubject: "Your sign-in link",
+      magicLinkBody: `Use this link to sign in to your site. It expires shortly and can be used once.
+
+{link}
+
+If you did not ask for it, ignore this message — nothing was changed.`,
+    },
+    /**
      * The blog CMS.
      *
      * Every string the editor shows lives here, including one entry per

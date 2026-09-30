@@ -1,10 +1,10 @@
-import type { ArticleBlock, BlogArticle } from "@/domain/blog";
+import type { ArticleBlock } from "@/domain/blog";
+import type { PostRepository } from "@/domain/blog/post-repository";
 import {
   comparePostSummaries,
   estimateReadingTimeMinutes,
   readPostInput,
   type PostDraft,
-  type PostFrontMatter,
   type PostSummary,
 } from "@/domain/blog/post-draft";
 import { compileMarkdown } from "@/application/blog/markdown";
@@ -34,67 +34,14 @@ import { compileMarkdown } from "@/application/blog/markdown";
  * than a slug lookup that could match the wrong row, and lets `remove` retract
  * the article without a join. A generated article id held in a second column
  * would buy nothing and add a column that can disagree with it.
- */
-
-/** The record written to the drafts table. Every field is already validated. */
-export type NewPostRecord = {
-  id: string;
-  locale: PostFrontMatter["locale"];
-  slug: string;
-  category: PostFrontMatter["category"];
-  title: string;
-  excerpt: string;
-  tags: string[];
-  featured: boolean;
-  publishedAt: string;
-  markdown: string;
-};
-
-/**
- * Port for owner-authored post storage.
  *
- * Declared here, in the application layer, so the domain stays free of any
- * storage concern and every use case is testable against a fake. The split
- * between `publish`/`withdraw` and `insert`/`update` is deliberate: the first
- * pair touches the *published* blog, the second the *owner's copy*. One `save`
- * that did both would make "I saved a draft" and "I published an article" the
- * same sentence.
+ * ## The port is not here
+ *
+ * `PostRepository` and `NewPostRecord` moved to `src/domain/blog/post-repository.ts`,
+ * beside the post vocabulary they name. Nothing in this file changed when they
+ * did: every use case below takes a `PostRepository` and is satisfied by a fake,
+ * an in-memory adapter or the Supabase adapter without knowing which.
  */
-export interface PostRepository {
-  /** Every post, any status. Ordered by the use case, not by the adapter. */
-  list(): Promise<PostSummary[]>;
-
-  findById(id: string): Promise<PostDraft | null>;
-
-  /** Stores a new post as a `draft`; the adapter stamps the timestamps. */
-  insert(record: NewPostRecord): Promise<PostDraft>;
-
-  update(draft: PostDraft): Promise<PostDraft>;
-
-  /** Removes the owner's copy *and* retracts any article it published. */
-  remove(id: string): Promise<void>;
-
-  /** Writes a compiled article into the blog. Idempotent on `id`. */
-  publish(article: BlogArticle): Promise<BlogArticle>;
-
-  /**
-   * Retracts a published article without deleting it: the row's `status` drops
-   * to `draft`, the one state the public repository filters out.
-   */
-  withdraw(articleId: string): Promise<void>;
-
-  /**
-   * Whether a slug is already used by a *different* post in the same locale.
-   *
-   * `exceptId` is the post being edited, so re-saving a post without touching
-   * its slug does not report a conflict with itself.
-   */
-  isSlugTaken(
-    locale: PostFrontMatter["locale"],
-    slug: string,
-    exceptId: string | null,
-  ): Promise<boolean>;
-}
 
 /** The slug is already used by another post in the same locale. */
 export class PostSlugConflictError extends Error {

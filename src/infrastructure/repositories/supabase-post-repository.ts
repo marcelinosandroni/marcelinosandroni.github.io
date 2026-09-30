@@ -1,9 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
-
 import type {
   NewPostRecord,
   PostRepository,
-} from "@/application/blog/manage-posts";
+} from "@/domain/blog/post-repository";
 import {
   isArticleCategory,
   isPostStatus,
@@ -13,7 +11,6 @@ import {
 } from "@/domain/blog/post-draft";
 import type { ArticleBlock, ArticleCategory, BlogArticle } from "@/domain/blog";
 import { isLocale, type Locale } from "@/domain/i18n";
-import { supabaseConfigFromEnv } from "@/infrastructure/supabase/server";
 
 /**
  * The narrow client surface this adapter needs.
@@ -98,6 +95,13 @@ const ARTICLE_COLUMNS =
  * owner's copy, `publish`/`withdraw` are the blog — so one adapter is the honest
  * shape.
  *
+ * ## The port is a domain contract, not an application one
+ *
+ * `PostRepository` used to be declared in `src/application/blog/manage-posts.ts`.
+ * It now lives in `src/domain/blog/post-repository.ts`, beside the vocabulary it
+ * names, so this adapter implements a domain obligation rather than reaching
+ * through the application layer for it. Nothing about the calls below changed.
+ *
  * ## Trust boundary
  *
  * Every column arrives as `unknown` from PostgREST, so nothing is cast straight
@@ -105,6 +109,12 @@ const ARTICLE_COLUMNS =
  * *dropped* from a list, because one bad row must not empty the CMS, and *throws*
  * on a single read, because "not found" for a row that exists would let the next
  * create silently overwrite it.
+ *
+ * ## Construction is the composition root's job
+ *
+ * This file builds a client and nothing else. Which client — or whether there is
+ * a database at all — is decided in `repositories/index.ts`, which is the only
+ * place that knows the adapters exist.
  */
 export class SupabasePostRepository implements PostRepository {
   constructor(private readonly client: PostCmsClient) {}
@@ -491,38 +501,4 @@ function toArticle(row: Record<string, unknown>): BlogArticle | null {
     tags: readTags(row.tags),
     body: body as ArticleBlock[],
   };
-}
-
-/**
- * Composition root for the CMS.
- *
- * **The secret key, on purpose.** The migration revokes every grant on
- * `blog_post_drafts` from `anon` and `authenticated` and creates no policy, so
- * there is no key a browser could hold that would read or write an unpublished
- * post. The publishable key that the public article repository uses is
- * therefore useless here by construction, and using it would mean loosening the
- * migration.
- *
- * Returns `null` rather than throwing when Supabase is absent, so the API can
- * answer `503` instead of a `500` from a missing environment variable. The pair
- * it reads is the same one `isAuthEnabled()` reads, which means "auth is
- * configured" and "the CMS can be written" are the same statement — there is no
- * deployment where the owner can sign in and then find the editor broken.
- *
- * Not cached, unlike the feedback root. `createClient` opens no connection, so
- * there is nothing to save, and a cached answer derived from `process.env`
- * cannot be re-derived by a test or a runtime secret reload.
- */
-export function getPostRepository(): PostRepository | null {
-  const config = supabaseConfigFromEnv();
-
-  if (!config.configured) {
-    return null;
-  }
-
-  const client = createClient(config.url, config.secretKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  }) as unknown as PostCmsClient;
-
-  return new SupabasePostRepository(client);
 }

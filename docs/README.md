@@ -37,6 +37,12 @@ Local: `/docs/adr/`
 | Documento | Descrição |
 |-----------|-----------|
 | [`ADR-005-internationalization-strategy.md`](./adr/ADR-005-internationalization-strategy.md) | Estratégia de i18n: rotas localizadas, catálogos tipados, SEO por idioma |
+| [`ADR-009-swappable-email-delivery.md`](./adr/ADR-009-swappable-email-delivery.md) | Entrega de email trocável: porta `EmailSender`, dois adaptadores, `EMAIL_SENDER` |
+| [`ADR-010-swappable-cms-storage.md`](./adr/ADR-010-swappable-cms-storage.md) | Armazenamento do CMS trocável: porta `PostRepository` no domínio, `CMS_STORAGE`, adaptador em memória |
+| [`ADR-011-supabase-for-content-and-identity.md`](./adr/ADR-011-supabase-for-content-and-identity.md) | Supabase para conteúdo e identidade: chaves separadas, catálogo versionado, onde a privacidade é imposta |
+| [`ADR-012-client-side-retrieval-for-the-resume-copilot.md`](./adr/ADR-012-client-side-retrieval-for-the-resume-copilot.md) | Copiloto do currículo por recuperação lexical sobre corpus local, sem modelo externo |
+| [`ADR-013-synthesised-soundtrack.md`](./adr/ADR-013-synthesised-soundtrack.md) | Trilha sonora sintetizada na Web Audio API, em vez de um arquivo de áudio |
+| [`ADR-014-shadcn-free-component-library.md`](./adr/ADR-014-shadcn-free-component-library.md) | Biblioteca de componentes própria: sem `components.json` e sem dependência externa |
 
 ### 3. Pasta Product (Legado) ⚠️
 Local: `/docs/product/`

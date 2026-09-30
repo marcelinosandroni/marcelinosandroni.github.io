@@ -7,11 +7,10 @@ import {
   PublishPost,
   SetPostArchived,
   UpdatePost,
-  type PostRepository,
 } from "@/application/blog/manage-posts";
-import { InvalidPostDraftError } from "@/domain/blog/post-draft";
+import { InvalidPostDraftError, type PostRepository } from "@/domain/blog";
 import { getOwnerSession, isAuthEnabled } from "@/infrastructure/auth/owner-session";
-import { getPostRepository } from "@/infrastructure/repositories/supabase-post-repository";
+import { getPostRepository } from "@/infrastructure/repositories";
 
 /**
  * One post: read-modify-write, lifecycle, and deletion.
