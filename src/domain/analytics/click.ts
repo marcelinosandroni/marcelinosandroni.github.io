@@ -23,6 +23,8 @@ export const TRACKABLE_ELEMENTS = [
   "contact-phone",
   "contact-whatsapp",
   "copilot-open",
+  "copilot-close",
+  "copilot-send",
   "copilot-example",
   "blog-article",
   "locale-switch",

@@ -191,6 +191,11 @@ export const enUS = {
       experience: "Experience",
       education: "Education",
       languages: "Languages",
+      teamSize: "Team of {n}",
+      stack: "Stack",
+      challenge: "Challenge",
+      solution: "Response",
+      result: "Result",
     },
     referenceSections: {
       summary: "Executive Summary",
@@ -198,6 +203,11 @@ export const enUS = {
       experience: "Professional Experience",
       education: "Education & Certifications",
       languages: "Languages",
+      teamSize: "Team of {n}",
+      stack: "Stack",
+      challenge: "Challenge",
+      solution: "Response",
+      result: "Result",
     },
     templates: {
       CLEAN: {
@@ -222,7 +232,11 @@ export const enUS = {
     open: "Ask about my experience",
     title: "Ask the resume",
     subtitle: "Grounded answers from this page and the blog. No guessing.",
-    placeholder: "How did you save 24M?",
+    placeholder: "How did you save the 24M contract?",
+    closeLabel: "Close the terminal",
+    exitHint: "exit, Esc, or Ctrl+C to close",
+    welcome:
+      "Grounded in the published resume only. Type a question, or pick one below. Nothing here is inferred — if the corpus cannot support an answer, it says so.",
     send: "Ask",
     thinking: "Searching the resume…",
     sourcesLabel: "Sources",

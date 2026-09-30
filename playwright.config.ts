@@ -1,5 +1,18 @@
 import { defineConfig, devices } from "@playwright/test";
 
+/**
+ * The port the suite runs against.
+ *
+ * Configurable because a hardcoded port fails in a way that looks like an
+ * application bug. Something else on the machine — a Docker backend, a dev
+ * server from another checkout — can hold 3001, and `reuseExistingServer` below
+ * will happily reuse it, so Playwright navigates a stranger's server for the
+ * whole run. That produced 95 failures against 20 passes in 34 minutes, all of
+ * them timeouts and "element not found", with the build green the entire time.
+ */
+const port = process.env.E2E_PORT ?? "3001";
+const baseURL = `http://127.0.0.1:${port}`;
+
 export default defineConfig({
   testDir: "./tests/e2e",
   /**
@@ -19,7 +32,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: "html",
   use: {
-    baseURL: "http://127.0.0.1:3001",
+    baseURL,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -56,8 +69,13 @@ export default defineConfig({
    * test, and the 30s `webServer` timeout below stops being tight.
    */
   webServer: {
-    command: "npm run start -- --hostname 127.0.0.1 --port 3001",
-    url: "http://127.0.0.1:3001",
+    command: `npm run start -- --hostname 127.0.0.1 --port ${port}`,
+    url: baseURL,
+    /**
+     * Only in local runs, and only because a warm server saves a rebuild. CI
+     * always starts its own, so a collision there fails loudly on the port bind
+     * instead of silently testing a stranger's process.
+     */
     reuseExistingServer: !process.env.CI,
     /**
      * Supabase is deliberately left unconfigured for the e2e run.

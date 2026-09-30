@@ -11,7 +11,6 @@ import { SiteHeader } from "@/components/site/site-header";
 import type { Locale } from "@/domain/i18n";
 import type { ResumeContent } from "@/domain/resume/types";
 import { blogPath, resumePath } from "@/domain/site/routes";
-import { RESUME_TEMPLATES, type ResumeTemplateId } from "@/infrastructure/pdf/resume-template-registry";
 import { getDictionary } from "@/i18n";
 import { getHomeContent } from "@/infrastructure/content/home";
 
@@ -31,18 +30,12 @@ export interface HomeViewProps {
  *
  * Deliberately a Server Component: it imports the resume and the home
  * configuration, neither of which may ever reach the browser bundle. The single
- * client island is the PDF download button, and the boot sequence, both of which
+ * client islands are the copilot terminal and the boot sequence, both of which
  * receive already-translated strings as props.
  */
 export async function HomeView({ locale, resume }: HomeViewProps) {
   const t = await getDictionary(locale);
   const home = getHomeContent(locale);
-
-  const pdfTemplates = RESUME_TEMPLATES.map((template) => ({
-    id: template.id as ResumeTemplateId,
-    label: t.pdf.templates[template.id].label,
-    description: t.pdf.templates[template.id].description,
-  }));
 
   const sections = [
     { key: "kpis", label: t.nav.home, href: `#${home.kpis.id}` },
@@ -73,7 +66,7 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
       <SiteHeader locale={locale} t={t} sections={sections} />
 
       <main id="main" aria-label={t.a11y.mainContent}>
-        <HomeHeroSection hero={home.hero} locale={locale} t={t} pdfTemplates={pdfTemplates} />
+        <HomeHeroSection hero={home.hero} t={t} />
         <KpiSection section={home.kpis} />
         <TechArsenalSection section={home.stack} />
         <TrackRecordSection
