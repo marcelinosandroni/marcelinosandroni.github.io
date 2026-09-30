@@ -182,6 +182,11 @@ export const ptBR: Dictionary = {
       experience: "Experiência",
       education: "Formação",
       languages: "Idiomas",
+      teamSize: "Equipe de {n}",
+      stack: "Stack",
+      challenge: "Desafio",
+      solution: "Resposta",
+      result: "Resultado",
     },
     referenceSections: {
       summary: "Resumo Executivo",
@@ -189,6 +194,11 @@ export const ptBR: Dictionary = {
       experience: "Experiência Profissional",
       education: "Formação Acadêmica & Certificações",
       languages: "Idiomas",
+      teamSize: "Equipe de {n}",
+      stack: "Stack",
+      challenge: "Desafio",
+      solution: "Resposta",
+      result: "Resultado",
     },
     templates: {
       CLEAN: {

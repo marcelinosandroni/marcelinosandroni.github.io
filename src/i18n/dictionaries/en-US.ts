@@ -191,6 +191,11 @@ export const enUS = {
       experience: "Experience",
       education: "Education",
       languages: "Languages",
+      teamSize: "Team of {n}",
+      stack: "Stack",
+      challenge: "Challenge",
+      solution: "Response",
+      result: "Result",
     },
     referenceSections: {
       summary: "Executive Summary",
@@ -198,6 +203,11 @@ export const enUS = {
       experience: "Professional Experience",
       education: "Education & Certifications",
       languages: "Languages",
+      teamSize: "Team of {n}",
+      stack: "Stack",
+      challenge: "Challenge",
+      solution: "Response",
+      result: "Result",
     },
     templates: {
       CLEAN: {
