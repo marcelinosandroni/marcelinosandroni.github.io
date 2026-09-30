@@ -242,10 +242,29 @@ test.describe("Home executive overview", () => {
   test("never gates the content behind the boot sequence", async ({ page }) => {
     await page.goto("/en-us");
 
-    const button = page.getByRole("button", { name: /download pdf/i });
+    // The copilot launcher, not the PDF button: the hero no longer offers a
+    // download, and the launcher is an interactive element on the home route,
+    // which is what this invariant is actually about.
+    const launcher = page.getByRole("button", { name: /open the resume copilot/i });
 
-    await expect(button).toBeEnabled();
-    await button.click();
+    await expect(launcher).toBeEnabled();
+    await launcher.click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+  });
+
+  /**
+   * The PDF download has exactly one entrance. Two meant a visitor chose between
+   * a 200KB download and the rest of the page before knowing what they wanted.
+   */
+  test("offers the PDF download only on the resume page", async ({ page }) => {
+    const download = page.getByRole("button", { name: /download pdf/i });
+
+    await page.goto("/en-us");
+    await expect(page.locator("#top").getByRole("button", { name: /download pdf/i })).toHaveCount(0);
+    await expect(download).toHaveCount(0);
+
+    await page.goto("/en-us/resume");
+    await expect(download).toHaveCount(1);
   });
 
   test("never shows the boot sequence to a returning visitor", async ({ page }) => {
