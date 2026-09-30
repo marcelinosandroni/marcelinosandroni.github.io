@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import type { Citation, CopilotAnswer } from "@/domain/ai";
 
@@ -13,9 +13,12 @@ export interface CopilotLabels {
   thinking: string;
   sourcesLabel: string;
   openLabel: string;
+  closeLabel: string;
   examplesLabel: string;
   examples: readonly string[];
   error: string;
+  exitHint: string;
+  welcome: string;
 }
 
 export interface ResumeCopilotProps {
@@ -23,8 +26,17 @@ export interface ResumeCopilotProps {
   labels: CopilotLabels;
 }
 
+type Line =
+  | { kind: "input"; text: string }
+  | { kind: "output"; text: string }
+  | { kind: "citations"; citations: Citation[] }
+  | { kind: "error"; text: string };
+
+/** Every one of these closes the terminal, because that is what they all mean. */
+const EXIT_KEYS = new Set(["c", "d", "z"]);
+
 /**
- * Grounded resume copilot.
+ * Grounded resume copilot, presented as a terminal.
  *
  * The only interactive island added for this feature, and it holds no data of its
  * own: every string arrives translated, the corpus stays on the server, and the
@@ -37,125 +49,315 @@ export interface ResumeCopilotProps {
  */
 export function ResumeCopilot({ locale, labels }: ResumeCopilotProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState<CopilotAnswer | null>(null);
+  const [lines, setLines] = useState<Line[]>([]);
+  const [draft, setDraft] = useState("");
   const [isBusy, setIsBusy] = useState(false);
-  const [networkError, setNetworkError] = useState<string | null>(null);
-  const inputId = useId();
-  const transcriptId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const dialogId = useId();
+  const titleId = useId();
+  const logId = useId();
 
-  async function ask(next: string) {
-    const trimmed = next.trim();
-    if (trimmed === "" || isBusy) {
-      return;
-    }
+  const close = useCallback(() => setIsOpen(false), []);
 
-    setQuestion(trimmed);
-    setIsBusy(true);
-    setNetworkError(null);
+  const scrollToEnd = useCallback(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, []);
 
-    try {
-      const response = await fetch("/api/copilot", {
-        method: "POST",
-        headers: { "content-type": "application/json", "accept-language": locale },
-        body: JSON.stringify({ question: trimmed }),
-      });
-
-      if (!response.ok) {
-        setNetworkError(labels.error);
+  const ask = useCallback(
+    async (next: string) => {
+      const trimmed = next.trim();
+      if (trimmed === "" || isBusy) {
         return;
       }
 
-      setAnswer((await response.json()) as CopilotAnswer);
-    } catch {
-      setNetworkError(labels.error);
-    } finally {
-      setIsBusy(false);
+      setLines((previous) => [...previous, { kind: "input", text: trimmed }]);
+      setDraft("");
+      setIsBusy(true);
+      scrollToEnd();
+
+      try {
+        const response = await fetch("/api/copilot", {
+          method: "POST",
+          headers: { "content-type": "application/json", "accept-language": locale },
+          body: JSON.stringify({ question: trimmed }),
+        });
+
+        const payload = response.ok ? ((await response.json()) as CopilotAnswer) : null;
+
+        if (payload === null) {
+          setLines((previous) => [...previous, { kind: "error", text: labels.error }]);
+          return;
+        }
+
+        // A rejected or not-found answer is still an answer the corpus produced,
+        // so it renders like any other output. The point is that it says so
+        // rather than guessing.
+        const produced: Line[] = [{ kind: "output", text: payload.text }];
+        if (payload.status === "answered" && payload.citations.length > 0) {
+          produced.push({ kind: "citations", citations: payload.citations });
+        }
+        setLines((previous) => [...previous, ...produced]);
+      } catch {
+        setLines((previous) => [...previous, { kind: "error", text: labels.error }]);
+      } finally {
+        setIsBusy(false);
+        scrollToEnd();
+      }
+    },
+    [isBusy, labels.error, locale, scrollToEnd],
+  );
+
+  /*
+   * Escape, the terminal exit keys, and a focus trap.
+   *
+   * The trap is the part that has to be real. `aria-modal="true"` promises a
+   * screen reader user that the content behind the dialog is unreachable, and
+   * without a trap Tab walks straight out of the dialog into the page — so the
+   * promise is a lie. It also has to return focus where it came from on close,
+   * or a keyboard user is dropped at the top of the document with no idea they
+   * were ever in a dialog.
+   */
+  useEffect(() => {
+    if (!isOpen) {
+      return;
     }
-  }
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    inputRef.current?.focus();
+
+    function focusableElements(): HTMLElement[] {
+      if (!dialogRef.current) {
+        return [];
+      }
+
+      return Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.hasAttribute("disabled") && element.offsetParent !== null);
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        return;
+      }
+
+      // Ctrl+C / Ctrl+Z / Ctrl+D are how a user with keyboard muscle memory
+      // tries to leave a terminal. Honour them, and stop the browser's own
+      // handling of Ctrl+D (which does nothing useful) and Ctrl+Z.
+      if (event.ctrlKey && EXIT_KEYS.has(event.key.toLowerCase())) {
+        event.preventDefault();
+        close();
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const focusable = focusableElements();
+
+      if (focusable.length === 0) {
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      // Wrap at both ends. Without this, Tab off the last control silently
+      // continues into the page behind the dialog.
+      if (event.shiftKey && (active === first || !dialogRef.current?.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || !dialogRef.current?.contains(active))) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [isOpen, close]);
+
+  // Lock the page behind the dialog.
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [isOpen]);
 
   return (
-    <section aria-labelledby={`${transcriptId}-heading`} className="border-t border-border-subtle">
+    <section aria-labelledby={titleId} className="border-t border-border-subtle">
       <div className="mx-auto w-full max-w-[1320px] px-margin py-space-lg md:px-margin-tablet lg:px-margin-desktop">
         <button
           type="button"
-          onClick={() => setIsOpen((open) => !open)}
+          onClick={() => setIsOpen(true)}
+          aria-haspopup="dialog"
           aria-expanded={isOpen}
-          aria-controls={transcriptId}
-          aria-label={isOpen ? labels.open : labels.openLabel}
+          aria-controls={dialogId}
+          aria-label={labels.openLabel}
           data-click="copilot-open"
-          className="tap-target gap-space-sm rounded-full border border-border-prominent px-space-md py-space-sm font-label-mono text-label-mono uppercase tracking-widest text-text-secondary transition-colors hover:border-primary-container hover:text-primary-container"
+          className="tap-target inline-flex items-center gap-space-sm rounded-full border border-border-prominent px-space-md py-space-sm font-label-mono text-label-mono uppercase tracking-widest text-text-secondary transition-colors hover:border-primary-container hover:text-primary-container"
         >
-          <span aria-hidden="true">{isOpen ? "▾" : "▸"}</span>
-          {isOpen ? labels.open : labels.title}
+          <span aria-hidden="true">&gt;_</span>
+          {labels.title}
         </button>
 
         {isOpen && (
-          <div id={transcriptId} className="mt-space-md border border-border-subtle bg-surface-raised">
-            <div className="border-b border-border-subtle px-space-md py-space-sm">
-              <h2 id={`${transcriptId}-heading`} className="font-headline-sm text-headline-sm text-text-primary">
-                {labels.title}
-              </h2>
-              <p className="mt-1 text-body-sm text-body-sm text-text-secondary">{labels.subtitle}</p>
-            </div>
-
-            {answer && <Transcript answer={answer} sourcesLabel={labels.sourcesLabel} />}
-
-            <form
-              className="flex flex-col gap-space-sm border-t border-border-subtle p-space-md sm:flex-row"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void ask(question);
-              }}
+          <div
+            className="fixed inset-0 z-[100] flex items-end justify-center bg-surface-base/80 p-0 backdrop-blur-sm sm:items-center sm:p-space-lg"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                close();
+              }
+            }}
+          >
+            <div
+              ref={dialogRef}
+              id={dialogId}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={titleId}
+              className="flex max-h-[85vh] w-full max-w-3xl flex-col border border-border-prominent bg-surface-base font-mono shadow-[0_18px_40px_-18px_rgba(0,0,0,0.9)]"
             >
-              <label htmlFor={inputId} className="sr-only">
-                {labels.placeholder}
-              </label>
-              <input
-                id={inputId}
-                value={question}
-                onChange={(event) => setQuestion(event.target.value)}
-                placeholder={labels.placeholder}
-                maxLength={280}
-                autoComplete="off"
-                className="min-w-0 flex-1 border border-border-subtle bg-surface-base px-space-sm py-space-sm font-body-sm text-body-sm text-text-primary outline-none focus:border-primary-container"
-              />
-              <button
-                type="submit"
-                disabled={isBusy}
-                className="inline-flex items-center justify-center bg-primary-container px-space-md py-space-sm font-label-mono text-label-mono text-on-primary-container uppercase tracking-widest disabled:opacity-70"
-              >
-                {isBusy ? labels.thinking : labels.send}
-              </button>
-            </form>
-
-            {networkError && (
-              <p role="alert" className="border-t border-border-subtle px-space-md py-space-sm text-body-sm text-secondary">
-                {networkError}
-              </p>
-            )}
-
-            {!answer && (
-              <div className="border-t border-border-subtle px-space-md py-space-sm">
-                <p className="font-label-mono text-label-mono uppercase tracking-widest text-text-muted">
-                  {labels.examplesLabel}
-                </p>
-                <ul className="mt-space-sm flex flex-wrap gap-space-sm">
-                  {labels.examples.map((example) => (
-                    <li key={example}>
-                      <button
-                        type="button"
-                        onClick={() => void ask(example)}
-                        data-click="copilot-example"
-                        className="border border-border-subtle px-space-sm py-1 text-body-sm text-body-sm text-text-secondary transition-colors hover:border-primary-container hover:text-primary-container"
-                      >
-                        {example}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+              <div className="flex items-center justify-between gap-space-md border-b border-border-subtle bg-surface-raised px-space-md py-space-sm">
+                <div className="flex items-center gap-space-sm">
+                  <span aria-hidden="true" className="text-primary-container">
+                    {">_"}
+                  </span>
+                  <h2 id={titleId} className="text-label-mono uppercase tracking-widest text-text-primary">
+                    {labels.title}
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={close}
+                  aria-label={labels.closeLabel}
+                  data-click="copilot-close"
+                  className="flex h-8 w-8 items-center justify-center border border-border-subtle text-text-secondary transition-colors hover:border-primary-container hover:text-primary-container"
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
               </div>
-            )}
+
+              <div
+                ref={scrollRef}
+                id={logId}
+                role="log"
+                aria-live="polite"
+                aria-label={labels.title}
+                className="flex-1 overflow-y-auto px-space-md py-space-md"
+              >
+                {lines.length === 0 ? (
+                  <p className="text-body-sm text-text-muted">{labels.welcome}</p>
+                ) : null}
+
+                {lines.map((line, index) => {
+                  if (line.kind === "citations") {
+                    return (
+                      <Citations
+                        key={index}
+                        citations={line.citations}
+                        sourcesLabel={labels.sourcesLabel}
+                      />
+                    );
+                  }
+
+                  return (
+                    <p
+                      key={index}
+                      className={
+                        line.kind === "input"
+                          ? "mt-space-sm text-body-sm text-primary-container"
+                          : line.kind === "error"
+                            ? "mt-space-sm text-body-sm text-secondary"
+                            : "mt-space-sm whitespace-pre-line text-body-sm text-text-secondary"
+                      }
+                    >
+                      {line.kind === "input" ? `> ${line.text}` : line.text}
+                    </p>
+                  );
+                })}
+
+                {isBusy ? <p className="mt-space-sm text-body-sm text-text-muted">{labels.thinking}</p> : null}
+
+                {lines.length === 0 ? (
+                  <ul className="mt-space-md flex flex-col gap-space-xs">
+                    {labels.examples.map((example) => (
+                      <li key={example}>
+                        <button
+                          type="button"
+                          onClick={() => void ask(example)}
+                          data-click="copilot-example"
+                          className="text-left text-body-sm text-text-muted underline decoration-dotted underline-offset-4 transition-colors hover:text-primary-container"
+                        >
+                          {example}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+
+              <form
+                className="flex items-center gap-space-sm border-t border-border-subtle px-space-md py-space-sm"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  // "exit" is typed into a terminal to leave it. Honour it here.
+                  if (draft.trim().toLowerCase() === "exit") {
+                    close();
+                    return;
+                  }
+                  void ask(draft);
+                }}
+              >
+                <label htmlFor={`${dialogId}-input`} className="sr-only">
+                  {labels.placeholder}
+                </label>
+                <span aria-hidden="true" className="shrink-0 text-primary-container">
+                  &gt;
+                </span>
+                <input
+                  id={`${dialogId}-input`}
+                  ref={inputRef}
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  placeholder={labels.placeholder}
+                  maxLength={280}
+                  autoComplete="off"
+                  aria-describedby={`${dialogId}-hint`}
+                  className="min-w-0 flex-1 bg-transparent text-body-sm text-text-primary outline-none placeholder:text-text-muted"
+                />
+                <button
+                  type="submit"
+                  disabled={isBusy}
+                  data-click="copilot-send"
+                  className="shrink-0 border border-border-subtle px-space-sm py-1 text-label-mono uppercase tracking-widest text-text-secondary transition-colors hover:border-primary-container hover:text-primary-container disabled:opacity-50"
+                >
+                  {labels.send}
+                </button>
+              </form>
+
+              <p
+                id={`${dialogId}-hint`}
+                className="border-t border-border-subtle px-space-md py-2 text-label-mono text-text-muted"
+              >
+                {labels.exitHint}
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -163,42 +365,24 @@ export function ResumeCopilot({ locale, labels }: ResumeCopilotProps) {
   );
 }
 
-function Transcript({ answer, sourcesLabel }: { answer: CopilotAnswer; sourcesLabel: string }) {
+function Citations({
+  citations,
+  sourcesLabel,
+}: {
+  citations: Citation[];
+  sourcesLabel: string;
+}) {
   return (
-    <div aria-live="polite" className="border-b border-border-subtle p-space-md">
-      {answer.status === "rejected" ? (
-        <p className="text-body-sm text-body-sm text-text-secondary">{answer.text}</p>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {answer.status === "not-found" ? (
-            <p className="text-body-sm text-body-sm text-text-secondary">{answer.text}</p>
-          ) : (
-            answer.text
-              .split("\n\n")
-              .map((paragraph, index) => (
-                <p key={paragraph.slice(0, 24)} className={index === 0 ? "text-body-sm text-body-sm text-primary-container" : "text-body-sm text-body-sm text-text-secondary"}>
-                  {paragraph}
-                </p>
-              ))
-          )}
-
-          {answer.citations.length > 0 && (
-            <div>
-              <p className="font-label-mono text-label-mono uppercase tracking-widest text-text-muted">
-                {sourcesLabel}
-              </p>
-              <ul className="mt-space-sm flex flex-col gap-2">
-                {answer.citations.map((citation: Citation) => (
-                  <li key={citation.label} className="border-l-2 border-border-prominent pl-space-sm">
-                    <p className="font-label-mono text-label-mono text-text-primary">{citation.label}</p>
-                    <p className="mt-1 text-body-sm text-body-sm text-text-muted">{citation.excerpt}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
+    <div className="mt-space-sm border-l border-border-subtle pl-space-sm">
+      <p className="text-label-mono uppercase tracking-widest text-text-muted">{sourcesLabel}</p>
+      <ul className="mt-space-xs flex flex-col gap-space-xs">
+        {citations.map((citation) => (
+          <li key={citation.label}>
+            <p className="text-body-sm text-primary-container">{citation.label}</p>
+            <p className="text-body-sm text-text-muted">{citation.excerpt}</p>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

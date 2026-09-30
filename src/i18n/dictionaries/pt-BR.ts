@@ -223,7 +223,11 @@ export const ptBR: Dictionary = {
     open: "Pergunte sobre a minha experiência",
     title: "Pergunte ao currículo",
     subtitle: "Respostas fundamentadas nesta página e no blog. Sem adivinhar.",
-    placeholder: "Como você salvou os 24 milhões?",
+    placeholder: "Como você salvou o contrato de 24 milhões?",
+    closeLabel: "Fechar o terminal",
+    exitHint: "exit, Esc ou Ctrl+C para sair",
+    welcome:
+      "Baseado apenas no currículo publicado. Digite uma pergunta ou escolha uma abaixo. Nada aqui é inferido — se o conteúdo não sustenta a resposta, ele diz isso.",
     send: "Perguntar",
     thinking: "Buscando no currículo…",
     sourcesLabel: "Fontes",
