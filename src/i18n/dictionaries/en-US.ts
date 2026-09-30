@@ -268,6 +268,43 @@ export const enUS = {
     questionTooLong: "That question is too long. Keep it to a sentence.",
     error: "The copilot could not be reached. Try again.",
   },
+  /**
+   * The visitor's chat.
+   *
+   * A visitor is not offered this. The owner opens a conversation first, and only
+   * then does a widget appear — so most readers of this site never see a word of
+   * it, which is the point: a chat box on every page is an invitation to write to
+   * a stranger, and the reply is content this site would then be holding.
+   *
+   * `agentNotice` and `agentReply` are the two halves of the automated reply, and
+   * both are here rather than in the code because both are said to a stranger.
+   * The notice is a label rendered *above* the message and read out by a screen
+   * reader; the reply says in the first person that it is a machine. Neither can
+   * be mistaken for the owner, and the domain refuses to build the message at all
+   * without the notice.
+   */
+  chat: {
+    title: "Direct line",
+    open: "Talk to me",
+    openLabel: "Open the direct line",
+    closeLabel: "Close the conversation",
+    sendLabel: "Send the message",
+    placeholder: "Write a message…",
+    transcriptLabel: "Conversation",
+    messageLabel: "Your message",
+    privacyNote:
+      "Kept: a random id in this browser and when it was last seen. Not kept: your address, your device, your screen size, your fingerprint.",
+    exitHint: "Esc or a click outside closes this",
+    waiting: "Sent. Marcelino has not answered yet.",
+    youLabel: "You",
+    ownerLabel: "Marcelino",
+    agentNotice: "AUTOMATED REPLY — not a person",
+    agentReply:
+      "I am Agent Smith: an automated stand-in, not Marcelino. Your message reached the desk and this reply is the queue acknowledging it. If it matters, expect the person in this thread shortly.",
+    failed: "The message was not sent. Try again.",
+    rateLimited: "Too many messages. Try again in {seconds}s.",
+    withdrawn: "This conversation was closed.",
+  },
   admin: {
     accessLabel: "Owner access",
     signInTitle: "Owner sign-in",
@@ -286,6 +323,154 @@ export const enUS = {
     backToSite: "Back to the site",
     signOut: "Sign out",
     signedInAs: "Signed in as {email}",
+    /**
+     * The blog CMS.
+     *
+     * Every string the editor shows lives here, including one entry per
+     * `PostIssueCode`. The domain returns codes rather than sentences precisely
+     * so this table can be the only place a reason is ever written down — a
+     * validation message that lived in the domain would be English in a
+     * Portuguese editor.
+     */
+    posts: {
+      sectionTitle: "Blog CMS",
+      sectionDescription:
+        "Write a post in Markdown. Publishing compiles it into the same article the blog already renders, so nothing here is a second kind of page.",
+      listLabel: "Your posts",
+      newPost: "New post",
+      empty: "No posts yet.",
+      loadFailed:
+        "The CMS could not be reached. Check that the blog_post_cms migration is applied and that SUPABASE_SECRET_KEY is set.",
+      statusLabel: "Status",
+      statusDraft: "Draft",
+      statusPublished: "Published",
+      statusArchived: "Archived",
+      localeEnUS: "English",
+      localePtBR: "Portuguese",
+      formLabel: "Post details",
+      createTitle: "New post",
+      editTitle: "Editing {title}",
+      edit: "Edit",
+      fieldTitle: "Title",
+      fieldSlug: "Slug",
+      fieldSlugHint: "Leave blank to derive one from the title.",
+      fieldLocale: "Language",
+      fieldCategory: "Category",
+      fieldExcerpt: "Excerpt",
+      fieldExcerptHint: "One or two sentences. Used as the page description and by search engines.",
+      fieldTags: "Tags",
+      fieldTagsHint: "Comma separated.",
+      fieldFeatured: "Feature on the home page",
+      fieldPublishedAt: "Publication date",
+      fieldBody: "Body (Markdown)",
+      bodyHint:
+        "Blank line between blocks. ## and ### for headings, - for a list, 1. for a numbered list, > for a quote, three backticks for code, and ::: for a callout.",
+      bodySafetyNote:
+        "Raw HTML is not rendered. Anything that looks like a tag is shown as the text you typed.",
+      inlineFormattingNote:
+        "Bold, italics and links are not supported yet and stay as the literal characters you typed.",
+      wordCount: "{count} words",
+      estimatedReading: "About {minutes} min read",
+      previewLabel: "Preview",
+      previewEmpty: "Write something and the preview appears here.",
+      save: "Save draft",
+      saving: "Saving…",
+      cancel: "Cancel",
+      publish: "Publish",
+      withdraw: "Archive",
+      restore: "Restore and publish",
+      remove: "Delete",
+      removeConfirm: "Confirm delete",
+      removeCancel: "Keep it",
+      removing: "Deleting…",
+      removeWarning:
+        "Deleting removes the article from the blog. The Markdown goes with it and cannot be recovered from here.",
+      savedDraft: "Saved as a draft.",
+      savedPublished: "Saved and republished.",
+      published: "Published. The post is on the blog.",
+      archived: "Archived. The post is off the blog and the text is kept.",
+      restored: "Restored and published.",
+      removed: "Post deleted.",
+      failed: "The post was not saved. Nothing was changed.",
+      slugTaken: "That slug is already used by another post in this language.",
+      issuesLabel: "Fix these before saving",
+      viewOnBlog: "View on the blog",
+      issues: {
+        document_unreadable: "The post could not be read. Send it again.",
+        front_matter_missing:
+          "The document must start with a --- line, then the fields, then another --- line.",
+        front_matter_unterminated: "The --- that closes the fields is missing.",
+        front_matter_line_invalid: "This line is not a field. Use `name: value`.",
+        front_matter_key_unknown: "{field} is not a field this editor knows.",
+        front_matter_key_repeated: "{field} is written more than once.",
+        front_matter_key_missing: "{field} is missing.",
+        value_not_a_string: "{field} must be a single value, not a list.",
+        value_required: "{field} is required.",
+        value_too_long: "{field} is too long.",
+        value_not_a_boolean: "{field} must be true or false.",
+        value_not_a_list: "{field} must be a comma separated list.",
+        value_not_a_date: "{field} must be a date as YYYY-MM-DD.",
+        slug_invalid:
+          "The slug must be lowercase words joined by single hyphens, with no accents or spaces.",
+        locale_unknown: "Choose one of the published languages.",
+        category_unknown: "Choose a category from the list.",
+        tags_too_many: "Too many tags.",
+        body_empty: "The body is empty.",
+      },
+    },
+    /**
+     * The presence board and the owner's half of the chat.
+     *
+     * `availabilityAnswering` and friends name the three states from
+     * `OwnerActivityState` rather than describing them, so the badge and the rule
+     * cannot drift: "Answering" is shown exactly when `canOwnerAnswer` is true.
+     *
+     * The last-seen strings are relative because an absolute timestamp on a live
+     * board is read as "when did I look at this page". Three granularities rather
+     * than one formatted date, because a board that says "27/09/2026 14:02:11"
+     * for somebody who is online *right now* has buried the one fact it exists to
+     * convey.
+     */
+    chat: {
+      sectionTitle: "Who is reading",
+      sectionDescription:
+        "Anonymous visitors on the site right now, and the conversations you have started. A random id and a last-seen time — no address, no device, no fingerprint, no cookie.",
+      online: "{count} online",
+      onlineNone: "Nobody is reading",
+      lastSeenNow: "just now",
+      lastSeenMinutes: "{minutes}m ago",
+      lastSeenHours: "{hours}h ago",
+      visitorsLabel: "Visitors",
+      noVisitors: "No visitor has sent a heartbeat in the last day.",
+      availabilityLabel: "You are",
+      availabilityAnswering: "answering",
+      availabilityIdle: "idle",
+      availabilitySignedOut: "signed out",
+      availabilityHint:
+        "Answering while this page is open and looked at, idle after an hour of quiet, signed out the moment your session ends.",
+      startChat: "Start a conversation",
+      reopenChat: "Open again",
+      openTranscript: "Read the transcript",
+      started: "Conversation started. Their widget has just appeared.",
+      closeChat: "Stop answering",
+      closeChatWarning: "Stop answering keeps the transcript. The visitor is offered nothing.",
+      conversationLabel: "Conversation with {session}",
+      replyPlaceholder: "Reply…",
+      sendReply: "Reply",
+      transcriptLabel: "Transcript",
+      emptyConversation: "No messages yet.",
+      stateLabel: "State",
+      stateUnopened: "Not started",
+      stateOpen: "Open",
+      stateClosed: "Closed",
+      youLabel: "You",
+      visitorLabel: "Visitor",
+      failed: "That did not go through. Nothing was changed.",
+      rateLimited: "Too many messages. Try again in {seconds}s.",
+      sessionEnded: "Your session ended. Reload the page to sign in again.",
+      loadFailed:
+        "The console could not be reached. Check that the presence_and_chat migration is applied and that SUPABASE_SECRET_KEY is set.",
+    },
   },
   analytics: {
     panelLabel: "Engagement overview",
@@ -303,6 +488,34 @@ export const enUS = {
     domContentLoaded: "DOM ready",
     loadComplete: "Loaded",
     unavailable: "not measurable in this browser",
+  },
+  /**
+   * Open Graph cards — the 1200x630 image a social platform shows when a link
+   * is shared, and the `og:image:alt` that accompanies it.
+   *
+   * These live in the catalog rather than in the card components because they
+   * are user-visible in the sense that matters most here: they are read by
+   * someone who never loaded the site, in a language that may not be the one the
+   * article was written in. `monogram` is identical in every locale on purpose —
+   * it is the wordmark, and translating a wordmark is a rebranding.
+   */
+  og: {
+    monogram: "MSD",
+    siteKicker: "// DOCUMENT OF RECORD",
+    alt: "Marcelino Sandroni Dias — Senior Software Engineer & Tech Lead",
+    articleAlt: "Blog article by Marcelino Sandroni Dias",
+    /**
+     * One entry per `ArticleCategory`. A category missing from this table still
+     * renders — `resolveCategoryLabel` falls back to the slug — so adding a
+     * category to the domain does not require a card to fail.
+     */
+    categories: {
+      "distributed-systems": "Distributed Systems",
+      "data-platforms": "Data Platforms",
+      leadership: "Leadership",
+      "ai-ml": "AI & ML",
+      fintech: "Fintech",
+    },
   },
 };
 
