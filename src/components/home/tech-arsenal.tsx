@@ -1,4 +1,5 @@
-import { Chip, Section } from "@/components/ui";
+import { Chip } from "@/components/ui";
+import { SectionShell } from "@/components/home/section-shell";
 import { ACCENT_TEXT, Icon } from "@/components/ui/icon";
 import type { HomeStackSection } from "@/domain/portfolio";
 
@@ -18,7 +19,7 @@ export interface TechArsenalSectionProps {
  */
 export function TechArsenalSection({ section }: TechArsenalSectionProps) {
   return (
-    <Section id={section.id}>
+    <SectionShell id={section.id} artwork={{ section: "arsenal", placement: "corner-top-right" }}>
       <div className="space-y-space-xl">
         <div className="max-w-2xl space-y-space-xs">
           <span className="font-label-mono text-label-mono uppercase tracking-widest text-primary-container">
@@ -63,6 +64,6 @@ export function TechArsenalSection({ section }: TechArsenalSectionProps) {
           ))}
         </div>
       </div>
-    </Section>
+    </SectionShell>
   );
 }

@@ -78,6 +78,20 @@ export const enUS = {
     decorative: "Decorative",
     opensInNewTab: "Opens in a new tab",
   },
+  /**
+   * Attribution for a licensed still in a section's artwork layer
+   * (`docs/section-artwork.md`).
+   *
+   * The only user-visible string the artwork layer has. The layer itself is
+   * `aria-hidden`, but a film still is a use of someone else's copyrighted work
+   * and attribution is neither decoration nor a detail — so the credit is ordinary
+   * readable text, and it is translated like every other string on the site. It
+   * renders only when an image is configured: the generated plate is original
+   * artwork and carries no credit.
+   */
+  artwork: {
+    credit: "Image: {title} — {rights}.",
+  },
   nav: {
     backToTop: "Back to top",
     mainNavigation: "Main navigation",

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import { Chip, Section, SectionHeading } from "@/components/ui";
+import { Chip, SectionHeading } from "@/components/ui";
+import { SectionShell } from "@/components/home/section-shell";
 import { ACCENT_TEXT, Icon } from "@/components/ui/icon";
 import { toLocaleSegment, type Locale } from "@/domain/i18n";
 import type { AccentTone, HomeExperienceAnnotation, HomeTrackRecordSection } from "@/domain/portfolio";
@@ -34,7 +35,7 @@ export function TrackRecordSection({
   );
 
   return (
-    <Section id={section.id} surface="raised">
+    <SectionShell id={section.id} surface="raised" artwork={{ section: "experience", placement: "corner-bottom-right" }}>
       <div className="space-y-space-2xl">
         <SectionHeading
           id={`${section.id}-heading`}
@@ -70,7 +71,7 @@ export function TrackRecordSection({
           </Link>
         </div>
       </div>
-    </Section>
+    </SectionShell>
   );
 }
 

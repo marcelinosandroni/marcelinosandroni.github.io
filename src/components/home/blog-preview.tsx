@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Section } from "@/components/ui";
+import { SectionShell } from "@/components/home/section-shell";
 import { ACCENT_TEXT, Icon } from "@/components/ui/icon";
 import { toLocaleSegment, type Locale } from "@/domain/i18n";
 import type { HomeBlogSection } from "@/domain/portfolio";
@@ -26,7 +26,7 @@ export function BlogPreviewSection({ section, locale, t }: BlogPreviewSectionPro
   const items = section.limit > 0 ? section.items.slice(0, section.limit) : section.items;
 
   return (
-    <Section id={section.id}>
+    <SectionShell id={section.id} artwork={{ section: "blog", placement: "corner-top-left" }}>
       <div className="space-y-space-xl">
         <div className="flex flex-col justify-between gap-space-md md:flex-row md:items-end">
           <div>
@@ -89,6 +89,6 @@ export function BlogPreviewSection({ section, locale, t }: BlogPreviewSectionPro
           ))}
         </div>
       </div>
-    </Section>
+    </SectionShell>
   );
 }

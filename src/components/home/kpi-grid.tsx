@@ -1,4 +1,5 @@
-import { Section, SectionHeading } from "@/components/ui";
+import { SectionHeading } from "@/components/ui";
+import { SectionShell } from "@/components/home/section-shell";
 import { ACCENT_TEXT, Icon } from "@/components/ui/icon";
 import type { AccentTone, HomeKpi, HomeKpiSection } from "@/domain/portfolio";
 export interface KpiSectionProps {
@@ -29,7 +30,7 @@ const HOVER_ACCENT = {
  */
 export function KpiSection({ section }: KpiSectionProps) {
   return (
-    <Section id={section.id} surface="raised">
+    <SectionShell id={section.id} surface="raised" artwork={{ section: "kpis", placement: "corner-bottom-left" }}>
       <div className="space-y-space-xl">
         <SectionHeading
           id={`${section.id}-heading`}
@@ -44,7 +45,7 @@ export function KpiSection({ section }: KpiSectionProps) {
           ))}
         </div>
       </div>
-    </Section>
+    </SectionShell>
   );
 }
 
