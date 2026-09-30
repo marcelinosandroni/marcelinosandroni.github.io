@@ -26,6 +26,8 @@ export const TRACKABLE_ELEMENTS = [
   "copilot-close",
   "copilot-send",
   "copilot-example",
+  "soundtrack-on",
+  "soundtrack-off",
   "blog-article",
   "locale-switch",
 ] as const;

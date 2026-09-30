@@ -139,12 +139,99 @@
 }
 
 /* ==========================================================================
+   THE BOOT RAIN
+   ==========================================================================
+   Vertical columns of glyphs sweeping down, the way a screen wakes up in the
+   film, played once as the terminal opens.
+
+   Drawn with repeating-linear-gradient rather than text nodes. Per-character
+   DOM would mean hundreds of elements created and destroyed inside an
+   animation, which is the expensive way to do something that is fundamentally a
+   texture — and a texture cannot reflow or steal focus, so it also cannot break
+   the dialog that is opening behind it.
+
+   The trailing head is the bright one: a column's gradient runs transparent at
+   the top and solid at the bottom edge, so each one reads as a streak with a
+   bright leading edge, which is what makes it look like it is falling rather
+   than scrolling.
+   ========================================================================== */
+
+.msd-boot-rain {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--color-surface-base);
+  /* The whole layer hands opacity to the dialog, so it never intercepts a click. */
+  animation: msd-boot-rain-fade 900ms ease-out forwards;
+}
+
+.msd-boot-rain::before,
+.msd-boot-rain::after {
+  content: "";
+  position: absolute;
+  inset: -50% 0 0 0;
+  /*
+    Two column sets, offset, so the rain does not line up into a visible lattice.
+    A single set of evenly spaced columns reads as a grid, which is the one thing
+    this must not look like.
+  */
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--color-primary-container) 0 2px,
+    transparent 2px 7px
+  );
+  /*
+    The head: a soft bright band at the top of each column's travel. Combined with
+    the mask below this is what turns stripes into falling glyph columns.
+  */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 35%, #000 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 35%, #000 55%, transparent 100%);
+  animation: msd-boot-rain-fall 620ms linear forwards;
+}
+
+.msd-boot-rain::before {
+  opacity: 0.85;
+  transform: translate3d(0, 0, 0);
+}
+
+.msd-boot-rain::after {
+  opacity: 0.5;
+  /* A third of a column off, and slower, so the two never beat together. */
+  transform: translate3d(3px, 0, 0);
+  animation-duration: 880ms;
+  animation-delay: 40ms;
+}
+
+@keyframes msd-boot-rain-fall {
+  from {
+    transform: translate3d(0, -100%, 0);
+  }
+  to {
+    transform: translate3d(0, 100%, 0);
+  }
+}
+
+@keyframes msd-boot-rain-fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
    REDUCED MOTION
    ==========================================================================
    The grid keeps its state — the reader still sees that something is happening —
    but arrives instantly, and the bar stops sweeping and just sits at a fixed
    width. Removing the animation entirely would make a navigation look like a
    frozen page, which is a worse signal than a still indicator.
+
+   The rain is the exception: it is the one effect here that is pure decoration on
+   top of a panel that is already open and usable, so with reduced motion it is
+   dropped completely rather than shown frozen. The dialog appears immediately.
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -163,5 +250,9 @@
   .msd-progress[data-state="indeterminate"] {
     animation: none;
     transform: scaleX(0.35);
+  }
+
+  .msd-boot-rain {
+    display: none;
   }
 }

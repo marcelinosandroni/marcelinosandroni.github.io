@@ -151,21 +151,42 @@ test.describe("Localized routing and PDF download", () => {
     });
 
     await page.goto("/pt-br/resume");
-    // The loading state only exists once the client island has hydrated, so wait
-    // for the page to be interactive before clicking. Without this the click can
-    // land on a not-yet-hydrated button and no state is ever set.
-    await page.waitForLoadState("networkidle");
 
     const downloadButton = page.getByRole("button", { name: /baixar pdf/i });
     const downloadPromise = page.waitForEvent("download");
+    // Waited on explicitly rather than via `networkidle`: this island is a
+    // download button, and the only signal that matters is the button itself.
+    await expect(downloadButton).toBeEnabled();
 
-    await downloadButton.click();
-    // The request is parked, so the state below is guaranteed to still be
-    // present when it is read.
-    await expect(page.getByRole("button", { name: /gerando/i })).toBeVisible({ timeout: 10_000 });
+    try {
+      /*
+       * Both waiters are armed before the click. Registering the request waiter
+       * afterwards is a race: the fetch fires during the click, so the listener
+       * starts a moment too late and times out on an event that already
+       * happened.
+       */
+      const requestPromise = page.waitForRequest(/api\/resume\/.*\/pdf/, { timeout: 15_000 });
 
-    release();
-    expect((await downloadPromise).suggestedFilename()).toContain(".pdf");
+      await downloadButton.click();
+
+      /*
+       * The request has to be observed before the label is read. If the click
+       * landed before hydration there is no fetch at all and no loading state
+       * will ever appear — the old test just waited 10s and failed, and worse,
+       * left the parked route handler hanging because `release` was never
+       * reached. That leak is what turned one flaky test into 13 minutes of
+       * timeouts across the rest of the suite.
+       */
+      await requestPromise;
+
+      await expect(page.getByRole("button", { name: /gerando/i })).toBeVisible({ timeout: 10_000 });
+
+      release();
+      expect((await downloadPromise).suggestedFilename()).toContain(".pdf");
+    } finally {
+      // Always unblock the route, so a failure here cannot cascade.
+      release();
+    }
   });
 
   test("has accessible navigation and an English locale switcher", async ({ page }) => {

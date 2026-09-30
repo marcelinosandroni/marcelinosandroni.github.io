@@ -86,10 +86,22 @@ export default defineConfig({
      * which is the path most likely to break silently. A project that *does* have
      * credentials can run the same suite by exporting the variables, and
      * `FallbackArticleRepository` will prefer the database.
+     *
+     * The server-side names have to be cleared explicitly. `next start` loads
+     * `.env`, and `isSupabaseConfigured()` reads `SUPABASE_URL` and
+     * `SUPABASE_SECRET_KEY` — not the `NEXT_PUBLIC_` pair this list used to clear.
+     * So on a machine with a real `.env` the auth route saw a configured
+     * deployment, answered 200, and two tests asserting the 503 unconfigured
+     * contract failed for reasons that had nothing to do with the code under test.
      */
     env: {
       NEXT_PUBLIC_SUPABASE_URL: "",
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "",
+      SUPABASE_URL: "",
+      SUPABASE_SECRET_KEY: "",
+      SUPABASE_PUBLISHABLE_KEY: "",
+      ADMIN_EMAIL: "",
     },
   },
 });
