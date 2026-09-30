@@ -1,0 +1,326 @@
+/* ==========================================================================
+   SECTION ARTWORK
+   ==========================================================================
+   The decorative layer that sits beside a section's content. Nothing here
+   animates, nothing here is announced, and nothing here runs at all until a
+   section is configured to carry artwork.
+
+   ## Why this file exists separately from `globals.css`
+
+   `globals.css` holds the tokens and the rules every page shares. This holds one
+   layer, imported by exactly one module (`@/components/home/section-shell`), which
+   no route renders yet. That is the mechanism behind the claim that the artwork
+   costs nothing today: not an `if` around the markup but an import graph with no
+   entry point.
+
+   ## Why these rules are unlayered
+
+   Same reason as the header-compaction block in `globals.css`: the layer's
+   `position`, `z-index`, `opacity`, `overflow` and `mask` have to win against
+   utility classes on the same elements, and Tailwind v4 emits the utilities layer
+   *after* `components`. Layer order beats specificity, so a `components`-layered
+   declaration here is simply overruled. Unlayered CSS sits outside the cascade
+   layers entirely and wins without `!important` — and the layering is the thing
+   being fought, so `!important` would be the wrong tool.
+
+   ## The rules below must stay plain CSS
+
+   No `@apply`, no `@import`, no Tailwind directive. Not a style preference: the
+   e2e suite injects this file's bytes into a live page with
+   `page.addStyleTag`, because the layers this file draws are not on any route
+   until a section adopts the shell. A file that only the Tailwind compiler could
+   turn into CSS could not be tested that way.
+
+   ## Colour comes from tokens, never from literals
+
+   Every hue is a `--color-*` token from the theme blocks in `globals.css`, which
+   is what makes the layer survive all three themes: on carbon and matrix the
+   accent is a bright phosphor against near-black, on paper it is a dark olive
+   against cream, and the *structure* — a grid behind, dimmer than the rain in
+   front, brighter than the surface — is an alpha relationship rather than a hue
+   one. A literal `#39ff7a` here would be a second, invisible copy of the matrix
+   palette that no theme change could reach, and would render as a dark smear on
+   the paper theme.
+
+   ## Why the mask is radial and anchored to the corner
+
+   The mask *is* the product requirement. "Art at the sides or corners, never
+   under a paragraph" is not something the layer can be trusted to do by being
+   positioned correctly — a band that is merely at the edge still tints whatever
+   the container's gutter does not cover. So the mask fades the plate to literal
+   zero before it reaches the content column, and the fade is measured from the
+   corner the plate is anchored to, which is why there is one rule per placement
+   instead of a single mirrored gradient.
+
+   The band itself is sized to the margin *beside* the content rather than to a
+   viewport breakpoint: `Section` centres a `max-w-[1320px]` column, so the free
+   space grows with the window instead of appearing at one. On a 1920px screen
+   the band is ~348px and its opaque core ends at ~190px, comfortably outside the
+   content at ~348px. On a 1280px laptop there is no margin at all, and the band
+   falls back to 72px whose core is mostly inside the gutter.
+
+   ## Why nothing in here animates
+
+   These are still images. There is no `animation` property on any rule below and
+   no drift, no parallax and no shimmer, so `prefers-reduced-motion` has nothing
+   to switch off. The media query at the bottom is therefore not the mechanism —
+   it is the guard: a rule added here later cannot turn into an animation for a
+   reader who asked for none, and the e2e asserts `animation-name: none` rather
+   than trusting a comment.
+   ========================================================================== */
+
+.msd-artwork {
+  /*
+     Without this the four corner rules below are dead code. `Section` is
+     `position: relative`, so this resolves against the section and the band lands
+     in the margin beside the content; as a static box it ignored every `top`,
+     `right` and `bottom` below and sat in normal flow at the section's padding,
+     which is a 48px inset on the wrong side rather than a band in the gutter.
+  */
+  position: absolute;
+
+  /*
+     Mirrors `max-w-[1320px]` in `Section`
+     (`src/components/ui/primitives.tsx:160`). It has to move with that value or
+     the band stops being the margin beside the content and starts being a
+     rectangle over it.
+  */
+  --msd-artwork-container: 1320px;
+
+  /*
+     The band's width is the container's outer margin plus its own inline
+     padding, with a floor so the layer survives on a laptop narrower than the
+     container. The floor is 4.5rem rather than something larger on purpose: at
+     1280px the mask has already taken the visible core down to roughly 30px,
+     which is inside the 32px gutter.
+  */
+  width: max(4.5rem, calc((100% - var(--msd-artwork-container)) / 2 + var(--spacing-margin-desktop)));
+
+  /* Tall enough to be a presence, short enough to stay a corner mark. */
+  height: min(100%, 32rem);
+
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+
+  /*
+     The one number the whole feature turns on, and it is written by the domain
+     (`ARTWORK_OPACITY_MAX` is 0.14) rather than chosen here. The fallback in the
+     `var()` is the default, not a safety net: the inline style always wins, so a
+     reader is never left with whatever the last stylesheet happened to say.
+  */
+  opacity: var(--msd-artwork-opacity, 0.09);
+
+  /*
+     `slice` rather than `meet` on the SVG, and `cover` on the image: the band is
+     a window onto a taller plate, so a landscape still must fill it rather than
+     letterbox inside it.
+  */
+  isolation: isolate;
+}
+
+/* --- The four corners ----------------------------------------------------- */
+
+.msd-artwork[data-artwork-placement="corner-top-left"] {
+  top: 0;
+  left: 0;
+}
+
+.msd-artwork[data-artwork-placement="corner-top-right"] {
+  top: 0;
+  right: 0;
+}
+
+.msd-artwork[data-artwork-placement="corner-bottom-left"] {
+  bottom: 0;
+  left: 0;
+}
+
+.msd-artwork[data-artwork-placement="corner-bottom-right"] {
+  bottom: 0;
+  right: 0;
+}
+
+/*
+   The fade, one per corner.
+
+   `#000` is opaque in a mask, not a colour: the gradient is an alpha ramp on the
+   mask channel, so no hue is being mixed in here and no theme can affect it.
+   `140% 110%` puts the falloff further out horizontally than vertically so the
+   core stays a band rather than becoming a blob; `transparent` at 76% is chosen
+   because it reaches zero well inside the content column at every width the band
+   formula produces above.
+*/
+.msd-artwork[data-artwork-placement="corner-top-left"] {
+  -webkit-mask-image: radial-gradient(140% 110% at 0% 0%, #000 0%, #000 30%, transparent 76%);
+  mask-image: radial-gradient(140% 110% at 0% 0%, #000 0%, #000 30%, transparent 76%);
+}
+
+.msd-artwork[data-artwork-placement="corner-top-right"] {
+  -webkit-mask-image: radial-gradient(140% 110% at 100% 0%, #000 0%, #000 30%, transparent 76%);
+  mask-image: radial-gradient(140% 110% at 100% 0%, #000 0%, #000 30%, transparent 76%);
+}
+
+.msd-artwork[data-artwork-placement="corner-bottom-left"] {
+  -webkit-mask-image: radial-gradient(140% 110% at 0% 100%, #000 0%, #000 30%, transparent 76%);
+  mask-image: radial-gradient(140% 110% at 0% 100%, #000 0%, #000 30%, transparent 76%);
+}
+
+.msd-artwork[data-artwork-placement="corner-bottom-right"] {
+  -webkit-mask-image: radial-gradient(140% 110% at 100% 100%, #000 0%, #000 30%, transparent 76%);
+  mask-image: radial-gradient(140% 110% at 100% 100%, #000 0%, #000 30%, transparent 76%);
+}
+
+/*
+   Below `lg` the container fills the window, so there is no outer margin to grow
+   a band from and the inline padding is the tablet value. The band shrinks with it
+   rather than switching to a fixed narrow one.
+*/
+@media (max-width: 63.999rem) {
+  .msd-artwork {
+    width: max(4rem, calc((100% - var(--msd-artwork-container)) / 2 + var(--spacing-margin-tablet)));
+  }
+}
+
+/* --- The phosphor bloom ----------------------------------------------------
+   One `radial-gradient` on one element, behind the strokes.
+
+   This is the trick `rain.css` documents and then declines to improve on: a
+   `filter: drop-shadow` over the plate would give the same read, at the cost of
+   one compositing layer per plate per section. A gradient is free. */
+
+.msd-artwork__bloom {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 96% at 50% 46%,
+    color-mix(in oklab, var(--color-primary-container) 24%, transparent) 0%,
+    transparent 74%
+  );
+}
+
+/* --- The generated plate --------------------------------------------------- */
+
+.msd-artwork__plate {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/*
+   The grid is `--color-border-prominent`, the rain is
+   `--color-primary-container`. That relationship is the depth cue and it is an
+   alpha one, not a hue one, so it holds on all three themes — including the paper
+   theme, where "border" is a warm grey and "primary" is a dark olive.
+*/
+.msd-artwork__grid {
+  fill: none;
+  stroke: var(--color-border-prominent);
+  stroke-width: 0.75;
+  stroke-opacity: 0.5;
+}
+
+/*
+   A column of glyphs is a dashed line. The dash pattern gives it gaps, the seeded
+   per-column `stroke-width` gives it texture, and `stroke-opacity` between 0.3
+   and 0.6 is the trail: brighter than the grid, dimmer than the head.
+*/
+.msd-artwork__column {
+  fill: none;
+  stroke: var(--color-primary-container);
+  stroke-linecap: round;
+}
+
+.msd-artwork__head {
+  fill: none;
+  stroke: var(--color-primary-container);
+  stroke-linecap: round;
+}
+
+/* --- A licensed still ------------------------------------------------------ */
+
+.msd-artwork__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /*
+     Pulled most of the way to the site's own palette rather than left as a
+     photograph sitting next to a dark UI. A full-colour still at 9% still reads
+     as a *picture of something*, which is the thing the layer is trying not to
+     be; drained, it reads as a texture. One filter on one element, and no filter
+     at all on the generated branch.
+  */
+  filter: saturate(0.4) contrast(1.06);
+}
+
+/* --- The credit ------------------------------------------------------------
+   Deliberately outside `.msd-artwork`, and therefore deliberately *not*
+   `aria-hidden`. Attribution for a licensed still is neither decoration nor a
+   detail, so it is ordinary text in the label size, in flow, after the section's
+   own content, aligned to the side the plate sits on. It renders only when an
+   image is configured — a generated plate is original artwork and owes nobody
+   anything. */
+
+.msd-artwork__credit {
+  position: relative;
+  z-index: 10;
+  margin: 0;
+  padding-block-start: var(--spacing-space-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-label-mono);
+  line-height: var(--text-label-mono--line-height);
+  letter-spacing: var(--text-label-mono--letter-spacing);
+  color: var(--color-text-muted);
+}
+
+.msd-artwork__credit[data-artwork-side="left"] {
+  text-align: left;
+}
+
+.msd-artwork__credit[data-artwork-side="right"] {
+  text-align: right;
+}
+
+/* ==========================================================================
+   NARROW VIEWPORTS
+
+   Below 48rem there are no sides. The content column starts one `--spacing-margin`
+   from the edge of the screen, so any band at that width is not beside the copy —
+   it is on top of it, and the mask that keeps it clear of the text on a desktop
+   has nothing left to hide behind.
+
+   So the layer does not render on a phone. That is a product decision, not a
+   limitation being worked around: the entire promise of this feature is that it is
+   peripheral, a layer that cannot be peripheral must not exist, and a reader on a
+   phone has not been given a worse site by its absence. To put it back, delete this
+   block — the mask is strong enough that a corner mark is survivable, which is
+   exactly the judgement that was made here rather than taken on faith.
+   ========================================================================== */
+
+@media (max-width: 47.999rem) {
+  .msd-artwork {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION — THE GUARD
+
+   `globals.css` already collapses every animation on the site to 0.001ms under
+   this preference, which stops the motion but leaves `animation-name` set: the
+   animation still "runs", it just finishes immediately. For a layer whose contract
+   is *no motion at all*, the honest declaration is `animation: none`, so the
+   computed style reports that nothing is running and the e2e can assert it rather
+   than assert a duration.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .msd-artwork,
+  .msd-artwork * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

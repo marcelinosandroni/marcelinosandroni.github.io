@@ -1,4 +1,4 @@
-import { Section } from "@/components/ui";
+import { SectionShell } from "@/components/home/section-shell";
 import { Icon } from "@/components/ui/icon";
 import { toWhatsAppHref } from "@/domain/portfolio";
 /**
@@ -48,7 +48,7 @@ export function ContactGatewaySection({ section, email, phone, t }: ContactGatew
   const values = { company: "—", scope: "—" };
 
   return (
-    <Section id={section.id} surface="overlay">
+    <SectionShell id={section.id} surface="overlay" artwork={{ section: "contact", placement: "corner-bottom-left" }}>
       <div className="relative overflow-hidden rounded-2xl bg-surface-raised p-space-2xl shadow-2xl">
         <div
           aria-hidden="true"
@@ -150,6 +150,6 @@ export function ContactGatewaySection({ section, email, phone, t }: ContactGatew
           </div>
         </div>
       </div>
-    </Section>
+    </SectionShell>
   );
 }
