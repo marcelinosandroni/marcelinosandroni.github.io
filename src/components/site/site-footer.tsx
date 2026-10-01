@@ -5,6 +5,7 @@ import { ThemeControls } from "@/components/theme/theme-controls";
 
 import { Icon } from "@/components/ui/icon";
 import { toWhatsAppHref } from "@/domain/portfolio";
+import { isFeatureEnabled, visibleChannels } from "@/domain/feature-flags/feature-flags";
 import { COPYRIGHT_YEAR, SITE_RELEASE_URL, SITE_VERSION } from "@/domain/site/site-info";
 import type { HomeFooter } from "@/domain/portfolio";
 import type { Locale } from "@/domain/i18n";
@@ -62,41 +63,61 @@ export function SiteFooter({ footer, locale, t, email, phone }: SiteFooterProps)
               >
                 {email}
               </a>
-              <a
-                href={toWhatsAppHref(phone)}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="tap-target gap-space-xs text-secondary underline-offset-4 hover:underline"
-              >
-                <Icon name="whatsapp" size={16} />
-                {phone}
-              </a>
+              {/*
+                Same flag as the contact section, and for the same reason: the
+                footer is a second door to the same phone number. Gating the call
+                to action and leaving this link would mean the flag removed the
+                prominent route and quietly kept the quiet one.
+              */}
+              {isFeatureEnabled("whatsapp") ? (
+                <a
+                  href={toWhatsAppHref(phone)}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="tap-target gap-space-xs text-secondary underline-offset-4 hover:underline"
+                >
+                  <Icon name="whatsapp" size={16} />
+                  {phone}
+                </a>
+              ) : null}
             </div>
           </div>
 
           <div className="flex flex-col justify-between gap-space-lg lg:col-span-6">
             <div className="grid grid-cols-2 gap-space-lg">
-              {footer.columns.map((column) => (
-                <nav key={column.id} aria-label={column.title}>
-                  <h3 className="font-label-mono text-label-mono uppercase text-text-muted">
-                    {column.title}
-                  </h3>
-                  <ul className="mt-space-md space-y-space-sm">
-                    {column.items.map((item) => (
-                      <li key={item.id}>
-                        <FooterLink
-                          href={item.href}
-                          localeSegment={segment}
-                          external={item.external}
-                        >
-                          <Icon name={item.icon} size={14} className="shrink-0" />
-                          {item.label}
-                        </FooterLink>
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
-              ))}
+              {footer.columns.map((column) => {
+                // Same filter as the hero and the contact section, and this is the
+                // surface the e2e caught: the columns are data, so a WhatsApp row
+                // in them is a `wa.me` link that no component-level flag consulted
+                // would have removed. The data is left intact — the flag is a
+                // rendering decision, not an edit to the content.
+                const items = visibleChannels(column.items, {
+                  enabled: isFeatureEnabled("whatsapp"),
+                  icon: "whatsapp",
+                });
+
+                return (
+                  <nav key={column.id} aria-label={column.title}>
+                    <h3 className="font-label-mono text-label-mono uppercase text-text-muted">
+                      {column.title}
+                    </h3>
+                    <ul className="mt-space-md space-y-space-sm">
+                      {items.map((item) => (
+                        <li key={item.id}>
+                          <FooterLink
+                            href={item.href}
+                            localeSegment={segment}
+                            external={item.external}
+                          >
+                            <Icon name={item.icon} size={14} className="shrink-0" />
+                            {item.label}
+                          </FooterLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                );
+              })}
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-space-md">

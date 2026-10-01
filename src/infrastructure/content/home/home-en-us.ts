@@ -330,6 +330,11 @@ export const homeContentEnUS: HomeContent = {
     title: "Let's solve it.",
     narrative:
       "Describe the problem on WhatsApp and we will work it from there. If you would rather write, the brief below is already structured for you.",
+    // See the note on the Portuguese pair in `home-pt-br.ts`: new copy, marked for
+    // review, and the two locales must keep promising the same thing.
+    narrativeWithoutWhatsApp:
+      "Describe the problem by email and the brief below is already structured for you, so the reply can pick up the context on its first line.",
+    statusNoteWithoutWhatsApp: "EMAIL // RESPONSE WITHIN 1 BUSINESS DAY",
     portalLabel: "// DIRECT CONTACT CHANNEL",
     statusNote: "WHATSAPP OR EMAIL // RESPONSE WITHIN 1 BUSINESS DAY",
     channels: [

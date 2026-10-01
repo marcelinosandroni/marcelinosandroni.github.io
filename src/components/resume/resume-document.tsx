@@ -4,6 +4,7 @@ import { Icon } from "@/components/ui/icon";
 import { CONTENT_PERIOD, SITE_VERSION } from "@/domain/site/site-info";
 import { blogPath, homePath, resumePath } from "@/domain/site/routes";
 import { toWhatsAppHref } from "@/domain/portfolio";
+import { isFeatureEnabled } from "@/domain/feature-flags/feature-flags";
 import type { Locale } from "@/domain/i18n";
 import type { ResumeContent, ResumeExperience, ResumeEducation } from "@/domain/resume/types";
 import { RESUME_TEMPLATES, type ResumeTemplateId } from "@/infrastructure/pdf/resume-template-registry";
@@ -113,17 +114,27 @@ export async function ResumeDocument({ locale, resume }: ResumeDocumentProps) {
             {formatMessage(t.hero.liveResume, { version: SITE_VERSION, period: CONTENT_PERIOD })}
           </p>
           <div className="flex flex-wrap items-center gap-space-md pt-space-sm">
-            <DownloadPDFButton
-              locale={locale}
-              templates={pdfTemplates}
-              messages={{
-                download: t.pdf.download,
-                generating: t.pdf.generating,
-                failed: t.pdf.failed,
-                unknownError: t.pdf.unknownError,
-                chooseTemplate: t.pdf.chooseTemplate,
-              }}
-            />
+            {/*
+              `NEXT_PUBLIC_FEATURE_RESUME_DOWNLOAD`, off unless set. The button is
+              not rendered at all rather than rendered disabled: a greyed-out
+              download is an invitation to ask why, and the answer ("it is off in
+              this environment") is not something a reader needs. The route is
+              gated separately, because a hidden button over a live endpoint is
+              not a disabled feature.
+            */}
+            {isFeatureEnabled("resumeDownload") ? (
+              <DownloadPDFButton
+                locale={locale}
+                templates={pdfTemplates}
+                messages={{
+                  download: t.pdf.download,
+                  generating: t.pdf.generating,
+                  failed: t.pdf.failed,
+                  unknownError: t.pdf.unknownError,
+                  chooseTemplate: t.pdf.chooseTemplate,
+                }}
+              />
+            ) : null}
             <a href={homePath(locale)} className="button button-quiet">
               <Icon name="arrow-back" size={18} />
               {t.hero.backToOverview}
@@ -144,15 +155,17 @@ export async function ResumeDocument({ locale, resume }: ResumeDocumentProps) {
             >
               {resume.contact.email}
             </a>
-            <a
-              href={toWhatsAppHref(resume.contact.phone)}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex items-center gap-space-xs text-secondary underline-offset-4 hover:underline"
-            >
-              <Icon name="whatsapp" size={14} />
-              {resume.contact.phone}
-            </a>
+            {isFeatureEnabled("whatsapp") ? (
+              <a
+                href={toWhatsAppHref(resume.contact.phone)}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-space-xs text-secondary underline-offset-4 hover:underline"
+              >
+                <Icon name="whatsapp" size={14} />
+                {resume.contact.phone}
+              </a>
+            ) : null}
           </p>
         </footer>
       </main>

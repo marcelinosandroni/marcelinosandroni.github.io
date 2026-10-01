@@ -31,6 +31,7 @@ Documentação técnica detalhada e guias específicos:
 | [`supabase-setup.md`](./supabase-setup.md) | Variáveis, autenticação do dono e analytics |
 | [`soundtrack.md`](./soundtrack.md) | Trilha sonora: como plugar um arquivo de áudio no lugar da sintetizada |
 | [`section-artwork.md`](./section-artwork.md) | Arte por seção: a fenda opcional, a regra de nomenclatura do arquivo e a exigência de crédito |
+| [`feature-flags.md`](./feature-flags.md) | Flags de WhatsApp e download do currículo: o que cada uma remove e por que o padrão é off |
 | [`EXPERIENCES-ENRICHMENT.md`](./EXPERIENCES-ENRICHMENT.md) | Diretrizes para enriquecimento de experiências |
 
 ### 2.1 Architecture Decision Records (ADR) 📋
