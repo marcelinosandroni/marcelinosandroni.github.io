@@ -18,6 +18,7 @@ import {
   type ResumeTemplateId,
 } from "@/infrastructure/pdf/resume-template-registry";
 import { createErrorResponse } from "@/infrastructure/http/error-handler";
+import { assertResumeDownloadEnabled } from "@/application/publication/assert-resume-download-enabled";
 import { InvalidLocaleError, InvalidTemplateError, PdfGenerationError } from "@/domain/errors";
 
 function getCacheDirectory(): string {
@@ -44,6 +45,17 @@ export async function GET(
   { params }: { params: Promise<{ locale: string }> }
 ) {
   try {
+    // The flag is read here as well as in the button. A hidden button over a live
+    // endpoint is not a disabled feature — the URL is one guess from the route
+    // pattern and the response is a compiled PDF either way, so removing the
+    // affordance would be the whole of the change. This is the part that makes it
+    // a gate.
+    //
+    // Called first, before the locale is even looked at, so that "the route is
+    // off" and "you asked for the wrong language" are indistinguishable from
+    // outside. See the module for why the policy lives outside this file.
+    assertResumeDownloadEnabled();
+
     const { locale } = await params;
 
     if (locale !== "pt-BR" && locale !== "en-US") {

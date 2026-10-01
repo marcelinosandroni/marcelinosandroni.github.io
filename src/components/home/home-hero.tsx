@@ -1,6 +1,7 @@
 import { ChannelLink, StatusPill } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
 import type { HomeHero } from "@/domain/portfolio";
+import { isFeatureEnabled, visibleChannels } from "@/domain/feature-flags/feature-flags";
 import type { Dictionary } from "@/i18n";
 
 import { PortraitFrame } from "./portrait-frame";
@@ -97,7 +98,10 @@ export function HomeHeroSection({ hero, t }: HomeHeroSectionProps) {
                 <span className="text-text-secondary">{hero.availability}</span>
               </span>
               <span className="flex flex-wrap items-center gap-space-md">
-                {hero.channels.map((channel) => (
+                {visibleChannels(hero.channels, {
+                  enabled: isFeatureEnabled("whatsapp"),
+                  icon: "whatsapp",
+                }).map((channel) => (
                   <ChannelLink
                     key={channel.id}
                     label={channel.label}

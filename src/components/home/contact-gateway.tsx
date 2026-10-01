@@ -1,6 +1,7 @@
 import { SectionShell } from "@/components/home/section-shell";
 import { Icon } from "@/components/ui/icon";
 import { toWhatsAppHref } from "@/domain/portfolio";
+import { isFeatureEnabled, visibleChannels } from "@/domain/feature-flags/feature-flags";
 /**
  * Contact channels mapped onto the aggregate allowlist.
  *
@@ -40,12 +41,32 @@ export interface ContactGatewaySectionProps {
  *
  * The subject, body and message templates are configuration, so the tone of the
  * outreach is editable per language without touching the component.
+ *
+ * ## WhatsApp is gated, and so is its absence from the layout
+ *
+ * `NEXT_PUBLIC_FEATURE_WHATSAPP` decides whether the number is published, and it
+ * is off unless something explicitly turns it on. When it is off, two things go
+ * away rather than one: the primary call to action is not rendered, and any
+ * WhatsApp row in the channel list is filtered out. Leaving the row behind would
+ * leave a `wa.me` link that the CTA no longer draws attention to — the reader
+ * would still be one click from a stranger's phone, which is the thing the flag
+ * exists to prevent.
+ *
+ * The email brief is unaffected either way. It is the fallback, and a fallback
+ * that disappears along with the thing it is a fallback *for* would leave a
+ * contact section with no way to make contact at all.
  */
 export function ContactGatewaySection({ section, email, phone, t }: ContactGatewaySectionProps) {
   // `{company}` and `{scope}` stay as visible dashes in the reader's own client,
   // which is what makes the draft a template rather than a form that swallowed
   // their input.
   const values = { company: "—", scope: "—" };
+
+  const whatsappEnabled = isFeatureEnabled("whatsapp");
+  const channels = visibleChannels(section.channels, {
+    enabled: whatsappEnabled,
+    icon: "whatsapp",
+  });
 
   return (
     <SectionShell id={section.id} surface="overlay" artwork={{ section: "contact", placement: "corner-bottom-left" }}>
@@ -67,11 +88,11 @@ export function ContactGatewaySection({ section, email, phone, t }: ContactGatew
               {section.title}
             </h2>
             <p className="max-w-xl font-body-lg text-body-lg text-text-secondary">
-              {section.narrative}
+              {whatsappEnabled ? section.narrative : section.narrativeWithoutWhatsApp}
             </p>
 
             <dl className="space-y-space-xs pt-space-md font-label-mono text-label-mono">
-              {section.channels.map((channel) => (
+              {channels.map((channel) => (
                 <div key={channel.id} className="flex items-center gap-space-sm">
                   <dt className="flex items-center gap-space-sm text-text-muted">
                     <Icon
@@ -117,15 +138,17 @@ export function ContactGatewaySection({ section, email, phone, t }: ContactGatew
             </div>
 
             <div className="space-y-space-sm">
-              <a
-                href={toWhatsAppHref(phone, formatMessage(section.whatsapp.message, values))}
-                className="button button-primary w-full"
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                <Icon name="whatsapp" size={20} />
-                {section.whatsapp.ctaLabel}
-              </a>
+              {whatsappEnabled ? (
+                <a
+                  href={toWhatsAppHref(phone, formatMessage(section.whatsapp.message, values))}
+                  className="button button-primary w-full"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  <Icon name="whatsapp" size={20} />
+                  {section.whatsapp.ctaLabel}
+                </a>
+              ) : null}
 
               <a
                 href={`mailto:${email}?subject=${encodeURIComponent(
@@ -139,13 +162,24 @@ export function ContactGatewaySection({ section, email, phone, t }: ContactGatew
                 {section.brief.ctaLabel}
               </a>
 
-              <p className="pt-space-xs font-body-sm text-body-sm text-text-muted">
-                {t.contact.briefNote}
-              </p>
+              {/*
+                The note explains what the two buttons do, naming WhatsApp in the
+                first clause. With the WhatsApp button gone, keeping it would leave
+                copy describing an affordance the reader cannot find, so it is part
+                of the same gate. The email button does not grow to fill the gap:
+                `button-quiet` next to nothing above it still reads as a secondary
+                action, and restyling it per environment would make the two
+                deployments look like different sites.
+              */}
+              {whatsappEnabled ? (
+                <p className="pt-space-xs font-body-sm text-body-sm text-text-muted">
+                  {t.contact.briefNote}
+                </p>
+              ) : null}
             </div>
 
             <p className="pt-space-xs text-center font-label-mono text-[10px] tracking-wider text-text-muted">
-              {section.statusNote}
+              {whatsappEnabled ? section.statusNote : section.statusNoteWithoutWhatsApp}
             </p>
           </div>
         </div>

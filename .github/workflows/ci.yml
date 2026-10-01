@@ -82,9 +82,39 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          # Both flags on, and this is deliberate rather than incidental.
+          #
+          # The home and resume pages are prerendered, so a feature flag is read
+          # while `next build` renders them — not when the server serves them. A
+          # build without these produces HTML with no `wa.me` link and no download
+          # button, which is the shipped default and would make this suite assert
+          # the wrong half of both features.
+          #
+          # The enabled paths live here because they cannot be faked: the PDF test
+          # clicks a button and expects a compiled file with the right name. The
+          # disabled paths are covered in `tests/unit/`, where the environment is a
+          # function parameter rather than a process.
+          NEXT_PUBLIC_FEATURE_WHATSAPP: "on"
+          NEXT_PUBLIC_FEATURE_RESUME_DOWNLOAD: "on"
 
       - name: End-to-end tests
         run: npm run test:e2e
+
+      - name: Rebuild with the feature flags absent
+        # The default configuration, which cannot be tested against the artefact
+        # above: those pages were prerendered with both flags on, so they contain
+        # the links and the button. Leaving the variables unset is what a fresh
+        # checkout with no `.env` produces, which is the case worth asserting.
+        run: npm run build
+        env:
+          NEXT_PUBLIC_FEATURE_WHATSAPP: ""
+          NEXT_PUBLIC_FEATURE_RESUME_DOWNLOAD: ""
+
+      - name: End-to-end tests with the default flags
+        run: npm run test:e2e:default-flags
+        env:
+          E2E_PORT: 3101
 
       - name: Upload report on failure
         if: failure()
