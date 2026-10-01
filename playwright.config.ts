@@ -16,6 +16,17 @@ const baseURL = `http://127.0.0.1:${port}`;
 export default defineConfig({
   testDir: "./tests/e2e",
   /**
+   * The default-flag suite runs against a *different build*, so it must not be
+   * collected here.
+   *
+   * Leaving it in produced the most confusing possible failure: this run builds
+   * with both flags on, so the spec's six "nothing is published" assertions ran
+   * against a page that had everything published, and six tests failed for the
+   * one reason that was never the code's fault. `npm run test:e2e:default-flags`
+   * is where that file belongs.
+   */
+  testIgnore: /feature-flags-off\.spec\.ts/,
+  /**
    * Serialised on purpose.
    *
    * The suite runs against `next dev`, which compiles a route on first request
@@ -102,6 +113,28 @@ export default defineConfig({
       SUPABASE_SECRET_KEY: "",
       SUPABASE_PUBLISHABLE_KEY: "",
       ADMIN_EMAIL: "",
+
+      /*
+       * Both feature flags are ON here, and that is the opposite of the shipped
+       * default on purpose.
+       *
+       * `NEXT_PUBLIC_FEATURE_WHATSAPP` and `NEXT_PUBLIC_FEATURE_RESUME_DOWNLOAD` are off unless set, so a
+       * server started with no configuration hides every `wa.me` link and answers
+       * 404 on the PDF route. That is the behaviour production runs in.
+       *
+       * This suite deliberately runs the other configuration. It is the only place
+       * the *enabled* paths get real coverage, and the PDF one cannot be faked: it
+       * clicks a button and expects a compiled file with the right name. Running
+       * the suite against the default would delete the only test proving the
+       * download works at all, in exchange for asserting an absence that the unit
+       * tests already assert directly.
+       *
+       * So: enabled paths here, disabled paths in `tests/unit/` — where the
+       * environment is a parameter rather than a process, which is the only reason
+       * that half is testable at all.
+       */
+      NEXT_PUBLIC_FEATURE_WHATSAPP: "on",
+      NEXT_PUBLIC_FEATURE_RESUME_DOWNLOAD: "on",
     },
   },
 });

@@ -332,6 +332,25 @@ export const homeContentPtBR: HomeContent = {
     title: "Vamos resolver isso.",
     narrative:
       "Descreva o problema no WhatsApp e desenrolamos a partir daí. Se preferir escrever por e-mail, o briefing abaixo já vem preenchido com a estrutura certa.",
+    /*
+       Variants for `NEXT_PUBLIC_FEATURE_WHATSAPP=off`, which is the default.
+
+       The narrative above tells the reader to use WhatsApp, so leaving it in place
+       on a build with no WhatsApp link would have the page describing a button
+       that is not rendered. Same for the status line.
+
+       The English pair lives in `home-en-us.ts` and the two must keep saying the
+       same thing — a flag that changes the promise between locales would be worse
+       than the bug it fixes.
+
+       TODO(review): these four strings are new copy written to fit an existing
+       layout, not a translation of the originals. They should be read by whoever
+       owns the tone before this ships with the flag on, because with the flag off
+       they are the only contact copy the site has.
+     */
+    narrativeWithoutWhatsApp:
+      "Descreva o problema por e-mail e o briefing abaixo já vem preenchido com a estrutura certa, para responder com o contexto na primeira linha.",
+    statusNoteWithoutWhatsApp: "EMAIL // RESPOSTA EM 1 DIA ÚTIL",
     portalLabel: "// CANAL DE CONTATO DIRETO",
     statusNote: "WHATSAPP OU EMAIL // RESPOSTA EM 1 DIA ÚTIL",
     channels: [

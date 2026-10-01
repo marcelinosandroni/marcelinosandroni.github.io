@@ -206,6 +206,21 @@ export type HomeContact = {
   kicker: string;
   title: string;
   narrative: string;
+  /**
+   * The same sentence for an environment with no WhatsApp link.
+   *
+   * The narrative above names the channel it wants the reader to use, so with
+   * `NEXT_PUBLIC_FEATURE_WHATSAPP` off it would be describing a button that is not
+   * on the page. Rewriting it at render time is not an option — the sentence is
+   * translated copy, and substituting words in it would produce text nobody wrote
+   * in either language.
+   *
+   * These variants are new copy and are marked for review; see the note in
+   * `home-pt-br.ts`.
+   */
+  narrativeWithoutWhatsApp: string;
+  /** See `narrativeWithoutWhatsApp`. */
+  statusNoteWithoutWhatsApp: string;
   portalLabel: string;
   statusNote: string;
   channels: HomeChannel[];
