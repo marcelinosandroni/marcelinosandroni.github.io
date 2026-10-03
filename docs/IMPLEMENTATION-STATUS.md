@@ -140,6 +140,10 @@ desenvolvimento desta revisão.
 - Gate de cobertura de 90% no escopo `domain` + `application`
 - 24 suítes e2e, serializadas de propósito (workers paralelos corrompiam o cache
   do `next dev`)
+- A transição de navegação só arma para link que resolve para **outro** pathname, e
+  tem teto de 5s: uma vez que a chuva sobe, ela desce. Sem os dois, clicar no logo
+  MSD com a home aberta deixava o overlay no ar para sempre — a vida do overlay é
+  derivada de `pathname` mudar, e um link para a própria rota não muda nada
 - `prefers-reduced-motion` respeitado em todo o site, com backstop em CSS além do
   gate em JavaScript
 - Foco nunca preso em overlay; link "pular para o conteúdo" em ambas as rotas

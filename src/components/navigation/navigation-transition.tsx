@@ -20,13 +20,40 @@ import { MatrixRain } from "@/components/effects/matrix-rain";
  * carries the state to assistive technology, where the rain — being decoration —
  * cannot.
  */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const DELAY_MS = 120;
 
 /** How long the rain stays up after the route lands, so the resolve is seen. */
 const MIN_VISIBLE_MS = 260;
+
+/**
+ * The longest the overlay may ever stay up once shown, whether or not the route
+ * reported back.
+ *
+ * This is the fix for a bug that made the site permanently unusable, and the reason
+ * it is a number rather than a cleverer signal is worth writing down.
+ *
+ * The overlay's whole lifetime is derived from one thing: `pathname` changing. Arm on
+ * a click, show if the click took longer than `DELAY_MS`, resolve when the new
+ * pathname arrives. Every one of those three steps was right. What was not covered was
+ * the case where a navigation *starts* and the pathname never changes — and then
+ * nothing ever calls `hide()` and the rain sits on top of the page indefinitely.
+ *
+ * Clicking the MSD logo while already on the home page was exactly that. The href is
+ * the page you are on, `usePathname()` keeps returning the same string, so the effect
+ * keyed on it does not re-run, the armed timer fires 120ms later, and there is no
+ * second signal coming. Measured: the overlay was still up at +3000ms, and the reader
+ * could keep clicking, which re-armed it every time.
+ *
+ * So the belt to that braces: once the overlay is up it comes down after this long,
+ * whatever happened. A reader who hits it sees the transition on a navigation that
+ * was not one — a wasted 120ms of green and nothing else. The alternative is a site
+ * with a permanent full-screen effect on it and no way out, which is not a worse
+ * version of the same thing, it is a different thing.
+ */
+const STUCK_CEILING_MS = 5_000;
 
 export function NavigationTransition(): React.ReactElement | null {
   const pathname = usePathname();
@@ -44,14 +71,42 @@ export function NavigationTransition(): React.ReactElement | null {
   const shownAt = useRef(0);
   const armTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stuckTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /* Cancel a hide that a new navigation is about to replace. */
-  const clearHide = (): void => {
+  /**
+   * The overlay is down and nothing is scheduled to bring it back.
+   *
+   * One function for both pending resolves rather than two calls at each site: a hide
+   * left armed after the overlay has already come down is a timer that fires into a
+   * no-op, and a ceiling left armed after a normal resolve is a second, redundant
+   * path to the same `setVisible(false)`.
+   */
+  const clearResolves = useCallback((): void => {
     if (hideTimer.current !== null) {
       clearTimeout(hideTimer.current);
       hideTimer.current = null;
     }
-  };
+
+    if (stuckTimer.current !== null) {
+      clearTimeout(stuckTimer.current);
+      stuckTimer.current = null;
+    }
+  }, []);
+
+  /** Take the overlay down and forget which route it was raised for. */
+  const down = useCallback((): void => {
+    clearResolves();
+    setVisible(false);
+    shownFor.current = null;
+  }, [clearResolves]);
+
+  /** Cancel a hide that a new navigation is about to replace. */
+  const clearHide = useCallback((): void => {
+    if (hideTimer.current !== null) {
+      clearTimeout(hideTimer.current);
+      hideTimer.current = null;
+    }
+  }, []);
 
   /**
    * Hide, and wait out the minimum visible time first.
@@ -59,7 +114,7 @@ export function NavigationTransition(): React.ReactElement | null {
    * Without the hold the overlay and the new page would swap in the same frame:
    * the transition would cost latency and show nothing for it.
    */
-  const hide = (): void => {
+  const hide = useCallback((): void => {
     if (shownFor.current === null) {
       return;
     }
@@ -67,12 +122,8 @@ export function NavigationTransition(): React.ReactElement | null {
     const elapsed = Date.now() - shownAt.current;
     const remaining = Math.max(MIN_VISIBLE_MS - elapsed, 0);
 
-    hideTimer.current = setTimeout(() => {
-      setVisible(false);
-      shownFor.current = null;
-      hideTimer.current = null;
-    }, remaining);
-  };
+    hideTimer.current = setTimeout(down, remaining);
+  }, [down]);
 
   /*
    * Arm on any link press, before the route has landed.
@@ -106,12 +157,52 @@ export function NavigationTransition(): React.ReactElement | null {
         return;
       }
 
+      /*
+        A link to the page already open is not a transition.
+
+        This is the click that used to strand the overlay. The href resolves to the
+        current pathname, so `usePathname()` returns the same string afterwards, the
+        effect keyed on it never re-runs, and the armed timer fires 120ms later with
+        no second signal coming to resolve it.
+
+        Resolved with `new URL` rather than a string compare, because the ways two hrefs
+        name the same page are the interesting part and they are all invisible to
+        `===`: a trailing slash, a hash on the current path (`/en-us#kpis` navigates to
+        `/en-us`), and a search string the router drops from the pathname. A literal
+        compare against `location.pathname` fixes the logo and leaves the other three.
+       */
+      let target: URL;
+
+      try {
+        target = new URL(href, window.location.href);
+      } catch {
+        return;
+      }
+
+      if (target.origin === window.location.origin && target.pathname === window.location.pathname) {
+        return;
+      }
+
       clearHide();
 
       armTimer.current = setTimeout(() => {
         setVisible(true);
-        shownFor.current = pathname;
+        /*
+          Read from `location` rather than from a closure over `pathname`. Both are the
+          old path at this instant — the navigation has not committed yet — but reading
+          it here means the recorded value cannot be a render behind, and it lets this
+          listener stop depending on `pathname` entirely, which means it is attached
+          once instead of being torn down and reattached on every route change.
+        */
+        shownFor.current = window.location.pathname;
         shownAt.current = Date.now();
+
+        /*
+          The ceiling, armed with the overlay rather than with the navigation. It is the
+          only thing standing between "a navigation started" and "the page is covered
+          forever", so it has to be scheduled from the one place the overlay comes up.
+        */
+        stuckTimer.current = setTimeout(down, STUCK_CEILING_MS);
       }, DELAY_MS);
     }
 
@@ -120,7 +211,7 @@ export function NavigationTransition(): React.ReactElement | null {
     return () => {
       document.removeEventListener("click", onPress, { capture: true });
     };
-  }, [pathname]);
+  }, [clearHide, down]);
 
   /*
    * The route landed. Cancel any armed timer and, if the rain is up, resolve it.
@@ -145,15 +236,15 @@ export function NavigationTransition(): React.ReactElement | null {
       shownFor.current = pathname;
       hide();
     }
-  }, [pathname]);
+  }, [pathname, hide]);
 
   /* Only the pending arm timer needs clearing on unmount. */
   useEffect(
     () => () => {
       if (armTimer.current !== null) clearTimeout(armTimer.current);
-      clearHide();
+      clearResolves();
     },
-    [],
+    [clearResolves],
   );
 
   if (!visible) {
@@ -181,3 +272,4 @@ export function NavigationTransition(): React.ReactElement | null {
     </>
   );
 }
+

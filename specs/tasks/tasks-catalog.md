@@ -1436,6 +1436,58 @@ build está no ar — e qual build ela é.
   conteúdo. A barra quebrava em três linhas num telefone para dizer, em mais palavras,
   o que `DOM` e `load` dizem
 
+---
+
+### TASK-059: O logo MSD deixava a transição presa no ar
+**US Relacionada**: US-01  
+**Prioridade**: **Alta**  
+**Status**: 🟢 Concluída  
+**Realizado**: ~1h  
+
+**Descrição**: Clicar no logo MSD estando na home deixava a chuva Matrix e a barra de
+progresso na tela **para sempre**. O site ficava inutilizável.
+
+**O Que Foi Feito**:
+- ✅ A vida inteira do overlay é derivada de uma coisa: `pathname` mudar. Arma no clique,
+  mostra se o clique passou de 120ms, resolve quando o pathname novo chega. Os três
+  passos estavam certos — o que não estava coberto era uma navegação que *começa* e o
+  pathname nunca muda. Clicar no logo estando na home é exatamente isso
+- ✅ Um link para a página já aberta não é uma transição. Resolvido com `new URL` e não
+  com comparação de string, porque as formas como dois hrefs nomeiam a mesma página são
+  a parte interessante e nenhuma delas aparece num `===`: barra final, hash no caminho
+  atual (`/en-us#kpis` navega para `/en-us`), query string que o router descarta do
+  pathname. Uma comparação literal com `location.pathname` conserta o logo e deixa as
+  outras três
+- ✅ **Teto de 5s.** Uma vez que o overlay sobe, ele desce depois disso, aconteça o que
+  acontecer. É a rede de segurança que fecha o resto da classe: fetch pendurado, router
+  que nunca comita, qualquer coisa somada depois que inicie uma transição sem mudar o
+  pathname. Quem bate no teto vê uma transição numa navegação que não era uma — 120ms
+  de verde e nada mais. A alternativa é um site com efeito de tela cheia permanente e
+  sem saída, que não é uma versão pior da mesma coisa, é outra coisa
+- ✅ O listener de clique deixou de depender de `pathname`: lê `location` no momento do
+  clique e o efeito é anexado uma vez, não a cada troca de rota
+
+**Critérios de Conclusão**:
+- [x] Clicar no logo na home não monta overlay — falhando no código antigo, provado pelo
+      teste, não por argumento
+- [x] Um overlay nunca pode sobreviver à própria navegação, mesmo com o pathname congelado
+- [x] Nenhum warning novo de lint (`clearResolves`/`down`/`hide` em `useCallback`, com as
+      dependências declaradas em vez de silenciadas)
+- [x] 313 e2e, typecheck e lint limpos
+
+**Bugs encontrados e corrigidos** (nenhum visível sem medir):
+- `preventDefault()` **não cancela** a navegação do Next. A primeira tentativa de
+  reproduzir o teto pendurava o clique num listener de `window` em fase bubble, para
+  rodar depois do capture do componente — e a navegação aconteceu mesmo assim:
+  `<Link>` chama `preventDefault()` no próprio evento e depois dirige `router.push`
+  programaticamente, então a navegação já está em voo quando qualquer coisa fora do
+  React alcança o evento. Medido: o listener registrou `prevented` e o path era
+  `/en-us/resume`. A reprodução correta é um request que nunca resolve
+- `navigations: 3` no primeiro diagnóstico era artefato da instrumentação: o listener de
+  `framenavigated` estava antes do `goto` e contava o carregamento inicial. Medido de
+  novo, 1 navegação e **zero** requests — o Next resolve a auto-navegação no cliente sem
+  round-trip. Não há desperdício de performance aqui para corrigir
+
 ## Backlog de Evolução (Pós-MVP)
 
 A coluna **Status** foi reconciliada com o código em 2026-10-02. Quatro itens
@@ -1562,10 +1614,12 @@ histórico.
 | 2026-10-02 | TASK-056 | Intro sem retrato: glifos Matrix descem até resolverem `MARCELINO SANDRONI` e a cortina sobe revelando o site. Pouso do retrato, porta e revelo monocromático removidos | opencode |
 | 2026-10-03 | TASK-057 | O hold pré-paint só é liberado depois que a cortina está no DOM. Janela de 163ms de site pintável sem cortina, medida com `MutationObserver` no atributo | opencode |
 | 2026-10-03 | TASK-058 | Versão e build à direita da barra de métricas. Build é o timestamp, não o commit sha — um commit tem vários builds; `VERCEL_DEPLOYMENT_ID` no tooltip. Ambiente omitido em produção. Abaixo de 640px só ambiente e versão; métricas renomeadas para `TTFB`/`DOM`/`load` nos dois idiomas | opencode |
+| 2026-10-03 | TASK-059 | Clicar no logo MSD com a home já aberta deixava a chuva e a barra de progresso no ar para sempre: a vida do overlay é derivada de pathname mudar, e um link para a própria rota não muda nada. Duas correções: não arma para link que resolve para o pathname atual, e um teto de 5s | opencode |
 | 2026-09-28 | TASK-050..054 | ÉPICO 05: home executiva com design system tokenizado, currículo movido para `/[locale]/resume`, blog persistido em `blog_articles` com fallback versionado, e gate de cobertura corrigido (a `main` estava em 56.61%) | opencode |
 | 2026-09-28 | TASK-019 | Títulos de seção do PDF movidos dos literais do renderer para os catálogos | opencode |
 | 2026-09-28 | TASK-012, TASK-018 | Versão EN-US reescrita como tradução completa do PT-BR (fonte da verdade), com paridade de estrutura e fatos verificada em CI | opencode |
 | 2026-09-28 | TASK-010, TASK-014..017 | Roteamento i18n, catálogos tipados, SEO por idioma e Server Components. EN-US passou a ser o locale padrão. Ver [ADR-005](../../docs/adr/ADR-005-internationalization-strategy.md) | opencode |
 | 2025-01-15 | Todas | Criação inicial do catálogo | System |
+
 
 
