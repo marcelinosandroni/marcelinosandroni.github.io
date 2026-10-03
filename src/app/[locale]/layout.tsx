@@ -12,7 +12,7 @@ import {
   toLocaleFromSegment,
   toOpenGraphLocale,
 } from "@/domain/i18n";
-import { SITE_OWNER, SITE_URL } from "@/domain/site/site-info";
+import { SITE_BUILD, SITE_OWNER, SITE_URL } from "@/domain/site/site-info";
 import { getDictionary } from "@/i18n";
 import { TelemetryBar } from "@/components/telemetry/telemetry-bar";
 import { NavigationTransition } from "@/components/navigation/navigation-transition";
@@ -220,7 +220,10 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           }}
         />
         <Analytics />
-        <TelemetryBar labels={t.telemetry} />
+        {/* Same rule as every other label in this layout: resolved on the server and
+            handed over, so the island carries no `package.json` and no `process.env`
+            into the browser to print a version the server already knew. */}
+        <TelemetryBar labels={t.telemetry} build={SITE_BUILD} />
       </body>
     </html>
   );

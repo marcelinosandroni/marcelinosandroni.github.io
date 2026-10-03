@@ -12,6 +12,28 @@ import { version as packageVersion } from "../../../package.json";
  */
 export const SITE_VERSION: string = packageVersion;
 
+import type { BuildInfo } from "@/domain/site/build-info";
+import { resolveBuildInfo } from "@/domain/site/build-info";
+
+/**
+ * What is currently deployed, resolved once here and nowhere else.
+ *
+ * A `const` rather than a function call in the layout, because the answer cannot
+ * change between two components rendered in the same request and there is no
+ * reason to compute it twice. Exported from this module — not from
+ * `build-info.ts` — so that reading `package.json` and reading `process.env`
+ * stay in one file; `build-info.ts` knows neither.
+ */
+export const SITE_BUILD: BuildInfo = resolveBuildInfo(
+  {
+    VERCEL: process.env.VERCEL,
+    VERCEL_ENV: process.env.VERCEL_ENV,
+    VERCEL_DEPLOYMENT_ID: process.env.VERCEL_DEPLOYMENT_ID,
+    NEXT_PUBLIC_BUILD_STAMP: process.env.NEXT_PUBLIC_BUILD_STAMP,
+  },
+  SITE_VERSION,
+);
+
 /**
  * Canonical origin for every absolute URL the site emits: metadata, canonical
  * links, hreflang alternates, Open Graph, `sitemap.xml` and `robots.txt`.
