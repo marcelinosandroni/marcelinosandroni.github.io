@@ -112,7 +112,9 @@ desenvolvimento desta revisão.
   uma trilha de ruído acima
 - A cortina **sobe** (`clip-path: inset(0 0 B% 0)`) com uma linha de brilho viajando
   na borda, e o site está lá o tempo todo por baixo
-- Script pré-paint que segura o site antes da primeira pintura — sem flash
+- Script pré-paint que segura o site antes da primeira pintura — sem flash. O hold
+  só é liberado por um `useLayoutEffect` indexado pela fase, ou seja **depois** que a
+  cortina entrou no DOM. Liberar antes media 163ms de site pintável sem cortina
 - O nome reusa o alfabeto e o gerador semeado do `MatrixRain`; sem `Math.random`,
   que quebraria a hidratação em toda carga
 - Pulável por qualquer tecla ou clique, nunca repete num refresh, nunca roda sob
