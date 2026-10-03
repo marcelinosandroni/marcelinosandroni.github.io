@@ -13,6 +13,16 @@ export interface SiteHeaderProps {
   locale: Locale;
   t: Dictionary;
   sections: Array<{ key: string; href: string; label: string }>;
+  /**
+   * Where the wordmark goes. Defaults to the home route.
+   *
+   * The one page that overrides it is the résumé, whose wordmark returns to the
+   * document's own top rather than to the home page — on a page this long, "back to
+   * top" and "go home" are different requests, and the résumé's accessible name
+   * says "back to top". Every other route gets the default, which is why this is an
+   * override and not a required prop.
+   */
+  brandHref?: string;
 }
 
 /**
@@ -38,7 +48,7 @@ export interface SiteHeaderProps {
  * Section links are plain fragment anchors, so in-page navigation works before
  * hydration and survives a JavaScript failure.
  */
-export function SiteHeader({ locale, t, sections }: SiteHeaderProps) {
+export function SiteHeader({ locale, t, sections, brandHref }: SiteHeaderProps) {
   return (
     <header
       id="site-header"
@@ -56,7 +66,7 @@ export function SiteHeader({ locale, t, sections }: SiteHeaderProps) {
         */}
         <div className="site-header__row flex flex-wrap items-center gap-x-space-md gap-y-1 py-2 md:h-16 md:flex-nowrap md:gap-space-md md:py-0">
           <Link
-            href={localePath(locale, "home")}
+            href={brandHref ?? localePath(locale, "home")}
             /*
               `site-header__brand` so the compact state can step the type down.
               The size is a token, not a literal — the compact rule reaches for a

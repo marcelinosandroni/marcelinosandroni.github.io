@@ -27,6 +27,16 @@ const SITE_REPOSITORY = "marcelinosandroni.github.io";
 
 export const SITE_OWNER = {
   name: "Marcelino Sandroni Dias",
+  /**
+   * The name the first-visit intro writes out in falling glyphs.
+   *
+   * Not derived from `name`, and that is deliberate. The intro sets the wordmark in
+   * all capitals with a trailing surname, because that is what a single line of
+   * monospace can hold at a readable size on a phone — `MARCELINO SANDRONI DIAS`
+   * at the same `clamp()` wraps or shrinks below legibility. Deriving it would
+   * trade the one thing that has to work for a consistency nothing can see.
+   */
+  introName: "MARCELINO SANDRONI",
   linkedin: "https://linkedin.com/in/marcelinosandroni",
   github: "https://github.com/marcelinosandroni",
   email: "marcelino.sandroni@gmail.com",

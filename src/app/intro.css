@@ -1,35 +1,32 @@
 /* ==========================================================================
    THE ARRIVAL
    ==========================================================================
-   The first-visit sequence: three seconds of handshake, a door opening, a
-   portrait revealed inside it, and the frame going so the site is already there.
+   The first-visit sequence: a handshake with the Matrix, the rain condensing
+   into the reader's name, and the curtain rising off the top of the screen to
+   find the site already loaded.
 
    ## Everything is driven by one number
 
-   `--intro-progress` is 0 to 1 across the current phase, written once per frame
-   by a single `requestAnimationFrame` loop. Every rule below is a function of it.
-   That is what makes the four beats feel like one movement instead of four
-   animations that happen to be stacked: they share a clock, so they cannot drift
-   apart, and a dropped frame shortens nothing.
+   `--intro-max` is the clock's own total, and it is the ceiling on the layer's
+   life. Every beat below is a CSS animation hung off `data-intro-phase`, so the
+   phases cannot drift apart from each other and a dropped frame shortens nothing.
 
-   ## Why the door is a light and not a shape
+   ## Why the columns fall rather than the text typing on
 
-   A rectangle of light widening from a vertical seam is the cheapest possible
-   reading of "a door". Anything with perspective needs 3D transforms and a
-   perspective origin, and on a phone that is a compositor layer large enough to
-   drop frames during the one moment the reader is guaranteed to be watching.
+   A typewriter reveals a string in order, which makes the name the *product* of a
+   queue. The Matrix columns are independent: each falls at its own speed, each
+   arrives at its own moment, and the name is legible before the last letter has
+   landed. So each character gets its own column that starts above the viewport and
+   comes to rest with the letter on the same row and a trail of noise standing
+   above it.
 
-   So: a bright seam, widening, with the glyphs in front of it rather than
-   behind. The rain stays on top throughout, which is what sells the door as being
-   *inside* the Matrix rather than a transition laid over it.
+   ## Why there is no photograph here any more
 
-   ## Why the portrait is desaturated and then colour arrives
-
-   The reveal is a face coming into focus out of noise. A portrait that is already
-   sharp and full colour the instant it appears reads as a photo, not as a
-   recovery. So the frame starts desaturated and slightly blurred and resolves
-   across the beat — `filter` is the one property here that costs real work, which
-   is why it is on one small element and not on the layer.
+   Because an arrival that ends on a face makes the reader look twice — at the
+   face, then at the hero, which is the same face. The face, the frame, the door,
+   the colour resolve and the measured landing have all gone with it, and so has
+   the per-frame custom property this file used to advertise. What is left is one
+   backdrop, one rain, one name and one rising edge.
    ========================================================================== */
 
 .msd-intro {
@@ -38,7 +35,13 @@
   z-index: 200;
   display: grid;
   place-items: center;
-  background: var(--color-surface-base);
+  /*
+    Transparent on purpose. The opaque surface is `.msd-intro__backdrop`, a
+    sibling of the rain and the name rather than a property of this layer — because
+    the rise has to cut them by one rectangle while leaving the edge glow alone, and
+    a background on their shared parent cannot be clipped separately from them.
+  */
+  background: transparent;
   overflow: hidden;
   /*
     Belt and braces. The phases total under seven seconds and the clock removes
@@ -55,217 +58,295 @@
   }
 }
 
-/* --- The rain ------------------------------------------------------------ */
+/* --- The backdrop --------------------------------------------------------
+   The opaque surface the whole sequence is drawn on. It is the surface doing the
+   actual revealing: clipping it away is what puts the site on screen. */
+
+.msd-intro__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--color-surface-base);
+}
+
+/* --- The rain ------------------------------------------------------------
+   Above the name, not below it.
+
+   The reader is *inside* the rain, so the glyphs fall in front of the name rather
+   than behind it. With the name below the rain layer the columns washed out
+   against it and the locked letters stopped being the brightest thing on screen,
+   which is the only property they have that the rain does not. */
 
 .msd-intro__rain {
   position: absolute;
   inset: 0;
+  z-index: 2;
+  opacity: 0.45;
   /*
-    Above the portrait, not below it.
-
-    The rain is not a backdrop — the reader is *inside* it, so the glyphs fall in
-    front of the face rather than behind it. With the layer at the default z-index
-    the door's glow painted over it and the rain washed out to nothing, which lost
-    the one thing that makes the shot read as the Matrix.
-
-    The background is cleared. `MatrixRain` paints an opaque
-    `--color-surface-base` behind its columns because on its own it is a full
-    screen of black with glyphs on it, which is right for the loading overlay and
-    catastrophic here: at opacity 1 it would hide the portrait the whole reveal is
-    built around.
+    Cleared. `MatrixRain` paints an opaque `--color-surface-base` behind its columns
+    because on its own it is a full screen of black with glyphs on it, which is
+    right for the loading overlay and catastrophic here: at any opacity it would
+    hide the name the sequence is built around.
   */
-  z-index: 3;
-  opacity: 0;
-  background: none;
-  transition: opacity 420ms ease-out;
-}
-
-/*
-  Stays on through the door and the reveal rather than fading out at the handover.
-  The glyphs in front of the light are the whole trick; if the rain left at the
-  moment the door opened, the door would read as a transition *between* two things
-  instead of a thing opening inside one.
-*/
-.msd-intro__rain[data-visible="true"] {
-  opacity: 1;
-}
-
-/*
-  The columns themselves, dialled back.
-
-  The loading rain runs at full strength against a black screen where nothing else
-  is competing. Here it falls in front of a lit face, and at full strength the
-  columns are dense enough to obscure the thing the reveal exists to show — so the
-  same glyphs are dimmed rather than the layer being made invisible.
-*/
-.msd-intro__rain .msd-rain {
-  opacity: 0.42;
   background: none;
 }
 
-/* --- The door ------------------------------------------------------------
-   A bright seam at the centre, widening to fill the frame. The width is a
-   percentage of the viewport so it behaves the same on a phone and a desktop. */
+/* ==========================================================================
+   THE NAME
+   ==========================================================================
+   One column per character, each falling from above the screen and stopping with its
+   letter on the same row.
 
-.msd-intro__door {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  transform: translateX(-50%);
-  opacity: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklab, var(--color-primary-container) 22%, transparent),
-    color-mix(in oklab, var(--color-primary-container) 6%, transparent)
-  );
-  box-shadow: 0 0 120px 40px color-mix(in oklab, var(--color-primary-container) 18%, transparent);
+   ## Why the letters cannot be at different heights
+
+   Because a cell is exactly one line tall. The trail of noise hangs *out of flow*
+   above its letter rather than pushing it down, so a cell's height is its letter's
+   line box and nothing else — there is no per-column vertical offset to tune, which
+   is the usual failure of matrix name effects and the thing that used to go wrong
+   here too: with the trail in flow, a container centring nine lines of noise per
+   column put the letters themselves at 87% down the screen.
+
+   `align-items: flex-end` and the `1ch` advance keep the word *set* correctly: the
+   cells sit on one baseline with a real gap for the space, and the row the container
+   centres is the row the reader reads.
+
+   ## Why the columns start at -120vh rather than at a glyph count
+
+   The travel distance has nothing to do with the trail: it is "far enough above the
+   screen to be invisible". The name sits at the vertical centre, so -120vh puts a
+   letter at -70vh and every column off screen. Expressing the same thing as "trail
+   length plus a margin" would couple the fall to the type size for no gain — and
+   the type size is a `clamp()`, so that coupling would be a second thing to
+   retune whenever the phone arithmetic above changes.
+   ========================================================================== */
+
+.msd-intro__name {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  font-family: var(--msd-font-jetbrains), ui-monospace, monospace;
+  /*
+    8.2vw, not 9vw, and that is arithmetic rather than taste. Seventeen columns of
+    one `ch` plus 0.06em of tracking is what has to fit: at 9vw on a 390px phone the
+    name came to 393px and overflowed the viewport by 3px. At 8.2vw it is 359px,
+    which leaves a real margin, and 320px — the narrowest width the site supports —
+    still fits with room to spare.
+  */
+  font-size: clamp(1.5rem, 8.2vw, 5.5rem);
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--color-primary-container);
 }
 
-.msd-intro__door[data-visible="true"] {
-  /* Drawn in the first fifth of the door beat, then held while the portrait lands. */
-  animation: msd-intro-door-open 520ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.msd-intro__name-cell {
+  position: relative;
+  display: block;
+  width: 1ch;
+  /*
+    `pre` is what makes the newlines in the trail real lines instead of spaces.
+    Without it the trail lays out sideways and the effect becomes a line of code
+    scrolling past, which is the opposite of the reference.
+  */
+  white-space: pre;
+  /*
+    Two animations, both with `both` fill. The fill is not a detail: a delayed
+    animation with only `forwards` shows the element's *underlying* style until the
+    delay elapses, and the underlying style here is `transform: none` — so every
+    column would flash into its final position, sit there for its delay, and only
+    then fall. With `both`, the `from` keyframe holds the strip off screen.
+  */
+  animation-name: msd-intro-lock-fall, msd-intro-lock-settle;
+  animation-timing-function: cubic-bezier(0.42, 0, 0.65, 1), linear;
+  animation-fill-mode: both, both;
 }
 
-@keyframes msd-intro-door-open {
+@keyframes msd-intro-lock-fall {
   from {
-    width: 0;
-    opacity: 0;
+    transform: translateY(-120vh);
   }
   to {
-    width: min(46rem, 100%);
+    transform: translateY(0);
+  }
+}
+
+/*
+  The lock: the letter arrives near-white and cools to the site's green.
+
+  It is on the *cell* rather than on the letter so the trail does not flash too —
+  the trail sets its own colour, which overrides the animated inheritance, so the
+  only thing that changes colour is the letter. One inline delay instead of two.
+*/
+@keyframes msd-intro-lock-settle {
+  0% {
+    color: #ffffff;
+  }
+  60% {
+    color: var(--color-primary-container);
+  }
+}
+
+/*
+  The noise standing above a locked letter: dimmer and smaller, so the eye reads the
+  row as the text and the stack as the process that produced it.
+
+  `position: absolute` is load-bearing rather than cosmetic, and it was the
+  difference between a name in the middle of the screen and one near the bottom of
+  it. In flow, the nine trail lines made each strip ten lines tall; the container
+  centred that 880px box in a 900px viewport, which put the letters — the *last* line
+  of each strip — at y=788, 87% down. Measured in the browser, not reasoned about.
+
+  Taking the trail out of flow makes each cell exactly one line tall, so the row of
+  letters is the row the container centres. `bottom: 100%` hangs it upward from the
+  letter, which keeps it moving with the column during the fall: it is a child, so
+  the parent's transform carries it.
+*/
+.msd-intro__name-trail {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  color: color-mix(in oklab, var(--color-primary-container) 38%, transparent);
+  font-size: 0.62em;
+  line-height: 1;
+}
+
+.msd-intro__name-lock {
+  text-shadow: 0 0 24px color-mix(in oklab, var(--color-primary-container) 55%, transparent);
+}
+
+/*
+  The word gap. One `ch` of width and nothing in it — see `matrix-name.tsx` for why
+  a space is a gap rather than another column of falling glyphs.
+*/
+.msd-intro__name-cell[data-gap="true"] {
+  /* Nothing to render, but keep the advance so the name is set correctly. */
+  min-height: 1em;
+}
+
+/* ==========================================================================
+   THE RISE
+   ==========================================================================
+   The curtain does not fade. It recedes *upward* — the clip's bottom edge travels
+   from the bottom of the screen to the top — so the site is revealed by something
+   leaving in the direction the reader was already reading.
+
+   `clip-path: inset()` keeps what is *inside* the rectangle, so growing the bottom
+   inset from 0 to 100% is what empties it. Written the other way round the site
+   would be visible at the start of the beat and covered again by the end.
+
+   ## Why the edge glow is a separate element
+
+   Because a glow has to sit *on* the boundary and the boundary is being cut away.
+   Clipping it would remove the one detail that says the edge is moving. It is
+   animated with the same duration, the same easing and the same delay as the clip,
+   which is a contract between two rules rather than an accident — the comment on
+   the edge says so, and a test checks they agree.
+   ========================================================================== */
+
+.msd-intro[data-intro-phase="enter"] .msd-intro__backdrop,
+.msd-intro[data-intro-phase="enter"] .msd-intro__rain,
+.msd-intro[data-intro-phase="enter"] .msd-intro__name {
+  animation: msd-intro-rise 1150ms cubic-bezier(0.62, 0, 0.3, 1) 300ms both;
+}
+
+@keyframes msd-intro-rise {
+  from {
+    clip-path: inset(0 0 0% 0);
+  }
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+/*
+  The name also drifts up and opens out as it goes.
+
+  Two animations on one element with two properties between them — the first owns
+  `clip-path`, the second owns `transform` — because the clip is a rectangle and a
+  transform would move the rectangle, which is not the same as moving what is
+  inside it. The scale is small and the lift short: this is the site arriving, not
+  a wordmark taking over the screen.
+*/
+.msd-intro[data-intro-phase="enter"] .msd-intro__name {
+  animation:
+    msd-intro-rise 1150ms cubic-bezier(0.62, 0, 0.3, 1) 300ms both,
+    msd-intro-name-lift 1150ms cubic-bezier(0.62, 0, 0.3, 1) 300ms both;
+}
+
+@keyframes msd-intro-name-lift {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(-7vh) scale(1.08);
+  }
+}
+
+.msd-intro__edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-primary-container) 18%,
+    #ffffff 50%,
+    var(--color-primary-container) 82%,
+    transparent
+  );
+  box-shadow: 0 0 28px 8px color-mix(in oklab, var(--color-primary-container) 50%, transparent);
+}
+
+/*
+  The same three numbers as the clip above, in the same order.
+
+  ## Why it travels bottom to top
+
+  Because `inset(0 0 B% 0)` keeps the region *above* the bottom inset, so as `B`
+  grows from 0 to 100% the curtain keeps shrinking away from the bottom of the
+  screen: at `B = 28.5%` the curtain occupies y 0..643 and the site shows below it.
+  The boundary is therefore at `height × (1 − progress)` — 900px down at the start
+  and 0px at the end — so the glow runs bottom to top, not top to bottom.
+
+  Written the other way it was on screen in the wrong half for the whole beat and
+  only crossed the real boundary at the exact midpoint, which is the one moment
+  where a mirrored animation looks correct. Measured at the midpoint of a beat: the
+  clip boundary at 643px and the glow at 257px.
+*/
+.msd-intro[data-intro-phase="enter"] .msd-intro__edge {
+  animation: msd-intro-rise-edge 1150ms cubic-bezier(0.62, 0, 0.3, 1) 300ms both;
+}
+
+@keyframes msd-intro-rise-edge {
+  0% {
+    top: 100%;
+    opacity: 0;
+  }
+  14% {
     opacity: 1;
   }
-}
-
-/* --- The portrait --------------------------------------------------------
-   Starts as a small frame at the centre of the open door and pulls back. "Pulls
-   back" rather than "scales up" is the important word: the transform-origin is
-   the centre and the scale goes *down* from something larger, so the frame reads
-   as receding and the reader is left looking at the face. */
-
-.msd-intro__portrait {
-  position: relative;
-  z-index: 2;
-  opacity: 0;
-  display: grid;
-  place-items: center;
-}
-
-.msd-intro__portrait[data-visible="true"] {
-  animation: msd-intro-portrait-in 1500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes msd-intro-portrait-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.34);
-  }
-  45% {
+  86% {
     opacity: 1;
   }
   100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.msd-intro__frame {
-  position: relative;
-  width: min(74vmin, 26rem);
-  aspect-ratio: 1;
-  overflow: hidden;
-  border: 1px solid color-mix(in oklab, var(--color-primary-container) 45%, transparent);
-  background: var(--color-surface-raised);
-  animation: msd-intro-resolve 1500ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
-}
-
-/*
-  Out of focus and drained of colour, resolving to neither. The blur is small on
-  purpose: `filter: blur` on a full-viewport element is the one thing here that
-  would cost a dropped frame, and on a small 26rem frame it is affordable.
-*/
-@keyframes msd-intro-resolve {
-  from {
-    filter: grayscale(1) blur(6px) contrast(0.7);
-  }
-  to {
-    filter: grayscale(0) blur(0) contrast(1);
-  }
-}
-
-.msd-intro__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/*
-  A scanline sweeping down the portrait once, on the same beat. One pass, not a
-  loop: a looping scanline on a face is a surveillance aesthetic the site has no
-  business borrowing, and a single pass reads as a screen settling.
-*/
-.msd-intro__scan {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    color-mix(in oklab, var(--color-primary-container) 30%, transparent) 48%,
-    transparent 52%
-  );
-  transform: translateY(-100%);
-}
-
-.msd-intro__portrait[data-visible="true"] .msd-intro__scan {
-  animation: msd-intro-scan 1100ms cubic-bezier(0.4, 0, 0.2, 1) 120ms forwards;
-}
-
-@keyframes msd-intro-scan {
-  to {
-    transform: translateY(100%);
-  }
-}
-
-/* --- The hand-off --------------------------------------------------------
-   The `enter` beat: the door light collapses and the whole layer lifts away. The
-   site underneath is already painted and interactive for its whole duration, so
-   this is a curtain rather than a load. */
-
-.msd-intro[data-phase="enter"] .msd-intro__portrait {
-  animation: msd-intro-leave 700ms cubic-bezier(0.7, 0, 0.84, 0) forwards;
-}
-
-.msd-intro[data-phase="enter"] .msd-intro__door {
-  animation: msd-intro-door-close 700ms cubic-bezier(0.7, 0, 0.84, 0) forwards;
-}
-
-.msd-intro[data-phase="enter"] .msd-intro__rain {
-  transition: opacity 320ms ease-in;
-  opacity: 0;
-}
-
-@keyframes msd-intro-leave {
-  to {
-    opacity: 0;
-    transform: scale(1.08);
-  }
-}
-
-@keyframes msd-intro-door-close {
-  to {
-    width: 0;
+    top: 0%;
     opacity: 0;
   }
 }
 
-/* --- The log -------------------------------------------------------------
-   Bottom-left, small, and gone before the portrait lands. Terminal copy because
-   the site speaks terminal everywhere else; a serif caption here would read as a
-   different site. */
+/* ==========================================================================
+   THE LOG
+   ==========================================================================
+   Bottom-left, small, and gone before the name starts falling. Terminal copy
+   because the site speaks terminal everywhere else; a serif caption here would
+   read as a different site. */
 
 .msd-intro__log {
   position: absolute;
@@ -293,13 +374,42 @@
 }
 
 /* ==========================================================================
+   THE PRE-PAINT HOLD
+   ==========================================================================
+   The attribute is raised on <html> by the bootstrap script before the first
+   paint, and removed by the intro the moment it starts playing.
+
+   The site underneath is rendered and loading throughout — this hides it, it does
+   not defer it. That distinction is the whole point: the fonts and the markup are
+   all already on their way while the reader sees the intro, which is why the
+   hand-off is instant rather than a second load.
+
+   `visibility` rather than `display`, because `display: none` on the body would
+   take the header out of the layout entirely and everything below it would
+   re-measure on the way back in. */
+
+html[data-intro-pending] body {
+  visibility: hidden;
+}
+
+/* The hold must never survive a reader who asked for less motion. The bootstrap
+   script checks the media query before it raises the attribute, so this is the
+   second gate on the same question — and the one that holds if that script never
+   ran. One line, and it removes the only way the hold could hurt somebody. */
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-intro-pending] body {
+    visibility: visible;
+  }
+}
+
+/* ==========================================================================
    REDUCED MOTION
    ==========================================================================
    The gate is in JavaScript and the intro simply does not mount. This is the
    backstop for the case where that gate fails: a decision made in script is one
-   failed matchMedia or one hydration gap away from not being made, and the cost
-   of that failure is a full-screen animation on a reader who asked for none.
-   ========================================================================== */
+   failed matchMedia or one hydration gap away from not being made, and the cost of
+   that failure is a full-screen animation on a reader who asked for none. */
 
 @media (prefers-reduced-motion: reduce) {
   .msd-intro {

@@ -38,6 +38,16 @@ import { useMemo } from "react";
 /** Half-width feel from ASCII: narrow glyphs at a tight leading. */
 const GLYPHS = "0123456789ABCDEFHJKLMNPRSTUVWXYZ+-*/<>=:;[]{}$#%&@!?^~abcdefghijklmnopqrstuvwxyz";
 
+/**
+ * The alphabet, exported.
+ *
+ * `MatrixName` stacks the same glyphs into the reader's name, and it uses *this*
+ * set rather than a second one. Two alphabets would be two textures: a name that
+ * resolved out of a subtly different rain than the one around it reads as pasted
+ * on, which is the one thing an assembled effect cannot afford.
+ */
+export const MATRIX_GLYPHS = GLYPHS;
+
 /** Characters per column. Enough to fill the tallest viewport and scroll. */
 const COLUMN_LENGTH = 34;
 
@@ -63,8 +73,12 @@ function toColumn(text: string): string {
  * Used for both the glyph choice and the per-column timing. It is not a
  * cryptographic generator and does not need to be — the only requirement is that
  * the server and the client agree.
+ *
+ * Exported because `MatrixName` seeds the same way for the same reason: the name
+ * is rendered on the server too, and a `Math.random()` here would mean the letters
+ * fell differently on each side and React would report a mismatch on every load.
  */
-function createRandom(seed: number): () => number {
+export function createSeededRandom(seed: number): () => number {
   let state = seed >>> 0;
 
   return () => {
@@ -98,7 +112,7 @@ export type MatrixColumn = {
  * seed always produces the same rain.
  */
 export function buildMatrixColumns(count: number, seed = 20_260_930): MatrixColumn[] {
-  const random = createRandom(seed);
+  const random = createSeededRandom(seed);
 
   return Array.from({ length: count }, () => {
     let head = "";

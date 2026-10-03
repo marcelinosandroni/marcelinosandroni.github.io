@@ -1,5 +1,5 @@
 import { DownloadPDFButton } from "@/components/download-pdf-button";
-import { LocaleSwitcher } from "@/components/locale-switcher";
+import { SiteHeader } from "@/components/site/site-header";
 import { Icon } from "@/components/ui/icon";
 import { CONTENT_PERIOD, SITE_VERSION } from "@/domain/site/site-info";
 import { blogPath, homePath, resumePath } from "@/domain/site/routes";
@@ -60,34 +60,26 @@ export async function ResumeDocument({ locale, resume }: ResumeDocumentProps) {
         {t.a11y.skipToContent}
       </a>
 
-      <header className="sticky top-0 z-50 border-b border-border-subtle bg-surface-base/82 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 w-full max-w-[1320px] items-center justify-between gap-space-md px-margin md:px-margin-tablet lg:px-margin-desktop">
-          <a
-            href={resumePath(locale)}
-            className="shrink-0 font-headline-lg text-headline-lg font-extrabold tracking-tight text-text-primary"
-            aria-label={t.nav.backToTop}
-          >
-            MSD<span className="text-primary-container">.</span>
-          </a>
-          <nav
-            aria-label={t.nav.mainNavigation}
-            className="-mx-1 flex min-w-0 flex-1 items-center gap-space-md overflow-x-auto px-1 md:justify-center md:gap-space-lg"
-          >
-            {sections.map((section) => (
-              <a
-                key={section.key}
-                href={section.href}
-                className="shrink-0 whitespace-nowrap font-label-mono text-label-mono uppercase tracking-widest text-text-secondary transition-colors hover:text-primary-container"
-              >
-                {section.label}
-              </a>
-            ))}
-          </nav>
-          <div className="shrink-0">
-            <LocaleSwitcher locale={locale} t={t} />
-          </div>
-        </div>
-      </header>
+      {/*
+        The shared header, rather than a second one.
+
+        This page used to hand-roll its own, and it was the only page that did —
+        home, the blog index and every article all render `SiteHeader`. That
+        duplication cost the résumé four of the six header affordances and, on a
+        phone, the whole two-row arrangement: the brand, six labels and one control
+        were sharing one 390px row, so the labels were truncated mid-word and there
+        was no soundtrack, theme or owner control at all.
+
+        Reusing the component makes those three problems impossible to reintroduce
+        here rather than merely fixed once. The brand points back at this document's
+        top, which is the one case where "back to top" and the brand genuinely agree.
+      */}
+      <SiteHeader
+        locale={locale}
+        t={t}
+        sections={sections}
+        brandHref={`${resumePath(locale)}#summary`}
+      />
 
       <main
         id="main"
