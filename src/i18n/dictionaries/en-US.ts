@@ -566,6 +566,13 @@ If you did not ask for it, ignore this message — nothing was changed.`,
     domContentLoaded: "DOM ready",
     loadComplete: "Loaded",
     unavailable: "not measurable in this browser",
+    /*
+      Tooltip for the build stamp at the right of the bar, naming what the number is
+      rather than restating it. It exists because the stamp is UTC and minute-wide
+      and means nothing to a reader who has not been told it is a build time, and
+      "build" alone reads as the noun rather than as the verb — a build of what.
+    */
+    buildTitle: "This deployment was built at",
   },
   /**
    * Open Graph cards — the 1200x630 image a social platform shows when a link

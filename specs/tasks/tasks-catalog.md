@@ -1357,6 +1357,75 @@ arrival lia como glitch, não como chegada.
   o teste agora exige que o observador viu ≥ 2 eventos antes de afirmar o resto — um
   teste que dá verde quando a própria sonda está morta é pior do que nenhum teste
 
+---
+
+### TASK-058: Versão e número de build na barra de métricas
+**US Relacionada**: US-01  
+**Prioridade**: Média  
+**Status**: 🟢 Concluída  
+**Estimativa**: —  
+**Realizado**: ~2h  
+
+**Descrição**: A barra de métricas de carregamento passa a dizer, à direita, qual
+build está no ar — e qual build ela é.
+
+**O Que Foi Feito**:
+- ✅ `resolveBuildInfo` (`src/domain/site/build-info.ts`) — função pura do ambiente,
+  no estilo do `evaluatePortraitVideoDecision`, com a precedência testada
+- ✅ Ordem de resolução: `VERCEL` + `VERCEL_ENV`. Ausência de qualquer um dos dois =
+  `local`. `VERCEL` vem primeiro porque a documentação diz que as variáveis de
+  sistema param de ser populadas quando o acesso a elas é desligado no projeto —
+  nesse caso `VERCEL_ENV` falta numa máquina que está claramente na Vercel
+- ✅ `NEXT_PUBLIC_BUILD_STAMP` gerado em `next.config.ts`, um valor só para
+  `generateBuildId` e para `env`, porque dois `new Date()` dariam dois timestamps
+  diferentes entre o manifesto da Next e a página
+- ✅ Em UTC com `Z` final: o log de build contra o qual o leitor compara é em UTC, e
+  um `1204` nu no rodapé convida uma discussão de fuso
+- ✅ `ml-auto` no readout, não `justify-between` no contêiner: as três métricas
+  quebram linha num telefone, e `justify-between` deixaria o readout sozinho no
+  *início* da última linha
+- ✅ Ambiente omitido em produção: é o único valor aqui que fica *menos* útil quanto
+  mais se repete
+- ✅ `buildLabel` e `buildTooltip` exportadas do componente client porque nenhum
+  build local — nem nenhuma suíte e2e — consegue produzir a forma de produção. Uma
+  função privada sem teste é exatamente como isso acontece
+
+**Critérios de Conclusão**:
+- [x] `v0.14.0 · 20261003-1204Z` à direita da barra, em 1440 e em 390
+- [x] `preview`/`local` nomeiam o ambiente; produção não
+- [x] `VERCEL_DEPLOYMENT_ID` no tooltip, ausente fora da Vercel
+- [x] Ausente em `/admin`, que não tem barra de telemetra por decisão
+- [x] Aparece no currículo, porque a barra é do layout localizado
+- [x] Testes: 8 de domínio, 8 de apresentação, 6 e2e
+
+**Decisões que valem o registro**:
+- **O build é o timestamp, não o commit sha.** Um commit pode ser deployado várias
+  vezes — preview, produção, rebuild depois de uma mudança de configuração, outro
+  rebuild de preview ainda quente. São builds diferentes com o mesmo SHA, então uma
+  leitura keyed por ele responde "qual código" e falha calada em "qual build".
+  Não existe env var de timestamp de build na lista da Vercel: `VERCEL_HASH_SALT` é
+  um sal rotativo para nomes de arquivo e o valor parece um Unix time, que é
+  exatamente a coincidência que vira bug report seis meses depois
+- **`NODE_ENV` fora de propósito.** Na Vercel é `production` também em preview, então
+  lê-lo num rodapé produce `production` num preview. Não há caminho de código
+  possível para isso, e um teste guarda a ausência: quem reintroduzir `NODE_ENV` em
+  `BuildEnvironment` tem que apagar ou reescrever o teste, que é o momento de ser
+  perguntado o porquê
+- **`NEXT_PUBLIC_` mesmo sendo um valor de build.** É o único jeito de um valor
+  existir no servidor *e* ser impresso numa página que renderiza no cliente. Não é
+  segredo: o `VERCEL_DEPLOYMENT_ID` já está nos headers de qualquer requisição que
+  chegue à plataforma
+
+**Bugs encontrados e corrigidos** (nenhum visível sem medir):
+- O teste de alinhamento media 48px de distância da borda e o valor voltou 48.
+  Não era desalinhamento: `px-margin`/`lg:px-margin-desktop` *são* 48px, então o
+  readout estava flush com a borda de conteúdo e perfeitamente alinhado. O teste
+  media o padding e chamava de margem. Medir contra a borda de conteúdo, com 2px de
+  tolerância, é o que faz a asserção valer alguma coisa
+- `page.locator("aside").first()` dá timeout: `aside` também casa com o painel de
+  engajamento no rodapé, e `.first()` pega o que estiver mais acima no documento —
+  que na home não é a barra. O `parentElement` do readout não tem ambiguidade
+
 ## Backlog de Evolução (Pós-MVP)
 
 A coluna **Status** foi reconciliada com o código em 2026-10-02. Quatro itens
@@ -1482,6 +1551,7 @@ histórico.
 | 2026-10-02 | TASK-055 | Retrato em vídeo no hero, com codificação 89% menor, hold pré-paint e glitch de emenda. Reconciliação do catálogo com o código: 5 tarefas marcadas como não iniciadas estavam entregues, 4 itens de backlog idem, e a matriz de priorização foi marcada como não autoritativa. Números e afirmações obsoletas corrigidos (o retrato saiu do intro e do currículo; o loop é boomerang de 9s, não corte de 6s) | opencode |
 | 2026-10-02 | TASK-056 | Intro sem retrato: glifos Matrix descem até resolverem `MARCELINO SANDRONI` e a cortina sobe revelando o site. Pouso do retrato, porta e revelo monocromático removidos | opencode |
 | 2026-10-03 | TASK-057 | O hold pré-paint só é liberado depois que a cortina está no DOM. Janela de 163ms de site pintável sem cortina, medida com `MutationObserver` no atributo | opencode |
+| 2026-10-03 | TASK-058 | Versão e build à direita da barra de métricas. Build é o timestamp, não o commit sha — um commit tem vários builds; `VERCEL_DEPLOYMENT_ID` no tooltip. Ambiente omitido em produção | opencode |
 | 2026-09-28 | TASK-050..054 | ÉPICO 05: home executiva com design system tokenizado, currículo movido para `/[locale]/resume`, blog persistido em `blog_articles` com fallback versionado, e gate de cobertura corrigido (a `main` estava em 56.61%) | opencode |
 | 2026-09-28 | TASK-019 | Títulos de seção do PDF movidos dos literais do renderer para os catálogos | opencode |
 | 2026-09-28 | TASK-012, TASK-018 | Versão EN-US reescrita como tradução completa do PT-BR (fonte da verdade), com paridade de estrutura e fatos verificada em CI | opencode |

@@ -31,9 +31,9 @@ TASK-044 (testes de integração, que nunca exercitaram RLS).
 Medidos em 2026-10-02, contra o build de produção.
 
 ```
-Unit tests         1.031 em 59 arquivos          ~2,5s
-E2E (Playwright)     303 em 23 arquivos          ~11,6min
-Cobertura (gate)     96,59%  linhas, funcs, branches, statements
+Unit tests         1.044 em 61 arquivos          ~2,5s
+E2E (Playwright)     309 em 24 arquivos          ~11min
+Cobertura (gate)     96,56%  linhas, funcs, branches, statements
 Cobertura (escopo)   src/domain + src/application (limiar 90% em vitest.config.ts)
 TypeScript           0 erros
 ESLint               0 erros, 3 warnings pré-existentes
@@ -121,8 +121,16 @@ desenvolvimento desta revisão.
   `prefers-reduced-motion`, e tem timer de segurança caso a hidratação nunca aconteça
 
 ### Desempenho e acessibilidade
+- Versão e build à direita da barra de métricas: `v0.14.0 · 20261003-1204Z`. O
+  ambiente só aparece fora de produção — em produção o leitor já sabe, e a palavra é
+  ruído em toda carga
+- O build é o **timestamp**, não o commit: um mesmo commit pode ser deployado
+  várias vezes, e o `VERCEL_DEPLOYMENT_ID` viaja junto no tooltip porque é o
+  identificador que a Vercel pede num bug report
+- `NODE_ENV` não é consultado em lugar nenhum: na Vercel ele é `production` também
+  em preview, e um rodapé que diz `production` num preview é uma mentira
 - Gate de cobertura de 90% no escopo `domain` + `application`
-- 23 suítes e2e, serializadas de propósito (workers paralelos corrompiam o cache
+- 24 suítes e2e, serializadas de propósito (workers paralelos corrompiam o cache
   do `next dev`)
 - `prefers-reduced-motion` respeitado em todo o site, com backstop em CSS além do
   gate em JavaScript
@@ -215,3 +223,4 @@ npm run test:e2e:default-flags      # build separado, flags ausentes
 | [`docs/supabase-setup.md`](supabase-setup.md) | Variáveis, auth, analytics |
 | [`docs/ERROR_HANDLING.md`](ERROR_HANDLING.md) | Estratégias de erro |
 | [`docs/adr/`](adr/) | Decisões arquiteturais |
+
