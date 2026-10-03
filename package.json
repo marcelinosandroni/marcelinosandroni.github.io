@@ -1,6 +1,6 @@
 {
   "name": "marcelino-resume-platform",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -16,7 +16,7 @@
     "test:e2e:default-flags": "playwright test --config playwright.default-flags.config.ts",
     "test:e2e:debug": "playwright test --debug",
     "compile:pdf": "tsx scripts/compile-pdf.ts",
-  "encode:portrait": "tsx scripts/encode-portrait-video.ts",
+    "encode:portrait": "tsx scripts/encode-portrait-video.ts",
     "compile:pdf:watch": "node --watch scripts/compile-pdf.ts",
     "generate:blog-seed": "tsx scripts/generate-blog-seed.ts"
   },
