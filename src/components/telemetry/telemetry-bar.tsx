@@ -2,16 +2,29 @@
 
 import { useEffect, useState } from "react";
 
+import type { BuildInfo } from "@/domain/site/build-info";
+
 export interface TelemetryLabels {
   label: string;
   ttfb: string;
   domContentLoaded: string;
   loadComplete: string;
   unavailable: string;
+  /** Tooltip for the build readout, naming what the number identifies. */
+  buildTitle: string;
 }
 
 export interface TelemetryBarProps {
   labels: TelemetryLabels;
+  /**
+   * Which build this is, resolved on the server.
+   *
+   * Passed in rather than imported, and that is not a style preference: this is a
+   * client component, and importing `site-info` here would pull `package.json` and
+   * the process environment into the browser bundle to render three words the
+   * server already knew.
+   */
+  build: BuildInfo;
 }
 
 type Measurement = { label: string; value: string };
@@ -40,7 +53,7 @@ const formatMs = (value: number): string =>
  * Renders nothing until the metrics exist, so the bar never flashes placeholder
  * numbers, and stays hidden entirely when the browser exposes no timing data.
  */
-export function TelemetryBar({ labels }: TelemetryBarProps) {
+export function TelemetryBar({ labels, build }: TelemetryBarProps) {
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
 
   useEffect(() => {
@@ -88,7 +101,84 @@ export function TelemetryBar({ labels }: TelemetryBarProps) {
             </span>
           </span>
         ))}
+
+        {/*
+          Right-aligned, and on its own line on a phone.
+
+          `ml-auto` rather than `justify-between` on the container: the three
+          measurements wrap on a narrow viewport, and `justify-between` would leave
+          the build alone at the *start* of the last line. `ml-auto` pushes it to the
+          end of whichever line it lands on, which is the right one in both layouts
+          without a media query.
+
+          Deliberately not a link. The footer's version number links to the release
+          that produced it, which is a claim a reader can check; a build stamp is a
+          diagnostic, and linking it somewhere would mean constructing a Vercel
+          dashboard URL out of a team slug and a project name — two more pieces of
+          configuration that can be wrong. The deployment id rides along in the
+          tooltip, which is what a bug report needs and costs no width.
+        */}
+        <span
+          className="ml-auto whitespace-nowrap font-label-mono text-label-mono uppercase tracking-widest text-text-muted"
+          title={buildTooltip(build, labels.buildTitle)}
+          data-testid="build-readout"
+          data-environment={build.environment}
+          data-stamp={build.stamp ?? ""}
+        >
+          {buildLabel(build)}
+        </span>
       </div>
     </aside>
   );
+}
+
+/**
+ * The environment, but only when it is not production.
+ *
+ * A reader on the real site gains nothing from being told it is production — that
+ * is what every other reader is on, and the word is noise on every load. It is the
+ * one value here that is *less* useful the more it is repeated, so it appears only
+ * where it changes what a reader should assume: a preview or a local build.
+ */
+/**
+ * Exported for the one test that needs the production branch.
+ *
+ * A local e2e run cannot produce a `production` build — `VERCEL_ENV` is not settable
+ * per test — so without an export the rule "production prints one word less" would be
+ * the one behaviour of this component with no coverage at all. A private function with
+ * no test is how that happens.
+ */
+export function buildLabel(build: BuildInfo): string {
+  // Explicitly `string[]`: the first element is a bare template literal, and letting
+  // TypeScript infer from it narrows the array to the template types of two elements,
+  // which the later pushes do not satisfy.
+  const parts: string[] = build.environment === "production" ? [] : [build.environment];
+
+  parts.push(`v${build.release}`);
+
+  if (build.stamp !== null) {
+    parts.push(`· ${build.stamp}`);
+  }
+
+  return parts.join(" ");
+}
+
+/**
+ * The tooltip, and the only place the deployment id surfaces.
+ *
+ * Omitted entirely when there is none, rather than rendering `title=""` — an empty
+ * tooltip is a hover target that promises something and gives nothing.
+ */
+/**
+ * Exported for the same reason as `buildLabel`: the "no deployment id means no
+ * tooltip suffix" branch is only reachable off Vercel.
+ */
+export function buildTooltip(build: BuildInfo, caption: string): string | undefined {
+  const parts = [caption];
+
+  if (build.deploymentId !== null) {
+    parts.push(build.deploymentId);
+  }
+
+  return parts.join(" · ");
 }

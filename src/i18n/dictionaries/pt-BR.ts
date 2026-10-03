@@ -536,6 +536,13 @@ Se você não pediu este link, ignore esta mensagem — nada foi alterado.`,
     domContentLoaded: "DOM pronto",
     loadComplete: "Carregado",
     unavailable: "não mensurável neste navegador",
+    /*
+      Tooltip do carimbo de build à direita da barra, dizendo o que o número é em vez
+      de repeti-lo. Existe porque o carimbo é UTC, tem granularidade de minuto e não
+      significa nada para quem não sabe que é uma hora de build — e "build" sozinho
+      se lê como substantivo, não como verbo: build de quê.
+    */
+    buildTitle: "Este deploy foi construído às",
   },
   /**
    * Cartões Open Graph — a imagem 1200x630 que uma rede social mostra quando um
