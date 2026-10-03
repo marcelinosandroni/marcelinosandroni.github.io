@@ -1384,6 +1384,13 @@ build está no ar — e qual build ela é.
 - ✅ `ml-auto` no readout, não `justify-between` no contêiner: as três métricas
   quebram linha num telefone, e `justify-between` deixaria o readout sozinho no
   *início* da última linha
+- ✅ **Abaixo de 640px o carimbo de build some; ambiente e versão ficam.** Três nós
+  independentes, e não uma string composta com media query — esconder a string levaria
+  a versão junto, e o ambiente também, que é o contrário do que importa: um preview no
+  telefone é justamente onde nomear a superfície vale mais
+- ✅ As métricas se chamam `TTFB`, `DOM` e `load` **nos dois idiomas**. São os nomes
+  que o navegador usa para esses eventos; traduzi-los tornaria a barra ilegível para
+  a única pessoa que provavelmente vai conferir se os números são reais
 - ✅ Ambiente omitido em produção: é o único valor aqui que fica *menos* útil quanto
   mais se repete
 - ✅ `buildLabel` e `buildTooltip` exportadas do componente client porque nenhum
@@ -1425,6 +1432,9 @@ build está no ar — e qual build ela é.
 - `page.locator("aside").first()` dá timeout: `aside` também casa com o painel de
   engajamento no rodapé, e `.first()` pega o que estiver mais acima no documento —
   que na home não é a barra. O `parentElement` do readout não tem ambiguidade
+- `DOM ready`, `DOM pronto`, `Loaded` e `Carregado` ocupavam mais largura pelo mesmo
+  conteúdo. A barra quebrava em três linhas num telefone para dizer, em mais palavras,
+  o que `DOM` e `load` dizem
 
 ## Backlog de Evolução (Pós-MVP)
 
@@ -1551,9 +1561,11 @@ histórico.
 | 2026-10-02 | TASK-055 | Retrato em vídeo no hero, com codificação 89% menor, hold pré-paint e glitch de emenda. Reconciliação do catálogo com o código: 5 tarefas marcadas como não iniciadas estavam entregues, 4 itens de backlog idem, e a matriz de priorização foi marcada como não autoritativa. Números e afirmações obsoletas corrigidos (o retrato saiu do intro e do currículo; o loop é boomerang de 9s, não corte de 6s) | opencode |
 | 2026-10-02 | TASK-056 | Intro sem retrato: glifos Matrix descem até resolverem `MARCELINO SANDRONI` e a cortina sobe revelando o site. Pouso do retrato, porta e revelo monocromático removidos | opencode |
 | 2026-10-03 | TASK-057 | O hold pré-paint só é liberado depois que a cortina está no DOM. Janela de 163ms de site pintável sem cortina, medida com `MutationObserver` no atributo | opencode |
-| 2026-10-03 | TASK-058 | Versão e build à direita da barra de métricas. Build é o timestamp, não o commit sha — um commit tem vários builds; `VERCEL_DEPLOYMENT_ID` no tooltip. Ambiente omitido em produção | opencode |
+| 2026-10-03 | TASK-058 | Versão e build à direita da barra de métricas. Build é o timestamp, não o commit sha — um commit tem vários builds; `VERCEL_DEPLOYMENT_ID` no tooltip. Ambiente omitido em produção. Abaixo de 640px só ambiente e versão; métricas renomeadas para `TTFB`/`DOM`/`load` nos dois idiomas | opencode |
 | 2026-09-28 | TASK-050..054 | ÉPICO 05: home executiva com design system tokenizado, currículo movido para `/[locale]/resume`, blog persistido em `blog_articles` com fallback versionado, e gate de cobertura corrigido (a `main` estava em 56.61%) | opencode |
 | 2026-09-28 | TASK-019 | Títulos de seção do PDF movidos dos literais do renderer para os catálogos | opencode |
 | 2026-09-28 | TASK-012, TASK-018 | Versão EN-US reescrita como tradução completa do PT-BR (fonte da verdade), com paridade de estrutura e fatos verificada em CI | opencode |
 | 2026-09-28 | TASK-010, TASK-014..017 | Roteamento i18n, catálogos tipados, SEO por idioma e Server Components. EN-US passou a ser o locale padrão. Ver [ADR-005](../../docs/adr/ADR-005-internationalization-strategy.md) | opencode |
 | 2025-01-15 | Todas | Criação inicial do catálogo | System |
+
+

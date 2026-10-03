@@ -31,8 +31,8 @@ TASK-044 (testes de integração, que nunca exercitaram RLS).
 Medidos em 2026-10-02, contra o build de produção.
 
 ```
-Unit tests         1.044 em 61 arquivos          ~2,5s
-E2E (Playwright)     309 em 24 arquivos          ~11min
+Unit tests         1.047 em 61 arquivos          ~2,5s
+E2E (Playwright)     311 em 24 arquivos          ~11min
 Cobertura (gate)     96,56%  linhas, funcs, branches, statements
 Cobertura (escopo)   src/domain + src/application (limiar 90% em vitest.config.ts)
 TypeScript           0 erros
@@ -124,6 +124,14 @@ desenvolvimento desta revisão.
 - Versão e build à direita da barra de métricas: `v0.14.0 · 20261003-1204Z`. O
   ambiente só aparece fora de produção — em produção o leitor já sabe, e a palavra é
   ruído em toda carga
+- Abaixo de 640px o carimbo de build some; ambiente e versão ficam. Medido: ele é
+  ~60px mais largo que `local v0.14.0`, e a diferença é uma linha inteira da página
+  do leitor na tela onde há menos a perder
+- As três métricas se chamam `TTFB`, `DOM` e `load` **nos dois idiomas**: são os nomes
+  que o navegador usa para esses eventos, e é contra eles que alguém confere se os
+  números são reais. `DOM ready`/`DOM pronto` e `Loaded`/`Carregado` estavam errados
+  duas vezes — traduziam longe dos nomes dos eventos e quebravam a barra em três
+  linhas num telefone
 - O build é o **timestamp**, não o commit: um mesmo commit pode ser deployado
   várias vezes, e o `VERCEL_DEPLOYMENT_ID` viaja junto no tooltip porque é o
   identificador que a Vercel pede num bug report
@@ -223,4 +231,5 @@ npm run test:e2e:default-flags      # build separado, flags ausentes
 | [`docs/supabase-setup.md`](supabase-setup.md) | Variáveis, auth, analytics |
 | [`docs/ERROR_HANDLING.md`](ERROR_HANDLING.md) | Estratégias de erro |
 | [`docs/adr/`](adr/) | Decisões arquiteturais |
+
 
