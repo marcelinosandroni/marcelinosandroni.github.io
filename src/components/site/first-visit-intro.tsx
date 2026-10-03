@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { MatrixName } from "@/components/effects/matrix-name";
 import { MatrixRain } from "@/components/effects/matrix-rain";
@@ -107,14 +107,14 @@ export function FirstVisitIntro({
 
     /*
       The site has been held back since before the first paint by the bootstrap
-      script. Release it the instant this component decides to play, which is the
-      earliest moment the intro can take over — the finished page is rendered and
-      waiting underneath, so the hand-off costs nothing.
+      script, and it stays held here on purpose.
 
-      Without this the hold would sit until its own ceiling timer fired, two seconds
-      after a reader had already finished watching the intro.
+      It is released by the phase-keyed layout effect below, once the curtain is
+      actually in the document. Releasing it in this effect was the arrival's one
+      real bug, and the window was not the frame it looked like: measured at 163ms
+      on a development machine, between the pending attribute being cleared and the
+      curtain existing. The reasoning belongs on the effect that releases it.
     */
-    releaseIntroHold();
 
     /*
       No `setPhase` before the loop starts. The phase is set on the first animation
@@ -146,6 +146,46 @@ export function FirstVisitIntro({
 
     return () => cancelAnimationFrame(frameRef.current);
   }, [finish]);
+
+  /*
+    The hand-off, and the only place the hold is lifted for a reader who is getting
+    the intro.
+
+    ## Why this is keyed on `phase`, and not a call in the gate above
+
+    Because that ordering was the bug. The gate used to clear `data-intro-pending`
+    and *then* schedule the first `setPhase` on a `requestAnimationFrame`. Clearing it
+    is what stops `html[data-intro-pending] body { visibility: hidden }` from
+    applying, and at that instant `phase` was still `null`, so this component returned
+    `null` and there was no curtain in the document at all. The reader saw the
+    finished home, and then a black curtain over it.
+
+    Not one frame, either. The gate is a passive effect, so it runs after a paint; the
+    `setPhase` waits for the next animation frame, and then for a render and a commit.
+    Instrumented against the attribute itself, the gap measured 163ms on a development
+    machine. It is a frame only on a phone that is doing nothing else.
+
+    Keying on `phase` closes the window without touching the beats. By the time this
+    runs, the commit that set the phase has already put the curtain in the DOM, so
+    there is no frame in which the site is paintable without it.
+
+    `useLayoutEffect` rather than `useEffect` because it is the tighter of the two and
+    the reason is the same one: a layout effect runs in the same task as the DOM
+    mutation and before the browser can paint, while a passive effect is deferred to
+    after the next one. Both are safe here — that deferred paint is of a body the hold
+    still hides — but the layout effect makes the guarantee structural instead of
+    resting on the hold still being up, which is a property of a different file.
+
+    Nothing else regresses. Effects are not throttled the way `requestAnimationFrame`
+    is, so the hold still comes down on a tab that was backgrounded at load. Hydration
+    that never happens is still answered by the bootstrap script's own ceiling timer,
+    which is unchanged.
+  */
+  useLayoutEffect(() => {
+    if (phase !== null) {
+      releaseIntroHold();
+    }
+  }, [phase]);
 
   /*
     Presence, not interaction.

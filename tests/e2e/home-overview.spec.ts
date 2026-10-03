@@ -1,6 +1,30 @@
 import { expect, test } from "@playwright/test";
 
 /**
+ * Marks this reader as someone who has already been here, so the first-visit
+ * arrival does not run.
+ *
+ * Two things need it, and both are the intro being in the way of a test that is not
+ * about the intro. The curtain swallows the first keypress by design, and the
+ * pre-paint hold keeps the body at `visibility: hidden` for as long as it takes the
+ * curtain to exist — which is invisible to a pointer but takes the page out of the
+ * tab order entirely. A test that presses Tab while either is up measures the intro,
+ * not the home page.
+ */
+const SKIP_INTRO = () => {
+  try {
+    window.localStorage.setItem(
+      "msd:intro-seen:v1",
+      JSON.stringify({ seenAt: Date.now(), lastActiveAt: Date.now() }),
+    );
+  } catch {
+    /* private mode */
+  }
+};
+
+/**
+
+/**
  * The redesign's own contract, asserted against rendered output.
  *
  * These are the invariants a redesign can silently break: sections turning into
@@ -8,6 +32,10 @@ import { expect, test } from "@playwright/test";
  * by hardcoded values, or the boot sequence accidentally gating the content.
  */
 test.describe("Home executive overview", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(SKIP_INTRO);
+  });
+
   test("renders every configured section exactly once, each with its own anchor", async ({ page }) => {
     await page.goto("/en-us");
 

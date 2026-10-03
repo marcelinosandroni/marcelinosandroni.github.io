@@ -566,35 +566,101 @@ test.describe("First-visit intro", () => {
   });
 
   /**
-   * The bug the pre-paint script exists to kill, asserted as the reader sees it.
+   * The bug the pre-paint hold exists to kill, asserted at the instant it is decided.
    *
-   * Before it, a first visit painted the finished site and *then* covered it with
-   * the curtain. The window was milliseconds on a fast machine and long enough to
-   * notice on a slow one, and it read as a glitch rather than an arrival.
+   * Before it, a first visit painted the finished site and *then* covered it with the
+   * curtain. The window was one frame on a fast machine and long enough to notice on a
+   * slow one, and it read as a glitch rather than as an arrival.
+   *
+   * ## Why this version instruments instead of sampling
+   *
+   * The version this replaced sampled `header`'s computed `visibility` right after
+   * `waitUntil: "commit"` and skipped the assertion whenever the header had not been
+   * parsed yet — which on a local run is most of the time. So it asserted the hold was
+   * up at an instant where the hold is up by construction, and it never looked at the
+   * frame that actually broke: the one *after* the hold came down. The bug it is named
+   * after was live behind a green test.
+   *
+   * `data-intro-pending` is removed exactly once, and that removal is the precise
+   * instant at which the site becomes paintable — which makes it the right thing to
+   * watch rather than any property of any element. A `MutationObserver` on that
+   * attribute answers the question with no sampling gap at all: the callback runs in
+   * the microtask after the mutation and before the browser can paint, so if the
+   * curtain is not in the document *at that moment* there is provably a frame in which
+   * the finished site is painted without it.
+   *
+   * A `requestAnimationFrame` sampler could not make this claim, because the paint
+   * being detected is free to happen between two of its own samples.
    */
   test("never paints the site before the curtain is up", async ({ page }) => {
-    // Before any navigation the document is empty, so the first painted frame of
-    // the *response* is the one that matters.
+    await page.addInitScript(() => {
+      type Trace = Window & {
+        msdPaintedBeforeCurtain?: boolean;
+        msdHoldEvents?: number;
+      };
+
+      const trace = window as Trace;
+
+      trace.msdPaintedBeforeCurtain = false;
+      trace.msdHoldEvents = 0;
+
+      /*
+        Observed on `document`, never on `document.documentElement`.
+
+        `addInitScript` runs after the Document object exists but before the parser
+        has produced the root element, so `documentElement` is still `null` here and
+        `observe(null)` throws — which aborts the rest of the init script and leaves
+        this test asserting nothing while reporting green. It is the same class of bug
+        as the test it replaces: a check that cannot fail. The Document node always
+        exists, and the root element is in its subtree.
+      */
+      new MutationObserver(() => {
+        const pending = document.documentElement.hasAttribute("data-intro-pending");
+
+        trace.msdHoldEvents = (trace.msdHoldEvents ?? 0) + 1;
+
+        if (pending) {
+          return;
+        }
+
+        if (document.querySelector(".msd-intro") === null) {
+          trace.msdPaintedBeforeCurtain = true;
+        }
+      }).observe(document, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ["data-intro-pending"],
+      });
+    });
+
     await page.goto("/en-us", { waitUntil: "commit" });
 
     await expect(page.locator("html")).toHaveAttribute("data-intro-pending", "", {
       timeout: 5_000,
     });
 
-    // While the hold is up, nothing of the site is visible. The hold is released
-    // the moment the intro decides to play, so this has to be asserted against the
-    // attribute rather than against a wait.
-    const hidden = await page.evaluate(() => {
-      const header = document.querySelector("header");
-      if (header === null) {
-        return null;
-      }
-      return getComputedStyle(header).visibility === "hidden" || getComputedStyle(header).opacity === "0";
-    });
+    /*
+      Read while the curtain is *up*. If the flag has already flipped by here, the
+      site was paintable before the curtain existed — which is the bug, not a
+      variation of it.
+    */
+    await expect(page.locator(".msd-intro")).toHaveCount(1, { timeout: 8_000 });
 
-    if (hidden !== null) {
-      expect(hidden, "the site was visible while the intro was holding it back").toBe(true);
-    }
+    /*
+      Self-check, and the reason this test cannot be green for free again: the
+      observer has to have actually seen the attribute change. If the instrumentation
+      silently failed to install, the flag is `false` because nothing ran — and a test
+      that reports success when its own probe is dead is worse than no test.
+    */
+    expect(
+      await page.evaluate(() => (window as Window & { msdHoldEvents?: number }).msdHoldEvents ?? 0),
+      "the observer never saw the hold change, so the assertion below proved nothing",
+    ).toBeGreaterThanOrEqual(2);
+
+    expect(
+      await page.evaluate(() => (window as Window & { msdPaintedBeforeCurtain?: boolean }).msdPaintedBeforeCurtain),
+      "the site became paintable before the curtain was in the document",
+    ).toBe(false);
   });
 
   /**

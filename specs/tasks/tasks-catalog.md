@@ -1309,6 +1309,54 @@ aparece.
 
 ---
 
+### TASK-057: O hold só sai depois que a cortina existe
+**US Relacionada**: US-01  
+**Prioridade**: Alta  
+**Status**: 🟢 Concluída  
+**Estimativa**: —  
+**Realizado**: ~1h  
+
+**Descrição**: Em primeira visita o site era pintado e **depois** coberto pela intro.
+O leitor via a home pronta por um instante e então uma cortina preta sobre ela — o
+arrival lia como glitch, não como chegada.
+
+**O Que Foi Feito**:
+- ✅ O `releaseIntroHold()` saiu do gate. A liberação virou um `useLayoutEffect`
+  indexado por `phase`: quando ele roda, o commit que definira a fase já colocou a
+  cortina no DOM
+- ✅ Janela medida: **163ms → 0ms**. Instrumentado com um `MutationObserver` no
+  atributo `data-intro-pending`, que é o instante exato em que o site fica
+  pintável
+- ✅ Nada mais regrediu: efeitos não são estrangulados como `requestAnimationFrame`,
+  então o hold ainda desce numa aba em background, e a hidratação que nunca acontece
+  continua respondida pelo teto do script pré-paint
+
+**Critérios de Conclusão**:
+- [x] O site nunca é pintável sem a cortina no documento (e2e, atributo observado)
+- [x] A instrumentação do teste se autoverifica — o contador de eventos tem de ser
+      ≥ 2, senão o teste passa por vazio
+- [x] A intro continua pulável, não repete em refresh, e não roda sob movimento
+      reduzido
+- [x] 18 e2e da intro, `typecheck` e `lint` limpos
+
+**Bugs encontrados e corrigidos** (nenhum visível sem medir):
+- O hold era liberado no gate e a fase só era setada no primeiro `requestAnimationFrame`.
+  Entre os dois, `phase` era `null`, o componente devolvia `null` e **não havia
+  cortina nenhuma** — o `visibility: hidden` do hold deixava de valer com o site
+  inteiro à vista. O portão é um efeito passivo (roda depois de uma pintura) e o
+  `setPhase` espera o próximo quadro, mais um render e um commit: 163ms, não um
+  quadro
+- O teste que prometia exatamente isto — `never paints the site before the curtain is
+  up` — passava. Amostrava `header` logo após `waitUntil: "commit"` e pulava a
+  asserção quando o header ainda não tinha sido parseado, o que numa máquina local
+  é quase sempre. Afirmava o hold no instante em que o hold está de pé por
+  construção e nunca olhava o quadro que quebrava
+- A primeira versão do teste novo passava por vazio: `addInitScript` roda antes do
+  parser produzir o elemento raiz, então `document.documentElement` é `null` e
+  `observe(null)` lança, abortando o resto do script. Observar `document` resolve, e
+  o teste agora exige que o observador viu ≥ 2 eventos antes de afirmar o resto — um
+  teste que dá verde quando a própria sonda está morta é pior do que nenhum teste
+
 ## Backlog de Evolução (Pós-MVP)
 
 A coluna **Status** foi reconciliada com o código em 2026-10-02. Quatro itens
@@ -1433,6 +1481,7 @@ histórico.
 |------|--------|---------|-------|
 | 2026-10-02 | TASK-055 | Retrato em vídeo no hero, com codificação 89% menor, hold pré-paint e glitch de emenda. Reconciliação do catálogo com o código: 5 tarefas marcadas como não iniciadas estavam entregues, 4 itens de backlog idem, e a matriz de priorização foi marcada como não autoritativa. Números e afirmações obsoletas corrigidos (o retrato saiu do intro e do currículo; o loop é boomerang de 9s, não corte de 6s) | opencode |
 | 2026-10-02 | TASK-056 | Intro sem retrato: glifos Matrix descem até resolverem `MARCELINO SANDRONI` e a cortina sobe revelando o site. Pouso do retrato, porta e revelo monocromático removidos | opencode |
+| 2026-10-03 | TASK-057 | O hold pré-paint só é liberado depois que a cortina está no DOM. Janela de 163ms de site pintável sem cortina, medida com `MutationObserver` no atributo | opencode |
 | 2026-09-28 | TASK-050..054 | ÉPICO 05: home executiva com design system tokenizado, currículo movido para `/[locale]/resume`, blog persistido em `blog_articles` com fallback versionado, e gate de cobertura corrigido (a `main` estava em 56.61%) | opencode |
 | 2026-09-28 | TASK-019 | Títulos de seção do PDF movidos dos literais do renderer para os catálogos | opencode |
 | 2026-09-28 | TASK-012, TASK-018 | Versão EN-US reescrita como tradução completa do PT-BR (fonte da verdade), com paridade de estrutura e fatos verificada em CI | opencode |
