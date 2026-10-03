@@ -7,7 +7,6 @@ import {
   INTRO_TOTAL_MS,
   evaluateIntroEligibility,
   introPhaseAt,
-  introPhaseProgress,
   readIntroVisit,
   touchIntroActivity,
   writeIntroVisit,
@@ -22,11 +21,10 @@ import {
  * the wrong visit is worse than no animation at all.
  */
 describe("the intro timeline", () => {
-  it("is one second per beat plus the three-second handshake", () => {
+  it("is a handshake, a name, and a rise", () => {
     expect(INTRO_PHASES.map((step) => step.phase)).toEqual([
       "connecting",
-      "door",
-      "reveal",
+      "locking",
       "enter",
     ]);
 
@@ -37,15 +35,24 @@ describe("the intro timeline", () => {
       assertion that notices.
     */
     expect(INTRO_TOTAL_MS).toBeLessThan(7_000);
-    // The handshake is the beat that costs the most attention, so it is the one
-    // with a stated number rather than an emergent one.
-    expect(INTRO_PHASES[0]?.durationMs).toBe(3_000);
+  });
+
+  it("gives the name longer than the handshake, because the name is the point", () => {
+    const connecting = INTRO_PHASES.find((step) => step.phase === "connecting");
+    const locking = INTRO_PHASES.find((step) => step.phase === "locking");
+
+    // Reversed from the previous sequence, where the handshake was the longest
+    // beat. There is now nothing to read during the handshake and one word to read
+    // during the lock, so the time follows the subject.
+    expect(locking?.durationMs).toBeGreaterThan(connecting?.durationMs ?? 0);
   });
 
   it("names the phase at any point, and nothing after the end", () => {
     expect(introPhaseAt(0)).toBe("connecting");
-    expect(introPhaseAt(2_999)).toBe("connecting");
-    expect(introPhaseAt(3_000)).toBe("door");
+
+    const connectingMs = INTRO_PHASES[0]?.durationMs ?? 0;
+    expect(introPhaseAt(connectingMs - 1)).toBe("connecting");
+    expect(introPhaseAt(connectingMs)).toBe("locking");
     expect(introPhaseAt(INTRO_TOTAL_MS)).toBeNull();
     expect(introPhaseAt(INTRO_TOTAL_MS * 10)).toBeNull();
   });
@@ -54,12 +61,6 @@ describe("the intro timeline", () => {
     // A `performance.now()` that goes backwards, or a negative elapsed after a
     // visibility change, must not crash on the first paint.
     expect(introPhaseAt(-500)).toBe("connecting");
-  });
-
-  it("reports progress within its own phase, clamped at both ends", () => {
-    expect(introPhaseProgress("door", 3_000)).toBe(0);
-    expect(introPhaseProgress("connecting", 1_500)).toBeCloseTo(0.5, 2);
-    expect(introPhaseProgress("door", 3_000 + 99_999)).toBe(1);
   });
 });
 

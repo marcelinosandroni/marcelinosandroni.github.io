@@ -17,10 +17,12 @@ import { getDictionary } from "@/i18n";
 import { TelemetryBar } from "@/components/telemetry/telemetry-bar";
 import { NavigationTransition } from "@/components/navigation/navigation-transition";
 import { MatrixEasterEgg } from "@/components/effects/matrix-easter-egg";
+import { IntroBootstrapScript } from "@/components/site/intro-bootstrap-script";
 import { ThemeBootstrapScript } from "@/components/theme/theme-script";
 import { DEFAULT_THEME_ID, themeColorFor } from "@/domain/theme/theme";
 import "../rain.css";
 import "../intro.css";
+import "../portrait-glitch.css";
 import "../globals.css";
 
 /*
@@ -160,6 +162,20 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           which keeps the script early without taking ownership of the element.
         */}
         <ThemeBootstrapScript />
+        {/*
+          Holds the page body invisible until the first-visit intro has decided
+          whether it is playing.
+
+          It has to live here, before the first paint, for the same reason the theme
+          script does: the decision depends on `localStorage`, which the server
+          cannot read, so a `useEffect` would paint the site and *then* cover it with
+          a curtain. On a first visit that reads as a glitch rather than an arrival.
+
+          The hold is released by the intro the moment it starts, and by its own
+          ceiling timer if hydration never happens — a page that appears late is an
+          embarrassment, a page that never appears is a bug somebody files.
+        */}
+        <IntroBootstrapScript />
         <meta name="theme-color" content={themeColorFor(DEFAULT_THEME_ID)} />
         <script
           type="application/ld+json"

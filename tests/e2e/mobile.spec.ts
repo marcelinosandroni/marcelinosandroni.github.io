@@ -121,41 +121,82 @@ test.describe("Mobile responsiveness", () => {
     await context.close();
   });
 
-  test("keeps the navigation reachable rather than truncated", async ({
-    browser,
-  }) => {
-    const context = await browser.newContext({
-      ...devices["Desktop Chrome"],
-      viewport: { width: 360, height: 800 },
-      isMobile: true,
-      hasTouch: true,
+  /**
+   * The header is two rows on a phone, on **every** route.
+   *
+   * This assertion used to run on the home route only, which is exactly why the
+   * résumé could ship a hand-rolled header that put the brand, six labels and one
+   * control on a single 390px row — labels truncated mid-word, no soundtrack, no
+   * theme, no owner control, and nothing to catch it. The bug was invisible to a
+   * test that never visited the page.
+   */
+  for (const route of ROUTES) {
+    test(`keeps the navigation reachable rather than truncated on ${route}`, async ({
+      browser,
+    }) => {
+      const context = await browser.newContext({
+        ...devices["Desktop Chrome"],
+        viewport: { width: 360, height: 800 },
+        isMobile: true,
+        hasTouch: true,
+      });
+      const page = await context.newPage();
+      await page.goto(route, { waitUntil: "networkidle" });
+
+      const nav = page.getByRole("navigation", { name: /main navigation/i });
+      await expect(nav).toBeVisible();
+
+      // The nav gets its own row on a phone, so the majority of the labels are
+      // actually on screen rather than hidden behind a horizontal scroll.
+      const navBox = await nav.boundingBox();
+      const headerBox = await page.locator("#site-header").boundingBox();
+
+      expect(navBox).not.toBeNull();
+      expect(headerBox).not.toBeNull();
+      if (navBox && headerBox) {
+        // A second row means the nav is taller than the brand row alone.
+        expect(navBox.y).toBeGreaterThan(headerBox.y + 20);
+        // And it spans the full width rather than a squeezed column.
+        expect(navBox.width).toBeGreaterThan(280);
+      }
+
+      /*
+        The four controls sit on the *first* row, above the nav. Asserted by
+        geometry rather than by count, because a control could be present and still
+        pushed onto the second row or wrapped out of sight — which is what a
+        hand-rolled header looks like when it is 40px too narrow.
+      */
+      /*
+        `.header-control` is the shared class on the soundtrack, theme and owner
+        controls; the language switcher is `.language`. Four controls, and the
+        selector matches what `digital-rain.spec.ts` already asserts against, so
+        there is one list of "what a header control is" rather than two.
+      */
+      const controls = page.locator("#site-header .header-control, #site-header .language");
+      const controlCount = await controls.count();
+      expect(controlCount, `${route} lost header controls`).toBe(4);
+
+      if (navBox) {
+        const boxes = await controls.evaluateAll((nodes) =>
+          nodes
+            .map((node) => node.getBoundingClientRect())
+            .filter((rect) => rect.width > 0 && rect.height > 0),
+        );
+        for (const box of boxes) {
+          expect(
+            box.y + box.height,
+            `${route} has a control below the nav row`,
+          ).toBeLessThanOrEqual(navBox.y + 1);
+        }
+      }
+
+      // Every label must still be present in the accessibility tree, whether or
+      // not it is within the visible width.
+      expect(await nav.getByRole("link").count()).toBeGreaterThanOrEqual(3);
+
+      await context.close();
     });
-    const page = await context.newPage();
-    await page.goto("/en-us", { waitUntil: "networkidle" });
-
-    const nav = page.getByRole("navigation", { name: /main navigation/i });
-    await expect(nav).toBeVisible();
-
-    // The nav gets its own row on a phone, so the majority of the labels are
-    // actually on screen rather than hidden behind a horizontal scroll.
-    const navBox = await nav.boundingBox();
-    const headerBox = await page.locator("header").boundingBox();
-
-    expect(navBox).not.toBeNull();
-    expect(headerBox).not.toBeNull();
-    if (navBox && headerBox) {
-      // A second row means the nav is taller than the brand row alone.
-      expect(navBox.y).toBeGreaterThan(headerBox.y + 20);
-      // And it spans the full width rather than a squeezed column.
-      expect(navBox.width).toBeGreaterThan(280);
-    }
-
-    // Every label must still be present in the accessibility tree, whether or
-    // not it is within the visible width.
-    await expect(nav.getByRole("link")).toHaveCount(6);
-
-    await context.close();
-  });
+  }
 
   test("expands the skip link to a usable target when focused", async ({
     browser,

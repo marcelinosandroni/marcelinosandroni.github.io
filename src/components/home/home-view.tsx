@@ -12,6 +12,7 @@ import { SiteHeader } from "@/components/site/site-header";
 import type { Locale } from "@/domain/i18n";
 import type { ResumeContent } from "@/domain/resume/types";
 import { blogPath, resumePath } from "@/domain/site/routes";
+import { SITE_OWNER } from "@/domain/site/site-info";
 import { getDictionary } from "@/i18n";
 import { getHomeContent } from "@/infrastructure/content/home";
 
@@ -62,11 +63,12 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
         openings on one page is one too many, and the old one told the reader
         nothing except that the site had a splash screen.
 
-        The portrait is 640px. The 1280 derivative exists for retina but the
-        frame is capped at 26rem, so a reader on a 4K display gets a soft edge
-        rather than a 12MB image.
+        It contains no photograph. The rain resolves into the reader's name and the
+        curtain rises, which means the hero's portrait is never a duplicate of
+        something the reader has just watched appear — see `first-visit-intro.tsx`
+        for why that was worth removing rather than animating harder.
       */}
-      <FirstVisitIntro portrait="/portrait-640.webp" logLines={BOOT_DIAGNOSTICS[locale]} />
+      <FirstVisitIntro name={SITE_OWNER.introName} logLines={BOOT_DIAGNOSTICS[locale]} />
 
       <SiteHeader locale={locale} t={t} sections={sections} />
 

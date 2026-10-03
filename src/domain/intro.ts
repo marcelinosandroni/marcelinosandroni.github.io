@@ -11,27 +11,28 @@
  *
  * ## The sequence
  *
- * Four beats, in the order the brief asked for:
+ * Three beats, in the order the brief asked for:
  *
- *   connecting → the Matrix handshaking, three seconds
- *   door       → a light opening, the way into it
- *   reveal     → the door pulls back and it is a face inside a frame
- *   enter      → the frame goes, and the site is already there
+ *   connecting → the Matrix handshaking
+ *   locking    → the rain condenses and resolves into the name
+ *   enter      → the curtain rises and the site is already there
  *
- * The reveal is the whole point. A boot animation that ends on a logo teaches the
- * reader that the site has a splash screen; one that pulls back to a portrait
- * makes them look twice, and the second look is the site.
+ * The name is the whole point. There is no photograph in this sequence any more,
+ * and that is not a simplification: an arrival that ends on a face makes the reader
+ * look twice, and the second look is a photograph they have now seen twice. An
+ * arrival that ends on the reader's own name in glyphs they watched fall into place
+ * is about the *site* — and it hands over to the hero rather than duplicating it.
  *
  * ## Why the whole thing is skippable, always
  *
  * A first-visit animation is a promise, not a privilege. It plays once, it never
  * plays on a return visit, and a keypress or a click abandons it immediately —
- * including during the three-second handshake, which is the beat people are most
- * likely to be waiting through. `INTRO_PHASES` is exported so the UI can render
- * real progress, and so a test can assert the total is short rather than trusting
- * that nobody made a phase too long.
+ * including during the handshake, which is the beat people are most likely to be
+ * waiting through. `INTRO_PHASES` is exported so the UI can render real progress,
+ * and so a test can assert the total is short rather than trusting that nobody made
+ * a phase too long.
  */
-export type IntroPhase = "connecting" | "door" | "reveal" | "enter";
+export type IntroPhase = "connecting" | "locking" | "enter";
 
 export type IntroPhaseStep = {
   readonly phase: IntroPhase;
@@ -42,19 +43,26 @@ export type IntroPhaseStep = {
 /**
  * The beats, in order, with their durations.
  *
- * Three seconds of handshake is the brief's number and it is the one duration a
- * reader will actually feel. Everything after it is much shorter: the point of
- * the door and the reveal is that they arrive quickly enough to feel like one
- * movement rather than three.
+ * Three numbers, and each one is a negotiation:
  *
- * `enter` is the shortest beat and the only one that does not hold — it is the
- * frame leaving, and the site is visible underneath it the entire time.
+ *  - `connecting` is long enough for the terminal log to be read in a glance and
+ *    short enough that nobody is still waiting during it. It was three seconds
+ *    when the sequence also had a door and a portrait to get through; there is
+ *    less to say now, so it is shorter.
+ *  - `locking` has to outlast the *last* column landing, not the average one.
+ *    `MatrixName` staggers left to right with jitter, so the last letter arrives
+ *    at roughly 2.35s — the beat is 2.6s, which leaves the name alone on screen
+ *    for a fifth of a second before it leaves. Shortening this beat without
+ *    shortening the stagger would cut the last letters off mid-fall.
+ *  - `enter` is the longest of the three because it does two things: it holds the
+ *    finished name for 300ms so it can be read, and then it spends 1.15s rising.
+ *    The hold is the difference between a name that resolves and a name that
+ *    flashes past.
  */
 export const INTRO_PHASES: readonly IntroPhaseStep[] = [
-  { phase: "connecting", durationMs: 3_000 },
-  { phase: "door", durationMs: 1_100 },
-  { phase: "reveal", durationMs: 1_500 },
-  { phase: "enter", durationMs: 700 },
+  { phase: "connecting", durationMs: 2_400 },
+  { phase: "locking", durationMs: 2_600 },
+  { phase: "enter", durationMs: 1_700 },
 ];
 
 /** Everything the intro costs in total, for a test to assert against. */
@@ -215,19 +223,4 @@ export function introPhaseAt(elapsedMs: number): IntroPhase | null {
   }
 
   return null;
-}
-
-/** How far through the timeline a phase runs, 0 to 1. Drives the CSS easing. */
-export function introPhaseProgress(phase: IntroPhase, elapsedMs: number): number {
-  let cursor = 0;
-
-  for (const step of INTRO_PHASES) {
-    if (step.phase === phase) {
-      return Math.min(Math.max((elapsedMs - cursor) / step.durationMs, 0), 1);
-    }
-
-    cursor += step.durationMs;
-  }
-
-  return 0;
 }

@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+import { PortraitLoopGlitch } from "@/components/effects/portrait-loop-glitch";
+import { PortraitVideoGate } from "@/components/effects/portrait-video-gate";
 import { Icon } from "@/components/ui/icon";
 import type { HomePortrait } from "@/domain/portfolio";
 
@@ -28,7 +30,20 @@ export function PortraitFrame({ portrait }: PortraitFrameProps) {
       />
 
       <div className="relative w-full overflow-hidden rounded-2xl bg-surface-raised p-space-md shadow-2xl">
-        <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-surface-base">
+        {/*
+          The measurement anchor for the first-visit intro.
+
+          The intro's face is drawn in the centre of the screen and the hero's face
+          is here, so without this the hand-off moves the portrait sideways at the
+          exact moment the reader starts reading. The intro measures this box and
+          lands its own portrait on it, which is why the attribute is on the
+          outermost media box rather than on the whole frame: the card's padding
+          and the telemetry strip below are not part of the picture.
+        */}
+        <div
+          data-portrait-anchor="hero"
+          className="relative aspect-square w-full overflow-hidden rounded-xl bg-surface-base"
+        >
           {/*
            * The mark sits on the photograph, so it carries the same scrim as the
            * status badge. Without it, a busy background swallows a 9px label and
@@ -39,14 +54,40 @@ export function PortraitFrame({ portrait }: PortraitFrameProps) {
           </span>
 
           {portrait.src ? (
-            <Image
-              src={portrait.src}
-              alt={portrait.alt}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 420px"
-              className="object-cover grayscale contrast-125 transition-transform duration-700 group-hover:scale-105"
-            />
+            <>
+              {/*
+                The jitter target, and deliberately a child rather than the anchor
+                itself. The anchor is what the first-visit intro measures to decide
+                where its own portrait lands, and `getBoundingClientRect` returns the
+                *transformed* box — so animating the anchor would make the landing
+                target move during the four frames the glitch is active, and the
+                portrait would arrive a few pixels off. A child carries the jitter
+                and the measured box stays still.
+              */}
+              <div className="msd-portrait-media">
+                {/*
+                  The still is the element that exists. It is the LCP candidate, it is
+                  server-rendered with a srcset the browser can act on before any
+                  JavaScript runs, and it is the fallback for every reader who does not
+                  get the loop — reduced motion, a metered connection, or a browser that
+                  declines to play it.
+
+                  The video sits on top of it and fades in once it can paint a frame,
+                  so the reader never sees a hole and a reader who never sees the video
+                  at all sees no difference from a site that has none.
+                */}
+                <Image
+                  src={portrait.src}
+                  alt={portrait.alt}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 420px"
+                  className="object-cover grayscale contrast-125 transition-transform duration-700 group-hover:scale-105"
+                />
+                <PortraitVideoGate className="msd-portrait-video absolute inset-0 h-full w-full object-cover grayscale contrast-125" />
+                <PortraitLoopGlitch />
+              </div>
+            </>
           ) : (
             <Monogram alt={portrait.alt} />
           )}

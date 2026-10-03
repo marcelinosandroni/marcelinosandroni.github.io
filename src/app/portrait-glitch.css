@@ -1,0 +1,243 @@
+/* ==========================================================================
+   THE LOOP MARKER
+   ==========================================================================
+   A burst of signal failure at the video's loop boundary, so the cycle reads as
+   deliberate rather than as a file that broke.
+
+   ## Two layers, because one is not enough
+
+   The jitter moves the *picture*. The overlay tears the *signal*. Neither alone
+   reads as a CRT fault: a jitter without tearing is a camera shake, and tearing
+   without displacement is a dirty lens. Together, at four frames of displacement
+   held for a quarter of a second, they read as a picture losing sync.
+
+   ## Everything is timed from `--portrait-loop`
+
+   The animation's total duration *is* the video's duration, and the burst lives in
+   the last 3.2% of it. Nothing needs to know when the video looped — the two start
+   together when the element mounts and stay together because they are the same
+   number. The one thing this cannot survive is a seek, and nothing seeks this
+   video.
+
+   ## `steps(1, end)`, not an easing
+
+   A signal error is digital. Each keyframe holds its value until the next one and
+   then jumps. An eased version reads as a rubber-band transition or a Ken Burns
+   move, which is precisely the wrong sensation.
+
+   ## Why the portrait is not translated by JS
+
+   Everything here is CSS on elements that are already in the DOM. A per-frame
+   transform driven from `requestAnimationFrame` would re-render a React tree sixty
+   times a second to move a box, which is the expensive way to do something the
+   compositor does for free — and for an effect that is idle 96.8% of the time.
+   ========================================================================== */
+
+.msd-portrait-media {
+  position: absolute;
+  inset: 0;
+  /*
+    The step function is what makes this digital. Without it the offsets between
+    keyframes interpolate and the whole thing reads as a slow slide.
+  */
+  animation: msd-portrait-jitter var(--portrait-loop, 9000ms) steps(1, end) infinite;
+}
+
+/*
+  Sub-pixel offsets only. Anything past a few pixels reads as the portrait shaking
+  rather than the picture losing sync, and a face that visibly jitters on a résumé
+  is worse than one that repeats cleanly.
+*/
+@keyframes msd-portrait-jitter {
+  0%,
+  96.8% {
+    transform: translate(0, 0);
+  }
+  97.2% {
+    transform: translate(-2px, 1px);
+  }
+  97.6% {
+    transform: translate(3px, -1px);
+  }
+  98% {
+    transform: translate(-4px, 0);
+  }
+  98.4% {
+    transform: translate(3px, 1px);
+  }
+  98.8% {
+    transform: translate(-1px, 0);
+  }
+  99.2% {
+    transform: translate(2px, -1px);
+  }
+  99.6% {
+    transform: translate(-1px, 0);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.msd-portrait-glitch {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  /*
+    `screen` so the overlay only ever lightens. The alternative, `normal`, would
+    paint an opaque black grid over the portrait for a quarter second at every loop
+    boundary, which is a blackout rather than a glitch.
+  */
+  mix-blend-mode: screen;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.5) 0 1px,
+      transparent 1px 3px
+    );
+  animation: msd-portrait-tear var(--portrait-loop, 9000ms) steps(1, end) infinite;
+}
+
+/*
+  The rolling band. `background-position` is stepped rather than animated so the
+  scanlines jump between offsets rather than sliding — a sliding scanline is a
+  camera move, and a jumping one is a raster losing its position.
+*/
+@keyframes msd-portrait-tear {
+  0%,
+  96.8% {
+    opacity: 0;
+    background-position: 0 0;
+  }
+  97.2% {
+    opacity: 0.42;
+    background-position: 0 -17px;
+  }
+  97.6% {
+    opacity: 0.12;
+    background-position: 0 -33px;
+  }
+  98% {
+    opacity: 0.55;
+    background-position: 0 -11px;
+  }
+  98.4% {
+    opacity: 0.16;
+    background-position: 0 -42px;
+  }
+  98.8% {
+    opacity: 0.48;
+    background-position: 0 -25px;
+  }
+  99.2% {
+    opacity: 0.14;
+    background-position: 0 -8px;
+  }
+  99.6% {
+    opacity: 0.38;
+    background-position: 0 -29px;
+  }
+  100% {
+    opacity: 0;
+    background-position: 0 0;
+  }
+}
+
+/*
+  The two tear bars. Positioned rather than animated: the parent's opacity carries
+  the timing, and two extra elements with their own keyframes would be two more
+  things to keep in phase with the video.
+
+  A thin bright line with a soft falloff, which is what a horizontal sync fault
+  looks like — one row of the raster displaced and smeared.
+*/
+.msd-portrait-glitch__bar {
+  position: absolute;
+  left: -6%;
+  width: 112%;
+  height: 14%;
+  top: var(--msd-tear-top, 30%);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in oklab, var(--color-primary-container) 70%, transparent) 45%,
+    transparent
+  );
+}
+
+.msd-portrait-glitch__bar[data-offset="-14%"] {
+  --msd-tear-top: -14%;
+  height: 9%;
+}
+
+.msd-portrait-glitch__bar[data-offset="46%"] {
+  --msd-tear-top: 46%;
+  height: 6%;
+}
+
+/* ==========================================================================
+   THE LOOP ITSELF
+   ==========================================================================
+   These two rules used to live in `intro.css`, and that was a layering bug rather
+   than a style preference: the hero portrait is a Server Component with no business
+   depending on the stylesheet that owns the arrival curtain, and the intro no longer
+   contains a video at all. Truncating that stylesheet left the hero's loop
+   permanently at `opacity: 0` — a photograph with no video over it, and no error
+   anywhere to say so.
+   ========================================================================== */
+
+.msd-portrait-video {
+  display: block;
+  /*
+    Above the still it covers, below the glitch overlay that rides on top of it.
+    Position, size and fit are the caller's Tailwind classes; what is here is the
+    one thing they cannot express — that the loop starts at nothing and becomes the
+    image, rather than replacing it in a single frame.
+  */
+  z-index: 1;
+  opacity: 0;
+  /*
+    `animation`, not `transition`: this is bound to the element's lifetime, so it
+    runs once when the element is inserted and never restarts. A transition would
+    need a state flip to trigger and would have to be re-armed for a second
+    appearance.
+
+    No `will-change`. The still underneath already carries a `grayscale`/`contrast`
+    filter and two filtered layers are composited per frame; promoting a layer that
+    has to be re-rasterised every frame anyway would cost memory to save nothing.
+  */
+  animation: msd-portrait-video-in 600ms ease-out 120ms forwards;
+}
+
+@keyframes msd-portrait-video-in {
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+  Reduced motion gets the photograph and no video, so there is no loop and no seam
+  to mark. The overlay is still in the DOM though, and an element that keeps
+  animating for a reader who asked for none is the thing this site has spent the
+  whole intro work avoiding.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .msd-portrait-glitch {
+    display: none;
+  }
+
+  .msd-portrait-media {
+    animation: none;
+  }
+
+  /*
+    Hiding is enough, and it stops the decode as well as the painting: a
+    `display: none` video is not composited.
+  */
+  .msd-portrait-video {
+    display: none;
+  }
+}
