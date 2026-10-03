@@ -532,9 +532,23 @@ Se você não pediu este link, ignore esta mensagem — nada foi alterado.`,
   },
   telemetry: {
     label: "Métricas reais de carregamento desta página",
+    /*
+      Deliberadamente sem traduzir, e sem virar prosa.
+
+      `TTFB`, `DOM` e `load` são os nomes que o próprio navegador usa para esses três
+      eventos — é o que aparece no painel do DevTools e em qualquer conversa sobre
+      performance desta página que alguém venha ter. Traduzir tornaria a barra
+      ilegível para a única pessoa que provavelmente vai conferir se os números são
+      reais, que é a pessoa para quem a barra existe.
+
+      `DOM pronto` e `Carregado` eram a redação anterior e estavam errados duas vezes:
+      traduziam longe dos nomes dos eventos, e eram longos o bastante para que em
+      390px a barra quebrasse em três linhas para dizer a mesma coisa com mais
+      palavras.
+     */
     ttfb: "TTFB",
-    domContentLoaded: "DOM pronto",
-    loadComplete: "Carregado",
+    domContentLoaded: "DOM",
+    loadComplete: "load",
     unavailable: "não mensurável neste navegador",
     /*
       Tooltip do carimbo de build à direita da barra, dizendo o que o número é em vez

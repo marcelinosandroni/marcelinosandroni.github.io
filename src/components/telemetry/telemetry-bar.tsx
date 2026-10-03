@@ -117,15 +117,45 @@ export function TelemetryBar({ labels, build }: TelemetryBarProps) {
           dashboard URL out of a team slug and a project name — two more pieces of
           configuration that can be wrong. The deployment id rides along in the
           tooltip, which is what a bug report needs and costs no width.
+
+          ## Why the stamp is a separate node and not part of one string
+
+          Because it is the only segment that gets dropped on a phone. Folding all
+          three into one `buildLabel` and hiding it with a media query would take the
+          environment and the version with it — the environment especially, since a
+          preview build on a phone is the case where it matters most. Three
+          independent nodes is the only shape in which "hide one of three" is
+          expressible without string surgery at render time.
         */}
         <span
-          className="ml-auto whitespace-nowrap font-label-mono text-label-mono uppercase tracking-widest text-text-muted"
+          className="ml-auto flex items-baseline whitespace-nowrap font-label-mono text-label-mono uppercase tracking-widest text-text-muted"
           title={buildTooltip(build, labels.buildTitle)}
           data-testid="build-readout"
           data-environment={build.environment}
           data-stamp={build.stamp ?? ""}
         >
-          {buildLabel(build)}
+          {buildEnvironmentLabel(build) === null ? null : (
+            <span data-testid="build-environment">{buildEnvironmentLabel(build)}&nbsp;</span>
+          )}
+          <span data-testid="build-version">{buildVersionLabel(build)}</span>
+          {buildStampLabel(build) === null ? null : (
+            /*
+              `hidden sm:inline`, and the reason is measured rather than assumed.
+
+              At 390px the three metrics fit the first line and the environment plus the
+              version fit the second, flush with the content edge at zero pixels of slack.
+              The stamp on its own is roughly 60px wider than `local v0.14.1`, which is
+              the difference between a bar that ends around y=848 and one that ends
+              around y=878 — a whole extra line of the reader's page, on the one screen
+              where there is least of it to give.
+
+              `sm` rather than `md` because 390px is the narrowest width worth optimising
+              for and `sm` starts at 640px, which is already past it.
+             */
+            <span className="hidden sm:inline" data-testid="build-stamp">
+              &nbsp;·&nbsp;{buildStampLabel(build)}
+            </span>
+          )}
         </span>
       </div>
     </aside>
@@ -139,28 +169,40 @@ export function TelemetryBar({ labels, build }: TelemetryBarProps) {
  * is what every other reader is on, and the word is noise on every load. It is the
  * one value here that is *less* useful the more it is repeated, so it appears only
  * where it changes what a reader should assume: a preview or a local build.
- */
-/**
- * Exported for the one test that needs the production branch.
+ *
+ * ## Why it is exported
  *
  * A local e2e run cannot produce a `production` build — `VERCEL_ENV` is not settable
  * per test — so without an export the rule "production prints one word less" would be
  * the one behaviour of this component with no coverage at all. A private function with
  * no test is how that happens.
  */
-export function buildLabel(build: BuildInfo): string {
-  // Explicitly `string[]`: the first element is a bare template literal, and letting
-  // TypeScript infer from it narrows the array to the template types of two elements,
-  // which the later pushes do not satisfy.
-  const parts: string[] = build.environment === "production" ? [] : [build.environment];
+export function buildEnvironmentLabel(build: BuildInfo): string | null {
+  return build.environment === "production" ? null : build.environment;
+}
 
-  parts.push(`v${build.release}`);
+/**
+ * The release, always, on every surface.
+ *
+ * Separate from `buildEnvironmentLabel` rather than folded into one `buildLabel`
+ * because the three segments are laid out independently — the stamp is dropped on a
+ * phone and the other two are not, which is only expressible if they are separate
+ * nodes rather than one string split back apart.
+ */
+export function buildVersionLabel(build: BuildInfo): string {
+  return `v${build.release}`;
+}
 
-  if (build.stamp !== null) {
-    parts.push(`· ${build.stamp}`);
-  }
-
-  return parts.join(" ");
+/**
+ * The build stamp, or nothing.
+ *
+ * Returned bare rather than with a leading separator. The separator belongs to the
+ * layout, and a string that carries its own `· ` forces the wrapper to strip it again
+ * for the narrow case where the stamp is the only thing dropped — and a trim that
+ * forgets to handle the boundary prints a dangling `·`.
+ */
+export function buildStampLabel(build: BuildInfo): string | null {
+  return build.stamp;
 }
 
 /**
@@ -170,7 +212,7 @@ export function buildLabel(build: BuildInfo): string {
  * tooltip is a hover target that promises something and gives nothing.
  */
 /**
- * Exported for the same reason as `buildLabel`: the "no deployment id means no
+ * Exported for the same reason as the label functions: the "no deployment id means no
  * tooltip suffix" branch is only reachable off Vercel.
  */
 export function buildTooltip(build: BuildInfo, caption: string): string | undefined {

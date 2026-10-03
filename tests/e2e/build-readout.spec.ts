@@ -2,7 +2,10 @@ import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 
 
-import { buildLabel } from "../../src/components/telemetry/telemetry-bar";
+import {
+  buildEnvironmentLabel,
+  buildVersionLabel,
+} from "../../src/components/telemetry/telemetry-bar";
 import { version } from "../../package.json";
 
 /**
@@ -77,52 +80,48 @@ test.describe("Build readout", () => {
   });
 
   /*
-  * The production shape, asserted here rather than only in the unit tests.
-  *
-  * The unit tests call `buildLabel` directly, which is the right place for the rule.
-  * This one exists to prove the *component* uses that function for its text — a
-  * component that rendered its own hard-coded label would pass every unit test in the
-  * repo and print the wrong thing in production. So it checks the rendered string of
-  * the real local build against the same rule applied to a production `BuildInfo`,
-  * which is the only way a local run can observe the branch it cannot reach.
-  */
-test("would print one word less in production, and never two words more", async ({ page }) => {
+    The production shape, asserted here rather than only in the unit tests.
+
+    The unit tests call the segment functions directly, which is the right place for
+    the rule. This one exists to prove the *component* composes them for its text — a
+    component that rendered its own hard-coded label would pass every unit test in the
+    repo and print the wrong thing in production. A local run cannot produce a
+    production build, so the environment node is asserted to be absent by proxy: the
+    component is given `local`, and if the environment node were unconditional the same
+    markup would appear here with a different word in it.
+   */
+  test("would print one word less in production, and never two words more", async ({ page }) => {
     await page.goto("/en-us");
 
     const readout = page.getByTestId("build-readout");
     await expect(readout).toBeVisible();
 
-    const local = (await readout.textContent()) ?? "";
+    const stamp = await readout.getAttribute("data-stamp");
+    const info = { release: version, stamp: stamp ?? null, deploymentId: null };
 
     /*
-      `buildLabel` is exported from the client component precisely so this comparison
-      can be made against the same code the page runs. The alternative — asserting the
-      shape with a regex and trusting that the component's formatting happens to match
-      — would go stale silently the first time someone added a separator.
+      Compared against the same functions the page renders with. The alternative —
+      asserting the shape with a regex and trusting that the component's formatting
+      happens to match — would go stale silently the first time someone added a
+      separator or dropped one.
      */
-    const stamp = await readout.getAttribute("data-stamp");
+    const environment = buildEnvironmentLabel({ ...info, environment: "local" });
+    const asProduction = buildEnvironmentLabel({ ...info, environment: "production" });
 
-    const asProduction = buildLabel({
-      environment: "production",
-      release: version,
-      stamp: stamp ?? null,
-      deploymentId: null,
-    });
-    const asLocal = buildLabel({
-      environment: "local",
-      release: version,
-      stamp: stamp ?? null,
-      deploymentId: null,
-    });
+    expect(environment).toBe("local");
+    expect(asProduction).toBeNull();
 
-    expect(local).toBe(asLocal);
-    expect(asProduction).not.toContain("production");
-    expect(asProduction).not.toContain("local");
-    expect(asProduction.startsWith("v")).toBe(true);
-    expect(asProduction).toContain(`v${version}`);
+    /*
+      The rendered DOM is three nodes, not one string, and only the middle one is
+      allowed to depend on the environment. Asserted as presence rather than as text so
+      that "production prints one word less" is a statement about a node being absent.
+     */
+    await expect(page.getByTestId("build-environment")).toHaveText("local");
+    await expect(page.getByTestId("build-version")).toHaveText(`v${version}`);
 
-    // One word, exactly: the whole point of the rule.
-    expect(asLocal.split(" ").length - asProduction.split(" ").length).toBe(1);
+    // The version is untouched by either environment — the branch that could lose it.
+    expect(buildVersionLabel({ ...info, environment: "production" })).toBe(`v${version}`);
+    expect(buildVersionLabel({ ...info, environment: "local" })).toBe(`v${version}`);
   });
 
   test("carries the build stamp, and the deployment id only when there is one", async ({ page }) => {
@@ -143,6 +142,79 @@ test("would print one word less in production, and never two words more", async 
     const title = await readout.getAttribute("title");
 
     expect(title).not.toContain("dpl_");
+  });
+
+  /*
+    The three metric names are the browser's, in both languages.
+   */
+  test("names the metrics the way the browser does, in either language", async ({ page }) => {
+    await page.goto("/en-us");
+
+    const bar = barLocator(page);
+    await expect(bar.getByText("TTFB", { exact: true })).toBeVisible();
+    await expect(bar.getByText("DOM", { exact: true })).toBeVisible();
+    await expect(bar.getByText("load", { exact: true })).toBeVisible();
+
+    // The previous wording, in either language, would mean the change did not land.
+    await expect(bar.getByText("DOM ready")).toHaveCount(0);
+    await expect(bar.getByText("DOM pronto")).toHaveCount(0);
+    await expect(bar.getByText("Loaded")).toHaveCount(0);
+    await expect(bar.getByText("Carregado")).toHaveCount(0);
+
+    // And pt-BR agrees, because these are event names rather than prose.
+    await page.goto("/pt-br");
+    const localized = barLocator(page);
+    await expect(localized.getByText("TTFB", { exact: true })).toBeVisible();
+    await expect(localized.getByText("DOM", { exact: true })).toBeVisible();
+    await expect(localized.getByText("load", { exact: true })).toBeVisible();
+    await expect(localized.getByText("DOM pronto")).toHaveCount(0);
+    await expect(localized.getByText("Carregado")).toHaveCount(0);
+  });
+
+  /*
+    The stamp is dropped on a phone; the environment and the version are not.
+
+    Which is the whole reason the readout is three nodes and not one string — hiding a
+    composed label with a media query takes the version with it, and takes the
+    environment too, which is exactly backwards: a preview build on a phone is the case
+    where naming the surface matters most.
+   */
+  test("drops the build stamp on a phone and keeps the environment and the version", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/en-us");
+
+    const stamp = page.getByTestId("build-stamp");
+    await expect(stamp, "the stamp is hidden on a wide viewport").toBeVisible();
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForTimeout(150);
+
+    // Dropped from the layout, not merely transparent.
+    await expect(stamp).toBeHidden();
+
+    // Still in the DOM, so it is the media query that hides it and not a re-render
+    // that threw the fact away — a distinction that matters the moment someone
+    // reorders the tree.
+    await expect(stamp).toHaveCount(1);
+
+    // The two that stay.
+    await expect(page.getByTestId("build-environment")).toBeVisible();
+    await expect(page.getByTestId("build-version")).toHaveText(`v${version}`);
+
+    /*
+      And the bar fits in two lines rather than three. Measured against the bar's own
+      height rather than the viewport's: a phone bar that grew by a line is a bar that
+      covers one line more of the page, and that is the whole reason the stamp is
+      dropped here rather than shortened.
+     */
+    const lines = await barLocator(page).evaluate((node) => {
+      const children = Array.from(node.children) as HTMLElement[];
+      const tops = new Set(children.map((child) => Math.round(child.getBoundingClientRect().top)));
+
+      return { lines: tops.size, height: node.getBoundingClientRect().height };
+    });
+
+    expect(lines.lines, `the bar wrapped onto ${lines.lines} lines at 390px`).toBeLessThanOrEqual(2);
   });
 
   test("sits on the right of the bar, and stays on the right when the bar wraps", async ({ page }) => {
@@ -224,5 +296,6 @@ test("would print one word less in production, and never two words more", async 
     await expect(readout).toContainText(`v${version}`);
   });
 });
+
 
 

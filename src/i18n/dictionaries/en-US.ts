@@ -562,9 +562,22 @@ If you did not ask for it, ignore this message — nothing was changed.`,
   },
   telemetry: {
     label: "This page's real load metrics",
+    /*
+      Deliberately not translated, and not prose.
+
+      `TTFB`, `DOM` and `load` are the names the browser itself uses for these three
+      events — they are what shows up in a DevTools panel and in every performance
+      conversation anyone will have about this page. Translating them would make the
+      bar unreadable to the one reader most likely to check whether the numbers are
+      real, which is the reader this bar exists for.
+
+      `DOM ready` and `Loaded` were the previous wording and were both wrong twice
+      over: translated away from the event names, and long enough that on a 390px
+      screen the bar wrapped to three lines to say the same thing in more words.
+     */
     ttfb: "TTFB",
-    domContentLoaded: "DOM ready",
-    loadComplete: "Loaded",
+    domContentLoaded: "DOM",
+    loadComplete: "load",
     unavailable: "not measurable in this browser",
     /*
       Tooltip for the build stamp at the right of the bar, naming what the number is

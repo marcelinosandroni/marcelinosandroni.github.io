@@ -305,31 +305,99 @@ test.describe("First-visit intro", () => {
       { timeout: 14_000 },
     );
 
+    /*
+      Sampled per frame and taking the *first* part-way frame, rather than read once
+      at a fixed offset into the beat.
+
+      The previous version slept 850ms after `waitForFunction` resolved and read the
+      clip once. That couples the reading to how quickly the poll happened to notice
+      `enter` — and on a loaded CI box the poll resolves late, 850ms later the rise is
+      over, and the test fails on a build that is fine. It passed locally and in the
+      pre-merge run and failed in a full-suite run, which is the definition of a flake
+      wearing a failure's clothes.
+
+      The claim being tested is that a part-way frame *exists*, so the honest shape of
+      the assertion is "keep looking until you see one", which is what this does. The
+      first frame inside 4%..96% is taken and everything after it is ignored — an early
+      one is the most likely to have caught a mirrored clip, and a late one is the most
+      likely to have caught a fade.
+     */
     const midway = await page.evaluate(
       () =>
-        new Promise<{ mounted: boolean; phase: string | null; clip: string; height: number }>((resolve) => {
-          // Inside the beat's 300ms hold plus a little over half of its 1150ms rise.
-          window.setTimeout(() => {
-            const layer = document.querySelector<HTMLElement>(".msd-intro");
+        new Promise<{
+          mounted: boolean;
+          phase: string | null;
+          clip: string;
+          height: number;
+          frames: number;
+        }>((resolve) => {
+          const read = (): number | null => {
             const backdrop = document.querySelector<HTMLElement>(".msd-intro__backdrop");
 
             if (backdrop === null) {
-              resolve({ mounted: false, phase: null, clip: "", height: 0 });
+              return null;
+            }
+
+            const parts = getComputedStyle(backdrop)
+              .clipPath.match(/inset\(([^)]*)\)/)?.[1]
+              ?.trim()
+              .split(/\s+/);
+
+            if (parts === undefined || parts.length === 0) {
+              return null;
+            }
+
+            return Number.parseFloat(parts.length >= 4 ? (parts[2] ?? "") : (parts.at(-1) ?? ""));
+          };
+
+          const startedAt = performance.now();
+          let frames = 0;
+
+          const sample = (): void => {
+            const layer = document.querySelector<HTMLElement>(".msd-intro");
+            const backdrop = document.querySelector<HTMLElement>(".msd-intro__backdrop");
+
+            if (layer === null || backdrop === null) {
+              resolve({ mounted: false, phase: null, clip: "", height: 0, frames });
               return;
             }
 
-            resolve({
-              mounted: true,
-              phase: layer?.getAttribute("data-intro-phase") ?? null,
-              clip: getComputedStyle(backdrop).clipPath,
-              height: backdrop.getBoundingClientRect().height,
-            });
-          }, 850);
+            frames += 1;
+
+            const bottom = read();
+
+            if (bottom !== null && !Number.isNaN(bottom) && bottom > 4 && bottom < 96) {
+              resolve({
+                mounted: true,
+                phase: layer.getAttribute("data-intro-phase"),
+                clip: getComputedStyle(backdrop).clipPath,
+                height: backdrop.getBoundingClientRect().height,
+                frames,
+              });
+              return;
+            }
+
+            // The layer leaves on its own; there is no frame left to find.
+            if (performance.now() - startedAt > 3_000) {
+              resolve({
+                mounted: false,
+                phase: layer.getAttribute("data-intro-phase"),
+                clip: getComputedStyle(backdrop).clipPath,
+                height: backdrop.getBoundingClientRect().height,
+                frames,
+              });
+              return;
+            }
+
+            requestAnimationFrame(sample);
+          };
+
+          requestAnimationFrame(sample);
         }),
     );
 
     // Still mounted and still naming its beat, so this is not the layer having gone.
-    expect(midway.mounted, "the layer was gone at the midpoint, so this was a cut").toBe(true);
+    expect(midway.mounted, "the curtain was never caught part-way open").toBe(true);
     expect(midway.phase).toBe("enter");
     expect(midway.clip).toMatch(/inset\(/);
 
@@ -338,7 +406,7 @@ test.describe("First-visit intro", () => {
       four-value form the bottom is index 2; in the three-value form — and in the
       two-value form, which is top/bottom — it is the last. Anything shorter than four
       falls through to the last slot.
-    */
+     */
     const parts = midway.clip.match(/inset\(([^)]*)\)/)?.[1]?.trim().split(/\s+/) ?? [];
     const bottomInset = Number.parseFloat(parts.length >= 4 ? (parts[2] ?? "") : (parts.at(-1) ?? ""));
 
@@ -352,8 +420,9 @@ test.describe("First-visit intro", () => {
       And the revealed region is the *bottom* of the screen — the direction of the
       rise, and the thing a mirrored clip gets wrong while still looking plausible at
       the single frame where the two coincide.
-    */
+     */
     const boundary = midway.height * (1 - bottomInset / 100);
+
     expect(
       boundary,
       `the revealed region ends at ${boundary.toFixed(0)}px of a ${midway.height.toFixed(0)}px screen`,
