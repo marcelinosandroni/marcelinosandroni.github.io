@@ -380,6 +380,17 @@ export const enUS = {
     signOut: "Sign out",
     signedInAs: "Signed in as {email}",
     /**
+     * Shown only when `ADMIN_AUTH_BYPASS` opened this area with no sign-in.
+     *
+     * The banner is the feature. A bypass nobody can see is an owner area that
+     * looks finished while it is open to anyone who can reach the URL, and the
+     * person most likely to forget the flag is the one whose local run keeps
+     * working perfectly after they do.
+     */
+    bypassTitle: "Authentication is off",
+    bypassBody:
+      "This area is open because ADMIN_AUTH_BYPASS is set. There is no sign-in and no session — anyone who can reach /admin sees this. It refuses itself on a Vercel production or preview build.",
+    /**
      * The sign-in email itself.
      *
      * The one place a link is rendered, so `{link}` is a contract rather than a

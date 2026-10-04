@@ -132,6 +132,31 @@ export default async function AdminPage() {
         <p className="mt-2 text-body-sm text-body-sm text-text-secondary">
           {t.admin.signedInAs.replace("{email}", session.email)}
         </p>
+
+        {/*
+          Only when the session was granted by `ADMIN_AUTH_BYPASS`, and the reason it
+          is a banner rather than a console warning is that it has to survive the thing
+          it is warning about: a person who walks away from a local server and comes
+          back to a Vercel preview built from the same branch. On screen, in the
+          payload, in the screenshot they might paste into an issue.
+
+          `role="status"` rather than `alert`: this is not an error, it is a statement
+          about the deployment, and an assertive announcement on every page load would
+          interrupt whatever the owner was already doing.
+        */}
+        {session.bypassed ? (
+          <div
+            role="status"
+            className="mt-space-md border border-primary-container bg-surface-base p-space-sm"
+          >
+            <p className="font-label-mono text-label-mono uppercase tracking-widest text-primary-container">
+              {t.admin.bypassTitle}
+            </p>
+            <p className="mt-1 text-body-sm text-body-sm text-text-secondary">
+              {t.admin.bypassBody}
+            </p>
+          </div>
+        ) : null}
       </section>
 
       <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
