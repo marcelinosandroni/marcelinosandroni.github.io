@@ -92,7 +92,7 @@ function bypassRequested(env: EnvironmentLike): boolean {
     the quotes are stripped, so `ADMIN_AUTH_BYPASS="on"` set through a loader that
     does not unquote arrives as `"on"` and is refused rather than accepted — which is
     the right way round for a value that opens an admin area, and the reason
-    `load-env.ps1` has to strip quotes for this flag to work at all.
+    `scripts/load-env.ps1` has to strip quotes for this flag to work at all.
    */
   if (!/^(1|true|yes|on)$/i.test(requested.trim())) {
     return false;
@@ -210,3 +210,4 @@ export async function getOwnerSession(): Promise<OwnerSession | null> {
   // and it is consulted on every request so a change takes effect immediately.
   return adminGateFromEnv().isAllowed(email) && email !== null ? { email, bypassed: false } : null;
 }
+

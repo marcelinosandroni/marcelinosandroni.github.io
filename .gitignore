@@ -75,3 +75,4 @@ public/artifacts/cache/
 # Playwright HTML report is a generated artifact of a local run.
 playwright-report/
 test-results/
+supabase/.temp/
