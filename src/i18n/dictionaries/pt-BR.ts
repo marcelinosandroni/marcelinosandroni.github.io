@@ -357,6 +357,17 @@ export const ptBR: Dictionary = {
     signOut: "Sair",
     signedInAs: "Conectado como {email}",
     /**
+     * Exibido só quando `ADMIN_AUTH_BYPASS` abriu a área sem sign-in.
+     *
+     * O banner é a funcionalidade. Um bypass invisível é uma área de dono que parece
+     * pronta enquanto está aberta para qualquer um que chegue na URL — e quem mais
+     * tem chance de esquecer a flag é justamente quem continua Nair com o run local
+     * funcionando normalmente depois que esqueceu.
+     */
+    bypassTitle: "A autenticação está desligada",
+    bypassBody:
+      "Esta área está aberta porque ADMIN_AUTH_BYPASS está definida. Não há sign-in nem sessão — qualquer um que chegue em /admin vê isto. Ela se recusa em build de produção ou preview da Vercel.",
+    /**
      * The sign-in email itself.
      *
      * `{link}` is filled in by the delivery adapter, which is the only party

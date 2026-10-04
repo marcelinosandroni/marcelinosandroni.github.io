@@ -1,7 +1,8 @@
-import { adminGateFromEnv } from "@/domain/admin";
+import { ADMIN_EMAIL_ENV, adminGateFromEnv } from "@/domain/admin";
 import {
   createSupabaseServerClient,
   isSupabaseConfigured,
+  type EnvironmentLike,
 } from "@/infrastructure/supabase/server";
 
 /**
@@ -21,6 +22,10 @@ import {
  * 5. **Re-derived on every request.** A session minted before the allowlist
  *    changed stops working immediately, because authorisation is computed here
  *    from the allowlist and never trusted from the token.
+ * 6. **No bypass on a deployed build.** `ADMIN_AUTH_BYPASS` opens this area
+ *    without a link, and it refuses itself on any Vercel production or preview.
+ *    See `bypassRequested` — point 6 is the one that can be turned off by
+ *    accident, which is why it does not trust a single variable.
  *
  * Supabase additionally allows anyone to create an account by default, so
  * point 2 is a convenience and point 3 is the boundary: a stranger who signs
@@ -30,9 +35,85 @@ import {
 
 export type OwnerSession = {
   readonly email: string;
+  /**
+   * True when the session was granted by the bypass rather than by a provider.
+   *
+   * Carried rather than inferred, because the page has to be able to *say* that it
+   * is showing an unlocked owner area. A development bypass that is invisible on
+   * screen is an owner area that looks production-ready while being open to anyone
+   * who can reach the URL.
+   */
+  readonly bypassed: boolean;
 };
 
-/** Whether this deployment can authenticate anyone at all. */
+/**
+ * Environment variable that opens the owner area without a sign-in link.
+ *
+ * Development only, and the name carries the warning and the value carries the
+ * switch. This is the one control on the site that can publish, reply to a visitor
+ * and read a transcript, so the switch that disables its only boundary has to be
+ * impossible to leave on by accident.
+ */
+export const AUTH_BYPASS_ENV = "ADMIN_AUTH_BYPASS";
+
+/**
+ * Whether this deployment has the bypass turned on.
+ *
+ * ## Why it refuses outside a development build
+ *
+ * Because the cost of being wrong is not symmetric. A developer who turns this on
+ * and forgets pays a confusing afternoon. A deployment that ships with it on publishes
+ * the owner's console to anyone who can reach the URL, and there is no session to
+ * revoke because there was never a boundary to cross.
+ *
+ * So the bypass needs two things, not one: the variable set *and* a build that is
+ * neither a Vercel production nor a Vercel preview.
+ *
+ * `VERCEL_ENV` rather than `NODE_ENV`, and the distinction is the whole reason this
+ * works at all: Next sets `NODE_ENV=production` for `next start` and in CI, so
+ * checking it would refuse the bypass on a laptop running a production build — and in
+ * CI, which is the correct answer for both. `VERCEL_ENV` only exists on the platform,
+ * so a local `next dev` turns it on with the one flag and nothing else.
+ *
+ * Previews are refused too, and that is deliberate rather than incidental: a preview
+ * is reachable by anyone with the deployment URL and by every Vercel team member, and
+ * "it is only a preview" is how a real one ships.
+ */
+function bypassRequested(env: EnvironmentLike): boolean {
+  const requested = env[AUTH_BYPASS_ENV];
+
+  if (typeof requested !== "string" || requested.trim() === "") {
+    return false;
+  }
+
+  /*
+    The same truthiness as the feature flags, and for the same reason: a half-typed
+    value is a mistake and a mistake must read as *off*. Note that this runs after
+    the quotes are stripped, so `ADMIN_AUTH_BYPASS="on"` set through a loader that
+    does not unquote arrives as `"on"` and is refused rather than accepted — which is
+    the right way round for a value that opens an admin area, and the reason
+    `load-env.ps1` has to strip quotes for this flag to work at all.
+   */
+  if (!/^(1|true|yes|on)$/i.test(requested.trim())) {
+    return false;
+  }
+
+  return env.VERCEL_ENV !== "production" && env.VERCEL_ENV !== "preview";
+}
+
+/** Whether the owner area is open without a sign-in link. */
+export function isAuthBypassed(env: EnvironmentLike = process.env): boolean {
+  return bypassRequested(env);
+}
+
+/**
+ * Whether this deployment can authenticate anyone at all.
+ *
+ * Unchanged by the bypass on purpose. The CMS repositories read this same pair, and a
+ * bypassed session does not make a missing `SUPABASE_SECRET_KEY` go away. Reporting
+ * the deployment as able to authenticate keeps "auth is configured" and "the CMS can
+ * be written" the same statement, which is the property the repositories rely on.
+ */
 export function isAuthEnabled(): boolean {
   return isSupabaseConfigured();
 }
@@ -40,11 +121,33 @@ export function isAuthEnabled(): boolean {
 /**
  * The owner session, or `null`.
  *
- * `getUser()` revalidates against Supabase rather than reading the cookie
- * claims, which is the difference between "the cookie says this person is the
- * owner" and "this person is the owner". A stale or forged cookie fails here.
+ * `getUser()` revalidates against Supabase rather than reading the cookie claims,
+ * which is the difference between "the cookie says this person is the owner" and
+ * "this person is the owner". A stale or forged cookie fails here.
  */
 export async function getOwnerSession(): Promise<OwnerSession | null> {
+  /*
+    The bypass comes first and returns before any provider is contacted, so a local
+    run needs neither a session cookie nor a verified sender — which is the second
+    thing that makes this worth having, because `RESEND_FROM` being absent otherwise
+    means a local admin page cannot get past the sign-in form at all.
+   */
+  if (bypassRequested(process.env)) {
+    /*
+      The allowlist's own first entry rather than a placeholder. The page prints this
+      address, and a panel asserting it is signed in as `local@dev` while the rest of
+      the deployment is configured for a real owner is exactly the kind of detail
+      that hides a mistake. With an empty allowlist there is no address to borrow, and
+      naming the variable that would have supplied one says that without pretending.
+     */
+    const [first] = adminGateFromEnv().allowed;
+
+    return {
+      email: first ?? `${ADMIN_EMAIL_ENV}-unconfigured`,
+      bypassed: true,
+    };
+  }
+
   if (!isAuthEnabled()) {
     return null;
   }
@@ -64,5 +167,5 @@ export async function getOwnerSession(): Promise<OwnerSession | null> {
 
   // Re-derived, never read from the session: the allowlist is the authority,
   // and it is consulted on every request so a change takes effect immediately.
-  return adminGateFromEnv().isAllowed(email) && email !== null ? { email } : null;
+  return adminGateFromEnv().isAllowed(email) && email !== null ? { email, bypassed: false } : null;
 }
