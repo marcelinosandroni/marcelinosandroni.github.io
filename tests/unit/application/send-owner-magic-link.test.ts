@@ -280,6 +280,45 @@ describe("getEmailSender", () => {
     expect(resolution.configured === false && resolution.reason).toContain("EMAIL_SENDER");
   });
 
+  it("reads a blank selector as unset, so an empty dashboard row still gets the default", () => {
+    /*
+     * Deleting a dashboard row and emptying it are different accidents, and
+     * `EMAIL_SENDER=` is what a half-finished edit leaves behind. Reading blank as
+     * "no such adapter" would refuse a deployment that asked for nothing in
+     * particular, so blank has to land on the default the way unset does.
+     */
+    for (const value of ["", "   "]) {
+      expect(
+        getEmailSender(
+          { origin },
+          {
+            EMAIL_SENDER: value,
+            [RESEND_API_KEY_ENV]: "re_secret",
+            [RESEND_FROM_ENV]: "a@b.test",
+          },
+        ),
+      ).toMatchObject({ configured: true, adapterId: "resend" });
+    }
+  });
+
+  it("reads a blank Resend credential as absent, rather than sending from one", () => {
+    /*
+     * A variable with nothing after the `=` is a copy-paste that happens, and
+     * `.env.example` tells the owner both are required. The alternative to
+     * reading blank as absent is a request to Resend from a sender made of
+     * spaces, which fails at the provider with an error nobody can act on —
+     * naming it as the configuration error it is keeps it diagnosable.
+     */
+    const credentials = { [RESEND_API_KEY_ENV]: "re_secret", [RESEND_FROM_ENV]: "a@b.test" };
+
+    for (const blank of [RESEND_API_KEY_ENV, RESEND_FROM_ENV]) {
+      const resolution = getEmailSender({ origin }, { ...credentials, [blank]: "   " });
+
+      expect(resolution).toMatchObject({ configured: false, adapterId: "resend" });
+      expect(resolution.configured === false && resolution.reason).toContain(blank);
+    }
+  });
+
   it("agrees with the sender it returns", () => {
     const resolution = getEmailSender(
       { origin },
