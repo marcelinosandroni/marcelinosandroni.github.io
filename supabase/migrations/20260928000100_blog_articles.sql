@@ -91,14 +91,6 @@ create policy "published blog articles are publicly readable"
 -- migration refreshes the copy without duplicating it.
 -- =============================================================================
 
-node.exe : npm notice run marcelino-resume-platform@0.1.5 npx
-No linha:1 caractere:1
-+ & "C:\Program Files\nodejs/node.exe" "C:\Users\marcelino\AppData\Roam ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (npm notice run ...tform@0.1.5 npx:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-npm notice run tsx scripts/generate-blog-seed.ts
 insert into public.blog_articles (
   id, locale, slug, category, status, title, excerpt,
   reading_time_minutes, published_at, updated_at, featured, tags, body
