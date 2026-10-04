@@ -7,6 +7,12 @@ import type { FeedbackCounts } from "@/domain/feedback/theme-feedback";
 import { getDictionary } from "@/i18n";
 import { DEFAULT_LOCALE } from "@/domain/i18n";
 import { AdminSignIn } from "@/components/admin/admin-sign-in";
+import { DatabaseStatusPanel } from "@/components/admin/database-status-panel";
+import {
+  databaseStatusClient,
+  readDatabaseStatus,
+  type DatabaseStatus,
+} from "@/infrastructure/supabase/database-status";
 import { ThemeFeedbackPanel } from "@/components/admin/theme-feedback-panel";
 import { PostEditor } from "@/components/admin/post-editor";
 import { ChatConsole } from "@/components/admin/chat-console";
@@ -125,6 +131,28 @@ export default async function AdminPage() {
     conversationList = null;
   }
 
+  /*
+    The database status, read after the session is confirmed and with the same
+    "a diagnostic must not take the page down" arrangement as the three reads above.
+
+    "Not configured" and "unreachable" are kept apart, because they are different
+    failures with different fixes: the first is two environment variables, the second
+    is the network or the project being paused.
+   */
+  let database: DatabaseStatus = { reachable: false, reason: "the status was not read" };
+
+  try {
+    const client = databaseStatusClient();
+
+    if ("reason" in client) {
+      database = { reachable: false, reason: client.reason };
+    } else {
+      database = await readDatabaseStatus(client.client);
+    }
+  } catch {
+    database = { reachable: false, reason: "the status could not be read" };
+  }
+
   return (
     <main className="mx-auto w-full max-w-[1320px] px-margin py-space-lg md:px-margin-tablet lg:px-margin-desktop">
       <section className="border border-border-subtle bg-surface-raised p-space-md">
@@ -158,6 +186,16 @@ export default async function AdminPage() {
           </div>
         ) : null}
       </section>
+
+      {/*
+        Before the feedback panel, and for the same reason the CMS is first below the
+        header: this is the question an owner opens the page to answer — is what
+        stored here the same as what I just deployed — and the feedback counts are
+        the thing they look at second.
+      */}
+      <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+        <DatabaseStatusPanel status={database} />
+      </div>
 
       <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
         <ThemeFeedbackPanel counts={counts} />

@@ -98,7 +98,48 @@ function bypassRequested(env: EnvironmentLike): boolean {
     return false;
   }
 
-  return env.VERCEL_ENV !== "production" && env.VERCEL_ENV !== "preview";
+  /*
+    Both checks, and the order does not matter because either one refusing is enough.
+
+    `VERCEL_ENV` catches the platform, where the whole cost of being wrong is paid by
+    the owner rather than by the developer. `isDevelopmentServer` catches the laptop,
+    where a production build is indistinguishable from a deployment by any variable
+    that is actually set — see the comment on that function for the `.env.local` case
+    it closes.
+   */
+  return (
+    env.VERCEL_ENV !== "production" &&
+    env.VERCEL_ENV !== "preview" &&
+    isDevelopmentServer(env)
+  );
+}
+
+/**
+ * Whether the process is a Next.js build rather than a development server.
+ *
+ * ## Why this is here and not in `bypassRequested`
+ *
+ * Because of `.env.local`, and the hole it opened is worth writing down.
+ *
+ * Next loads `.env.local` **over** the process environment, and `.env.local` is where
+ * this flag is meant to live. So a machine with `ADMIN_AUTH_BYPASS=on` in
+ * `.env.local` will open the admin area under `next build && next start`, even though
+ * that is a production build — and `VERCEL_ENV`, the check that was supposed to catch
+ * it, is absent on anything that is not a Vercel deployment. Measured, not assumed:
+ *
+ *     com .env.local     VERCEL_ENV=production + BYPASS=on  ->  admin ABERTO
+ *     sem .env.local     VERCEL_ENV=production + BYPASS=on  ->  admin fechado
+ *
+ * Same shell, same variables, opposite outcome, and the only difference was a file the
+ * developer was never supposed to remove.
+ *
+ * `next dev` does not run the production build, so refusing it there costs nothing
+ * and is what makes the guarantee hold for the case that actually occurs: someone
+ * building locally to check a deploy. On the platform this is inert, because a Vercel
+ * build is never `next dev` and `VERCEL_ENV` has already refused.
+ */
+function isDevelopmentServer(env: EnvironmentLike): boolean {
+  return env.NODE_ENV === "development";
 }
 
 /** Whether the owner area is open without a sign-in link. */
