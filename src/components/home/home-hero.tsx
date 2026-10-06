@@ -16,7 +16,7 @@ export interface HomeHeroSectionProps {
  *
  * The full name is rendered as a mono kicker *inside* the heading rather than as
  * a separate element: it keeps a single, correctly-outlined `<h1>` while making
- * the name the first thing a recruiter's eye lands on.
+ * the name the first thing a reader's eye lands on.
  */
 export function HomeHeroSection({ hero, t }: HomeHeroSectionProps) {
   return (

@@ -80,7 +80,7 @@
  *
  *  - **`top` (the hero).** It is the arrival, it carries the LCP, and it already
  *    carries two diffused radial backdrops and the portrait frame. A third
- *    decorative layer competes with the `<h1>` for the first second a recruiter
+ *    decorative layer competes with the `<h1>` for the first second a reader
  *    spends on the page, and "detail" is the opposite of that.
  *  - **`footer`.** A five-column link tree plus the legal note, with no reading
  *    axis to sit beside. Art at the edge of a footer reads as an advert for the
