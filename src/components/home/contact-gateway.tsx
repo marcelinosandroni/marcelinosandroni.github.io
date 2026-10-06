@@ -31,7 +31,7 @@ export interface ContactGatewaySectionProps {
  *
  * The reference prototype shipped a form that posted nowhere and answered with
  * `alert()` — DESIGN.md §13 forbids both, and a form that silently discards a
- * recruiter's message is worse than no form at all. Both affordances here work
+ * reader's message is worse than no form at all. Both affordances here work
  * with no server at all, and neither depends on the other:
  *
  *  - **WhatsApp leads.** A reader who wants an answer wants a conversation, not a

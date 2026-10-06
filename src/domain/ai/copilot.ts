@@ -1,7 +1,7 @@
 /**
  * Resume Copilot contract.
  *
- * The copilot answers recruiter questions **from the published resume and blog
+ * The copilot answers questions **from the published resume and blog
  * content, and nothing else**. It is grounded by construction: every answer
  * carries the passages it was derived from, and when no passage is relevant the
  * contract says so instead of improvising.

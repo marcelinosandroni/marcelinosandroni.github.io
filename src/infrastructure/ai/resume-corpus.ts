@@ -176,7 +176,7 @@ export async function buildCorpus(locale: Locale, articles?: ArticleRepository):
     return [...resumeChunks, ...(await chunksFromArticles(locale, articles))];
   } catch {
     // A database outage must not take the copilot down: the resume itself is
-    // enough to answer most recruiter questions.
+    // enough to answer most questions asked of it.
     return resumeChunks;
   }
 }
