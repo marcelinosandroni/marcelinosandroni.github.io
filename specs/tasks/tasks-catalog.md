@@ -1488,6 +1488,74 @@ progresso na tela **para sempre**. O site ficava inutilizável.
   novo, 1 navegação e **zero** requests — o Next resolve a auto-navegação no cliente sem
   round-trip. Não há desperdício de performance aqui para corrigir
 
+### TASK-060: A linha direta se abre para todo mundo, e a máquina chama o Neo
+**US Relacionada**: US-01  
+**Prioridade**: **Alta**  
+**Status**: 🟢 Concluída  
+**Realizado**: ~2h  
+
+**Descrição**: O chat existia como invited-only deliberado: nada aparecia para um
+visitante até o dono abrir a conversa para aquele navegador. O dono pediu o oposto —
+uma notificação no canto inferior direito, e ao clicar um terminal que digita as
+quatro linhas do *Matrix* antes de aceitar a primeira palavra.
+
+**O conflito, e como foi resolvido**: "sempre para todos" não é uma mudança de UI.
+`shouldOfferChat` era o ponto onde a regra morava, e `append_visitor_message` no
+banco a repetia de forma incondicional — com `execute` concedido a `anon`, ou seja,
+um navegador anônimo pode chamar a função direto pelo PostgREST e contornar a
+aplicação. Mover a regra para uma flag **na rota** teria trocado uma fronteira real
+por uma booleana que qualquer um leria num request.
+
+Então a flag muda **quem o servidor abre conversa para**, e a regra do banco fica
+intacta. Isso é possível porque o adaptador usa a *secret key*: `ChatRepository.open`
+é um `upsert` que o servidor já chamava, e ele é idempotente em `session_id`.
+
+**O Que Foi Feito**:
+- ✅ `ChatInvitation` = `"owner-initiates" | "site-invites"` em
+  `shouldOfferChat`, com **`owner-initiates` como default**. `site-invites` alarga
+  quem inicia e **não relaxa nada**: `closed` continua recusado, que é a única
+  alavanca que o dono mantém ligada com o convite aberto
+- ✅ `CHAT_INVITATION` (server-side, sem `NEXT_PUBLIC_`). O browser nunca lê a
+  variável — `/api/presence` responde se há conversa e o componente renderiza a
+  resposta. Default `off`; aceito: `1`, `true`, `yes`, `on`
+- ✅ `ReadConversation` oferece a transcrição vazia quando a linha não existe e o
+  site convida; `SendVisitorMessage.openOnFirstWord` abre a conversa na primeira
+  palavra, via `startConversation` e não uma linha montada à mão
+- ✅ A notificação é o estado expandido de um botão de terminal **sempre presente**:
+  uma notificação que expira levando consigo a única entrada do teclado é uma armadilha
+  com `aria-live`. Ela some sozinha em 11s e volta a ser o glifo
+- ✅ As quatro linhas em `chat.opening`, nos dois dicionários, como citação
+  traduzida (pt-BR segue a dublagem: "Toc, toc, Neo"). Credito no rodapé. São quatro
+  linhas de um filme numa página sobre esse filme — uso nominativo
+- ✅ Digitação com o cursor **só na linha sendo escrita**, e `prefers-reduced-motion`
+  recebe tudo de uma vez. A entrada fica desabilitada até a última linha: no filme
+  a última frase é a última antes de o Neo responder
+- ✅ Foco: o diálogo assume enquanto a entrada está desabilitada (`focus()` num
+  elemento desabilitado é no-op, e um modal que promete a página atrás como
+  inalcançável não pode ter o foco em `body`)
+
+**Critérios de conclusão verificados**:
+- [x] 1098 unit / 64 arquivos (era 1068 / 63), typecheck limpo, lint nos 3 warnings de
+      baseline
+- [x] Notificação lida no browser nos dois idiomas: `NOVA TRANSMISSÃO / Você tem uma
+      mensagem. Siga o coelho branco.` e `NEW TRANSMISSION / You have a message. Follow
+      the white rabbit.`
+- [x] Sequência medida: `A▍` em 0.9s, primeira linha completa em 2.1s, entrada
+      habilitada em ~6.5s
+- [x] Envio real gravado no banco e a resposta exibida; **o limite de taxa continua de
+      pé**: 4× `201` e depois `429`
+- [x] Um teste lê a migration e afirma que `target.state <> 'open'` segue
+      incondicional — a regra que a flag não pode tocar
+
+**Bugs encontrados e corrigidos** (nenhum visível sem medir):
+- O painel **fechava sozinho** ~3s depois de abrir. `POST /api/chat/messages?intent=read`
+  monta o próprio `ReadConversation`, e esse construtor ficou sem a flag: o poll de 5s
+  recebia `offered: false` e o componente fazia `setIsOffered(false)` — o caminho já
+  existente para "o dono fechou". Três rotas leem o convite; a quarta que não lia
+  desmontou a feature
+
+---
+
 ## Backlog de Evolução (Pós-MVP)
 
 A coluna **Status** foi reconciliada com o código em 2026-10-02. Quatro itens
@@ -1615,6 +1683,7 @@ histórico.
 | 2026-10-03 | TASK-057 | O hold pré-paint só é liberado depois que a cortina está no DOM. Janela de 163ms de site pintável sem cortina, medida com `MutationObserver` no atributo | opencode |
 | 2026-10-03 | TASK-058 | Versão e build à direita da barra de métricas. Build é o timestamp, não o commit sha — um commit tem vários builds; `VERCEL_DEPLOYMENT_ID` no tooltip. Ambiente omitido em produção. Abaixo de 640px só ambiente e versão; métricas renomeadas para `TTFB`/`DOM`/`load` nos dois idiomas | opencode |
 | 2026-10-03 | TASK-059 | Clicar no logo MSD com a home já aberta deixava a chuva e a barra de progresso no ar para sempre: a vida do overlay é derivada de pathname mudar, e um link para a própria rota não muda nada. Duas correções: não arma para link que resolve para o pathname atual, e um teto de 5s | opencode |
+| 2026-10-06 | TASK-060 | A linha direta passa a se abrir para todo mundo atrás de `CHAT_INVITATION` (default `off`): notificação no canto, terminal que digita as quatro linhas do *Matrix*, primeira palavra abre a conversa. A regra do dono continua no banco — `closed` ainda encerra, e o limite de taxa ainda vale. 14 comentários de código deixaram de dizer "recruiter" | opencode |
 | 2026-09-28 | TASK-050..054 | ÉPICO 05: home executiva com design system tokenizado, currículo movido para `/[locale]/resume`, blog persistido em `blog_articles` com fallback versionado, e gate de cobertura corrigido (a `main` estava em 56.61%) | opencode |
 | 2026-09-28 | TASK-019 | Títulos de seção do PDF movidos dos literais do renderer para os catálogos | opencode |
 | 2026-09-28 | TASK-012, TASK-018 | Versão EN-US reescrita como tradução completa do PT-BR (fonte da verdade), com paridade de estrutura e fatos verificada em CI | opencode |

@@ -32,6 +32,7 @@ import {
   type Conversation,
   type ConversationSummary,
 } from "@/domain/chat/message";
+import type { Locale } from "@/domain/i18n";
 
 /**
  * The conversation contract.
@@ -185,7 +186,55 @@ describe("the conversation use cases", () => {
   }
 
   describe("ReadConversation", () => {
-    const resolver = (locale: string) => ({ notice: `${NOTICE} (${locale})`, body: "ack" });
+    const resolver = (locale: Locale) => ({ notice: `${NOTICE} (${locale})`, body: "ack" });
+
+    /*
+     * The read is what puts the notification on the screen, so it is the read that
+     * has to know the site invites. A missing conversation is offered — with an
+     * empty transcript, because there is nothing in it — while a closed one is not,
+     * or the offer would outlive the decision that ended it.
+     */
+    it("offers an empty transcript to everybody when the site invites", async () => {
+      const recorder = stub({ conversation: null });
+
+      const read = await new ReadConversation(
+        recorder.repository,
+        (locale) => resolver(locale),
+        () => NOW,
+        () => "generated",
+        "site-invites",
+      ).execute(A_SESSION);
+
+      expect(read).toEqual({ offered: true, state: "unopened", messages: [] });
+    });
+
+    it("keeps saying no to the same session when the owner has closed it", async () => {
+      const recorder = stub({ conversation: conversation({ state: "closed", closedAt: NOW }) });
+
+      const read = await new ReadConversation(
+        recorder.repository,
+        (locale) => resolver(locale),
+        () => NOW,
+        () => "generated",
+        "site-invites",
+      ).execute(A_SESSION);
+
+      expect(read).toEqual({ offered: false, state: "closed", messages: [] });
+    });
+
+    it("still answers a session that does not exist with nothing at all", async () => {
+      const recorder = stub({ conversation: null });
+
+      const read = await new ReadConversation(
+        recorder.repository,
+        (locale) => resolver(locale),
+        () => NOW,
+        () => "generated",
+        "site-invites",
+      ).execute("not-a-session");
+
+      expect(read).toEqual({ offered: false, state: "unopened", messages: [] });
+    });
 
     it("tells a visitor nothing about a session that was never contacted", async () => {
       const recorder = stub({ conversation: conversation({ state: "unopened", openedAt: null }) });
@@ -419,6 +468,68 @@ describe("the conversation use cases", () => {
       );
 
       expect(port).not.toMatch(/author/);
+    });
+
+    /*
+     * `site-invites`, in the one place it can actually happen. Everything below is
+     * the owner having decided to be reachable, and the thing worth watching is the
+     * two cases that must *not* open a conversation: a closed one, and the default.
+     */
+    describe("under the site-invites invitation", () => {
+      const inviting = (recorder: Recorder): SendVisitorMessage =>
+        new SendVisitorMessage(recorder.repository, () => NOW, "site-invites");
+
+      it("opens the conversation on the visitor's first word", async () => {
+        const recorder = stub({ conversation: null });
+
+        const sent = await inviting(recorder).execute(A_SESSION, "hi", "pt-BR");
+
+        expect(recorder.opened).toHaveLength(1);
+        // `startConversation`, not a hand-built row: the state is one the contract
+        // already recognises, and `openedAt` is the moment of the word.
+        expect(recorder.opened[0]).toMatchObject({
+          sessionId: A_SESSION,
+          state: "open",
+          openedAt: NOW,
+        });
+        expect(recorder.appended.map((message) => message.body)).toEqual(["hi"]);
+        expect(sent.body).toBe("hi");
+        // The open happens before the append, or the database refuses it.
+        expect(recorder.order).toEqual(["find", "open", "countSince", "appendVisitor"]);
+      });
+
+      it("refuses a conversation the owner has closed, without reopening it", async () => {
+        const recorder = stub({
+          conversation: conversation({ state: "closed", closedAt: NOW }),
+        });
+
+        await expect(inviting(recorder).execute(A_SESSION, "hi", "pt-BR")).rejects.toBeInstanceOf(
+          ChatNotOfferedError,
+        );
+
+        expect(recorder.opened).toEqual([]);
+        expect(recorder.appended).toEqual([]);
+      });
+
+      it("does not reopen a conversation that already exists", async () => {
+        const recorder = stub({ conversation: conversation() });
+
+        await inviting(recorder).execute(A_SESSION, "hi", "pt-BR");
+
+        // Opening on every send would reset `openedAt` and the owner's
+        // "open conversations" list would be a list of every message.
+        expect(recorder.opened).toEqual([]);
+      });
+    });
+
+    it("still refuses everything under the default invitation", async () => {
+      const recorder = stub({ conversation: null });
+
+      await expect(
+        new SendVisitorMessage(recorder.repository, () => NOW).execute(A_SESSION, "hi", "pt-BR"),
+      ).rejects.toBeInstanceOf(ChatNotOfferedError);
+
+      expect(recorder.order).toEqual(["find"]);
     });
   });
 

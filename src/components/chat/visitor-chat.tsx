@@ -63,6 +63,18 @@ export interface VisitorChatLabels {
   failed: string;
   rateLimited: string;
   withdrawn: string;
+  /** The two lines on the notification: what arrived, and from where. */
+  toastBadge: string;
+  toastBody: string;
+  toastLabel: string;
+  /**
+   * The opening message, one entry per line, in the order they are typed.
+   *
+   * Lines rather than one string so the transcript can hold them as separate rows
+   * the way the film holds them, and so a translation can be a different number of
+   * lines without the component knowing.
+   */
+  opening: readonly string[];
 }
 
 export interface VisitorChatProps {
@@ -77,11 +89,134 @@ const TRANSCRIPT_POLL_MS = 5_000;
 /** Every one of these closes the panel, because that is what they all mean. */
 const EXIT_KEYS = new Set(["c", "d", "z"]);
 
+/** How long the notification sits in the corner before it retires on its own. */
+const TOAST_LIFETIME_MS = 11_000;
+
+/** How long the corner stays empty before the notification is allowed to appear. */
+const TOAST_DELAY_MS = 2_200;
+
+/** How long before the first character of the opening message lands. */
+const OPENING_LEAD_MS = 900;
+
+/** Per character. Slow enough to read as being typed rather than revealed. */
+const OPENING_CHARACTER_MS = 45;
+
+/** The pause between one line and the next, which is what the film actually is. */
+const OPENING_LINE_PAUSE_MS = 850;
+
+/** After the last line, before the input is theirs. */
+const OPENING_SETTLE_MS = 500;
+
 type Notice = { tone: "error"; text: string } | null;
+
+/**
+ * Types the opening message out, one character at a time.
+ *
+ * ## Why a hook and not a CSS animation
+ *
+ * Because the transcript is a list of lines and the reveal has to land on a line
+ * boundary: a caret is drawn at the end of a *line*, not smeared across one. The
+ * schedule is therefore a character budget and three waits — before the first
+ * character, between lines, after the last — rather than a width transition, which
+ * is all a CSS animation can express and would be the wrong shape the moment a
+ * translation is a different length.
+ *
+ * ## `prefers-reduced-motion` gets the whole message at once
+ *
+ * A typewriter is motion. For a visitor who has asked the operating system not to
+ * animate things, the same message arrives instantly, which costs nothing: the
+ * words are the content and the reveal is decoration.
+ */
+function useOpening(lines: readonly string[], run: boolean): {
+  typed: readonly string[];
+  isComplete: boolean;
+} {
+  const [typed, setTyped] = useState<readonly string[]>([]);
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    if (!run || lines.length === 0) {
+      return;
+    }
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      /*
+       * On the next task rather than inside the effect body, for the same reason
+       * the heartbeat is: `react-hooks/set-state-in-effect` is right that an answer
+       * must not arrive as a render cascading out of a mount. There is no animation
+       * to wait for, so the delay is one tick rather than five seconds — but it is
+       * still a task, not a render.
+       */
+      const immediate = window.setTimeout(() => {
+        setTyped(lines);
+        setIsComplete(true);
+      }, 0);
+
+      return () => {
+        window.clearTimeout(immediate);
+      };
+    }
+
+    let index = 0;
+    let character = 0;
+    let isSettled = false;
+    const timers: number[] = [];
+
+    const settle = (): void => {
+      isSettled = true;
+      setIsComplete(true);
+    };
+
+    const typeNext = (): void => {
+      if (isSettled) {
+        return;
+      }
+
+      const line = lines[index];
+      character += 1;
+      setTyped([...lines.slice(0, index), line.slice(0, character)]);
+
+      if (character < line.length) {
+        timers.push(window.setTimeout(typeNext, OPENING_CHARACTER_MS));
+
+        return;
+      }
+
+      index += 1;
+
+      if (index >= lines.length) {
+        timers.push(window.setTimeout(settle, OPENING_SETTLE_MS));
+
+        return;
+      }
+
+      character = 0;
+      timers.push(window.setTimeout(typeNext, OPENING_LINE_PAUSE_MS));
+    };
+
+    timers.push(window.setTimeout(typeNext, OPENING_LEAD_MS));
+
+    return () => {
+      isSettled = true;
+
+      for (const timer of timers) {
+        window.clearTimeout(timer);
+      }
+    };
+  }, [lines, run]);
+
+  /*
+   * Derived rather than reset in the effect: a hook that has not run has typed
+   * nothing and owes nothing, and saying that here means the caller never has to
+   * know the difference between "not started" and "finished empty".
+   */
+  return run ? { typed, isComplete } : { typed: [], isComplete: true };
+}
 
 export function VisitorChat({ labels }: VisitorChatProps) {
   const [isOffered, setIsOffered] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isToastVisible, setIsToastVisible] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [notice, setNotice] = useState<Notice>(null);
@@ -96,7 +231,30 @@ export function VisitorChat({ labels }: VisitorChatProps) {
   const logId = useId();
   const inputId = useId();
 
+  /*
+   * The opening message plays only into a transcript that has nothing in it. A
+   * visitor who already has words on screen did not arrive to be summoned, and a
+   * stranger's message typed over their own history would be the site pretending
+   * to be the person they were talking to.
+   */
+  const isOpening = isOpen && messages.length === 0;
+  const opening = useOpening(labels.opening, isOpening);
+
+  /*
+   * One flag for "the input is the visitor's", and the reason it is not simply
+   * `opening.isComplete`: a transcript with words in it never runs the opening at
+   * all, and a visitor who has already written must not be locked out of writing
+   * again because there was nothing to summon them with.
+   */
+  const isInputReady = !isOpening || opening.isComplete;
+
   const close = useCallback(() => setIsOpen(false), []);
+
+  /** The notification both opens and retires the panel, so it is gone either way. */
+  const openFromNotification = useCallback((): void => {
+    setIsToastVisible(false);
+    setIsOpen(true);
+  }, []);
 
   /**
    * The session id: read from `localStorage`, or minted once.
@@ -316,6 +474,50 @@ export function VisitorChat({ labels }: VisitorChatProps) {
     };
   }, [isOpen, refresh]);
 
+  /*
+   * The notification, once the page has stopped moving.
+   *
+   * The delay is the point. This site opens with a curtain that stays down for
+   * several seconds on a first visit, and a notification that slides in underneath
+   * it and is simply uncovered when it rises is a better entrance than one that
+   * waits its turn and arrives after the visitor has already read the page.
+   *
+   * It also retires on its own. A message that never goes away is a thing asking
+   * for an answer, and this one is an invitation — it does not need to be answered
+   * to stop existing.
+   */
+  useEffect(() => {
+    if (!isOffered || isOpen) {
+      return;
+    }
+
+    let retire = 0;
+    const arrive = setTimeout(() => {
+      setIsToastVisible(true);
+      retire = window.setTimeout(() => setIsToastVisible(false), TOAST_LIFETIME_MS);
+    }, TOAST_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(arrive);
+      window.clearTimeout(retire);
+    };
+  }, [isOffered, isOpen]);
+
+  /*
+   * The input takes focus the moment it stops being disabled.
+   *
+   * The dialog holds focus while the opening message is arriving, because `focus()`
+   * on a disabled element is a no-op and a modal that promises the page behind it
+   * is unreachable while focus sits on `body` is making a promise it cannot keep.
+   * Handing over here means the panel ends with the caret where the visitor expects
+   * it, without either effect having to know about the other.
+   */
+  useEffect(() => {
+    if (isInputReady && isOpen) {
+      inputRef.current?.focus();
+    }
+  }, [isInputReady, isOpen]);
+
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
@@ -340,7 +542,14 @@ export function VisitorChat({ labels }: VisitorChatProps) {
     // land on the button they came from.
     const launcher = launcherRef.current;
 
-    inputRef.current?.focus();
+    /*
+     * Into the input, unless the opening message is still arriving — the input is
+     * disabled for that stretch, and `focus()` on a disabled element is a no-op,
+     * which would leave a keyboard user with focus on `body` *inside* a modal that
+     * promises the rest of the page is unreachable. The dialog takes it instead,
+     * and the input takes it over when the message lands.
+     */
+    (inputRef.current?.disabled === true ? dialogRef.current : inputRef.current)?.focus();
 
     function focusableElements(): HTMLElement[] {
       if (!dialogRef.current) {
@@ -402,10 +611,10 @@ export function VisitorChat({ labels }: VisitorChatProps) {
   }, [isOpen, close]);
 
   /*
-   * Nothing at all until the owner has opened a conversation.
+   * Nothing at all until the server says a chat is offered.
    *
    * Not a disabled launcher, not a "message me" link, not a hidden panel. A
-   * visitor who has not been contacted sees the site they saw yesterday, and
+   * visitor with no conversation available sees the site they saw yesterday, and
    * there is nothing in the DOM for them to find.
    */
   if (!isOffered) {
@@ -414,20 +623,58 @@ export function VisitorChat({ labels }: VisitorChatProps) {
 
   return (
     <>
-      <button
-        ref={launcherRef}
-        type="button"
-        onClick={() => setIsOpen(true)}
-        aria-haspopup="dialog"
-        aria-expanded={isOpen}
-        aria-controls={panelId}
-        aria-label={labels.openLabel}
-        data-click="chat-open"
-        className="tap-target fixed bottom-4 right-4 z-[90] min-w-11 justify-center gap-space-xs rounded-full border border-border-subtle bg-surface-overlay/90 px-space-md py-space-sm font-label-mono text-label-mono uppercase tracking-widest text-text-secondary shadow-[0_10px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-md transition-colors hover:border-primary-container hover:text-primary-container"
+      {/*
+        One control, two states.
+
+        A notification that expires and takes the only way in with it is not an
+        invitation, it is a trap with a keyboard: `aria-live` announces a thing
+        that can no longer be reached with Tab. So the corner holds a terminal
+        button at all times and the notification is what it looks like for eleven
+        seconds — a machine interrupting you, which then settles back into the
+        control you could have pressed anyway.
+
+        `data-click` is the same in both states because the analytics vocabulary
+        already has `chat-open`, and a second name for the same act would be a
+        second place to be wrong.
+      */}
+      <div
+        className={
+          isToastVisible
+            ? "fixed bottom-4 right-4 z-[90] w-[min(20rem,calc(100vw-2rem))]"
+            : "fixed bottom-4 right-4 z-[90]"
+        }
       >
-        <span aria-hidden="true">▣</span>
-        {labels.open}
-      </button>
+        <button
+          ref={launcherRef}
+          type="button"
+          onClick={() => (isToastVisible ? openFromNotification() : setIsOpen(true))}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+          aria-label={isToastVisible ? labels.toastLabel : labels.openLabel}
+          data-click="chat-open"
+          className={
+            isToastVisible
+              ? "tap-target w-full animate-[fade-in_180ms_ease-out] border border-primary-container bg-surface-overlay/95 px-space-md py-space-sm text-left font-mono shadow-[0_18px_40px_-18px_rgba(0,0,0,0.95)] backdrop-blur-md transition-colors hover:bg-surface-raised"
+              : "tap-target flex h-11 w-11 items-center justify-center border border-border-subtle bg-surface-overlay/90 font-mono text-text-secondary backdrop-blur-md transition-colors hover:border-primary-container hover:text-primary-container"
+          }
+        >
+          {isToastVisible ? (
+            <>
+              <span className="flex items-center gap-space-xs text-[10px] uppercase tracking-widest text-primary-container">
+                <span aria-hidden="true">▣</span>
+                {labels.toastBadge}
+              </span>
+              <span className="mt-1 block text-body-sm text-text-primary">{labels.toastBody}</span>
+            </>
+          ) : (
+            <>
+              <span aria-hidden="true">▣</span>
+              <span className="sr-only">{labels.open}</span>
+            </>
+          )}
+        </button>
+      </div>
 
       {isOpen ? (
         <div
@@ -444,6 +691,11 @@ export function VisitorChat({ labels }: VisitorChatProps) {
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
+            // Focusable only as the landing place for an opening message that has
+            // not finished arriving. Without `tabIndex` the focus call above would
+            // silently do nothing, and with a permanent `tabIndex` this would become
+            // a stop in the Tab order that does nothing when pressed.
+            tabIndex={-1}
             className="relative flex max-h-[85vh] w-full max-w-lg flex-col border border-border-prominent bg-surface-base font-mono shadow-[0_18px_40px_-18px_rgba(0,0,0,0.9)]"
           >
             <div className="flex items-center justify-between gap-space-md border-b border-border-subtle bg-surface-raised px-space-md py-space-sm">
@@ -470,6 +722,11 @@ export function VisitorChat({ labels }: VisitorChatProps) {
               The live region. `role="log"` with `aria-relevant="additions"` is the
               honest form for a transcript: a new message is announced, and the
               history is not read out again on every poll.
+
+              The opening message is in this region rather than beside it, and it is
+              announced with `aria-live="off"` while it types: a screen reader
+              repeating every fourth character of a four-line quotation is not a
+              transcript, it is a seizure. It reads once, whole, at the end.
             */}
             <div
               ref={logRef}
@@ -480,7 +737,37 @@ export function VisitorChat({ labels }: VisitorChatProps) {
               aria-label={labels.transcriptLabel}
               className="flex-1 overflow-y-auto px-space-md py-space-md"
             >
-              {messages.length === 0 ? (
+              {opening.typed.length > 0 ? (
+                <div
+                  aria-live="off"
+                  aria-label={labels.opening.join(" ")}
+                  className="mb-space-md border-l-2 border-primary-container pl-space-sm"
+                >
+                  {opening.typed.map((line, position) => (
+                    /*
+                     * Keyed by position, not by content: the content is the string
+                     * being typed, so a content key would remount this paragraph on
+                     * every single character and restart the caret's animation with
+                     * it.
+                     */
+                    <p key={position} className="text-body-sm text-primary-container">
+                      {line}
+                      {/*
+                        The caret sits on the line still being written, and only on
+                        that one — a block cursor on every line at once reads as a
+                        list that failed to render rather than a machine typing.
+                      */}
+                      {position === opening.typed.length - 1 && !opening.isComplete ? (
+                        <span aria-hidden="true" className="ml-0.5 animate-pulse">
+                          ▍
+                        </span>
+                      ) : null}
+                    </p>
+                  ))}
+                </div>
+              ) : null}
+
+              {messages.length === 0 && isInputReady ? (
                 <p className="text-body-sm text-text-muted">{labels.waiting}</p>
               ) : null}
 
@@ -511,7 +798,14 @@ export function VisitorChat({ labels }: VisitorChatProps) {
                 maxLength={MAX_MESSAGE_LENGTH}
                 autoComplete="off"
                 aria-describedby={`${panelId}-note`}
-                className="min-w-0 flex-1 bg-transparent text-body-sm text-text-primary outline-none placeholder:text-text-muted"
+                /*
+                  Held until the opening message has finished arriving. In the film
+                  the last line is the last thing said before Neo answers, and a
+                  cursor blinking over an unfinished quotation lets a visitor type
+                  into the middle of it.
+                */
+                disabled={!isInputReady}
+                className="min-w-0 flex-1 bg-transparent text-body-sm text-text-primary outline-none placeholder:text-text-muted disabled:opacity-60"
               />
               <button
                 type="submit"

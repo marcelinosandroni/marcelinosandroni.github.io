@@ -34,6 +34,7 @@ import {
   toChatMessage,
   toConversation,
   type Conversation,
+  type ConversationState,
 } from "@/domain/chat/message";
 import { enUS } from "@/i18n/dictionaries/en-US";
 import { ptBR } from "@/i18n/dictionaries/pt-BR";
@@ -102,6 +103,29 @@ describe("the owner starts it", () => {
 
   it("can only be opened by a caller that has a session to open", () => {
     expect(() => startConversation("not-a-session", NOW)).toThrow(TypeError);
+  });
+
+  /*
+   * `site-invites` is the owner's decision to stop being unreachable. It is set
+   * here, at the rule, rather than in the route that reads the variable, so these
+   * cases are the definition of what the flag means.
+   */
+  it("under site-invites, offers every state except the one the owner has closed", () => {
+    const invited = (state: ConversationState): boolean =>
+      shouldOfferChat(conversation({ state, openedAt: NOW, closedAt: null }), "site-invites");
+
+    expect(invited("unopened")).toBe(true);
+    expect(invited("open")).toBe(true);
+    // The one lever that keeps working when the invitation is open.
+    expect(invited("closed")).toBe(false);
+  });
+
+  it("defaults to owner-initiates, so widening the invitation is always a decision", () => {
+    const unopened = conversation({ state: "unopened", openedAt: null });
+
+    expect(shouldOfferChat(unopened)).toBe(false);
+    expect(shouldOfferChat(unopened, "owner-initiates")).toBe(false);
+    expect(shouldOfferChat(unopened, "site-invites")).toBe(true);
   });
 
   it("offers a chat in exactly one state, out of three", () => {
