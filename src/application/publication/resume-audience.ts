@@ -5,12 +5,12 @@ import type { CaseStudy, ResumeExperience } from "@/domain/resume/types";
  *
  * ## Why one document was wrong for both
  *
- * A recruiter spends thirty seconds and needs to know what was delivered and
- * what it was worth. A technical evaluator spends twenty minutes and needs the
- * reasoning: the challenge, the decision, the result, and the number that
+ * Someone in a hurry spends thirty seconds and needs to know what was delivered
+ * and what it was worth. A technical evaluator spends twenty minutes and needs
+ * the reasoning: the challenge, the decision, the result, and the number that
  * proves it.
  *
- * A single PDF cannot serve both. Too dense and the recruiter stops; too thin and
+ * A single PDF cannot serve both. Too dense and they stop reading; too thin and
  * the evaluator sees claims with no evidence. So there are two, and this file is
  * the only place that knows which fields each one reads.
  *

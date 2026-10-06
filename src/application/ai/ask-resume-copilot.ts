@@ -14,7 +14,7 @@ import { buildCorpus } from "@/infrastructure/ai/resume-corpus";
 import type { ArticleRepository } from "@/application/blog/article-repository";
 
 /**
- * Answers a recruiter question strictly from published content.
+ * Answers a visitor's question strictly from published content.
  *
  * Retrieval decides the answer; nothing here invents a fact. When the corpus has
  * nothing relevant the contract is to say so, because a portfolio that admits

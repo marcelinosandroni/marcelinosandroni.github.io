@@ -20,7 +20,7 @@ export interface ResumeDocumentProps {
  * The resume document of record.
  *
  * This page deliberately does **not** share the home design's card vocabulary: the
- * resume is a document to be read linearly and printed, and a recruiter evaluating
+ * resume is a document to be read linearly and printed, and whoever is evaluating
  * it needs the same structure whether they are on screen or holding the PDF. It
  * therefore keeps the original editorial structure — summary, skills, reverse
  * chronological experience with full case studies, education, languages — and only

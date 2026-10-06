@@ -12,7 +12,7 @@ const WHATSAPP_MESSAGE = "Hi Marcelino,\n\nCompany: {company}\nI need help with:
  * HomeContent` contract and by the bilingual content tests), but independently
  * written: it states the same career in the language an international hiring
  * panel actually reads. American spelling throughout, because the audience is
- * US-based recruiters and a British spelling is a tell that the copy was
+ * readers based in the US and a British spelling is a tell that the copy was
  * translated rather than written.
  *
  * The same copy rules apply as in pt-BR: no fiction naming, every figure

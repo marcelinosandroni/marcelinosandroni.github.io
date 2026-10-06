@@ -54,7 +54,7 @@ export interface ArticleCardProps {
 /**
  * Article card (DESIGN.md §8.4/§8.5).
  *
- * The whole surface is the hit target via a stretched link, so a recruiter does
+ * The whole surface is the hit target via a stretched link, so a reader does
  * not have to hit the 18px title text. The metadata row is mono and muted, the
  * title is the only headline, and the publication date is a real `<time>` element
  * with a machine-readable value.

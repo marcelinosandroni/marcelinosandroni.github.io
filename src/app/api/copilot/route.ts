@@ -6,7 +6,7 @@ import { AskResumeCopilot } from "@/application/ai/ask-resume-copilot";
 import { getDictionary } from "@/i18n";
 
 /**
- * Answers a recruiter question from published content.
+ * Answers an incoming question from published content.
  *
  * Anonymous and read-only by construction: no session, no cookie, no personal
  * data, and the answer is assembled only from passages that already existed in

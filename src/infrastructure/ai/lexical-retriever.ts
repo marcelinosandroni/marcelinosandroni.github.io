@@ -7,7 +7,7 @@ import type { KnowledgeChunk, ScoredChunk } from "@/domain/ai";
  *
  *  * The corpus is a few hundred short passages, which is far below the size
  *    where vector search starts to pay for its operational cost.
- *  * A recruiter asking "how did he save 24M" must be able to see *why* a
+ *  * Someone asking "how did he save 24M" must be able to see *why* a
  *    passage was selected. An opaque similarity score cannot explain itself.
  *  * It needs no API key, no network, and no per-request cost, so the copilot
  *    cannot silently stop answering because a provider is down.
@@ -36,7 +36,7 @@ export function tokenize(text: string): string[] {
  * Not a real stemmer: it exists so a question like "lead engineering teams"
  * reaches a passage that says "Led a team of engineers". Full Porter stemming
  * is deliberately avoided because it over-collides domain terms — "resilience"
- * and "resilient" *should* stay distinguishable in a portfolio, and a recruiter
+ * and "resilient" *should* stay distinguishable in a portfolio, and someone
  * asking about one usually means that one.
  */
 export function stem(token: string): string {
