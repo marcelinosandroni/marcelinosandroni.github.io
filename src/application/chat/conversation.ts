@@ -17,6 +17,7 @@ import {
   shouldOfferChat,
   startConversation,
   type AgentReply,
+  type ChatInvitation,
   type ChatMessage,
   type Conversation,
   type ConversationSummary,
@@ -162,6 +163,7 @@ export class ReadConversation {
     private readonly resolveAgentReply: AgentReplyResolver,
     private readonly now: () => number = Date.now,
     private readonly newId: () => string = () => crypto.randomUUID(),
+    private readonly invitation: ChatInvitation = "owner-initiates",
   ) {}
 
   async execute(sessionId: unknown): Promise<VisitorConversation> {
@@ -171,8 +173,22 @@ export class ReadConversation {
 
     const conversation = await this.repository.find(sessionId);
 
-    if (conversation === null || !shouldOfferChat(conversation)) {
-      return { offered: false, state: conversation?.state ?? "unopened", messages: [] };
+    if (conversation === null) {
+      /*
+       * Under `site-invites` a missing row is the ordinary state rather than a
+       * refusal: the conversation is created by the visitor's first word instead of
+       * by the owner's first click, so the empty transcript is what gets offered
+       * and {@link SendVisitorMessage} is what opens it.
+       */
+      return {
+        offered: this.invitation === "site-invites",
+        state: "unopened",
+        messages: [],
+      };
+    }
+
+    if (!shouldOfferChat(conversation, this.invitation)) {
+      return { offered: false, state: conversation.state, messages: [] };
     }
 
     await this.postAutomaticReplyIfDue(conversation);
@@ -233,6 +249,7 @@ export class SendVisitorMessage {
   constructor(
     private readonly repository: ChatRepository,
     private readonly now: () => number = Date.now,
+    private readonly invitation: ChatInvitation = "owner-initiates",
   ) {}
 
   async execute(sessionId: unknown, text: unknown, locale: Locale): Promise<ChatMessage> {
@@ -240,13 +257,13 @@ export class SendVisitorMessage {
       throw new ChatNotOfferedError(String(sessionId));
     }
 
-    const conversation = await this.repository.find(sessionId);
+    const at = this.now();
+    const conversation = await this.openOnFirstWord(sessionId, at);
 
-    if (conversation === null || !shouldOfferChat(conversation)) {
+    if (conversation === null || !shouldOfferChat(conversation, this.invitation)) {
       throw new ChatNotOfferedError(sessionId);
     }
 
-    const at = this.now();
     await this.assertWithinRateLimit(sessionId, at);
 
     const body = normaliseMessageBody(text);
@@ -271,6 +288,42 @@ export class SendVisitorMessage {
       body,
       at: stored.sentAt,
     });
+  }
+
+  /**
+   * The conversation this write belongs to, opening it first when the site invites.
+   *
+   * `null` is returned when there is nothing to write into and nothing in this
+   * deployment authorises creating one, which the caller turns into the same
+   * {@link ChatNotOfferedError} a closed conversation produces — the two answers
+   * are byte-identical on purpose, because a difference between them would say
+   * whether a session id exists.
+   *
+   * `closed` is the state this deliberately does not touch. Under `site-invites` the
+   * owner has not lost the ability to end a conversation; that check is why
+   * `shouldOfferChat` still refuses a closed row even when the site invites.
+   */
+  private async openOnFirstWord(
+    sessionId: PresenceSessionId,
+    at: number,
+  ): Promise<Conversation | null> {
+    const existing = await this.repository.find(sessionId);
+
+    if (existing !== null) {
+      return existing;
+    }
+
+    if (this.invitation !== "site-invites") {
+      return null;
+    }
+
+    /*
+     * `startConversation` rather than a hand-built row, so the state this creates
+     * is one the contract already recognises, and the write goes through the same
+     * `open` the owner's console uses. The upsert behind it is idempotent on
+     * `session_id`, so two words racing produce one conversation rather than two.
+     */
+    return this.repository.open(startConversation(sessionId, at));
   }
 
   private async assertWithinRateLimit(sessionId: PresenceSessionId, at: number): Promise<void> {

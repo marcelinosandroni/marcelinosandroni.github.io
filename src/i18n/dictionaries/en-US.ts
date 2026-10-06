@@ -360,6 +360,26 @@ export const enUS = {
     failed: "The message was not sent. Try again.",
     rateLimited: "Too many messages. Try again in {seconds}s.",
     withdrawn: "This conversation was closed.",
+    toastBadge: "New transmission",
+    toastBody: "You have a message. Follow the white rabbit.",
+    toastLabel: "You have a message. Open the conversation.",
+    /*
+     * The four lines, typed into the terminal one character at a time.
+     *
+     * They are a quotation from *The Matrix* (1999), and they are here because this
+     * site is about that film — the intro writes the owner's name in falling code,
+     * and the chat answers in the voice of the machine that summons him. Four lines
+     * of a film's dialogue, credited in the footer, on a page whose subject is
+     * that film, is the nominative use the quotation is for. What this is not is a
+     * substitute for the film: the words are here to be recognised, not read as
+     * scene dialogue, and nothing the site does depends on having read it.
+     */
+    opening: [
+      "Wake up, Neo...",
+      "The Matrix has you...",
+      "Follow the white rabbit.",
+      "Knock, knock, Neo.",
+    ],
   },
   admin: {
     accessLabel: "Owner access",

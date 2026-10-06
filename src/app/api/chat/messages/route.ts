@@ -26,6 +26,7 @@ import {
 import { isPresenceSessionId } from "@/domain/presence/presence";
 import { getOwnerSession, isAuthEnabled } from "@/infrastructure/auth/owner-session";
 import { negotiateLocale } from "@/infrastructure/i18n";
+import { readChatInvitation } from "@/infrastructure/presence/chat-invitation";
 import {
   createAgentReplyResolver,
   createPresenceRealtime,
@@ -151,6 +152,9 @@ export async function POST(request: Request): Promise<Response> {
     const conversation = await new ReadConversation(
       realtime.chat,
       createAgentReplyResolver(),
+      Date.now,
+      () => crypto.randomUUID(),
+      readChatInvitation(),
     ).execute(sessionId);
 
     return NextResponse.json(conversation, { headers: NO_STORE });
@@ -165,7 +169,11 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   try {
-    const message = await new SendVisitorMessage(realtime.chat).execute(sessionId, text, locale);
+    const message = await new SendVisitorMessage(realtime.chat, Date.now, readChatInvitation()).execute(
+      sessionId,
+      text,
+      locale,
+    );
 
     return NextResponse.json({ message }, { status: 201, headers: NO_STORE });
   } catch (error) {

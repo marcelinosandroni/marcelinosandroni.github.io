@@ -336,6 +336,25 @@ export const ptBR: Dictionary = {
     failed: "A mensagem não foi enviada. Tente de novo.",
     rateLimited: "Mensagens demais. Tente de novo em {seconds}s.",
     withdrawn: "Esta conversa foi encerrada.",
+    toastBadge: "Nova transmissão",
+    toastBody: "Você tem uma mensagem. Siga o coelho branco.",
+    toastLabel: "Você tem uma mensagem. Abrir a conversa.",
+    /*
+     * As quatro linhas, digitadas no terminal um caractere de cada vez.
+     *
+     * São uma citação de *Matrix* (1999), e estão aqui porque este site é sobre
+     * esse filme — a introdução escreve o nome do dono em código que cai, e a
+     * conversa responde na voz da máquina que o chama. São quatro linhas de
+     * diálogo de um filme, creditadas no rodapé, numa página cujo assunto é esse
+     * filme: é o uso nominativo para o qual a citação existe. O que isto não é
+     * é um substituto do filme — as palavras estão aqui para serem reconhecidas,
+     * não lidas como cena, e nada no site depende de você ter visto.
+     *
+     * A dublagem brasileira de 1999 traduziu o "knock knock" como "toc toc", que é
+     * a palavra que o som faz. "Bate, bate" seria a tradução literal de bater na
+     * porta e soaria a alguém que conhece a cena como uma emulação.
+     */
+    opening: ["Acorde, Neo...", "A Matrix pegou você...", "Siga o coelho branco.", "Toc, toc, Neo."],
   },
   admin: {
     accessLabel: "Acesso do dono",

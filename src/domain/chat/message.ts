@@ -4,13 +4,14 @@ import { isPresenceSessionId, type PresenceSessionId } from "@/domain/presence/p
 /**
  * The conversation contract.
  *
- * ## The owner starts it
+ * ## The owner starts it — unless the site says otherwise
  *
  * A visitor is not offered a chat. The owner opens a conversation with a session
  * first, and only then does that visitor's widget exist. The rule is
- * {@link shouldOfferChat}, it is a function of the conversation's state and
- * nothing else, and there is no code path from a visitor to a state that passes
- * it — {@link startConversation} is the only constructor and it takes no author.
+ * {@link shouldOfferChat}, it is a function of the conversation's state and the
+ * site's {@link ChatInvitation}, and under the default invitation there is no code
+ * path from a visitor to a state that passes it — {@link startConversation} is the
+ * only constructor and it takes no author.
  *
  * This is a product decision with a privacy reason behind it. A chat box on
  * every page of a portfolio is an invitation to write to a stranger, and the
@@ -18,6 +19,11 @@ import { isPresenceSessionId, type PresenceSessionId } from "@/domain/presence/p
  * to. Offering the channel only to somebody the owner has already decided to talk
  * to means the *existence* of a conversation is itself the owner's decision, and
  * the cost of saying nothing is that nobody has to be told they were ignored.
+ *
+ * `site-invites` is the owner deciding the opposite, on purpose, for a site whose
+ * subject is a film about being summoned. It is a variable rather than a fork
+ * because the decision to be findable is the kind of thing an owner reverses after
+ * hearing from a stranger, and a fork would make reversing it a release.
  *
  * ## Agent Smith
  *
@@ -361,19 +367,45 @@ export type ConversationSummary = Conversation & {
 };
 
 /**
- * **The owner-initiates rule.**
+ * Who is allowed to start a conversation.
+ *
+ * - `owner-initiates` — the original rule, and still the default. The visitor
+ *   waits.
+ * - `site-invites` — the site itself is the inviter, so a conversation opens on a
+ *   visitor's first word rather than on the owner's.
+ *
+ * This is a product decision with a privacy reason behind it either way, and the
+ * reason is what makes it worth naming rather than hard-coding: under
+ * `owner-initiates` a stranger cannot make this site hold their words at all; under
+ * `site-invites` they can, and the rate limit in the database is what stands
+ * between a visitor and a wall of text.
+ */
+export type ChatInvitation = "owner-initiates" | "site-invites";
+
+/**
+ * **The owner-initiates rule**, and the one exception written down.
  *
  * A chat is offered to a visitor if and only if the owner has opened the
- * conversation and it has not been closed. Three inputs, no parameters, no flags:
- * the state is the only thing that can change it, and the only writer of `open`
- * is {@link startConversation}.
+ * conversation and it has not been closed. The state is the only thing that can
+ * change it, and the only writer of `open` is {@link startConversation}.
  *
  * A closed conversation reads as not offered. Re-opening is a deliberate act by
- * the owner, so a visitor cannot be walked back into a channel the owner has
- * ended.
+ * the owner, so a visitor cannot be walked back into a channel the owner has ended.
+ *
+ * That refusal is **not** one of the things `site-invites` relaxes. Closing is the
+ * owner's one lever that keeps working when the invitation is open: a conversation
+ * the owner has ended stays ended, so `site-invites` widens who may start a
+ * conversation and narrows nothing.
  */
-export function shouldOfferChat(conversation: Conversation): boolean {
-  return conversation.state === "open";
+export function shouldOfferChat(
+  conversation: Conversation,
+  invitation: ChatInvitation = "owner-initiates",
+): boolean {
+  if (conversation.state === "closed") {
+    return false;
+  }
+
+  return invitation === "site-invites" || conversation.state === "open";
 }
 
 /**

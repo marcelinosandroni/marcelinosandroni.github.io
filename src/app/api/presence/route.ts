@@ -4,6 +4,7 @@ import { ReadConversation } from "@/application/chat/conversation";
 import { TrackVisitorHeartbeat } from "@/application/presence/track-visitors";
 import { hasExactlyFields } from "@/domain/chat/message";
 import { isPresenceSessionId } from "@/domain/presence/presence";
+import { readChatInvitation } from "@/infrastructure/presence/chat-invitation";
 import {
   createAgentReplyResolver,
   createPresenceRealtime,
@@ -100,6 +101,9 @@ export async function POST(request: Request): Promise<Response> {
     const conversation = await new ReadConversation(
       realtime.chat,
       createAgentReplyResolver(),
+      Date.now,
+      () => crypto.randomUUID(),
+      readChatInvitation(),
     ).execute(sessionId);
 
     return NextResponse.json({ offered: conversation.offered }, { headers: NO_STORE });
