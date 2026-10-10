@@ -21,7 +21,7 @@ export const resumeContentEnUs: ResumeContent = {
   location: "Fortaleza, CE, Brazil · Remote",
   contact: {
     phone: SITE_OWNER.phone,
-    email: "marcelino.sandroni@gmail.com",
+    email: SITE_OWNER.email,
     linkedin: "linkedin.com/in/marcelinosandroni",
   },
   summary:

@@ -61,7 +61,23 @@ export const SITE_OWNER = {
   introName: "MARCELINO SANDRONI",
   linkedin: "https://linkedin.com/in/marcelinosandroni",
   github: "https://github.com/marcelinosandroni",
-  email: "marcelino.sandroni@gmail.com",
+  /**
+   * Single source of truth for the contact address.
+   *
+   * This is on the site's own domain rather than a free mailbox, and the reason
+   * is the one that matters for the reader this site is for: the hero asks for a
+   * senior or tech lead role, and a `gmail.com` address answering that ask reads
+   * as the candidate not taking the role seriously. Everything else on the page —
+   * the Open Graph card, the PDF, the structured data, the release link — points
+   * at a site with a domain of its own; the one address a recruiter uses to decide
+   * whether to reply should match.
+   *
+   * Every other surface reads this rather than repeating the literal, because a
+   * contact address is the one string on this site that must never disagree with
+   * itself. It was previously written out in twenty places and the e2e suite
+   * hard-coded it.
+   */
+  email: "marcelino@marcelinosandroni.com",
   /**
    * Single source of truth for the phone number. The resume content references
    * this rather than repeating the literal, so a `wa.me` link can never drift

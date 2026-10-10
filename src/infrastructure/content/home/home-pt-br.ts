@@ -78,8 +78,8 @@ export const homeContentPtBR: HomeContent = {
       {
         id: "email",
         label: "E-MAIL",
-        href: "mailto:marcelino.sandroni@gmail.com",
-        value: "marcelino.sandroni@gmail.com",
+        href: "mailto:" + SITE_OWNER.email,
+        value: SITE_OWNER.email,
         icon: "mail",
         external: false,
       },
@@ -427,8 +427,8 @@ export const homeContentPtBR: HomeContent = {
       {
         id: "email",
         label: "E-MAIL",
-        href: "mailto:marcelino.sandroni@gmail.com",
-        value: "marcelino.sandroni@gmail.com",
+        href: "mailto:" + SITE_OWNER.email,
+        value: SITE_OWNER.email,
         icon: "mail",
         external: false,
       },
@@ -443,7 +443,7 @@ export const homeContentPtBR: HomeContent = {
       {
         id: "response",
         label: "RESPOSTA",
-        href: "mailto:marcelino.sandroni@gmail.com",
+        href: "mailto:" + SITE_OWNER.email,
         value: "Até 1 dia útil",
         icon: "verified",
         external: false,
@@ -492,8 +492,8 @@ export const homeContentPtBR: HomeContent = {
           {
             id: "mail",
             label: "E-mail",
-            href: "mailto:marcelino.sandroni@gmail.com",
-            value: "marcelino.sandroni@gmail.com",
+            href: "mailto:" + SITE_OWNER.email,
+            value: SITE_OWNER.email,
             icon: "mail",
             external: false,
           },

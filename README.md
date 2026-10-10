@@ -10,7 +10,7 @@ Building systems that survive production — and the teams that run them.
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript)](https://www.typescriptlang.org)
 [![Supabase](https://img.shields.io/badge/Supabase-RLS-3ECF8E?logo=supabase)](https://supabase.com)
 
-[🌐 Live site](https://marcelinosandroni.com) · [📄 Résumé](https://marcelinosandroni.com/en-us/resume) · [✍️ Writing](https://marcelinosandroni.com/en-us/blog) · [💼 LinkedIn](https://linkedin.com/in/marcelinosandroni) · [📫 Email](mailto:marcelino.sandroni@gmail.com)
+[🌐 Live site](https://marcelinosandroni.com) · [📄 Résumé](https://marcelinosandroni.com/en-us/resume) · [✍️ Writing](https://marcelinosandroni.com/en-us/blog) · [💼 LinkedIn](https://linkedin.com/in/marcelinosandroni) · [📫 Email](mailto:marcelino@marcelinosandroni.com)
 
 </div>
 
@@ -199,6 +199,6 @@ That discipline is why I budget instead of estimate, measure before optimising, 
 
 **Currently open to senior engineering and tech lead roles.**
 
-[marcelino.sandroni@gmail.com](mailto:marcelino.sandroni@gmail.com) · [LinkedIn](https://linkedin.com/in/marcelinosandroni)
+[marcelino@marcelinosandroni.com](mailto:marcelino@marcelinosandroni.com) · [LinkedIn](https://linkedin.com/in/marcelinosandroni)
 
 </div>
