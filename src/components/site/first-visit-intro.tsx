@@ -23,9 +23,24 @@ import {
  * `data-intro-phase`, so a frame in which the phase did not change costs no style
  * work at all:
  *
- *   connecting  the Matrix handshaking, and the terminal log
- *   locking     the rain condenses; columns fall and resolve into the name
+ *   connecting  the rain is on screen; the name is already falling
+ *   locking     the columns resolve into the name
  *   enter       the curtain rises off the top of the screen and the site is there
+ *
+ * ## Why the name does not wait for `locking`
+ *
+ * Because the sequence is three seconds and the name is the subject. The columns
+ * are mounted from the first frame rather than at the `locking` boundary, so the
+ * first letter starts falling while the rain is still establishing itself. Waiting
+ * for a phase change would spend the opening 200ms of a three-second arrival on
+ * rain nobody asked for.
+ *
+ * ## Why the terminal log is gone
+ *
+ * It was six lines of the résumé's own figures, and it was costing 2.4 seconds —
+ * more than the rest of the sequence put together — to show text nobody could
+ * finish reading. Those figures are the hero's job now: a reader who stops on one
+ * gets all of them, and a reader in a hurry gets the name and the site instead.
  *
  * ## Why there is no photograph in it
  *
@@ -70,12 +85,9 @@ import {
  */
 export function FirstVisitIntro({
   name,
-  logLines,
 }: {
   /** The reader's name, set by the caller from the site identity. */
   name: string;
-  /** The résumé''s own facts, already translated by the caller. */
-  logLines: readonly string[];
 }): React.ReactElement | null {
   const [phase, setPhase] = useState<string | null>(null);
   const frameRef = useRef<number>(0);
@@ -271,14 +283,14 @@ export function FirstVisitIntro({
       </div>
 
       {/*
-        The name, mounted only for the beats it belongs to.
+        The name, mounted from the first frame.
 
-        Not hidden with CSS: the columns fall on *insertion*, so rendering them
-        during `connecting` would start every fall three seconds early and have them
-        all landed before the log had finished. Mounting on the phase boundary is
-        what makes the beat mean anything.
+        The columns fall on *insertion*, so the mount is what starts them — and the
+        sequence is three seconds long, which is not enough to spend 200ms of its
+        opening on rain with nothing in it. Mounting immediately is what makes the
+        arrival read as the name arriving rather than as a loading screen clearing.
       */}
-      {phase === "locking" || phase === "enter" ? <MatrixName text={name} /> : null}
+      <MatrixName text={name} />
 
       {/*
         The edge of the rise. One hairline that travels with the boundary the clip
@@ -287,18 +299,6 @@ export function FirstVisitIntro({
         clipped: a glow on the boundary has to survive the boundary being cut.
       */}
       <div className="msd-intro__edge" />
-
-      {/*
-        The log. These are the résumé's own checkable facts, carried over from the
-        boot sequence — the arithmetic and the platform list are the most useful
-        things a reader can learn in the first two seconds, and inventing new
-        terminal copy for an intro would have been strictly worse.
-      */}
-      <div className="msd-intro__log" data-visible={phase === "connecting"}>
-        {logLines.map((line) => (
-          <p key={line}>{line}</p>
-        ))}
-      </div>
     </div>
   );
 }
