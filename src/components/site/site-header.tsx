@@ -104,7 +104,14 @@ export function SiteHeader({ locale, t, sections, brandHref }: SiteHeaderProps) 
               <Link
                 key={section.key}
                 href={section.href}
-                className="tap-target shrink-0 scroll-mx-1 whitespace-nowrap font-label-mono text-label-mono uppercase tracking-widest text-text-secondary transition-colors hover:text-primary-container"
+                /*
+                 * `min-w-11` is stated here rather than inherited from
+                 * `.tap-target`, matching the other controls in the rail. These
+                 * labels are the shortest controls on the site — "Stack" measured
+                 * 39px across, under the 44px floor, and the failure is invisible
+                 * in review because a shorter word is exactly what causes it.
+                 */
+                className="tap-target min-w-11 shrink-0 scroll-mx-1 whitespace-nowrap font-label-mono text-label-mono uppercase tracking-widest text-text-secondary transition-colors hover:text-primary-container"
               >
                 {section.label}
               </Link>

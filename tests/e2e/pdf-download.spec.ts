@@ -128,7 +128,10 @@ test.describe("Localized routing and PDF download", () => {
     await expect(page).toHaveTitle(/Engenheiro de Software Sênior/);
     await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "pt_BR");
     await expect(page.locator('meta[property="og:locale:alternate"]')).toHaveAttribute("content", "en_US");
-    await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /Currículo vivo/);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      "content",
+      /R\$ 24M\/ano em contrato resgatado/,
+    );
   });
 
   test("displays a loading state during PDF generation", async ({ page }) => {

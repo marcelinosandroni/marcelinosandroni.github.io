@@ -80,15 +80,28 @@ test.describe("Home executive overview", () => {
     await expect(page.locator("#kpis")).toContainText("21 years");
   });
 
-  test("states the career arithmetic the way the filter requires", async ({ page }) => {
+  test("states both career periods, and leads the hero with the claims", async ({ page }) => {
     await page.goto("/en-us");
 
     const hero = page.locator("#top");
 
-    await expect(hero).toContainText("15 years");
+    /*
+     * The hero used to open with "15 years ... + 6 years ... = 21 years of combined
+     * expertise". The arithmetic was right and the framing was not, so it is gone
+     * from the hero: what a reader needs is the two periods with their dates, and
+     * then the figures that answer whether to keep reading. The combined total
+     * still appears on the KPI tile, labelled as combined.
+     */
     await expect(hero).toContainText("2005");
-    await expect(hero).toContainText("6 years");
-    await expect(hero).toContainText("21 years");
+    await expect(hero).toContainText("2021");
+    await expect(hero).toContainText(/fifteen years/i);
+    await expect(hero).toContainText(/six years/i);
+
+    // The proof band: three claims, each with the scope that makes it defensible.
+    await expect(hero.locator("li")).toHaveCount(3);
+    await expect(hero).toContainText("R$ 24M/yr");
+    await expect(hero).toContainText("100M msgs/day");
+    await expect(hero).toContainText("15min");
   });
 
   test("groups the arsenal into exactly the four required categories", async ({ page }) => {
@@ -150,7 +163,7 @@ test.describe("Home executive overview", () => {
 
     await expect(page.locator("#contact")).toContainText(OWNER_EMAIL);
     await expect(
-      page.locator('#contact a[href^="mailto:${OWNER_EMAIL}?subject="]'),
+      page.locator(`#contact a[href^="mailto:${OWNER_EMAIL}?subject="]`),
     ).toHaveCount(1);
   });
 
@@ -175,7 +188,7 @@ test.describe("Home executive overview", () => {
 
     // Email still works: WhatsApp is added beside it, never instead of it.
     await expect(
-      page.locator('#contact a[href^="mailto:${OWNER_EMAIL}?subject="]'),
+      page.locator(`#contact a[href^="mailto:${OWNER_EMAIL}?subject="]`),
     ).toHaveCount(1);
   });
 
