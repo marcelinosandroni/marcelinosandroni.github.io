@@ -97,9 +97,9 @@ export const homeContentPtBR: HomeContent = {
 
   kpis: {
     id: "kpis",
-    kicker: "// IMPACTO FINANCEIRO E OPERACIONAL",
-    title: "Engenharia medida em capital, escala e disponibilidade",
-    note: "Zero métrica de vaimento. Retorno auditável, arquitetura sem indisponibilidade e conformidade sob stewardship.",
+    kicker: "// IMPACTO",
+    title: "Quanto valeu a engenharia",
+    note: "Capital protegido, escala absorvida e custo operacional de entrega eliminado. Todo número abaixo está no currículo com o detalhe por trás dele.",
     items: [
       {
         id: "track",
@@ -150,7 +150,7 @@ export const homeContentPtBR: HomeContent = {
 
   stack: {
     id: "arsenal",
-    kicker: "// ARSENAL TÉCNICO",
+    kicker: "// STACK TÉCNICO",
     title: "Quatro frentes, uma decisão por problema",
     note: "Categorias fechadas e rastreáveis ao currículo. Cada tecnologia listada aqui aparece no currículo, na categoria em que aparece aqui.",
     clusters: [
@@ -232,7 +232,7 @@ export const homeContentPtBR: HomeContent = {
     id: "experience",
     kicker: "// TRAJETÓRIA",
     title: "Experiência: Execução em Sistemas de Produção",
-    note: "TRÊS RESULTADOS POR EMPRESA // APENAS IMPACTO COMPROVÁVEL",
+    note: "Cada função, com o que mudou e para quem.",
     ctaLabel: "Abrir o currículo completo",
     resumeCtaLabel: "CURRÍCULO COMPLETO",
     currentCompany: "DGT Tecnologia",
@@ -391,7 +391,7 @@ export const homeContentPtBR: HomeContent = {
   contact: {
     id: "contact",
     kicker: "// CONTATO",
-    title: "Vamos resolver isso.",
+    title: "Vamos conversar sobre o seu problema mais difícil.",
     narrative:
       "Descreva o problema no WhatsApp e desenrolamos a partir daí. Se preferir escrever por e-mail, o briefing abaixo já vem preenchido com a estrutura certa.",
     /*

@@ -95,9 +95,9 @@ export const homeContentEnUS: HomeContent = {
 
   kpis: {
     id: "kpis",
-    kicker: "// FINANCIAL & OPERATIONAL IMPACT",
-    title: "Engineering measured in capital, scale and availability",
-    note: "Zero vanity metrics. Auditable return, zero-downtime architecture and compliance under stewardship.",
+    kicker: "// IMPACT",
+    title: "What the engineering was worth",
+    note: "Capital protected, scale absorbed, and the operational cost of shipping removed. Every figure below is on the resume with the detail behind it.",
     items: [
       {
         id: "track",
@@ -148,9 +148,9 @@ export const homeContentEnUS: HomeContent = {
 
   stack: {
     id: "arsenal",
-    kicker: "// TECHNICAL ARSENAL",
+    kicker: "// TECH STACK",
     title: "Four disciplines, one decision per problem",
-    note: "Closed categories, each traceable to the resume. Every technology listed here appears in the resume, in the category it appears in here.",
+    note: "Every technology listed here appears on the resume, in the category it appears in here.",
     clusters: [
       {
         id: "frontend",
@@ -230,7 +230,7 @@ export const homeContentEnUS: HomeContent = {
     id: "experience",
     kicker: "// TRACK RECORD",
     title: "Track Record: Production Systems Experience",
-    note: "THREE OUTCOMES PER EMPLOYER // PROVABLE IMPACT ONLY",
+    note: "Every role, with what it changed and who it was for.",
     ctaLabel: "Open the full resume",
     resumeCtaLabel: "FULL RESUME",
     currentCompany: "DGT Tecnologia",
@@ -389,7 +389,7 @@ export const homeContentEnUS: HomeContent = {
   contact: {
     id: "contact",
     kicker: "// CONTACT",
-    title: "Let's solve it.",
+    title: "Let's talk about your hardest problem.",
     narrative:
       "Describe the problem on WhatsApp and we will work it from there. If you would rather write, the brief below is already structured for you.",
     // See the note on the Portuguese pair in `home-pt-br.ts`: new copy, marked for
