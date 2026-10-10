@@ -1,4 +1,5 @@
 import type { Locale } from "@/domain/i18n";
+import type { CareerClaimId } from "@/domain/portfolio/claims";
 
 /**
  * Home page content contract.
@@ -113,6 +114,16 @@ export type HomeHero = {
   primaryAction: HomeAction;
   secondaryAction: HomeAction;
   availability: string;
+  /**
+   * The figures the hero leads with, as claim ids rather than as strings.
+   *
+   * Storing the *id* is what keeps this honest: the number and its scope are
+   * resolved from `@/domain/portfolio/claims` at render time, so the hero cannot
+   * quote a figure that differs from the one the resume and the PDF quote. A
+   * recruiter reading the hero and a recruiter reading the document are reading
+   * the same number by construction rather than by discipline.
+   */
+  proof: { id: CareerClaimId; label: string }[];
   channels: HomeChannel[];
   portrait: HomePortrait;
 };
@@ -249,12 +260,35 @@ export type HomeFooter = {
   legalNote: string;
 };
 
+/**
+ * One leadership practice, stated as something that happened.
+ *
+ * `evidence` is not decoration and is not a summary of the practice: it is the
+ * specific thing that was done, with the number that came out of it. A hiring
+ * manager is not choosing between abstractions when they read this section — they
+ * are deciding whether this person has run a team before, and the only honest
+ * answer to that is a story with a detail in it.
+ */
+export type HomeLeadershipPoint = {
+  id: string;
+  title: string;
+  practice: string;
+  evidence: string;
+  icon: IconName;
+};
+
+export type HomeLeadershipSection = HomeSectionHeader & {
+  id: string;
+  items: HomeLeadershipPoint[];
+};
+
 export type HomeContent = {
   locale: Locale;
   hero: HomeHero;
   kpis: HomeKpiSection;
   stack: HomeStackSection;
   trackRecord: HomeTrackRecordSection;
+  leadership: HomeLeadershipSection;
   blog: HomeBlogSection;
   contact: HomeContact;
   footer: HomeFooter;

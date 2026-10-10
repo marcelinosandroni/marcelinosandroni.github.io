@@ -10,6 +10,7 @@ import {
   getAllClaims,
   getClaim,
   HERO_CLAIM_IDS,
+  type CareerClaimId,
 } from "@/domain/portfolio/claims";
 import { getHomeContent } from "@/infrastructure/content/home";
 import { getResumeContent } from "@/infrastructure/content";
@@ -86,6 +87,58 @@ describe("career claims", () => {
     const engineering = CAREER_CLAIMS.engineeringYears.value;
 
     expect(finance + engineering).toBe(21);
+  });
+
+  it("renders every headline short enough to read in a glance", () => {
+    /**
+     * The hero renders these at the largest type on the page. A figure spelled out
+     * in full there — `R$ 24,000,000/yr`, eight characters of digits doing the
+     * work of two — is technically the same claim and practically unreadable.
+     */
+    for (const locale of SUPPORTED_LOCALES) {
+      for (const claim of getAllClaims(locale)) {
+        expect(claim.display.length, `${claim.id}/${locale}: "${claim.display}"`).toBeLessThanOrEqual(20);
+      }
+    }
+  });
+
+  it("gives the deploy claim a unit, because a bare number is ambiguous", () => {
+    /*
+     * `deployAfterMinutes` alone renders as the number 15, under a label reading
+     * "deploy" — which a reader resolves as the 4 hours it replaced, not 15
+     * minutes. The suffix is load-bearing, so it is asserted rather than trusted.
+     */
+    for (const locale of SUPPORTED_LOCALES) {
+      const display = getClaim("deployAfterMinutes", locale).display;
+
+      expect(display).toMatch(/15\s*min/);
+      expect(display).not.toMatch(/^15$/);
+    }
+  });
+
+  it("shortens the two big figures rather than spelling them out", () => {
+    expect(getClaim("contractValueSaved", "en-US").display).toBe("R$ 24M/yr");
+    expect(getClaim("contractValueSaved", "pt-BR").display).toBe("R$ 24M/ano");
+    expect(getClaim("messagesPerDay", "en-US").display).toBe("100M msgs/day");
+    expect(getClaim("messagesPerDay", "pt-BR").display).toBe("100M msgs/dia");
+  });
+
+  it("derives every compact figure from its value, never from a typed copy", () => {
+    /**
+     * If the scale were ever wrong the short form would silently become a
+     * different claim — 24M rendering as 24000M is the kind of thing a reviewer
+     * does not catch by eye and a test catches immediately.
+     */
+    for (const locale of SUPPORTED_LOCALES) {
+      for (const [id, claim] of Object.entries(CAREER_CLAIMS)) {
+        const expected = formatClaimValue(
+          (claim as { value: number }).value / (claim as { compact: { scale: number } }).compact.scale,
+          locale,
+        );
+
+        expect(getClaim(id as CareerClaimId, locale).display, id).toContain(expected);
+      }
+    }
   });
 });
 

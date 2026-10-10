@@ -1,6 +1,7 @@
 import { BlogPreviewSection } from "@/components/home/blog-preview";
 import { ContactGatewaySection } from "@/components/home/contact-gateway";
 import { HomeHeroSection } from "@/components/home/home-hero";
+import { HowILeadSection } from "@/components/home/how-i-lead";
 import { KpiSection } from "@/components/home/kpi-grid";
 import { TechArsenalSection } from "@/components/home/tech-arsenal";
 import { TrackRecordSection } from "@/components/home/track-record";
@@ -40,12 +41,21 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
   const home = getHomeContent(locale);
 
   const sections = [
+    /*
+      Contact leads, and it is not a styling preference.
+      It used to be last, on the reasoning that the reader works down the page and
+      arrives at it having been convinced. That is how a portfolio is read by
+      somebody evaluating it. It is not how a hiring manager reads one: they arrive
+      from a link, they decide in seconds whether to keep reading, and the question
+      in their head is "can I contact this person". Making that the first tab means
+      it is answered before they have to look for it.
+    */
+    { key: "contact", label: t.nav.contact, href: `#${home.contact.id}` },
     { key: "kpis", label: t.nav.home, href: `#${home.kpis.id}` },
     { key: "arsenal", label: t.nav.arsenal, href: `#${home.stack.id}` },
     { key: "experience", label: t.nav.experience, href: `#${home.trackRecord.id}` },
     { key: "blog", label: t.nav.blog, href: blogPath(locale) },
     { key: "resume", label: t.nav.resume, href: resumePath(locale) },
-    { key: "contact", label: t.nav.contact, href: `#${home.contact.id}` },
   ];
 
   return (
@@ -73,7 +83,7 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
       <SiteHeader locale={locale} t={t} sections={sections} />
 
       <main id="main" aria-label={t.a11y.mainContent}>
-        <HomeHeroSection hero={home.hero} t={t} />
+        <HomeHeroSection hero={home.hero} t={t} locale={locale} />
         <KpiSection section={home.kpis} />
         <TechArsenalSection section={home.stack} />
         <TrackRecordSection
@@ -82,6 +92,7 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
           locale={locale}
           openResumeLabel={home.trackRecord.resumeCtaLabel}
         />
+        <HowILeadSection section={home.leadership} />
         <ResumeCopilot locale={locale} labels={t.copilot} />
         {/*
           The visitor's side of the conversation, and it renders nothing at all

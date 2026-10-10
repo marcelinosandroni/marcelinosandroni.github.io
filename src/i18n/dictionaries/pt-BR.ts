@@ -100,6 +100,8 @@ export const ptBR: Dictionary = {
     liveResume: "Currículo vivo · v{version} · Atualizado em {period}",
     note: "Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.",
     backToOverview: "Voltar para a visão geral",
+    /** Accessible name for the band of measured results under the role line. */
+    proofLabel: "Resultados medidos",
   },
   signal: {
     available: "Disponível para conversas",

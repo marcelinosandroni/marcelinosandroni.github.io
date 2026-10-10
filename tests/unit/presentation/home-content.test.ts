@@ -76,6 +76,7 @@ describe("home content: locale parity", () => {
     expect(pt.kpis.id).toBe(en.kpis.id);
     expect(pt.stack.id).toBe(en.stack.id);
     expect(pt.trackRecord.id).toBe(en.trackRecord.id);
+    expect(pt.leadership.id).toBe(en.leadership.id);
     expect(pt.blog.id).toBe(en.blog.id);
     expect(pt.contact.id).toBe(en.contact.id);
     expect(pt.footer.id).toBe(en.footer.id);
@@ -88,12 +89,37 @@ describe("home content: locale parity", () => {
         home.kpis.id,
         home.stack.id,
         home.trackRecord.id,
+        home.leadership.id,
         home.blog.id,
         home.contact.id,
         home.footer.id,
       ];
 
       expect(new Set(ids).size).toBe(ids.length);
+    }
+  });
+
+  it("carries the same leadership points, in the same order, in both locales", () => {
+    const en = getHomeContent("en-US").leadership;
+    const pt = getHomeContent("pt-BR").leadership;
+
+    expect(pt.items.map((item) => item.id)).toEqual(en.items.map((item) => item.id));
+    expect(pt.items.map((item) => item.icon)).toEqual(en.items.map((item) => item.icon));
+  });
+
+  /**
+   * The section exists because a leadership claim with nothing attached to it is
+   * indistinguishable from one anybody could write. Every practice therefore has to
+   * name a specific thing that happened — and every one of those things has to
+   * carry a number, or it is a story rather than evidence.
+   */
+  it("backs every leadership point with a measurable outcome", () => {
+    for (const locale of LOCALES) {
+      for (const item of getHomeContent(locale).leadership.items) {
+        expect(item.practice.trim().length, `${item.id} practice`).toBeGreaterThan(0);
+        expect(item.evidence.trim().length, `${item.id} evidence`).toBeGreaterThan(0);
+        expect(item.evidence, `${locale}: ${item.id}`).toMatch(/\d/);
+      }
     }
   });
 
@@ -374,13 +400,36 @@ describe("copy rules: extreme compression", () => {
 });
 
 describe("copy rules: coherent arithmetic", () => {
-  it("states the 15 + 6 = 21 progression in the hero, in both languages", () => {
+  it("states both career periods in the hero, in both languages", () => {
+    /*
+      The hero used to state "15 + 6 = 21 years of combined expertise" as its
+      opening line. The arithmetic was correct and the framing was not: summing a
+      finance career with an engineering one produces a number the market does not
+      price, and leading with it invited exactly the question it was meant to
+      pre-empt. What survives is the two periods, stated plainly, with the reader
+      left to add them.
+    */
     for (const locale of LOCALES) {
       const { narrative } = getHomeContent(locale).hero;
 
-      expect(narrative, locale).toMatch(/\b15\b/);
-      expect(narrative, locale).toMatch(/\b6\b/);
-      expect(narrative, locale).toMatch(/\b21\b/);
+      expect(narrative, locale).toMatch(/\b15\b|fifteen|quinze/i);
+      expect(narrative, locale).toMatch(/\b6\b|\bsix\b|\bseis\b/i);
+    }
+  });
+
+  it("never claims twenty-one years of software engineering", () => {
+    /*
+      The combined total is real and it appears on the KPI tile, where it is
+      labelled as combined experience rather than as experience. It must not be
+      dressed as engineering tenure anywhere: the site says six years of
+      software, and a reader who catches the hero implying otherwise stops
+      believing every other number on the page.
+    */
+    for (const locale of LOCALES) {
+      const { narrative } = getHomeContent(locale).hero;
+
+      expect(narrative, locale).not.toMatch(/21 years of (software|engineering)/i);
+      expect(narrative, locale).not.toMatch(/21 anos de (software|engenharia)/i);
     }
   });
 
@@ -414,6 +463,23 @@ describe("copy rules: coherent arithmetic", () => {
 
       expect(narrative, locale).toMatch(/2005\D{0,3}2020/);
       expect(narrative, locale).toMatch(/2021\D{0,3}2026/);
+    }
+  });
+
+  it("anchors the combined total to the two periods it adds up", () => {
+    /*
+      The KPI tile still carries the 21, and it is allowed to — it is labelled as
+      combined experience and both halves are stated next to it, so the reader can
+      audit the sum rather than take it. This is the difference between that and
+      the old hero line, where the total was the claim and the parts were a
+      footnote.
+    */
+    for (const locale of LOCALES) {
+      const kpi = getHomeContent(locale).kpis.items.find((item) => item.id === "track");
+
+      expect(kpi?.value, locale).toMatch(/21/);
+      expect(kpi?.description, locale).toMatch(/2005\D{0,3}2020/);
+      expect(kpi?.description, locale).toMatch(/2021\D{0,3}2026/);
     }
   });
 });

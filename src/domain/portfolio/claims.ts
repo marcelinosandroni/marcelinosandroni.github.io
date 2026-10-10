@@ -50,11 +50,28 @@ export type Claim = {
   readonly value: number;
   readonly unit: ClaimUnit;
   /**
-   * What the figure counts. Rendered next to the number everywhere it appears,
-   * because a bare "100M" is not a claim and "100M telemetry events/day across
-   * the ingest pipeline" is.
+   * What the figure counts, per locale. Rendered next to the number everywhere it
+   * appears, because a bare "100M" is not a claim and "100M telemetry events/day
+   * across the ingest pipeline" is.
    */
-  readonly scope: string;
+  readonly scope: Record<Locale, string>;
+  /**
+   * How to shorten the figure for a headline.
+   *
+   * `24_000_000` rendered exactly is `24,000,000`, which is eight characters of
+   * digits doing the work of two. A headline figure has to be read in under a
+   * second, so this is where the `M` suffix comes from — and it is derived from
+   * `value` rather than typed beside it, so the short form can never disagree with
+   * the long one.
+   */
+  readonly compact: {
+    /** Divide by this before formatting. `1_000_000` turns 24,000,000 into 24M. */
+    readonly scale: number;
+    /** Suffix after the digits, per locale. Empty renders a bare number. */
+    readonly suffix: Record<Locale, string>;
+    /** Prefix before the digits, per locale. Used for the currency symbol. */
+    readonly prefix?: Record<Locale, string>;
+  };
 };
 
 /**
@@ -80,6 +97,11 @@ export const CAREER_CLAIMS = {
       "en-US": "annual contract value rescued from cancellation",
       "pt-BR": "valor anual de contrato resgatado do cancelamento",
     },
+    compact: {
+      scale: 1_000_000,
+      prefix: { "en-US": "R$ ", "pt-BR": "R$ " },
+      suffix: { "en-US": "M/yr", "pt-BR": "M/ano" },
+    },
   } satisfies Claim,
 
   /**
@@ -95,6 +117,10 @@ export const CAREER_CLAIMS = {
       "en-US": "telemetry events ingested across the pipeline",
       "pt-BR": "eventos de telemetria ingeridos no pipeline",
     },
+    compact: {
+      scale: 1_000_000,
+      suffix: { "en-US": "M msgs/day", "pt-BR": "M msgs/dia" },
+    },
   } satisfies Claim,
 
   /** The RabbitMQ hop inside the system above. Quoted separately, never merged. */
@@ -104,6 +130,10 @@ export const CAREER_CLAIMS = {
     scope: {
       "en-US": "messages carried by the RabbitMQ messaging layer",
       "pt-BR": "mensagens carregadas pela camada de mensageria RabbitMQ",
+    },
+    compact: {
+      scale: 1_000_000,
+      suffix: { "en-US": "M msgs/day", "pt-BR": "M msgs/dia" },
     },
   } satisfies Claim,
 
@@ -115,6 +145,7 @@ export const CAREER_CLAIMS = {
       "en-US": "dashboard query before the columnar migration",
       "pt-BR": "consulta de dashboard antes da migração colunar",
     },
+    compact: { scale: 1, suffix: { "en-US": "s", "pt-BR": "s" } },
   } satisfies Claim,
 
   queryTimeAfterMilliseconds: {
@@ -124,6 +155,7 @@ export const CAREER_CLAIMS = {
       "en-US": "dashboard query after the columnar migration",
       "pt-BR": "consulta de dashboard após a migração colunar",
     },
+    compact: { scale: 1, suffix: { "en-US": "ms", "pt-BR": "ms" } },
   } satisfies Claim,
 
   deployBeforeMinutes: {
@@ -133,15 +165,25 @@ export const CAREER_CLAIMS = {
       "en-US": "deploy duration before the delivery pipeline",
       "pt-BR": "duração do deploy antes do pipeline de entrega",
     },
+    compact: { scale: 60, suffix: { "en-US": "h", "pt-BR": "h" } },
   } satisfies Claim,
 
-  deployAfterMinutes: {
+  /**
+ * The deploy figure the hero leads with.
+ *
+ * The raw value alone is a bare `15`, and a bare number under a label reading
+ * "deploy" is read as "15 of something" — hours, usually, which is the number
+ * this replaced. The suffix is what makes it unambiguous, so the unit travels
+ * with the figure instead of being left to the reader's inference.
+ */
+deployAfterMinutes: {
     value: 15,
     unit: "duration",
     scope: {
       "en-US": "deploy duration after the delivery pipeline",
       "pt-BR": "duração do deploy após o pipeline de entrega",
     },
+    compact: { scale: 1, suffix: { "en-US": "min", "pt-BR": "min" } },
   } satisfies Claim,
 
   /** Years in corporate financial governance before engineering. */
@@ -152,6 +194,7 @@ export const CAREER_CLAIMS = {
       "en-US": "years in corporate financial governance",
       "pt-BR": "anos de governança financeira corporativa",
     },
+    compact: { scale: 1, suffix: { "en-US": " yrs", "pt-BR": " anos" } },
   } satisfies Claim,
 
   /** Years writing software, which is what the market actually prices. */
@@ -162,6 +205,7 @@ export const CAREER_CLAIMS = {
       "en-US": "years writing software",
       "pt-BR": "anos escrevendo software",
     },
+    compact: { scale: 1, suffix: { "en-US": " yrs", "pt-BR": " anos" } },
   } satisfies Claim,
 
   /** The team he held technical leadership over at DGT. */
@@ -172,6 +216,7 @@ export const CAREER_CLAIMS = {
       "en-US": "people under technical leadership at DGT",
       "pt-BR": "pessoas sob liderança técnica na DGT",
     },
+    compact: { scale: 1, suffix: { "en-US": " people", "pt-BR": " pessoas" } },
   } satisfies Claim,
 
   /** Critical defects closed inside the 48-hour mapping window. */
@@ -182,6 +227,7 @@ export const CAREER_CLAIMS = {
       "en-US": "critical defects mapped and closed within 48 hours",
       "pt-BR": "defeitos críticos mapeados e fechados em 48 horas",
     },
+    compact: { scale: 1, suffix: { "en-US": " bugs / 48h", "pt-BR": " bugs / 48h" } },
   } satisfies Claim,
 
   /** Calendar time from taking over the failing contract to delivery. */
@@ -192,6 +238,7 @@ export const CAREER_CLAIMS = {
       "en-US": "weeks from takeover to delivered rescue",
       "pt-BR": "semanas da retomada à entrega do resgate",
     },
+    compact: { scale: 1, suffix: { "en-US": " weeks", "pt-BR": " semanas" } },
   } satisfies Claim,
 
   monthCloseBeforeDays: {
@@ -201,6 +248,7 @@ export const CAREER_CLAIMS = {
       "en-US": "month-end close before automation",
       "pt-BR": "fechamento mensal antes da automação",
     },
+    compact: { scale: 1, suffix: { "en-US": " days", "pt-BR": " dias" } },
   } satisfies Claim,
 
   monthCloseAfterDays: {
@@ -210,6 +258,7 @@ export const CAREER_CLAIMS = {
       "en-US": "month-end close after automation",
       "pt-BR": "fechamento mensal após a automação",
     },
+    compact: { scale: 1, suffix: { "en-US": " days", "pt-BR": " dias" } },
   } satisfies Claim,
 } as const satisfies Record<string, Claim>;
 
@@ -245,43 +294,25 @@ export function formatClaimValue(value: number, locale: Locale): string {
   }).format(value);
 }
 
-/** The claim's number with its unit, e.g. `R$ 24M/yr` or `6 years`. */
+/**
+ * The claim as a reader should see it in a headline.
+ *
+ * Scaled from `value` and suffixed from `compact`, so the short form is a
+ * *rendering* of the figure rather than a second figure typed somewhere else.
+ * `R$ 24,000,000/yr` is the same claim as `R$ 24M/yr`; rendering the long one in
+ * the hero is what made it unreadable, not a change to what is being claimed.
+ */
 export function formatClaimWithUnit(id: CareerClaimId, locale: Locale): string {
-  const claim = CAREER_CLAIMS[id] as {
-    value: number;
-    unit: ClaimUnit;
-  };
-  const number = formatClaimValue(claim.value, locale);
+  const claim: Claim = CAREER_CLAIMS[id];
+  const scaled = claim.value / claim.compact.scale;
+  const digits = formatClaimValue(scaled, locale);
 
-  switch (claim.unit) {
-    case "brl-per-year":
-      return `R$ ${number}/yr`;
-    case "messages-per-day":
-      return `${number} msgs/day`;
-    case "duration":
-      return `${number}`;
-    case "percent":
-      return `${number}%`;
-    case "multiplier":
-      return `${number}x`;
-    case "years":
-      return `${number} ${locale === "en-US" ? "yrs" : "anos"}`;
-    case "people":
-      return `${number}`;
-    case "days":
-      return `${number} ${locale === "en-US" ? "days" : "dias"}`;
-    case "weeks":
-      return `${number} ${locale === "en-US" ? "weeks" : "semanas"}`;
-  }
+  return `${claim.compact.prefix?.[locale] ?? ""}${digits}${claim.compact.suffix[locale]}`;
 }
 
 /** The claim resolved for a locale, ready to render. */
 export function getClaim(id: CareerClaimId, locale: Locale): LocalizedClaim {
-  const claim = CAREER_CLAIMS[id] as {
-    value: number;
-    unit: ClaimUnit;
-    scope: Record<Locale, string>;
-  };
+  const claim: Claim = CAREER_CLAIMS[id];
 
   return {
     id,
