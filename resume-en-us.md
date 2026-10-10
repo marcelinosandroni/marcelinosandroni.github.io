@@ -6,7 +6,7 @@ Senior Software Engineer
 
 EXECUTIVE SUMMARY
 
-Senior Full Stack Software Engineer with the strategic advantage of combining cutting-edge engineering with 15 years of solid experience in business and accounting. Expert in translating complex corporate financial rules into scalable web architectures and high-volume distributed systems. I work end-to-end (Backend, Frontend, Mobile, and DevOps) to build robust products that maximize financial profitability, scale with the company, and solve real operational pain points without system disruption. Acting as a technical reference, I combine technical rigor, mentoring, and the use of Artificial Intelligence to accelerate deliveries with clean and sustainable code.
+Senior Full Stack Software Engineer and Tech Lead with 6 years of software engineering (2021–2026), on top of 15 years of corporate financial governance (2005–2020). Expert in translating complex corporate financial rules into scalable web architectures and high-volume distributed systems. I work end-to-end (Backend, Frontend, Mobile, and DevOps) to build robust products that maximize financial profitability, scale with the company, and solve real operational pain points without system disruption. Measured results: R$ 24M/year in contract value rescued from cancellation, 100M telemetry events/day ingested, deploy time cut from 4h to 15min. Acting as a technical reference, I combine technical rigor, mentoring, and the use of Artificial Intelligence to accelerate deliveries with clean and sustainable code.
 
 CORE SKILLS & SOFTWARE ARCHITECTURE
 
@@ -24,19 +24,19 @@ Security & Testing: TDD, Cypress, Playwright, K6. OAuth 2.0 (PKCE), OIDC, JWT, X
 
 PROFESSIONAL EXPERIENCE
 
-DGT Tecnologia | Senior Software Engineer
+DGT Tecnologia | Senior Software Engineer & Tech Lead
 Jan/2026 – Present
 
-Modernized legacy systems and orchestrated high-volume microservices in C# (.NET), Go, and Node.js with CQRS and Event-Driven architecture.
+Modernized legacy systems and orchestrated high-volume microservices in C# (.NET), Go, and Node.js with CQRS and Event-Driven architecture, ingesting 100 million telemetry events per day.
 
-Architected RabbitMQ messaging (Topic Exchanges), Circuit Breaker, and DLQs for 10 million messages/day.
+Architected RabbitMQ messaging (Topic Exchanges), Circuit Breaker, and DLQs for the 10 million messages/day carried by the broker layer.
 
-Spearheaded DevOps/SRE culture, zero-downtime CI/CD, Kubernetes with Helm/HPA, and IaC using Terraform.
+Spearheaded DevOps/SRE culture, zero-downtime CI/CD, Kubernetes with Helm/HPA, and IaC using Terraform — deploy time from 4h to 15min.
 
 Developed reactive architectures in Angular and React Native with Micro-frontends and Core Web Vitals optimization.
 
-Antlia | Senior Software Engineer
-Dec/2022 – Dec/2025
+Antlia | Tech Lead & Strategic Consultant
+Jul/2024 – Dec/2025
 
 Led web development for the financial sector in Angular, React, and Next.js with complex state management.
 
@@ -44,14 +44,16 @@ Designed DDD microservices in Java (Spring Boot) and C# (.NET Core) ensuring ACI
 
 Provisioned cloud infrastructure (AWS/Azure) via Terraform, optimizing costs and secure networks.
 
-Banco Itaú | Software Engineer
+Banco Itaú | Full Software Engineer & Tech Lead
 Mar/2022 – Nov/2022
+
+Built the asset-management platform operating on +R$ 100 billion in custody, integrated with B3.
 
 Drove the adoption of Clean Code and TDD, increasing test coverage and mitigating security vulnerabilities.
 
 Developed highly available microservices in C# and Java integrated with message brokers.
 
-Pollux Technologies | Software Engineer
+Pollux Technologies | Full Software Engineer (Promoted in 3 months)
 Jun/2021 – Jan/2022
 
 Architected microservices and serverless applications in TypeScript (NestJS), exposing RESTful and GraphQL APIs.
