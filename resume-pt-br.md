@@ -6,7 +6,7 @@ Engenheiro de Software Sênior
 
 RESUMO EXECUTIVO
 
-Engenheiro de Software Sênior Full Stack com o diferencial estratégico de unir engenharia de ponta a 15 anos de sólida experiência em negócios e contabilidade. Especialista em traduzir regras corporativas financeiras complexas em arquiteturas web escaláveis e sistemas distribuídos de alta volumetria. Atuo de ponta a ponta (Backend, Frontend, Mobile e DevOps) para construir produtos robustos que maximizam a rentabilidade financeira, escalam junto com a empresa e resolvem dores reais da operação sem quebrar o sistema. Atuo como referência técnica, combinando rigor metodológico, mentoria e uso de Inteligência Artificial para acelerar entregas com código limpo e sustentável.
+Engenheiro de Software Sênior e Tech Lead com 6 anos de engenharia de software (2021–2026), somados a 15 anos de governança financeira corporativa (2005–2020). Especialista em traduzir regras corporativas financeiras complexas em arquiteturas web escaláveis e sistemas distribuídos de alta volumetria. Atuo de ponta a ponta (Backend, Frontend, Mobile e DevOps) para construir produtos robustos que maximizam a rentabilidade financeira, escalam junto com a empresa e resolvem dores reais da operação sem quebrar o sistema. Resultados medidos: R$ 24 milhões/ano em valor de contrato resgatado do cancelamento, 100 milhões de eventos de telemetria/dia ingeridos, tempo de deploy reduzido de 4h para 15min. Atuo como referência técnica, combinando rigor metodológico, mentoria e uso de Inteligência Artificial para acelerar entregas com código limpo e sustentável.
 
 CORE SKILLS & ARQUITETURA DE SOFTWARE
 
@@ -24,19 +24,19 @@ Segurança & Testes: TDD, Cypress, Playwright, K6. OAuth 2.0 (PKCE), OIDC, JWT, 
 
 EXPERIÊNCIA PROFISSIONAL
 
-DGT Tecnologia | Engenheiro de Software Sênior
+DGT Tecnologia | Engenheiro de Software Sênior & Tech Lead
 Jan/2026 – Presente
 
-Modernizou sistemas legados e orquestrou microsserviços de alta volumetria em C# (.NET), Go e Node.js com CQRS e Event-Driven.
+Modernizou sistemas legados e orquestrou microsserviços de alta volumetria em C# (.NET), Go e Node.js com CQRS e Event-Driven, ingerindo 100 milhões de eventos de telemetria por dia.
 
-Arquitetou mensageria RabbitMQ (Topic Exchanges), Circuit Breaker e DLQs para 10 milhões de msgs/dia.
+Arquitetou mensageria RabbitMQ (Topic Exchanges), Circuit Breaker e DLQs para os 10 milhões de msgs/dia carregados pela camada de broker.
 
-Liderou cultura DevOps/SRE, CI/CD zero-downtime, Kubernetes com Helm/HPA, e IaC com Terraform.
+Liderou cultura DevOps/SRE, CI/CD zero-downtime, Kubernetes com Helm/HPA, e IaC com Terraform — tempo de deploy de 4h para 15min.
 
 Desenvolveu arquiteturas reativas em Angular e React Native com Micro-frontends e otimização de Core Web Vitals.
 
-Antlia | Engenheiro de Software Sênior
-Dez/2022 – Dez/2025
+Antlia | Tech Lead & Consultor Estratégico
+Jul/2024 – Dez/2025
 
 Liderou desenvolvimento web para o setor financeiro em Angular, React e Next.js com gestão de estado complexa.
 
@@ -44,14 +44,16 @@ Concebeu microsserviços DDD em Java (Spring Boot) e C# (.NET Core) garantindo t
 
 Provisionou infraestrutura cloud (AWS/Azure) via Terraform, otimizando custos e redes seguras.
 
-Banco Itaú | Engenheiro de Software Pleno
+Banco Itaú | Engenheiro de Software Pleno & Tech Lead
 Mar/2022 – Nov/2022
 
-Conduziu adoção de Clean Code e TDD, elevando cobertura de testes e mitigando vulnerabilidades.
+Construí a plataforma de gestão de ativos que opera +R$ 100 bilhões em custódia, com integração B3.
+
+Conduzi adoção de Clean Code e TDD, elevando cobertura de testes e mitigando vulnerabilidades.
 
 Desenvolveu microsserviços altamente disponíveis em C# e Java integrados a brokers de mensagens.
 
-Pollux Technologies | Engenheiro de Software Pleno
+Pollux Technologies | Engenheiro de Software Pleno (Promovido em 3 meses)
 Jun/2021 – Jan/2022
 
 Arquitetou microsserviços e aplicações serverless em TypeScript (NestJS), expondo APIs RESTful e GraphQL.
