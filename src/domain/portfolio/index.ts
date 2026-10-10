@@ -26,6 +26,8 @@ export type {
   HomeHero,
   HomeKpi,
   HomeKpiSection,
+  HomeLeadershipPoint,
+  HomeLeadershipSection,
   HomePortrait,
   HomeSectionHeader,
   HomeStackCluster,

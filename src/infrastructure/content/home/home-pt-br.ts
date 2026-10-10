@@ -25,18 +25,18 @@ export const homeContentPtBR: HomeContent = {
   locale: "pt-BR",
 
   hero: {
-    statusPill: "Disponível para liderança fracionada e consultoria",
+    statusPill: "Aberto a vagas de engenharia sênior e tech lead",
     name: "Marcelino Sandroni Dias",
     headlineLead: "Engenharia de software com",
     headlineAccent: "impacto em R$",
     headlineTail: "e em escala.",
     role: "Engenheiro de Software Sênior & Tech Lead",
     narrative:
-      "15 anos de governança financeira corporativa (2005–2020) somados a 6 anos de engenharia de software (2021–2026): 21 anos de expertise combinada. Atuação de ponta a ponta em arquitetura, backend, frontend, mobile e DevOps, com resultados medidos de R$ 24 milhões/ano em contratos protegidos, 100 milhões de mensagens processadas por dia e ganho de 10x em performance.",
+      "Seis anos escrevendo software (2021–2026), somados a quinze anos de governança financeira corporativa (2005–2020). Atuação de ponta a ponta em arquitetura, backend, frontend e DevOps — Go, sistemas distribuídos, ClickHouse, Kafka e Kubernetes em escala fintech — e lidero os times que entregam isso. A base em contabilidade não é um desvio: é o que me permite precificar custo de computação e risco operacional como passivo de balanço, em vez de estimar.",
     metaDescription:
-      "Currículo vivo de Marcelino Sandroni Dias: 21 anos de expertise combinada entre governança financeira e engenharia de software — R$ 24M/ano e 100M msgs/dia de impacto medido.",
+      "Engenheiro de Software Sênior e Tech Lead: Go, sistemas distribuídos, ClickHouse e Kafka em escala fintech. R$ 24M/ano em contrato resgatado, 100M eventos de telemetria/dia, deploy de 4h para 15min.",
     primaryAction: {
-      label: "Agendar uma conversa",
+      label: "Fale comigo",
       href: "#contact",
       icon: "calendar",
     },
@@ -44,7 +44,12 @@ export const homeContentPtBR: HomeContent = {
       label: "Ver a trajetória",
       href: "#experience",
     },
-    availability: "Disponível para liderança fracionada, consultoria de arquitetura e mentoria",
+    availability: "Disponível para vagas de engenheiro sênior e tech lead",
+    proof: [
+      { id: "contractValueSaved", label: "Receita protegida" },
+      { id: "messagesPerDay", label: "Escala operada" },
+      { id: "deployAfterMinutes", label: "Deploy, de 4h" },
+    ],
     channels: [
       {
         id: "github",
@@ -271,6 +276,63 @@ export const homeContentPtBR: HomeContent = {
           "Sistemas de Gestão ERP",
         ],
         teamLine: "BACHARELADO EM CIÊNCIAS CONTÁBEIS // 20+ PESSOAS REALOCADAS",
+      },
+    ],
+  },
+
+  /**
+   * Como eu lidero.
+   *
+   * A trajetória acima é densa em entregas: 24 estudos de caso, 96 métricas, e
+   * quase nada sobre como um time é conduzido na prática. É a lacuna que quem
+   * contrata um tech lead vem ler aqui — o que a pessoa faz no primeiro dia, em
+   * uma revisão de código, quando o prazo está em risco.
+   *
+   * Cada linha de `evidence` aqui é rastreável a um estudo de caso que já está
+   * no currículo. Nada nesta seção é uma afirmação que não seja feita em outro
+   * lugar com o detalhe que a sustenta.
+   */
+  leadership: {
+    id: "leadership",
+    kicker: "// COMO EU LIDO",
+    title: "A parte que não é projeto",
+    note: "Um tech lead é avaliado por decisões e pessoas, não por commits. Estas são as decisões e as pessoas, com o que resulted delas.",
+    items: [
+      {
+        id: "crisis",
+        title: "Crise primeiro",
+        practice:
+          "Um problema em produção é um problema de priorização antes de ser um problema técnico. Mapeio os defeitos, ranqueio por impacto no negócio e coloco o time no caminho crítico em horas.",
+        evidence:
+          "Assumi um contrato público que estava a semanas do cancelamento, mapeei 47 defeitos críticos em 48 horas e entreguei hotfixes diários em produção até fechar a lacuna de assertividade.",
+        icon: "bolt",
+      },
+      {
+        id: "decisions",
+        title: "Decisão documentada",
+        practice:
+          "Arquitetura passa por pull request e por justificativa escrita, não por acordo de corredor. Quando viro a sala, escrevo o porquê, para que a próxima pessoa discuta o motivo em vez do resultado.",
+        evidence:
+          "Decom um monolito em 12 microsserviços em Go e .NET com armazenamento colunar atrás, e a divisão virou o padrão de referência que outros times adotaram.",
+        icon: "shield",
+      },
+      {
+        id: "reuse",
+        title: "Sair com o time mais rápido do que chegou",
+        practice:
+          "O que foi resolvido duas vezes é escrito uma vez. Bibliotecas compartilhadas, design system e documentação real de onboarding são como um time deixa de ser a memória de uma pessoa só.",
+        evidence:
+          "Onboarding foi de 3 meses para 3 semanas, features novas 40% mais rápidas, e 50+ componentes compartilhados em 15+ projetos.",
+        icon: "devices",
+      },
+      {
+        id: "commercial",
+        title: "Traduzir para a sala que paga",
+        practice:
+          "Defendo uma decisão de custo na linguagem do balanço, e não só na linguagem do código. Quinze anos de governança financeira é o que torna isso hábito, e não tradução.",
+        evidence:
+          "Uma migração para armazenamento colunar levou uma consulta de dashboard de 30s para 200ms e cortou 70% da carga de infraestrutura — reportado à liderança como tempo e armazenamento, não como benchmark.",
+        icon: "verified",
       },
     ],
   },

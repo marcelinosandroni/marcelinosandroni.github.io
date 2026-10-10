@@ -109,6 +109,8 @@ export const enUS = {
     liveResume: "Live Resume · v{version} · Updated {period}",
     note: "Engineering connecting distributed systems, product and financial outcomes.",
     backToOverview: "Back to overview",
+    /** Accessible name for the band of measured results under the role line. */
+    proofLabel: "Measured results",
   },
   signal: {
     available: "Available for opportunities",

@@ -23,18 +23,18 @@ export const homeContentEnUS: HomeContent = {
   locale: "en-US",
 
   hero: {
-    statusPill: "Available for fractional leadership and consulting",
+    statusPill: "Open to senior engineering and tech lead roles",
     name: "Marcelino Sandroni Dias",
     headlineLead: "Software engineering that moves",
     headlineAccent: "revenue and",
     headlineTail: "scale.",
     role: "Senior Software Engineer & Tech Lead",
     narrative:
-      "15 years of corporate financial governance (2005–2020) plus 6 years of software engineering (2021–2026): 21 years of combined expertise. Working end to end across architecture, backend, frontend, mobile and DevOps, with measured results of R$ 24 million/year in protected contracts, 100 million messages processed per day and 10x throughput gains.",
+      "Six years writing software (2021–2026), on top of fifteen years in corporate financial governance (2005–2020). I work end to end across architecture, backend, frontend and DevOps — Go, distributed systems, ClickHouse, Kafka and Kubernetes at fintech scale — and I lead the teams that ship it. The accounting background is not a detour: it is why I can price compute cost and operational risk as a balance-sheet liability instead of guessing.",
     metaDescription:
-      "Living resume of Marcelino Sandroni Dias: 21 years of combined expertise across financial governance and software engineering — R$ 24M/year and 100M msgs/day of measured impact.",
+      "Senior Software Engineer and Tech Lead: Go, distributed systems, ClickHouse and Kafka at fintech scale. R$ 24M/year in contract value rescued, 100M telemetry events/day, deploys cut from 4h to 15min.",
     primaryAction: {
-      label: "Schedule a conversation",
+      label: "Get in touch",
       href: "#contact",
       icon: "calendar",
     },
@@ -42,7 +42,12 @@ export const homeContentEnUS: HomeContent = {
       label: "See the track record",
       href: "#experience",
     },
-    availability: "Available for fractional leadership, architecture consulting and mentoring",
+    availability: "Available for senior engineer and tech lead roles",
+    proof: [
+      { id: "contractValueSaved", label: "Revenue protected" },
+      { id: "messagesPerDay", label: "Scale handled" },
+      { id: "deployAfterMinutes", label: "Deploy, from 4h" },
+    ],
     channels: [
       {
         id: "github",
@@ -269,6 +274,63 @@ export const homeContentEnUS: HomeContent = {
           "ERP Management Systems",
         ],
         teamLine: "BSC IN ACCOUNTING // 20+ PEOPLE REALLOCATED",
+      },
+    ],
+  },
+
+  /**
+   * How I lead.
+   *
+   * The track record above is achievement-dense: 24 case studies, 96 metrics, and
+   * almost nothing about how a team is actually run. That is the gap a hiring
+   * manager for a tech lead reads this section to close — what does he do on the
+   * first day, in a code review, when a deadline is at risk.
+   *
+   * Every `evidence` line here is traceable to a case study already on the resume.
+   * Nothing in this section is a claim that is not made somewhere else with the
+   * detail to support it.
+   */
+  leadership: {
+    id: "leadership",
+    kicker: "// HOW I LEAD",
+    title: "The part that is not a project",
+    note: "A tech lead is judged on decisions and people, not on commits. These are the decisions and the people, with what came out of them.",
+    items: [
+      {
+        id: "crisis",
+        title: "Crises, first",
+        practice:
+          "A production problem is a prioritization problem before it is a technical one. I map the defects, rank them by business impact, and put the team on the critical path within hours.",
+        evidence:
+          "Took over a public-sector contract that was weeks from cancellation, mapped 47 critical defects in 48 hours, and shipped daily hotfixes to production until the accuracy gap closed.",
+        icon: "bolt",
+      },
+      {
+        id: "decisions",
+        title: "Decisions in the open",
+        practice:
+          "Architecture goes through pull requests and written rationale, not hallway agreement. When I overrule the room I write down why, so the next person can disagree with the reason instead of the outcome.",
+        evidence:
+          "Moved a monolith onto 12 Go and .NET services with a columnar store behind it, and the split became the reference pattern other teams adopted.",
+        icon: "shield",
+      },
+      {
+        id: "reuse",
+        title: "Leave the team faster than you found it",
+        practice:
+          "Anything solved twice gets written down once. Shared libraries, a design system and real onboarding docs are how a team stops being one person's memory.",
+        evidence:
+          "Onboarding went from 3 months to 3 weeks, new features 40% faster, and 50+ shared components across 15+ projects.",
+        icon: "devices",
+      },
+      {
+        id: "commercial",
+        title: "Translate for the room that pays",
+        practice:
+          "I can defend a cost decision in the language of the balance sheet, not only in the language of the codebase. Fifteen years of financial governance is what makes that a habit rather than a translation.",
+        evidence:
+          "A MySQL columnar migration turned a 30s dashboard query into 200ms and cut infrastructure load 70% — reported to leadership as time and storage, not as a benchmark.",
+        icon: "verified",
       },
     ],
   },
