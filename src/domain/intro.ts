@@ -17,6 +17,10 @@
  *   locking    → the rain condenses and resolves into the name
  *   enter      → the curtain rises and the site is already there
  *
+ * `connecting` is now two hundred milliseconds rather than a beat of its own. It
+ * is no longer a phase the name waits for: the columns start falling on the first
+ * frame, and this is only the brief flash of rain before the first letter lands.
+ *
  * The name is the whole point. There is no photograph in this sequence any more,
  * and that is not a simplification: an arrival that ends on a face makes the reader
  * look twice, and the second look is a photograph they have now seen twice. An
@@ -43,26 +47,30 @@ export type IntroPhaseStep = {
 /**
  * The beats, in order, with their durations.
  *
- * Three numbers, and each one is a negotiation:
+ * Three seconds end to end, and that number is the whole point. The sequence used
+ * to run 6.7s, which is a long time to look at rain before finding out what the
+ * site is — and the reader who gives up during it is a recruiter who opened the
+ * link between two meetings.
  *
- *  - `connecting` is long enough for the terminal log to be read in a glance and
- *    short enough that nobody is still waiting during it. It was three seconds
- *    when the sequence also had a door and a portrait to get through; there is
- *    less to say now, so it is shorter.
+ *  - `connecting` is 200ms: long enough for the rain to be on screen, far too
+ *    short to read the log it used to carry. The name does not wait for it.
  *  - `locking` has to outlast the *last* column landing, not the average one.
  *    `MatrixName` staggers left to right with jitter, so the last letter arrives
- *    at roughly 2.35s — the beat is 2.6s, which leaves the name alone on screen
- *    for a fifth of a second before it leaves. Shortening this beat without
- *    shortening the stagger would cut the last letters off mid-fall.
- *  - `enter` is the longest of the three because it does two things: it holds the
- *    finished name for 300ms so it can be read, and then it spends 1.15s rising.
- *    The hold is the difference between a name that resolves and a name that
- *    flashes past.
+ *    at roughly 1.5s — the beat is 1.7s, leaving the finished name alone for a
+ *    fifth of a second before it leaves.
+ *  - `enter` holds the name briefly, then rises. It is the hand-off: the site
+ *    arriving is the thing the reader is waiting for, and a curtain that cuts away
+ *    instantly reads as a glitch rather than an arrival. It is the shortest beat
+ *    now, because the rise itself is what the reader is waiting through and it was
+ *    spending longer on the transition than on the thing being transitioned to.
+ *
+ * `tests/unit/domain/intro.test.ts` asserts the total stays under 3.5s, so the
+ * budget cannot quietly grow back into an obstacle.
  */
 export const INTRO_PHASES: readonly IntroPhaseStep[] = [
-  { phase: "connecting", durationMs: 2_400 },
-  { phase: "locking", durationMs: 2_600 },
-  { phase: "enter", durationMs: 1_700 },
+  { phase: "connecting", durationMs: 200 },
+  { phase: "locking", durationMs: 1_700 },
+  { phase: "enter", durationMs: 1_100 },
 ];
 
 /** Everything the intro costs in total, for a test to assert against. */

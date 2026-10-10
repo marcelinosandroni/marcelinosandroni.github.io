@@ -68,7 +68,7 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
         something the reader has just watched appear — see `first-visit-intro.tsx`
         for why that was worth removing rather than animating harder.
       */}
-      <FirstVisitIntro name={SITE_OWNER.introName} logLines={BOOT_DIAGNOSTICS[locale]} />
+      <FirstVisitIntro name={SITE_OWNER.introName} />
 
       <SiteHeader locale={locale} t={t} sections={sections} />
 
@@ -113,30 +113,3 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
     </>
   );
 }
-
-/**
- * Terminal lines for the boot sequence. Data, not markup, so the copy is
- * translatable and reviewable in the same place as every other string.
- *
- * Every line is a checkable fact drawn from the resume — no codenames, no
- * theatrical jargon, and the arithmetic is stated outright because it is the
- * single most useful thing a reader can learn in the first second.
- */
-const BOOT_DIAGNOSTICS = {
-  "en-US": [
-    "> Loading profile and portfolio...",
-    "> 15 yrs financial governance (2005-2020) + 6 yrs software engineering (2021-2026)",
-    "> Combined: 21 years of applied expertise",
-    "> Platform: Go / .NET / Java / Kafka / Kubernetes / AWS",
-    "> Protected revenue R$ 24M per year · 100M messages per day",
-    "> READY. AWAITING INSTRUCTION...",
-  ],
-  "pt-BR": [
-    "> Carregando perfil e portfólio...",
-    "> 15 anos de governança financeira (2005-2020) + 6 anos de engenharia (2021-2026)",
-    "> Combinado: 21 anos de expertise aplicada",
-    "> Plataforma: Go / .NET / Java / Kafka / Kubernetes / AWS",
-    "> Receita protegida de R$ 24M por ano · 100M de mensagens por dia",
-    "> PRONTO. AGUARDANDO INSTRUÇÃO...",
-  ],
-} as const satisfies Record<Locale, string[]>;
