@@ -2,7 +2,7 @@ MARCELINO SANDRONI DIAS
 
 Engenheiro de Software Sênior
 
-📍 Fortaleza, CE (Remoto) | 📱 +55 11 91446-1993 | ✉️ marcelino.sandroni@gmail.com | 🔗 linkedin.com/in/marcelinosandroni
+📍 Fortaleza, CE (Remoto) | 📱 +55 11 91446-1993 | ✉️ marcelino@marcelinosandroni.com | 🔗 linkedin.com/in/marcelinosandroni
 
 RESUMO EXECUTIVO
 

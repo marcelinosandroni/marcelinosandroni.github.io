@@ -22,7 +22,7 @@ describe("PdfKitPDFCompiler", () => {
 \begin{center}
 {\fontsize{24}{26}\selectfont\bfseries Marcelino Sandroni Dias}\\[3pt]
 {\fontsize{13}{15}\selectfont Engenheiro de Software Senior}\\[4pt]
-{\small Fortaleza, CE (Remoto) \textbar{} +55 11 91446-1993 \textbar{} marcelino.sandroni@gmail.com}
+{\small Fortaleza, CE (Remoto) \textbar{} +55 11 91446-1993 \textbar{} marcelino@marcelinosandroni.com}
 \end{center}
 \end{document}`;
 

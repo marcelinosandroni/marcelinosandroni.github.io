@@ -15,7 +15,7 @@ const sampleContent = {
   location: "Fortaleza, CE",
   contact: {
     phone: "+55 11 91446-1993",
-    email: "marcelino.sandroni@gmail.com",
+    email: "marcelino@marcelinosandroni.com",
     linkedin: "linkedin.com/in/marcelinosandroni",
   },
   summary: "Engenheiro Full Stack com 15 anos de experiência",

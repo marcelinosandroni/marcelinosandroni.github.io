@@ -1,5 +1,16 @@
 import { expect, test } from "@playwright/test";
 
+import { SITE_OWNER } from "../../src/domain/site/site-info";
+
+/**
+ * The address this page is expected to render.
+ *
+ * Read from the site identity rather than typed, because the address changed once
+ * already and every literal in this file had to be found by hand. Reading the
+ * constant means the next change is one edit here rather than a search.
+ */
+const OWNER_EMAIL = SITE_OWNER.email;
+
 /**
  * Marks this reader as someone who has already been here, so the first-visit
  * arrival does not run.
@@ -137,9 +148,9 @@ test.describe("Home executive overview", () => {
   test("exposes a contact channel and a brief launcher", async ({ page }) => {
     await page.goto("/en-us");
 
-    await expect(page.locator("#contact")).toContainText("marcelino.sandroni@gmail.com");
+    await expect(page.locator("#contact")).toContainText(OWNER_EMAIL);
     await expect(
-      page.locator('#contact a[href^="mailto:marcelino.sandroni@gmail.com?subject="]'),
+      page.locator('#contact a[href^="mailto:${OWNER_EMAIL}?subject="]'),
     ).toHaveCount(1);
   });
 
@@ -164,7 +175,7 @@ test.describe("Home executive overview", () => {
 
     // Email still works: WhatsApp is added beside it, never instead of it.
     await expect(
-      page.locator('#contact a[href^="mailto:marcelino.sandroni@gmail.com?subject="]'),
+      page.locator('#contact a[href^="mailto:${OWNER_EMAIL}?subject="]'),
     ).toHaveCount(1);
   });
 
@@ -181,7 +192,7 @@ test.describe("Home executive overview", () => {
     // carries the direct channel beside the email.
     await page.goto("/en-us/resume");
     await expect(page.locator(waLink)).toHaveCount(1);
-    await expect(page.locator("footer")).toContainText("marcelino.sandroni@gmail.com");
+    await expect(page.locator("footer")).toContainText(OWNER_EMAIL);
   });
 
   test("teases all four articles on the home route, newest first", async ({ page }) => {
