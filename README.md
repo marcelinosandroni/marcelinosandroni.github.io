@@ -4,7 +4,7 @@
 
 **Senior Software Engineer · Tech Lead**
 
-Building systems that survive production — and the teams that run them.
+Go, distributed systems and data platforms at fintech scale. Open to senior engineering and tech lead roles.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-000?logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript)](https://www.typescriptlang.org)
@@ -18,17 +18,19 @@ Building systems that survive production — and the teams that run them.
 
 ## The short version
 
-I am a senior engineer and tech lead with **15 years in corporate financial governance and 6 writing software** — 21 years of learning that most technical decisions are balance-sheet decisions wearing a technical costume.
+I write software. I have been doing it for six years (2021–2026), before which I spent fifteen years in corporate financial governance (2005–2020). Both matter: the second one is why I can price compute cost and operational risk as a balance-sheet liability instead of estimating them, which is the habit this repository is really about.
 
-That is the thesis of this repository. Everything below is either a claim I can point at in the code, or a number I can defend.
+Everything below is either a claim I can point at in the code, or a number I can defend.
 
 | | |
 |---|---|
-| **Protected revenue** | R$ 24M/year — a government contract rescued from cancellation |
-| **Throughput** | 100M messages/day, p99 ingest under 10ms |
-| **Migration** | RDS → ClickHouse, 30s dashboards → 190ms, −88% storage |
+| **Contract value protected** | R$ 24M/year — a government contract rescued from cancellation |
+| **Scale operated** | 100M telemetry events/day ingested, p99 under 10ms |
+| **Migration** | MySQL → ClickHouse, 30s dashboards → 200ms, −70% database load |
 | **Uptime lifted** | 95% → 100% on a settlement system |
 | **Delivery** | 4h → 15min deploys, 1/week → 4/day releases |
+
+> The headline figures live in `src/domain/portfolio/claims.ts`, once, with the scope that makes each one defensible. The site, the resume and the PDF all resolve them from there — `tests/unit/portfolio/claims-parity.test.ts` fails if any surface quotes a different number.
 
 ---
 
@@ -41,6 +43,18 @@ Three things make it useful as evidence rather than decoration:
 1. **It is real.** Running, deployed, and instrumented. The telemetry bar at the bottom of the page reports the load timings of *your* visit, measured by your browser.
 2. **It is multilingual by construction.** PT-BR and EN-US are separate statically generated documents with their own URLs, `hreflang`, `openGraph:locale` and structured data. Not a translate button.
 3. **It refuses to lie.** Several features in here were built specifically to *not* make claims. I will point them out below, because a portfolio that overstates is worth nothing to a reviewer who checks.
+4. **One number, one place.** The headline figures are defined once in `src/domain/portfolio/claims.ts` and resolved by every surface. A test fails the build if the site, the resume and the exported PDF ever disagree about one — which is how this repository caught itself describing the same system as 100 million and 10 million messages a day.
+
+---
+
+## How I lead
+
+The technical work below is the easy half to demonstrate. This is the half a tech lead is actually hired for, and every line is traceable to a case study already on the resume:
+
+- **Crises first.** A production problem is a prioritisation problem before it is a technical one. I took over a public-sector contract weeks from cancellation, mapped 47 critical defects in 48 hours, and shipped daily hotfixes until the accuracy gap closed.
+- **Decisions in the open.** Architecture goes through pull requests and written rationale. The monolith → 12 Go and .NET services split with ClickHouse behind it became the reference pattern other teams adopted.
+- **Leave the team faster than you found it.** Shared libraries, a design system and real onboarding docs. Onboarding went from 3 months to 3 weeks, new features 40% faster, across 15+ projects.
+- **Translate for the room that pays.** I can defend a cost decision in the language of the balance sheet, not only the codebase. That is the fifteen years of financial governance, and it is why this repository documents the *rejected* alternatives rather than just the chosen one.
 
 ---
 
