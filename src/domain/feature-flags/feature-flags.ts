@@ -36,8 +36,8 @@
  * deliberate, and none of them is a state this function cannot represent.
  */
 
-/** The two features that can be switched on or off per environment. */
-export type FeatureFlagName = "whatsapp" | "resumeDownload";
+/** The features that can be switched on or off per environment. */
+export type FeatureFlagName = "whatsapp" | "resumeDownload" | "testimonials";
 
 /**
  * Environment variable names, spelled once.
@@ -66,6 +66,17 @@ export type FeatureFlagName = "whatsapp" | "resumeDownload";
 export const FEATURE_FLAG_VARIABLES = {
   whatsapp: "NEXT_PUBLIC_FEATURE_WHATSAPP",
   resumeDownload: "NEXT_PUBLIC_FEATURE_RESUME_DOWNLOAD",
+  /**
+   * Testimonials.
+   *
+   * Off by default for the same direction as the other two, but the reason is
+   * sharper: the table ships empty and this site does not invent a reference. A
+   * testimonial is a named person saying something true about working with the
+   * owner, so the flag being on does not make the section appear — it allows it
+   * to appear for quotes the owner has actually entered. Turning it on before
+   * there is a quote to show changes nothing, which is the correct outcome.
+   */
+  testimonials: "NEXT_PUBLIC_FEATURE_TESTIMONIALS",
 } as const satisfies Record<FeatureFlagName, string>;
 
 /**
