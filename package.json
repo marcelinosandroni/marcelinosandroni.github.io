@@ -18,7 +18,14 @@
     "compile:pdf": "tsx scripts/compile-pdf.ts",
     "encode:portrait": "tsx scripts/encode-portrait-video.ts",
     "compile:pdf:watch": "node --watch scripts/compile-pdf.ts",
-    "generate:blog-seed": "tsx scripts/generate-blog-seed.ts"
+    "generate:blog-seed": "tsx scripts/generate-blog-seed.ts",
+    "db:up": "docker compose -f docker-compose.supabase.yml up -d",
+    "db:down": "docker compose -f docker-compose.supabase.yml down",
+    "db:reset": "docker compose -f docker-compose.supabase.yml down -v",
+    "db:keys": "tsx scripts/db-local-keys.ts",
+    "db:migrate": "tsx scripts/db-migrate.ts",
+    "db:seed": "tsx scripts/db-seed-resume.ts",
+    "db:setup": "npm run db:up && npm run db:keys && npm run db:migrate && npm run db:seed"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.9.0",
