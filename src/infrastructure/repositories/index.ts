@@ -2,6 +2,17 @@ import { createClient } from "@supabase/supabase-js";
 
 import { versionedArticleRepository } from "@/infrastructure/content/blog";
 import { FallbackArticleRepository, GetArticle, ListArticles } from "@/application/blog";
+import type { Locale } from "@/domain/i18n";
+import type {
+  ResumeRepository,
+  ResumeSurfaceRead,
+  ResumeTestimonial,
+} from "@/domain/resume/resume-repository";
+import type { ResumeContent } from "@/domain/resume/types";
+import {
+  FallbackResumeRepository,
+  versionedResumeRepository,
+} from "@/infrastructure/repositories/versioned-resume-repository";
 import {
   isSupabaseContentConfigured,
   supabaseConfigFromEnv,
@@ -109,6 +120,76 @@ async function resolveRepository(): Promise<ArticleRepository> {
   }
 
   return versionedArticleRepository;
+}
+
+/* -------------------------------------------------------------------------
+ * Composition root for résumé content
+ *
+ * The same arrangement as the blog, for the same reason: which of two answers
+ * a visitor gets is a question about *this deployment's* environment, and a
+ * page that had to answer it could only be tested against a real Supabase
+ * project.
+ *
+ * The breaker matters more here than it does for the blog. The blog is a
+ * side-channel; the résumé is the document of record, and a page view that
+ * waits on a database round trip is a page view that costs a recruiter. After
+ * one failure the catalog answers directly for `COOLDOWN_MS`, so an outage
+ * costs one slow request rather than one per visitor.
+ * ---------------------------------------------------------------------- */
+
+/** How long the versioned catalog answers directly after a database failure. */
+const RESUME_COOLDOWN_MS = 60_000;
+
+let resumeRepositoryPromise: Promise<ResumeRepository> | null = null;
+let resumeOpenedUntil = 0;
+
+async function buildResumeRepository(): Promise<ResumeRepository> {
+  if (!isSupabaseContentConfigured()) {
+    return versionedResumeRepository;
+  }
+
+  const { SupabaseResumeRepository } = await import(
+    "@/infrastructure/repositories/supabase-resume-repository"
+  );
+
+  return new FallbackResumeRepository(
+    new SupabaseResumeRepository(),
+    versionedResumeRepository,
+    (error) => {
+      resumeOpenedUntil = Date.now() + RESUME_COOLDOWN_MS;
+      console.warn(
+        `[resume] Supabase unavailable for ${RESUME_COOLDOWN_MS / 1000}s; serving the versioned catalog. Reason: ${error.message}`,
+      );
+    },
+  );
+}
+
+function getResumeRepository(): Promise<ResumeRepository> {
+  resumeRepositoryPromise ??= buildResumeRepository();
+  return resumeRepositoryPromise;
+}
+
+async function resolveResumeRepository(): Promise<ResumeRepository> {
+  const repository = await getResumeRepository();
+
+  if (repository === versionedResumeRepository || Date.now() >= resumeOpenedUntil) {
+    return repository;
+  }
+
+  return versionedResumeRepository;
+}
+
+/** The résumé as a page serves it. See `ResumeSurfaceRead`. */
+export async function readResume(
+  locale: Locale,
+  surface: ResumeSurfaceRead = "both",
+): Promise<ResumeContent> {
+  return (await resolveResumeRepository()).readResume(locale, surface);
+}
+
+/** Published testimonials, which is empty until the owner adds a real one. */
+export async function readTestimonials(locale: Locale): Promise<ResumeTestimonial[]> {
+  return (await resolveResumeRepository()).readTestimonials(locale);
 }
 
 /* -------------------------------------------------------------------------
