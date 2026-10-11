@@ -34,6 +34,26 @@ Everything below is either a claim I can point at in the code, or a number I can
 
 ---
 
+## Running it locally
+
+```bash
+npm install
+npm run dev
+```
+
+The site needs no database to run — résumé content falls back to the typed
+catalog when Postgres is unreachable. To work on the content itself:
+
+```bash
+npm run db:setup   # Postgres + PostgREST, keys, migrations, seed
+```
+
+That brings up a two-container stack rather than the full Supabase platform,
+because this site talks to Postgres over REST and nothing else. Full instructions
+in **[docs/local-database.md](docs/local-database.md)**.
+
+---
+
 ## Why this repo exists
 
 I wanted one project that a technical reviewer could actually evaluate, rather than a list of claims they had to take on faith. So this is a **production portfolio site** — the same code path, the same constraints, the same obsession with detail that I bring to a client codebase.
