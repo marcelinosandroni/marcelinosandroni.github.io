@@ -1,12 +1,17 @@
 import type { Locale } from "@/domain/i18n";
 import type {
+  HomeExperienceAnnotation,
+  HomeStackCluster,
+  HomeStackSection,
+} from "@/domain/portfolio";
+import type {
   ResumeRepository,
   ResumeSurfaceRead,
   ResumeTestimonial,
 } from "@/domain/resume/resume-repository";
-import type { CaseStudy, ResumeContent } from "@/domain/resume/types";
+import type { CaseStudy, ResumeContent, Surface } from "@/domain/resume/types";
 import { toSurfaces } from "@/domain/resume/types";
-import { getSupabaseClient } from "@/infrastructure/supabase/supabase-client";
+import { requireSupabaseReadConfig } from "@/infrastructure/supabase/server";
 
 /**
  * Per-request budget.
@@ -95,6 +100,82 @@ export class SupabaseResumeRepository implements ResumeRepository {
    * places for the rule to live, which is how a home page and a résumé end up
    * disagreeing about which roles exist.
    */
+
+  async readHomeStack(locale: Locale): Promise<HomeStackSection | null> {
+    const clusters = await this.manyOnSurface(
+      "tech_stack_cluster",
+      `locale=eq.${locale}&order=sort_order.asc`,
+      "home",
+    );
+
+    if (clusters.length === 0) {
+      return null;
+    }
+
+    const withItems = await Promise.all(
+      clusters.map(async (cluster) => ({
+        cluster,
+        items: await this.manyOnSurface(
+          "tech_stack_item",
+          `cluster_id=eq.${cluster["id"]}&locale=eq.${locale}&order=sort_order.asc`,
+          "home",
+        ),
+      })),
+    );
+
+    return {
+      id: "arsenal",
+      // The kicker, title and note stay with the page's own copy rather than
+      // the row: those are editorial, not facts, and the admin does not edit
+      // the sentence that introduces a section.
+      kicker: "",
+      title: "",
+      note: "",
+      clusters: withItems.map(({ cluster, items }) => ({
+        id: text(cluster["slug"]),
+        title: text(cluster["title"]),
+        description: text(cluster["description"]),
+        icon: text(cluster["icon"]) as HomeStackCluster["icon"],
+        accent: text(cluster["accent"]) as HomeStackCluster["accent"],
+        // A chip marked résumé-only is absent here, which is the whole reason
+        // `surfaces` exists on the item and not only on the cluster.
+        items: items.map((item) => text(item["label"])),
+      })),
+    };
+  }
+
+  async readHomeTrackRecord(locale: Locale): Promise<HomeExperienceAnnotation[] | null> {
+    const annotations = await this.manyOnSurface(
+      "track_record_annotation",
+      `locale=eq.${locale}&order=sort_order.asc`,
+      "home",
+    );
+
+    if (annotations.length === 0) {
+      return null;
+    }
+
+    return Promise.all(
+      annotations.map(async (annotation) => {
+        const blueprint = await this.many(
+          "track_record_blueprint",
+          `annotation_id=eq.${annotation["id"]}&locale=eq.${locale}&order=sort_order.asc`,
+        );
+
+        return {
+          company: text(annotation["company"]),
+          impact: {
+            label: text(annotation["impact_label"]),
+            value: text(annotation["impact_value"]),
+            accent: text(annotation["impact_accent"]) as HomeExperienceAnnotation["impact"]["accent"],
+          },
+          blueprintLabel: text(annotation["blueprint_label"]),
+          blueprint: blueprint.map((item) => text(item["label"])),
+          teamLine: text(annotation["team_line"]),
+        };
+      }),
+    );
+  }
   private filterToSurface(content: ResumeContent, surface: "home" | "resume"): ResumeContent {
     return {
       ...content,
@@ -158,22 +239,70 @@ export class SupabaseResumeRepository implements ResumeRepository {
     };
   }
 
+  /**
+   * Reads rows over PostgREST directly.
+   *
+   * `supabase-js` answers `PGRST125 Invalid path specified in request URL`
+   * against this PostgREST build for the filtered selects this repository needs,
+   * while the identical request via `fetch` returns 200. Measured, not
+   * assumed — the seeding script hit the same thing and the fallback path hid
+   * it here until a value in the database failed to appear on the page.
+   *
+   * So this speaks the HTTP API rather than the client. It is the same wire
+   * format; only the caller differs, and the alternative is an adapter that
+   * silently never reads the database.
+   */
   private async one(table: string, query: string): Promise<Row | null> {
-    const { data, error } = await this.withDeadline(
-      getSupabaseClient().from(table).select("*").match(queryParams(query)).limit(1),
-      `Failed to read ${table}`,
-    );
-
-    if (error) {
-      throw error;
-    }
-
-    return Array.isArray(data) && data.length > 0 ? (data[0] as Row) : null;
+    const rows = await this.read(table, queryParams(query), 1);
+    return rows[0] ?? null;
   }
 
-  private async many(table: string, query: string): Promise<Row[]> {
+  /**
+   * `order` and any extra `contains` filters are appended to the filter map
+   * rather than smuggled into `query`, so the surface filter is an explicit
+   * argument and not something a future edit has to notice inside a string.
+   */
+  private async many(table: string, query: string, ...extraFilters: string[]): Promise<Row[]> {
+    const params: Record<string, string> = {
+      ...queryParams(query),
+      ...Object.fromEntries(extraFilters.map((filter) => filter.split("="))),
+    };
+
+    return this.read(table, params);
+  }
+
+  private async read(
+    table: string,
+    filters: Record<string, string>,
+    limit?: number,
+  ): Promise<Row[]> {
+    const { publishableKey } = requireSupabaseReadConfig();
+
+    /*
+      `order` is the one filter that is not an equality match, so it is kept out
+      of the equality map and sent as its own query parameter.
+    */
+    const { order, ...equality } = filters;
+    const params = new URLSearchParams(equality);
+
+    if (order !== undefined) {
+      params.set("order", order);
+    }
+
+    if (limit !== undefined) {
+      params.set("limit", String(limit));
+    }
+
     const { data, error } = await this.withDeadline(
-      getSupabaseClient().from(table).select("*").match(queryParams(query)),
+      fetch(`${requireSupabaseReadConfig().url}/${table}?${params.toString()}`, {
+        headers: { apikey: publishableKey, Authorization: `Bearer ${publishableKey}` },
+      }).then(async (response) => {
+        if (!response.ok) {
+          return { data: null, error: new Error(`${response.status} ${await response.text()}`) };
+        }
+
+        return { data: (await response.json()) as unknown, error: null };
+      }),
       `Failed to read ${table}`,
     );
 
@@ -182,6 +311,31 @@ export class SupabaseResumeRepository implements ResumeRepository {
     }
 
     return Array.isArray(data) ? (data as Row[]) : [];
+  }
+
+  /**
+   * Reads rows and keeps only those visible on a surface.
+   *
+   * The membership test happens here rather than as a `contains` filter in the
+   * query. PostgREST answers `PGRST108 'contains' is not an embedded resource
+   * in this request` for a scalar enum array on the version this project pins —
+   * with `select=*`, with the column named, and with the filter in the URL — so
+   * the server-side form is simply unavailable here.
+   *
+   * Filtering in the adapter is also the honest place for it: the rule "an item
+   * appears on the home page if its surfaces say so" belongs with the code that
+   * reads the rows, not in a query string that a database upgrade can silently
+   * invalidate. The row counts here are a page's worth of chips, so there is
+   * nothing to gain from pushing it down.
+   */
+  private async manyOnSurface(
+    table: string,
+    query: string,
+    surface: Surface,
+  ): Promise<Row[]> {
+    const rows = await this.many(table, query);
+
+    return rows.filter((row) => toSurfaces(row["surfaces"] as string[] | null).includes(surface));
   }
 
   /** Bounds the wait. A stale résumé is better than a visitor with no page. */
@@ -252,14 +406,7 @@ function queryParams(query: string): Record<string, string> {
     const [rawKey, ...rest] = part.split("=");
     if (rawKey === undefined || rest.length === 0) continue;
 
-    const key = rawKey.trim();
-    const value = rest.join("=").trim();
-
-    // Ordering is expressed as `order=sort_order.asc`; `.match()` cannot carry
-    // it, so it is kept out of the filter map and applied by the caller.
-    if (key === "order") continue;
-
-    params[key] = value;
+    params[rawKey.trim()] = rest.join("=").trim();
   }
 
   return params;

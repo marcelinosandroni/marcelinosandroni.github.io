@@ -1,4 +1,8 @@
 import type { Locale } from "@/domain/i18n";
+import type {
+  HomeExperienceAnnotation,
+  HomeStackSection,
+} from "@/domain/portfolio";
 import type { ResumeContent } from "@/domain/resume/types";
 
 /**
@@ -40,6 +44,18 @@ export type ResumeRepository = {
   readResume(locale: Locale, surface: ResumeSurfaceRead): Promise<ResumeContent>;
   /** Published testimonials for a locale, in display order. */
   readTestimonials(locale: Locale): Promise<ResumeTestimonial[]>;
+  /**
+   * The home page tech stack, or `null` when the database has none.
+   *
+   * `null` rather than an empty section on purpose: "the database says this
+   * page has no stack" and "the database is not there" are different states, and
+   * only the second one should fall back to the typed catalog. An empty stack
+   * rendered from a successful read would be a page that silently lost its
+   * content.
+   */
+  readHomeStack(locale: Locale): Promise<HomeStackSection | null>;
+  /** The home page track-record annotations, or `null` when unavailable. */
+  readHomeTrackRecord(locale: Locale): Promise<HomeExperienceAnnotation[] | null>;
 };
 
 /** One named reference. See the `resume_testimonial` table for why it ships empty. */

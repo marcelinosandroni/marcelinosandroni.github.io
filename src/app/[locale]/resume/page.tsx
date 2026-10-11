@@ -8,10 +8,26 @@ import {
   toLocale,
   toOpenGraphLocale,
 } from "@/domain/i18n";
-import { getResumeContent } from "@/infrastructure/content";
+import { readResume } from "@/infrastructure/repositories";
 import { getDictionary } from "@/i18n";
 
 const SUFFIX = "/resume";
+
+/**
+ * Time-based revalidation, and the reason this page still counts as static.
+ *
+ * The document now comes from the database, so the page cannot be finished at
+ * build time or an admin edit would need a redeploy to appear. But reading it
+ * on every request is the other extreme: a page view spent waiting on a network
+ * round trip is a page view that costs a recruiter.
+ *
+ * So the page stays prerendered and regenerates at most hourly, and an admin
+ * save calls `revalidatePath` to make the change visible immediately. The
+ * hourly figure is the safety net for the case where that call is missed — a
+ * restore, a direct database edit, a webhook that did not arrive — not the
+ * expected path to an edit going live.
+ */
+export const revalidate = 3_600;
 
 /**
  * Resume document route.
@@ -61,5 +77,13 @@ export default async function Page({ params }: PageProps<"/[locale]/resume">) {
     return null;
   }
 
-  return <ResumeDocument locale={locale} resume={getResumeContent(locale)} />;
+  /*
+    `"resume"` rather than `"both"`: this is the document of record, so every row
+    the owner has written appears here regardless of where it is also shown. A
+    role marked résumé-only is invisible for exactly this reason — it is not on
+    the summary and it does not belong to be removed from the document.
+  */
+  const resume = await readResume(locale, "resume");
+
+  return <ResumeDocument locale={locale} resume={resume} />;
 }

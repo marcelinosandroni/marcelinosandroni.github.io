@@ -4,6 +4,10 @@ import { versionedArticleRepository } from "@/infrastructure/content/blog";
 import { FallbackArticleRepository, GetArticle, ListArticles } from "@/application/blog";
 import type { Locale } from "@/domain/i18n";
 import type {
+  HomeExperienceAnnotation,
+  HomeStackSection,
+} from "@/domain/portfolio";
+import type {
   ResumeRepository,
   ResumeSurfaceRead,
   ResumeTestimonial,
@@ -190,6 +194,22 @@ export async function readResume(
 /** Published testimonials, which is empty until the owner adds a real one. */
 export async function readTestimonials(locale: Locale): Promise<ResumeTestimonial[]> {
   return (await resolveResumeRepository()).readTestimonials(locale);
+}
+
+/**
+ * The home page tech stack, database-first.
+ *
+ * Merged over the typed section rather than replacing it, so the kicker, title
+ * and note — which are editorial, not facts, and which the admin does not edit —
+ * survive either way. Only the clusters themselves come from the database.
+ */
+export async function readHomeStack(locale: Locale): Promise<HomeStackSection | null> {
+  return (await resolveResumeRepository()).readHomeStack(locale);
+}
+
+/** The home page track-record annotations, database-first. */
+export async function readHomeTrackRecord(locale: Locale): Promise<HomeExperienceAnnotation[] | null> {
+  return (await resolveResumeRepository()).readHomeTrackRecord(locale);
 }
 
 /* -------------------------------------------------------------------------

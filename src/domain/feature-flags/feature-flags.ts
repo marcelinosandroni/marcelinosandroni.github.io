@@ -89,6 +89,7 @@ export const FEATURE_FLAG_VARIABLES = {
 export const FEATURE_FLAG_DEFAULTS = {
   whatsapp: false,
   resumeDownload: false,
+  testimonials: false,
 } as const satisfies Record<FeatureFlagName, boolean>;
 
 /**
@@ -134,6 +135,7 @@ export function readFeatureFlags(
   return {
     whatsapp: isFeatureEnabled("whatsapp", env),
     resumeDownload: isFeatureEnabled("resumeDownload", env),
+    testimonials: isFeatureEnabled("testimonials", env),
   };
 }
 
