@@ -36,7 +36,7 @@ Spearheaded DevOps/SRE culture, zero-downtime CI/CD, Kubernetes with Helm/HPA, a
 Developed reactive architectures in Angular and React Native with Micro-frontends and Core Web Vitals optimization.
 
 Antlia | Tech Lead & Strategic Consultant
-Jul/2024 – Dec/2025
+Dec/2022 – Dec/2025
 
 Led web development for the financial sector in Angular, React, and Next.js with complex state management.
 

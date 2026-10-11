@@ -36,7 +36,7 @@ Liderou cultura DevOps/SRE, CI/CD zero-downtime, Kubernetes com Helm/HPA, e IaC 
 Desenvolveu arquiteturas reativas em Angular e React Native com Micro-frontends e otimização de Core Web Vitals.
 
 Antlia | Tech Lead & Consultor Estratégico
-Jul/2024 – Dez/2025
+Dez/2022 – Dez/2025
 
 Liderou desenvolvimento web para o setor financeiro em Angular, React e Next.js com gestão de estado complexa.
 
