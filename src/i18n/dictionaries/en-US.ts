@@ -128,6 +128,22 @@ export const enUS = {
   signal: {
     available: "Available for opportunities",
   },
+  /**
+   * Named references.
+   *
+   * The `empty` string is deliberately about the *database* and not about the
+   * owner. "No references yet" would read as a claim about the person — that
+   * nobody would vouch for them — which is not a thing this component knows and
+   * not a thing the copy should imply.
+   */
+  testimonials: {
+    kicker: "// REFERENCES",
+    title: "What working together is like",
+    note: "Named, with a link where one exists. An empty section here means nobody has written one yet — it does not mean there are none to be had.",
+    empty:
+      "No references have been added yet. Ask, and this section will carry what they say.",
+    itemsLabel: "References",
+  },
   experience: {
     title: "Track Record: Production Systems Experience",
     subtitle: "A trajectory across technology, operations and business.",

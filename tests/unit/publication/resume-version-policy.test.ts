@@ -46,8 +46,8 @@ function contentDigest(locale: (typeof SUPPORTED_LOCALES)[number]): string {
  * version is now wrong and the guard is doing its job.
  */
 const PINNED: Record<(typeof SUPPORTED_LOCALES)[number], string> = {
-  "pt-BR": "3bbed9a5",
-  "en-US": "56efb23d",
+  "pt-BR": "c2fdb20b",
+  "en-US": "cfd47a26",
 };
 
 describe("resume version policy", () => {
@@ -96,6 +96,6 @@ describe("resume version policy", () => {
      * that does not exist — so the check is that they are separate declarations,
      * one derived from the repository and one from the prose.
      */
-    expect(CURRENT_RESUME_VERSION.toString()).toBe("0.2.0");
+    expect(CURRENT_RESUME_VERSION.toString()).toBe("0.2.1");
   });
 });

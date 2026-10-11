@@ -2,8 +2,14 @@ import type { Metadata } from "next";
 
 import { HomeView } from "@/components/home/home-view";
 import { toLocale } from "@/domain/i18n";
+import { isFeatureEnabled } from "@/domain/feature-flags/feature-flags";
 import { getHomeContent } from "@/infrastructure/content/home";
-import { readHomeStack, readHomeTrackRecord, readResume } from "@/infrastructure/repositories";
+import {
+  readHomeStack,
+  readHomeTrackRecord,
+  readResume,
+  readTestimonials,
+} from "@/infrastructure/repositories";
 
 /**
  * Home route — the executive overview.
@@ -50,11 +56,26 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
     `"both"` would put a résumé-only role back onto the landing page — which is
     precisely the decision the `surfaces` column exists to express.
   */
-  const [resume, stack, annotations] = await Promise.all([
+  const [
+    resume,
+    stack,
+    annotations,
+    testimonials,
+  ] = await Promise.all([
     readResume(locale, "home"),
     readHomeStack(locale),
     readHomeTrackRecord(locale),
+    readTestimonials(locale),
   ]);
 
-  return <HomeView locale={locale} resume={resume} stack={stack} annotations={annotations} />;
+  return (
+    <HomeView
+      locale={locale}
+      resume={resume}
+      stack={stack}
+      annotations={annotations}
+      testimonials={testimonials}
+      testimonialsEnabled={isFeatureEnabled("testimonials")}
+    />
+  );
 }

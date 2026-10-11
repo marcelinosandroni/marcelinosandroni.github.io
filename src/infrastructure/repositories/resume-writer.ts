@@ -1,5 +1,5 @@
 import { requireSupabaseConfig, supabaseReadConfigFromEnv } from "@/infrastructure/supabase/server";
-import type { Locale } from "@/domain/i18n";
+import { LOCALE_SEGMENTS, SUPPORTED_LOCALES, type Locale } from "@/domain/i18n";
 import type { Surface } from "@/domain/resume/types";
 import { toSurfaces } from "@/domain/resume/types";
 
@@ -84,7 +84,7 @@ export class ResumeWriteError extends Error {
  */
 export async function applyResumeWrite(
   write: ResumeWrite,
-  revalidatePath: (path: string) => void,
+  revalidate: (path: string, type: "page" | "layout") => void,
 ): Promise<{ affected: number }> {
   const { url, secretKey } = requireSupabaseConfig();
 
@@ -128,12 +128,40 @@ export async function applyResumeWrite(
     throw new ResumeWriteError(detail.message ?? "write_failed", response.status >= 500 ? 503 : 400);
   }
 
-  // Every one of these can move the résumé, the home page or both, in either
-  // locale. Four calls per write, on an action an owner performs deliberately.
-  revalidatePath("/[locale]");
-  revalidatePath("/[locale]/resume");
+  /*
+    Revalidated per locale rather than per segment.
+
+    `revalidatePath("/[locale]")` without a `type` is a no-op on a dynamic
+    segment — Next.js warns and discards it, which was measured here rather than
+    assumed. Naming a concrete path with `"page"` is what actually purges the
+    cached HTML, and a concrete path means naming the locales too, so the
+    segment list is passed in rather than guessed at inside this module.
+  */
+  for (const path of resumePaths()) {
+    revalidate(path, "page");
+  }
 
   return { affected: 1 };
+}
+
+/**
+ * Every concrete page an edit can change: both routes, in every locale.
+ *
+ * Derived from `LOCALE_SEGMENTS` rather than written out, because a literal list
+ * is one more thing to forget when a locale is added — and forgetting it means
+ * the new locale's résumé shows yesterday's content until the revalidation
+ * window elapses, with nothing in the logs to say why.
+ *
+ * `revalidatePath("/[locale]")` without a `type` would have covered this in one
+ * call, except that on a dynamic segment it is a no-op: Next.js warns and
+ * discards it. That was measured here, not assumed.
+ */
+function resumePaths(): string[] {
+  return SUPPORTED_LOCALES.flatMap((locale) => {
+    const segment = LOCALE_SEGMENTS[locale];
+
+    return [`/${segment}`, `/${segment}/resume`];
+  });
 }
 
 /** Surfaces an owner may assign, for the editor's checkboxes. */
