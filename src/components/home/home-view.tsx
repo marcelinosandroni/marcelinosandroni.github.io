@@ -11,6 +11,10 @@ import { FirstVisitIntro } from "@/components/site/first-visit-intro";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import type { Locale } from "@/domain/i18n";
+import type {
+  HomeExperienceAnnotation,
+  HomeStackSection,
+} from "@/domain/portfolio";
 import type { ResumeContent } from "@/domain/resume/types";
 import { blogPath, resumePath } from "@/domain/site/routes";
 import { SITE_OWNER } from "@/domain/site/site-info";
@@ -19,8 +23,18 @@ import { getHomeContent } from "@/infrastructure/content/home";
 
 export interface HomeViewProps {
   locale: Locale;
-  /** The document of record, reused for the track record. */
+  /** The document of record, already filtered to the `home` surface. */
   resume: ResumeContent;
+  /**
+   * Database-resolved tech stack, or `null` to use the typed one.
+   *
+   * Optional rather than required-with-a-default so the fallback is explicit at
+   * the call site: a route that has not wired the database yet still renders,
+   * and a reviewer can see which view is authoritative.
+   */
+  stack?: HomeStackSection | null;
+  /** Database-resolved track-record annotations, or `null` for the typed ones. */
+  annotations?: HomeExperienceAnnotation[] | null;
 }
 
 /**
@@ -36,9 +50,28 @@ export interface HomeViewProps {
  * client islands are the copilot terminal and the boot sequence, both of which
  * receive already-translated strings as props.
  */
-export async function HomeView({ locale, resume }: HomeViewProps) {
+export async function HomeView({ locale, resume, stack, annotations }: HomeViewProps) {
   const t = await getDictionary(locale);
-  const home = getHomeContent(locale);
+  const typed = getHomeContent(locale);
+
+  /*
+    The database wins where it answered, and the typed catalog answers everywhere
+    else. Merged field by field rather than replaced wholesale, because the
+    section *prose* — the kicker, the title, the sentence that introduces the
+    cluster — is editorial and belongs to the page, while the rows are facts the
+    owner edits. Swapping the whole object would hand a content edit authority
+    over the sentence that frames it.
+  */
+  const home = {
+    ...typed,
+    stack: stack === null || stack === undefined
+      ? typed.stack
+      : { ...typed.stack, clusters: stack.clusters },
+    trackRecord:
+      annotations === null || annotations === undefined
+        ? typed.trackRecord
+        : { ...typed.trackRecord, annotations },
+  };
 
   const sections = [
     /*

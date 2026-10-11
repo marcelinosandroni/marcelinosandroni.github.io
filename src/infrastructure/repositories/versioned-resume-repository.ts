@@ -1,11 +1,16 @@
 import type { Locale } from "@/domain/i18n";
 import type {
+  HomeExperienceAnnotation,
+  HomeStackSection,
+} from "@/domain/portfolio";
+import type {
   ResumeRepository,
   ResumeSurfaceRead,
   ResumeTestimonial,
 } from "@/domain/resume/resume-repository";
 import type { ResumeContent } from "@/domain/resume/types";
 import { getResumeContent } from "@/infrastructure/content";
+import { getHomeContent } from "@/infrastructure/content/home";
 
 /**
  * The versioned answer, and the fallback that reaches for it.
@@ -34,6 +39,18 @@ export class VersionedResumeRepository implements ResumeRepository {
 
   async readTestimonials(_locale: Locale): Promise<ResumeTestimonial[]> {
     return [];
+  }
+
+  /**
+   * The typed home page is already the fallback for these two, so they are read
+   * straight out of it rather than seeded into a parallel shape.
+   */
+  async readHomeStack(locale: Locale): Promise<HomeStackSection | null> {
+    return getHomeContent(locale).stack;
+  }
+
+  async readHomeTrackRecord(locale: Locale): Promise<HomeExperienceAnnotation[] | null> {
+    return getHomeContent(locale).trackRecord.annotations;
   }
 }
 
@@ -83,6 +100,32 @@ export class FallbackResumeRepository implements ResumeRepository {
       this.report(error);
 
       return this.fallback.readTestimonials(locale);
+    }
+  }
+
+  async readHomeStack(locale: Locale): Promise<HomeStackSection | null> {
+    try {
+      const stack = await this.primary.readHomeStack(locale);
+
+      // `null` from the primary means "not provisioned", which is a different
+      // state from a failure and must not be treated as one.
+      return stack ?? (await this.fallback.readHomeStack(locale));
+    } catch (error) {
+      this.report(error);
+
+      return this.fallback.readHomeStack(locale);
+    }
+  }
+
+  async readHomeTrackRecord(locale: Locale): Promise<HomeExperienceAnnotation[] | null> {
+    try {
+      const annotations = await this.primary.readHomeTrackRecord(locale);
+
+      return annotations ?? (await this.fallback.readHomeTrackRecord(locale));
+    } catch (error) {
+      this.report(error);
+
+      return this.fallback.readHomeTrackRecord(locale);
     }
   }
 
