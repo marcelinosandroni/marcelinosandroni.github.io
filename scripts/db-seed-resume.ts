@@ -10,8 +10,6 @@
  * with `#` comments, and a seeding script does not justify a dependency.
  */
 function loadEnvLocal(): void {
-  const { existsSync, readFileSync } = require("node:fs") as typeof import("node:fs");
-
   if (!existsSync(".env.local")) {
     return;
   }
@@ -44,6 +42,8 @@ loadEnvLocal();
 
 // Imported after the environment is loaded, because these read it at module
 // scope for their default endpoints.
+import { existsSync, readFileSync } from "node:fs";
+
 import { getResumeContent } from "../src/infrastructure/content";
 import { getHomeContent } from "../src/infrastructure/content/home";
 import { SUPPORTED_LOCALES, type Locale } from "../src/domain/i18n";

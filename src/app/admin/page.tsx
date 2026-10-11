@@ -24,6 +24,11 @@ import type { ConversationSummary } from "@/domain/chat/message";
 import { ListPosts } from "@/application/blog/manage-posts";
 import type { PostSummary } from "@/domain/blog/post-draft";
 import { getPostRepository } from "@/infrastructure/repositories";
+import { TechStackEditor } from "@/components/admin/tech-stack-editor";
+import {
+  readStackForEditor,
+  type EditorCluster,
+} from "@/infrastructure/repositories/resume-writer";
 
 /**
  * Never indexable. A private area that a search engine can read the existence of
@@ -114,6 +119,22 @@ export default async function AdminPage() {
    * inverted on purpose: an empty visitor list is a plausible reading of a working
    * site, so claiming it would be a guess.
    */
+  /*
+    The tech stack, read on the server for the same reason as the post list.
+
+    `null` means "this deployment has no database", which is a different fact
+    from "the stack is empty" — so the two are kept apart rather than collapsed,
+    and the editor says which one it is instead of rendering an empty form that
+    looks like the owner deleted everything.
+  */
+  let stack: EditorCluster[] | null = null;
+
+  try {
+    stack = await readStackForEditor(DEFAULT_LOCALE);
+  } catch {
+    stack = null;
+  }
+
   let board: PresenceBoard | null = null;
   let conversationList: ReadonlyArray<ConversationSummary> | null = null;
 
@@ -206,6 +227,25 @@ export default async function AdminPage() {
         handles the unauthenticated case — so an anonymous request never receives
         a post title, a slug or a status in its payload.
       */}
+      {/*
+        Before the CMS, because the tech stack is what actually changes: a new
+        tool, a dropped one, a chip that belongs on the résumé and not on the
+        summary. The blog is written on the order of a month; this is edited on
+        the order of a week.
+      */}
+      {stack === null ? (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <p className="text-body-sm text-body-sm text-text-secondary">
+            The tech stack editor needs Supabase. Run <code>npm run db:setup</code> locally, or
+            set the deployment&apos;s Supabase variables.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <TechStackEditor initialClusters={stack} locale={DEFAULT_LOCALE} />
+        </div>
+      )}
+
       <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
         <PostEditor t={t} locale={DEFAULT_LOCALE} initialPosts={postList} />
       </div>
