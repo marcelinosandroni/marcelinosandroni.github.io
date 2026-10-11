@@ -7,10 +7,13 @@ import { TechArsenalSection } from "@/components/home/tech-arsenal";
 import { TrackRecordSection } from "@/components/home/track-record";
 import { ResumeCopilot } from "@/components/ai/resume-copilot";
 import { VisitorChat } from "@/components/chat/visitor-chat";
+import { TestimonialSection } from "@/components/home/testimonials";
 import { FirstVisitIntro } from "@/components/site/first-visit-intro";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import type { Locale } from "@/domain/i18n";
+import { isFeatureEnabled } from "@/domain/feature-flags/feature-flags";
+import type { ResumeTestimonial } from "@/domain/resume/resume-repository";
 import type {
   HomeExperienceAnnotation,
   HomeStackSection,
@@ -35,6 +38,15 @@ export interface HomeViewProps {
   stack?: HomeStackSection | null;
   /** Database-resolved track-record annotations, or `null` for the typed ones. */
   annotations?: HomeExperienceAnnotation[] | null;
+  /**
+   * Published references, and whether the site offers the section at all.
+   *
+   * Both are passed in rather than read here, so this stays a Server Component
+   * that resolves data and composes — and so the flag is read by the same
+   * `process.env` the rest of the server uses, never by the browser.
+   */
+  testimonials?: readonly ResumeTestimonial[];
+  testimonialsEnabled?: boolean;
 }
 
 /**
@@ -50,7 +62,14 @@ export interface HomeViewProps {
  * client islands are the copilot terminal and the boot sequence, both of which
  * receive already-translated strings as props.
  */
-export async function HomeView({ locale, resume, stack, annotations }: HomeViewProps) {
+export async function HomeView({
+  locale,
+  resume,
+  stack,
+  annotations,
+  testimonials = [],
+  testimonialsEnabled = false,
+}: HomeViewProps) {
   const t = await getDictionary(locale);
   const typed = getHomeContent(locale);
 
@@ -126,6 +145,17 @@ export async function HomeView({ locale, resume, stack, annotations }: HomeViewP
           openResumeLabel={home.trackRecord.resumeCtaLabel}
         />
         <HowILeadSection section={home.leadership} />
+
+        {/*
+          After the leadership section and before the copilot: a reference is the
+          answer to "can I trust this person", and that question follows "what is
+          it like to work with them" rather than preceding it.
+        */}
+        <TestimonialSection
+          testimonials={testimonials}
+          enabled={testimonialsEnabled}
+          labels={t.testimonials}
+        />
         <ResumeCopilot locale={locale} labels={t.copilot} />
         {/*
           The visitor's side of the conversation, and it renders nothing at all

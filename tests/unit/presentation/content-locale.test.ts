@@ -51,7 +51,11 @@ describe("Content Locale & Factual Consistency", () => {
     // "Dez" -> "Dec"), so the digits must match exactly.
     const expectedPeriods = [
       "Jan/2026 – Present",
-      "Jul/2024 – Dec/2025",
+      // Antlia runs continuously from Itaú (which ends Nov/2022) to DGT (which
+      // starts Jan/2026). The `Jul/2024` this used to assert opened a 20-month
+      // hole in the middle of a six-year software career — the first thing a
+      // hiring manager scans for, and the reason the period was reverted.
+      "Dec/2022 – Dec/2025",
       "Mar/2022 – Nov/2022",
       "Jun/2021 – Jan/2022",
       "Jan/2005 – Dec/2020",
@@ -62,6 +66,44 @@ describe("Content Locale & Factual Consistency", () => {
     for (const [index, experience] of pt.experiences.entries()) {
       const label = `[${experience.company}] period dates`;
       expect(digitsOf(en.experiences[index].period), label).toEqual(digitsOf(experience.period));
+    }
+  });
+
+  it("leaves no unexplained hole in the software career", () => {
+    /*
+     * A gap is not automatically a lie — people leave jobs and take time between
+     * them — but an *unexplained* one is the first thing a hiring manager looks
+     * for, and it was twenty months long here. This asserts the shape rather than
+     * the dates: consecutive software roles must chain, so a future edit cannot
+     * reopen the hole without a test failure naming it.
+     *
+     * `Present` is the current role and carries no end year, and the list is
+     * newest-first, so the chain to check is everything *between* the current
+     * role and the accounting career that precedes engineering: Antlia → Itaú →
+     * Pollux. The 5-month step from the accounting career into Pollux is
+     * excluded on purpose — that is the transition the whole positioning is
+     * built on, and it is explained in the copy.
+     */
+    const software = en.experiences.slice(1, -1);
+    const yearOf = (value: string): number => Number(value.match(/(\d{4})$/)?.[1]);
+
+    for (let index = 0; index < software.length - 1; index += 1) {
+      const current = software[index];
+      const next = software[index + 1];
+
+      const currentEnd = current?.period.split("–")[1]?.trim() ?? "";
+      const nextStart = next?.period.split("–")[0]?.trim() ?? "";
+
+      const endYear = yearOf(currentEnd);
+      const startYear = yearOf(nextStart);
+
+      expect(Number.isFinite(endYear), `${current?.company} end "${currentEnd}"`).toBe(true);
+      expect(Number.isFinite(startYear), `${next?.company} start "${nextStart}"`).toBe(true);
+
+      expect(
+        startYear - endYear,
+        `${current?.company} ends ${currentEnd} and ${next?.company} starts ${nextStart}`,
+      ).toBeLessThanOrEqual(1);
     }
   });
 

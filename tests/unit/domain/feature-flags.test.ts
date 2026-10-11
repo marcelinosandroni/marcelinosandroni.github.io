@@ -48,14 +48,33 @@ describe("parseFeatureFlag", () => {
 });
 
 describe("feature flag defaults", () => {
-  it("has both features off when nothing is configured", () => {
-    expect(readFeatureFlags({})).toEqual({ whatsapp: false, resumeDownload: false });
+  it("has every feature off when nothing is configured", () => {
+    expect(readFeatureFlags({})).toEqual({
+      whatsapp: false,
+      resumeDownload: false,
+      testimonials: false,
+    });
   });
 
   it("agrees with the declared defaults", () => {
     // The map is duplicated as a constant so call sites can read it; if the two
     // ever disagree, one of them is lying. This is the test that says so.
-    expect(FEATURE_FLAG_DEFAULTS).toEqual({ whatsapp: false, resumeDownload: false });
+    expect(FEATURE_FLAG_DEFAULTS).toEqual({
+      whatsapp: false,
+      resumeDownload: false,
+      testimonials: false,
+    });
+  });
+
+  it("keeps testimonials off by default", () => {
+    /*
+      The sharpest of the three. Turning the flag on does not make the section
+      appear — the table ships empty — but turning it on by accident would be a
+      section that renders the moment the owner adds a quote without their
+      having decided the site should show references at all.
+    */
+    expect(parseFeatureFlag(undefined)).toBe(false);
+    expect(FEATURE_FLAG_VARIABLES.testimonials).toBe("NEXT_PUBLIC_FEATURE_TESTIMONIALS");
   });
 
   it("declares a variable name for every feature", () => {

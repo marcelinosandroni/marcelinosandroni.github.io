@@ -112,6 +112,21 @@ export const ptBR: Dictionary = {
   signal: {
     available: "Disponível para conversas",
   },
+  /**
+   * Referências nomeadas.
+   *
+   * O texto de "vazio" fala do *banco de dados* e não da pessoa. "Sem
+   * referências" leria como uma afirmação sobre o candidato — que ninguém fala
+   * por ele —, o que esta seção não sabe e o que a copy não deve sugerir.
+   */
+  testimonials: {
+    kicker: "// REFERÊNCIAS",
+    title: "Como é trabalhar comigo",
+    note: "Nomeadas, com link quando existe. Uma seção vazia aqui significa que ninguém escreveu uma ainda — não que não existam.",
+    empty:
+      "Nenhuma referência foi adicionada ainda. Peça, e esta seção trará o que disserem.",
+    itemsLabel: "Referências",
+  },
   experience: {
     title: "Experiência: Execução em Sistemas de Produção",
     subtitle: "Uma trajetória entre tecnologia, operação e negócio.",
