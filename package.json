@@ -25,8 +25,8 @@
     "db:reset": "docker compose -f docker-compose.supabase.yml down -v",
     "db:keys": "tsx scripts/db-local-keys.ts",
     "db:migrate": "tsx scripts/db-migrate.ts",
-    "db:seed": "tsx scripts/db-seed-resume.ts",
-    "db:setup": "npm run db:up && npm run db:keys && npm run db:migrate && npm run db:seed"
+    "db:bootstrap": "tsx scripts/db-seed-resume.ts",
+    "db:setup": "npm run db:up && npm run db:keys && npm run db:migrate && npm run db:bootstrap"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.9.0",

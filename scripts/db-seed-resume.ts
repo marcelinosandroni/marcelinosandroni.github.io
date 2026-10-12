@@ -49,20 +49,32 @@ import { getHomeContent } from "../src/infrastructure/content/home";
 import { SUPPORTED_LOCALES, type Locale } from "../src/domain/i18n";
 
 /**
- * Seeds the résumé tables from the typed catalog.
+ * Bootstraps the résumé tables from the typed catalog.
+ *
+ * ## What this is, and is not
+ *
+ * **Not a migration.** Migrations own the schema and never touch rows — this
+ * project has no `drop table`, `truncate` or `delete` in any migration, and
+ * `tests/unit/publication/migration-safety.test.ts` fails the build if one
+ * appears. So applying a migration cannot lose anything.
+ *
+ * **A bootstrap, not a sync.** It fills an empty database from the typed catalog
+ * and thereafter only inserts rows that are genuinely absent — `ignore-duplicates`,
+ * never `merge-duplicates`. Running it after the owner has edited anything in
+ * `/admin` changes nothing, because there is nothing missing to add.
+ *
+ * That distinction is the whole design. It was previously an upsert, which
+ * *overwrote* on conflict: the owner edits a job title in the admin panel,
+ * someone runs the seed, and the old title comes back — silently, with a green
+ * exit code. A database the owner edits and a script that overwrites it cannot
+ * both be true, and since moving the content into the database was the point,
+ * the script is the part that yields.
  *
  * ## Why the seed is a script and not part of the migration
  *
- * The typed catalog is the build-time fallback and the source of truth for what
- * these rows must contain. Generating the rows from it — rather than pasting
- * five thousand lines of SQL into a migration — means the two cannot drift: the
- * database is populated from the same objects the fallback serves, so
- * "the database says X" and "the fallback says X" are the same statement.
- *
- * It is also re-runnable and safe: every write upserts on the natural key, so
- * running it again refreshes the content rather than duplicating it. That
- * matters because this is the bridge between two sources, and a bridge that can
- * only be crossed once is not a bridge.
+ * The typed catalog is the build-time fallback. Generating the rows from it —
+ * rather than pasting five thousand lines of SQL — means the two start in
+ * agreement instead of starting in an argument nobody notices.
  *
  * ## What it deliberately does not seed
  *
@@ -70,12 +82,12 @@ import { SUPPORTED_LOCALES, type Locale } from "../src/domain/i18n";
  * with the owner, and inventing one would be fabricating a reference. The table
  * ships empty and stays empty until the owner adds a real one from `/admin`.
  *
- * Run with `npm run db:seed`.
+ * Run with `npm run db:bootstrap`.
  */
 
 /** PostgREST endpoint, matching `docker-compose.supabase.yml`. */
 function restUrl(): string {
-  return process.env["SUPABASE_URL"] ?? "http://127.0.0.1:54321";
+  return process.env["SUPABASE_URL"] ?? "http://127.0.0.1:54330";
 }
 
 /**
@@ -113,16 +125,33 @@ function fail(what: string, detail: unknown): never {
 }
 
 /**
- * PostgREST over `fetch`, not `supabase-js`.
+ * Inserts rows that are missing, and **never touches a row that exists**.
  *
- * `supabase-js` v2.112 routes a single-row `insert`/`upsert` through a code
- * path this PostgREST build answers with `PGRST125 Invalid path specified in
- * request URL` — while the identical request via `fetch` returns 201. Rather
- * than pin a library version or debug its retry/negotiation behaviour for a
- * seeding script that runs once, this speaks the HTTP API directly. It is the
- * same wire format the client uses; only the caller differs.
+ * ## Why `ignore-duplicates` and not `merge-duplicates`
+ *
+ * This used to be `merge-duplicates`, which *overwrites* on conflict. That made
+ * the script silently revert every edit made from `/admin`: the owner changes a
+ * job title in the admin panel, someone runs the bootstrap, and the old title is
+ * back — with no error and a green exit code.
+ *
+ * A database the owner edits and a script that overwrites it cannot both be
+ * true. Since making the database the source of truth was the point, the script
+ * is the part that yields.
+ *
+ * `ignore-duplicates` makes this a **bootstrap, not a sync**: it fills an empty
+ * database from the typed catalog and thereafter only adds rows that are
+ * genuinely absent.
+ *
+ * ## Why `return=representation`
+ *
+ * So the count is real. With `return=minimal` PostgREST reports success for the
+ * whole batch and the only honest number available is how many rows were *sent* —
+ * which reported "602 inserted" against a database where 602 rows already
+ * existed and nothing was added. With `return=representation` a duplicate is
+ * skipped and not returned, so the response length is the number actually
+ * written. Verified against this PostgREST, not assumed.
  */
-async function upsert(
+async function insertMissing(
   table: string,
   rows: Record<string, unknown>[],
   onConflict: string,
@@ -140,9 +169,7 @@ async function upsert(
       apikey: key,
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
-      // Merge on conflict is what makes the seed re-runnable: without it a
-      // second run fails on the primary key instead of refreshing the rows.
-      Prefer: "resolution=merge-duplicates,return=minimal",
+      Prefer: "resolution=ignore-duplicates,return=representation",
     },
     body: JSON.stringify(rows),
   });
@@ -151,7 +178,11 @@ async function upsert(
     fail(`Could not write ${table}`, await response.json().catch(() => response.statusText));
   }
 
-  console.log(`  ${table}: ${rows.length}`);
+  const written = (await response.json().catch(() => [])) as unknown[];
+  const added = Array.isArray(written) ? written.length : 0;
+
+  inserted += added;
+  offered += rows.length;
 }
 
 /** One row by natural key, or `null`. */
@@ -195,8 +226,37 @@ async function selectMany(
   return (await response.json()) as Array<Record<string, unknown>>;
 }
 
+/**
+ * Rows this run actually wrote, and rows it offered.
+ *
+ * Two numbers because one is not enough to read. "0 inserted, 602 already
+ * present" says the bootstrap had nothing to add to a populated database;
+ * "602 inserted, 0 already present" says it just built one. A single counter
+ * conflates the two, which is how this script reported a no-op as six hundred
+ * and two writes.
+ */
+let inserted = 0;
+let offered = 0;
+
 async function main(): Promise<void> {
-  console.log(`Seeding ${restUrl()}\n`);
+  console.log(`Bootstrapping ${restUrl()}\n`);
+
+  /*
+    A populated database is a warning, not an error.
+
+    `ignore-duplicates` means nothing here can be overwritten, so running this
+    against a database the owner has edited is safe — and worth doing, because a
+    row added to the typed catalog but not yet to the database is a gap the
+    bootstrap should close. What it must not do is *look* like it re-seeded.
+  */
+  const existing = await selectMany("resume_experience", { locale: "eq.en-US" });
+
+  if (existing.length > 0) {
+    console.log(
+      `This database already has ${existing.length} experience rows. Nothing will be\n` +
+        `overwritten; only genuinely missing rows are added.\n`,
+    );
+  }
 
   for (const locale of SUPPORTED_LOCALES) {
     console.log(`${locale}`);
@@ -204,7 +264,7 @@ async function main(): Promise<void> {
     const home = getHomeContent(locale);
 
     // --- Profile -------------------------------------------------------
-    await upsert(
+    await insertMissing(
       "resume_profile",
       [
         {
@@ -222,7 +282,7 @@ async function main(): Promise<void> {
     );
 
     // --- Experience, then everything hanging off it --------------------
-    await upsert(
+    await insertMissing(
       "resume_experience",
       resume.experiences.map((experience, index) => ({
         locale,
@@ -253,7 +313,7 @@ async function main(): Promise<void> {
         fail(`No row for ${experience.company}`, "the experience upsert did not create one");
       }
 
-      await upsert(
+      await insertMissing(
         "resume_highlight",
         experience.highlights.map((body, order) => ({
           experience_id: id,
@@ -264,7 +324,7 @@ async function main(): Promise<void> {
         "experience_id,locale,sort_order",
       );
 
-      await upsert(
+      await insertMissing(
         "resume_technology",
         (experience.technologies ?? []).map((label, order) => ({
           experience_id: id,
@@ -275,7 +335,7 @@ async function main(): Promise<void> {
         "experience_id,locale,sort_order",
       );
 
-      await upsert(
+      await insertMissing(
         "resume_case_study",
         (experience.caseStudies ?? []).map((caseStudy, order) => ({
           experience_id: id,
@@ -293,7 +353,7 @@ async function main(): Promise<void> {
 
     // --- Skills ---------------------------------------------------------
     for (const [order, group] of resume.skillGroups.entries()) {
-      await upsert(
+      await insertMissing(
         "resume_skill_group",
         [{ locale, label: group.label, sort_order: order }],
         "locale,label",
@@ -310,7 +370,7 @@ async function main(): Promise<void> {
         fail(`No group row for ${group.label}`, "the skill group upsert did not create one");
       }
 
-      await upsert(
+      await insertMissing(
         "resume_skill",
         group.skills.map((label, skillOrder) => ({
           group_id: groupId,
@@ -323,7 +383,7 @@ async function main(): Promise<void> {
     }
 
     // --- Education and languages ---------------------------------------
-    await upsert(
+    await insertMissing(
       "resume_education",
       resume.education.map((entry, order) => ({
         locale,
@@ -336,7 +396,7 @@ async function main(): Promise<void> {
       "locale,title",
     );
 
-    await upsert(
+    await insertMissing(
       "resume_language",
       resume.languages.map((label, order) => ({ locale, label, sort_order: order })),
       "locale,label",
@@ -344,7 +404,7 @@ async function main(): Promise<void> {
 
     // --- Home page tech stack ------------------------------------------
     for (const [order, cluster] of home.stack.clusters.entries()) {
-      await upsert(
+      await insertMissing(
         "tech_stack_cluster",
         [
           {
@@ -372,7 +432,7 @@ async function main(): Promise<void> {
         fail(`No cluster row for ${cluster.id}`, "the cluster upsert did not create one");
       }
 
-      await upsert(
+      await insertMissing(
         "tech_stack_item",
         cluster.items.map((label, itemOrder) => ({
           cluster_id: clusterId,
@@ -387,7 +447,7 @@ async function main(): Promise<void> {
 
     // --- Track record annotations --------------------------------------
     for (const [order, annotation] of home.trackRecord.annotations.entries()) {
-      await upsert(
+      await insertMissing(
         "track_record_annotation",
         [
           {
@@ -416,7 +476,7 @@ async function main(): Promise<void> {
         fail(`No annotation for ${annotation.company}`, "the annotation upsert created none");
       }
 
-      await upsert(
+      await insertMissing(
         "track_record_blueprint",
         annotation.blueprint.map((label, itemOrder) => ({
           annotation_id: annotationId,
@@ -431,8 +491,16 @@ async function main(): Promise<void> {
     console.log("");
   }
 
-  // Testimonials are intentionally absent. See the header.
-  console.log("Testimonials: not seeded. Add real quotes from /admin.");
+  /*
+    The numbers that distinguish a bootstrap from a no-op.
+
+    Printed because "the command succeeded" and "the database now holds your
+    résumé" are different sentences, and a contributor who has been editing
+    their content needs to be able to tell at a glance which one just happened.
+  */
+  console.log(`${inserted} inserted, ${offered - inserted} already present (of ${offered} offered).`);
+  console.log("Nothing was overwritten. Testimonials are never bootstrapped —");
+  console.log("add real quotes from /admin.");
 }
 
 void main();

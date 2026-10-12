@@ -55,7 +55,21 @@ create extension if not exists pgcrypto;
 
 -- Where an item is allowed to appear. Closed vocabulary, enforced here so an
 -- unrecognised surface fails at the database rather than rendering nowhere.
-create type public.resume_surface as enum ('home', 'resume');
+--
+-- Created through a guarded block because `create type` has no
+-- `if not exists` clause: a bare statement makes the *second* application of
+-- this migration fail with `type "resume_surface" already exists`, which is the
+-- shape of every other idempotency bug in this directory. A migration is applied
+-- to databases that already hold rows, so re-running it has to be a no-op.
+--
+-- `tests/unit/publication/migration-safety.test.ts` fails the build if a
+-- top-level `create table`/`create type` appears without one of these guards.
+do $$
+begin
+  create type public.resume_surface as enum ('home', 'resume');
+exception
+  when duplicate_object then null;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- Identity

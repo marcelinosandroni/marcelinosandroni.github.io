@@ -21,7 +21,7 @@ import { createHmac } from "node:crypto";
  */
 
 const SECRET = "super-secret-jwt-token-with-at-least-32-characters-long";
-const BASE_URL = "http://127.0.0.1:54321";
+const BASE_URL = "http://127.0.0.1:54330";
 const ENV_LOCAL = ".env.local";
 
 function base64url(input: string): string {

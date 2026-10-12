@@ -58,8 +58,12 @@ The site is at <http://localhost:3000>.
 | `npm run db:reset` | Stop and **delete the volume** — a clean database |
 | `npm run db:keys` | Write local keys into `.env.local` |
 | `npm run db:migrate` | Apply every migration, in filename order |
-| `npm run db:seed` | Populate résumé tables from `src/infrastructure/content` |
+| `npm run db:bootstrap` | Populate an **empty** résumé database from the typed catalog |
 | `npm run db:setup` | All of the above, in order |
+
+> Earlier drafts of this file called the last one `db:seed`. It was renamed
+> because "seed" implies something you run repeatedly, and the distinction
+> matters — see below.
 
 ---
 
@@ -100,22 +104,81 @@ it was and a fix is an edit plus a re-run rather than a manual repair.
 
 ---
 
-## Why the seed is a script
+## Migration vs bootstrap: they are not the same thing
 
-The typed catalog in `src/infrastructure/content/` is the build-time fallback
-*and* the source of truth for what the database rows must contain. Generating the
-rows from it — rather than pasting five thousand lines of SQL into a migration —
-means the two cannot drift: the database is populated from the same objects the
-fallback serves, so "the database says X" and "the fallback says X" are the same
-statement.
+This is the distinction that matters most, and getting it wrong is how content
+disappears.
 
-It is re-runnable. Every write upserts on its natural key, so a second run
-refreshes content rather than duplicating it.
+### A migration owns the schema. It never owns the rows.
 
-**Testimonials are not seeded.** A testimonial is a named person saying
+A migration is applied to databases that **already hold content** — including
+one you have been editing for months. So it may create, alter and index, and it
+may not delete.
+
+That is enforced, not merely intended:
+
+```
+tests/unit/publication/migration-safety.test.ts
+```
+
+fails the build if any migration contains `drop table`, `truncate`,
+`delete from`, `drop column`, `drop schema` or `drop database`. A migration that
+genuinely needs to remove rows has to say `ALLOW_DATA_LOSS` above the statement,
+which turns "did you mean to do that?" from something a reviewer has to notice
+into something a reviewer has to read. There is no such marker in the directory
+today, and a test asserts that too.
+
+The same test also requires every migration to be **re-runnable**: `create table`
+and `create index` need `if not exists`, `create type` needs a guarded `do $$
+… exception when duplicate_object … $$` block (Postgres has no `if not exists`
+for types), and `create policy` needs a preceding `drop policy if exists`.
+
+Run it twice and it is a no-op. Verified: `npm run db:migrate` against a
+populated database applies all eight files and changes nothing.
+
+### A bootstrap fills an empty database. Once.
+
+`npm run db:bootstrap` reads the typed catalog and inserts the rows that are
+missing. It uses `resolution=ignore-duplicates`, so:
+
+- on an empty database it inserts everything
+- on a populated database it inserts **nothing**
+- it never overwrites a row
+
+That last one is the point. It used to be an upsert with
+`resolution=merge-duplicates`, which *overwrites on conflict* — so the owner
+edits a job title in `/admin`, someone runs the bootstrap, and the old title is
+back, silently, with a green exit code. A database you edit and a script that
+overwrites it cannot both be true.
+
+The output tells you which case you are in:
+
+```
+602 inserted, 0 already present (of 602 offered).   ← first run
+0 inserted, 602 already present (of 602 offered).   ← every run after
+```
+
+A single counter would have reported the second as six hundred and two writes,
+which is why there are two.
+
+**Testimonials are never bootstrapped.** A testimonial is a named person saying
 something true about working with the owner, and inventing one would be
 fabricating a reference. The table ships empty and stays that way until you add
 a real quote from `/admin`.
+
+---
+
+## The order, and why
+
+```
+migrate  →  schema only, always safe to re-run
+bootstrap →  rows, only where absent, never destructive
+```
+
+Running them in the other order does nothing wrong — the bootstrap's inserts
+would fail against a schema that does not exist yet — but running `migrate`
+*after* you have been editing is the case worth being sure about, and it is
+now.
 
 ---
 
