@@ -8,9 +8,11 @@ import type {
   ResumeRepository,
   ResumeSurfaceRead,
   ResumeTestimonial,
+  TechnologyCatalog,
 } from "@/domain/resume/resume-repository";
 import type { CaseStudy, ResumeContent, Surface } from "@/domain/resume/types";
 import { toSurfaces } from "@/domain/resume/types";
+import type { ResumeStackIndex } from "@/domain/resume/technology";
 import { requireSupabaseReadConfig } from "@/infrastructure/supabase/server";
 
 /**
@@ -24,6 +26,14 @@ import { requireSupabaseReadConfig } from "@/infrastructure/supabase/server";
 const REQUEST_TIMEOUT_MS = 2_000;
 
 type Row = Record<string, unknown>;
+
+/** One technology's footprint, as the index stores it. */
+type StackEntry = {
+  experiences: string[];
+  highlights: Array<{ company: string; index: number }>;
+  caseStudies: Array<{ company: string; index: number }>;
+  skills: Array<{ group: string; index: number }>;
+};
 
 /**
  * Database adapter for résumé content.
@@ -71,9 +81,66 @@ export class SupabaseResumeRepository implements ResumeRepository {
       })),
     );
 
-    const built = this.toContent(locale, profile, experiences, detail, groups, skillsByGroup, education, languages);
+    const stackIndex = await this.buildStackIndex(locale, detail, skillsByGroup);
+
+    const built = this.toContent(
+      locale,
+      profile,
+      experiences,
+      detail,
+      groups,
+      skillsByGroup,
+      education,
+      languages,
+      stackIndex,
+    );
 
     return surface === "both" ? built : this.filterToSurface(built, surface);
+  }
+
+  /**
+   * The catalog, for the admin's technology manager.
+   *
+   * Separate from `readResume` on purpose. The index is a *relation* view —
+   * technology to positions in the document — and this is the *entity* view:
+   * slugs, labels, aliases, categories, publish state. Folding one into the
+   * other would make the résumé query carry columns the page does not render and
+   * make the editor carry positions it cannot use.
+   */
+  async readTechnologyCatalog(locale: Locale): Promise<TechnologyCatalog> {
+    const [categories, technologies] = await Promise.all([
+      this.many("technology_category", `locale=eq.${locale}&order=sort_order.asc`),
+      this.many("technology", `locale=eq.${locale}&order=sort_order.asc`),
+    ]);
+
+    const categoryById = new Map(categories.map((row) => [String(row["id"]), row]));
+
+    return {
+      categories: categories.map((row) => ({
+        id: String(row["id"]),
+        slug: text(row["slug"]),
+        label: text(row["label"]),
+        sortOrder: number(row["sort_order"]),
+      })),
+      technologies: technologies.map((row) => {
+        const category = categoryById.get(String(row["category_id"]));
+
+        return {
+          id: String(row["id"]),
+          slug: text(row["slug"]),
+          label: text(row["label"]),
+          categoryId: String(row["category_id"] ?? ""),
+          categorySlug: category ? text(category["slug"]) : null,
+          categoryLabel: category ? text(category["label"]) : null,
+          aliases: Array.isArray(row["aliases"])
+            ? (row["aliases"] as unknown[]).filter((a): a is string => typeof a === "string")
+            : [],
+          surfaces: toSurfaces(row["surfaces"] as string[] | null),
+          isPublished: row["is_published"] !== false,
+          sortOrder: number(row["sort_order"]),
+        };
+      }),
+    };
   }
 
   async readTestimonials(locale: Locale): Promise<ResumeTestimonial[]> {
@@ -176,12 +243,32 @@ export class SupabaseResumeRepository implements ResumeRepository {
       }),
     );
   }
+  /**
+   * Drops the rows a surface does not show.
+   *
+   * Applied after assembly rather than in the query so the filter has one
+   * definition. Pushing it into SQL would mean two queries per table and two
+   * places for the rule to live, which is how a home page and a résumé end up
+   * disagreeing about which roles exist.
+   *
+   * The stack index is rebuilt here rather than passed through, because it
+   * addresses the document by *position*. A résumé-only role dropped from the
+   * home page would shift every bullet after it, and an index still holding the
+   * unfiltered positions would attribute a Kafka bullet to the wrong employer —
+   * the worst possible failure for a page whose argument is that its claims are
+   * checked.
+   */
   private filterToSurface(content: ResumeContent, surface: "home" | "resume"): ResumeContent {
+    const experiences = content.experiences.filter((experience) =>
+      (experience.surfaces ?? ["home", "resume"]).includes(surface),
+    );
+
     return {
       ...content,
-      experiences: content.experiences.filter((experience) =>
-        (experience.surfaces ?? ["home", "resume"]).includes(surface),
-      ),
+      experiences,
+      ...(content.stackIndex === undefined
+        ? {}
+        : { stackIndex: renumberStackIndex(content.stackIndex, experiences) }),
     };
   }
 
@@ -194,6 +281,7 @@ export class SupabaseResumeRepository implements ResumeRepository {
     skillsByGroup: Array<{ group: Row; skills: Row[] }>,
     education: Row[],
     languages: Row[],
+    stackIndex: ResumeStackIndex | undefined,
   ): ResumeContent {
     const byId = new Map(detail.map((entry) => [String(entry.row["id"]), entry]));
 
@@ -236,7 +324,164 @@ export class SupabaseResumeRepository implements ResumeRepository {
         description: text(row["description"]),
       })),
       languages: languages.map((row) => text(row["label"])),
+      ...(stackIndex === undefined ? {} : { stackIndex }),
     };
+  }
+
+  /**
+   * Resolves which technologies appear where, in three batched reads.
+   *
+   * ## Why an index and not the relations on the rows
+   *
+   * The focused résumé asks one question — "for React, which roles and which
+   * bullets?" — and this answers it with a map read. Building it once per read
+   * rather than re-deriving it per consumer is what keeps the filter, the badge
+   * and the PDF from disagreeing about what "focused on React" means.
+   *
+   * ## Why three queries and not one per parent
+   *
+   * The document has one query per experience per child table already. Adding
+   * `highlight_technology` the same way would make a five-role résumé issue
+   * fifteen round trips to render one page, on the path that a recruiter is
+   * waiting for. PostgREST's `in.(...)` collapses each child table into a single
+   * read, so the whole index costs three regardless of how long the career is.
+   *
+   * ## Why it can come back undefined
+   *
+   * A database that has not applied the catalog migration has no such tables,
+   * and that is a *deployment* fact, not an empty résumé. Reporting "nothing is
+   * tagged" would make an unapplied migration look like a document the owner
+   * deliberately left untagged — and the focused view would then render almost
+   * nothing, which is indistinguishable from a career that shrank.
+   */
+  private async buildStackIndex(
+    locale: Locale,
+    detail: Array<{ row: Row; highlights: Row[]; caseStudies: Row[]; technologies: Row[] }>,
+    skillsByGroup: Array<{ group: Row; skills: Row[] }>,
+  ): Promise<ResumeStackIndex | undefined> {
+    const technologies = await this.many("technology", `locale=eq.${locale}`).catch(() => null);
+
+    if (technologies === null) {
+      return undefined;
+    }
+
+    const slugById = new Map(technologies.map((row) => [String(row["id"]), text(row["slug"])]));
+    const byTechnology: Record<string, StackEntry> = {};
+
+    const add = (slug: string, mutate: (entry: StackEntry) => void): void => {
+      const entry = (byTechnology[slug] ??= {
+        experiences: [],
+        highlights: [],
+        caseStudies: [],
+        skills: [],
+      });
+
+      mutate(entry);
+    };
+
+    /*
+      Experience → technology comes from the chip rows themselves, which is why
+      this needs no extra read: `resume_technology.technology_id` is on a row
+      already fetched above.
+    */
+    for (const entry of detail) {
+      const company = text(entry.row["company"]);
+
+      for (const chip of entry.technologies) {
+        const slug = chip["technology_id"] ? slugById.get(String(chip["technology_id"])) : undefined;
+
+        if (slug) {
+          add(slug, (bucket) => bucket.experiences.push(company));
+        }
+      }
+    }
+
+    const highlightIds = detail.flatMap((entry) => entry.highlights.map((h) => String(h["id"])));
+    const caseStudyIds = detail.flatMap((entry) => entry.caseStudies.map((c) => String(c["id"])));
+
+    const [highlightLinks, caseStudyLinks] = await Promise.all([
+      highlightIds.length === 0
+        ? Promise.resolve([] as Row[])
+        : this.many("highlight_technology", `highlight_id=in.(${highlightIds.join(",")})`).catch(() => [] as Row[]),
+      caseStudyIds.length === 0
+        ? Promise.resolve([] as Row[])
+        : this.many("case_study_technology", `case_study_id=in.(${caseStudyIds.join(",")})`).catch(() => [] as Row[]),
+    ]);
+
+    /*
+      Positions are resolved from the *fetched order* rather than `sort_order`
+      read back from the database, because the index has to address the array the
+      renderer is about to walk. `sort_order` and array position agree here —
+      both queries order by it — but the index would silently point at the wrong
+      bullet the moment they diverged, so it is built from the array.
+    */
+    const companyByHighlightId = new Map<string, string>();
+    const companyByCaseStudyId = new Map<string, string>();
+
+    detail.forEach((entry) => {
+      const company = text(entry.row["company"]);
+
+      entry.highlights.forEach((row, index) => {
+        companyByHighlightId.set(String(row["id"]), `${company} ${index}`);
+      });
+
+      entry.caseStudies.forEach((row, index) => {
+        companyByCaseStudyId.set(String(row["id"]), `${company} ${index}`);
+      });
+    });
+
+    for (const link of highlightLinks) {
+      const slug = slugById.get(String(link["technology_id"]));
+
+      if (!slug) {
+        continue;
+      }
+
+      const where = companyByHighlightId.get(String(link["highlight_id"]));
+
+      if (!where) {
+        continue;
+      }
+
+      const [company, rawIndex] = where.split(" ");
+      const index = Number(rawIndex);
+
+      add(slug, (bucket) => bucket.highlights.push({ company, index }));
+    }
+
+    for (const link of caseStudyLinks) {
+      const slug = slugById.get(String(link["technology_id"]));
+
+      if (!slug) {
+        continue;
+      }
+
+      const where = companyByCaseStudyId.get(String(link["case_study_id"]));
+
+      if (!where) {
+        continue;
+      }
+
+      const [company, rawIndex] = where.split(" ");
+      const index = Number(rawIndex);
+
+      add(slug, (bucket) => bucket.caseStudies.push({ company, index }));
+    }
+
+    // Skill → technology is a column on rows already fetched; no read at all.
+    for (const { group, skills } of skillsByGroup) {
+      const label = text(group["label"]);
+
+      skills.forEach((skill, index) => {
+        const slug = skill["technology_id"] ? slugById.get(String(skill["technology_id"])) : undefined;
+
+        if (slug) {
+          add(slug, (bucket) => bucket.skills.push({ group: label, index }));
+        }
+      });
+    }
+
+    return { byTechnology };
   }
 
   /**
@@ -367,8 +612,69 @@ export class SupabaseResumeRepository implements ResumeRepository {
 }
 
 /** A metric label, or nothing. */
+/**
+ * Re-addresses the stack index after the document has been filtered.
+ *
+ * The index points at `index` within a company's highlights; the surviving
+ * document may hold a different subset of them. So every entry is dropped when
+ * its company went away, and re-indexed against the surviving array.
+ *
+ * Skills are untouched because the surface filter only removes experiences — but
+ * the function maps them anyway rather than assuming, so a future filter that
+ * also narrows the skills section cannot silently ship wrong positions.
+ */
+function renumberStackIndex(
+  index: ResumeStackIndex,
+  experiences: ReadonlyArray<{ company: string; highlights: string[]; caseStudies?: { title: string }[] }>,
+): ResumeStackIndex {
+  const position = new Map<string, { highlights: number[]; caseStudies: number[] }>();
+
+  experiences.forEach((experience) => {
+    position.set(experience.company, {
+      highlights: experience.highlights.map((_, at) => at),
+      caseStudies: (experience.caseStudies ?? []).map((_, at) => at),
+    });
+  });
+
+  const byTechnology: Record<string, StackEntry> = {};
+
+  for (const [slug, entry] of Object.entries(index.byTechnology)) {
+    const kept: StackEntry = {
+      experiences: entry.experiences.filter((company) => position.has(company)),
+      highlights: [],
+      caseStudies: [],
+      skills: [...entry.skills],
+    };
+
+    for (const { company, index: at } of entry.highlights) {
+      const target = position.get(company)?.highlights[at];
+
+      if (target !== undefined) {
+        kept.highlights.push({ company, index: target });
+      }
+    }
+
+    for (const { company, index: at } of entry.caseStudies) {
+      const target = position.get(company)?.caseStudies[at];
+
+      if (target !== undefined) {
+        kept.caseStudies.push({ company, index: target });
+      }
+    }
+
+    byTechnology[slug] = kept;
+  }
+
+  return { byTechnology };
+}
+
 function text(value: unknown): string {
   return typeof value === "string" ? value : "";
+}
+
+/** A number from a database column, defaulting rather than producing NaN. */
+function number(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
 /** Metrics are JSONB and never queried, so they are read as a block. */

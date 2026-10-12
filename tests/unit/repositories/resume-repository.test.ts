@@ -51,6 +51,7 @@ function stub(overrides: Partial<ResumeRepository> = {}): ResumeRepository {
     readTestimonials: async () => [],
     readHomeStack: async () => null,
     readHomeTrackRecord: async () => null,
+    readTechnologyCatalog: async () => ({ categories: [], technologies: [] }),
   };
 
   return { ...base, ...overrides };

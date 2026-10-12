@@ -109,4 +109,16 @@ export type ResumeContent = {
   skillGroups: ResumeSkillGroup[];
   education: ResumeEducation[];
   languages: string[];
+  /**
+   * Which technologies appear where, resolved to positions in this document.
+   *
+   * Absent when nothing is tagged — the typed fallback, a database that predates
+   * the catalog, or a deployment that has not applied the migration. The
+   * distinction is deliberate: `undefined` is the renderer saying "I have no
+   * relation data", and a focused view has to treat it as *render everything*
+   * rather than *render nothing*, because a résumé that silently drops three
+   * roles because a relation table is empty reads as a shorter career rather
+   * than as a missing table.
+   */
+  stackIndex?: import("./technology").ResumeStackIndex;
 };

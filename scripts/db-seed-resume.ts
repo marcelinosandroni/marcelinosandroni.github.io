@@ -46,6 +46,8 @@ import { existsSync, readFileSync } from "node:fs";
 
 import { getResumeContent } from "../src/infrastructure/content";
 import { getHomeContent } from "../src/infrastructure/content/home";
+import { technologySlug } from "../src/domain/resume/technology";
+import { CATEGORIES, FALLBACK_CATEGORY, classify, sameTool } from "./technology-taxonomy";
 import { SUPPORTED_LOCALES, type Locale } from "../src/domain/i18n";
 
 /**
@@ -492,6 +494,19 @@ async function main(): Promise<void> {
   }
 
   /*
+    After the document, because the catalog is derived from it.
+
+    Every technology row is inferred from a label the owner already wrote, so
+    there is nothing to insert until the chips and skills exist. Running it
+    earlier would read an empty document and build an empty catalog — and an
+    empty catalog is a failure state that looks like success, since the seed
+    would report rows written.
+  */
+  for (const locale of SUPPORTED_LOCALES) {
+    await bootstrapTechnologyCatalog(locale);
+  }
+
+  /*
     The numbers that distinguish a bootstrap from a no-op.
 
     Printed because "the command succeeded" and "the database now holds your
@@ -501,6 +516,163 @@ async function main(): Promise<void> {
   console.log(`${inserted} inserted, ${offered - inserted} already present (of ${offered} offered).`);
   console.log("Nothing was overwritten. Testimonials are never bootstrapped —");
   console.log("add real quotes from /admin.");
+}
+
+/**
+ * Turns the flat chip and skill labels into catalog rows, and links them.
+ *
+ * ## Why this runs after the document, and links in a second pass
+ *
+ * A technology's id does not exist until its row is inserted, and the rows to
+ * link are in tables the document pass just wrote. So: insert, read back the
+ * ids, then link. Two passes rather than one because `ignore-duplicates` returns
+ * only the rows it actually wrote — on a populated database that is none of
+ * them, so the ids have to be read rather than captured.
+ *
+ * ## Why the link is by label, not by slug comparison
+ *
+ * The label is the only thing both sides share. A chip says "Java Spring Boot"
+ * and a catalog row says "Java Spring Boot"; matching on normalised text finds
+ * them regardless of which row was created first or what the owner has since
+ * renamed the slug to.
+ *
+ * ## Why linking does not use `insertMissing`
+ *
+ * The join is a single-column update of an existing row, not an insert. It is
+ * also the one write here that *does* overwrite — deliberately, and only ever
+ * toward a value it computed from the owner's own label. Re-running it cannot
+ * move a link to a different technology than the label names.
+ */
+async function bootstrapTechnologyCatalog(locale: Locale): Promise<void> {
+  console.log(`${locale} — technology catalog`);
+
+  // --- Categories ------------------------------------------------------
+  await insertMissing(
+    "technology_category",
+    CATEGORIES.map((category, order) => ({
+      locale,
+      slug: category.slug,
+      label: category[locale === "pt-BR" ? "pt" : "en"],
+      sort_order: order,
+    })),
+    "locale,slug",
+  );
+
+  const categoryRows = await selectMany("technology_category", { locale: `eq.${locale}` });
+  const categoryIdBySlug = new Map(categoryRows.map((row) => [String(row["slug"]), String(row["id"])]));
+
+  // --- The technologies the document already names ------------------------
+  const experienceChips = await selectMany("resume_technology", { locale: `eq.${locale}` });
+  const skillRows = await selectMany("resume_skill", { locale: `eq.${locale}` });
+
+  /*
+    Deduplicated on the *normalised* label rather than the slug, because
+    "Java Spring Boot" and "Java Spring Boot " are the same tool and a slug
+    comparison would treat the stray space as a second one.
+  */
+  const labels: string[] = [];
+
+  for (const label of [
+    ...experienceChips.map((row) => String(row["label"] ?? "")),
+    ...skillRows.map((row) => String(row["label"] ?? "")),
+  ]) {
+    const trimmed = label.trim();
+
+    if (trimmed !== "" && !labels.some((existing) => sameTool(existing, trimmed))) {
+      labels.push(trimmed);
+    }
+  }
+
+  await insertMissing(
+    "technology",
+    labels.map((label, order) => ({
+      category_id: categoryIdBySlug.get(classify(label)) ?? categoryIdBySlug.get(FALLBACK_CATEGORY),
+      locale,
+      slug: technologySlug(label),
+      label,
+      aliases: [],
+      surfaces: ["resume"],
+      sort_order: order,
+    })),
+    "locale,slug",
+  );
+
+  const technologyRows = await selectMany("technology", { locale: `eq.${locale}` });
+  const idByLabel = new Map<string, string>();
+
+  for (const row of technologyRows) {
+    const label = String(row["label"] ?? "");
+
+    if (![...idByLabel.keys()].some((existing) => sameTool(existing, label))) {
+      idByLabel.set(label, String(row["id"]));
+    }
+  }
+
+  const resolve = (label: string): string | undefined => {
+    for (const [candidate, id] of idByLabel) {
+      if (sameTool(candidate, label)) {
+        return id;
+      }
+    }
+
+    return undefined;
+  };
+
+  // --- Links --------------------------------------------------------------
+  let linked = 0;
+
+  for (const row of experienceChips) {
+    const technologyId = resolve(String(row["label"] ?? ""));
+
+    // Skipping an already-linked chip rather than re-patching it: a row the
+    // owner deliberately re-pointed in the admin should not be moved back by a
+    // bootstrap that happens to share its old label.
+    if (technologyId === undefined || row["technology_id"] === technologyId) {
+      continue;
+    }
+
+    if (row["technology_id"] !== null && row["technology_id"] !== undefined) {
+      continue;
+    }
+
+    await patch("resume_technology", String(row["id"]), { technology_id: technologyId });
+    linked++;
+  }
+
+  for (const row of skillRows) {
+    const technologyId = resolve(String(row["label"] ?? ""));
+
+    if (technologyId === undefined || row["technology_id"] !== null) {
+      continue;
+    }
+
+    await patch("resume_skill", String(row["id"]), { technology_id: technologyId });
+    linked++;
+  }
+
+  console.log(`  ${labels.length} technologies, ${linked} link(s) attached`);
+}
+
+/** Updates one row by id. The only write here that overwrites, and see above. */
+async function patch(table: string, id: string, values: Record<string, unknown>): Promise<void> {
+  const key = writeKey();
+  const response = await fetch(
+    `${restUrl()}/${table}?id=eq.${encodeURIComponent(id)}`,
+    {
+      method: "PATCH",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify(values),
+    },
+  );
+
+  if (!response.ok) {
+    fail(`Could not update ${table}`, await response.json().catch(() => response.statusText));
+  }
 }
 
 void main();

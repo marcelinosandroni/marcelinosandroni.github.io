@@ -11,6 +11,7 @@ import type {
   ResumeRepository,
   ResumeSurfaceRead,
   ResumeTestimonial,
+  TechnologyCatalog,
 } from "@/domain/resume/resume-repository";
 import type { ResumeContent } from "@/domain/resume/types";
 import {
@@ -210,6 +211,29 @@ export async function readHomeStack(locale: Locale): Promise<HomeStackSection | 
 /** The home page track-record annotations, database-first. */
 export async function readHomeTrackRecord(locale: Locale): Promise<HomeExperienceAnnotation[] | null> {
   return (await resolveResumeRepository()).readHomeTrackRecord(locale);
+}
+
+/**
+ * The technology catalog, for the admin.
+ *
+ * ## Why it bypasses the circuit breaker
+ *
+ * The breaker exists so a database outage does not add a latency to every page
+ * view. That argument does not apply to an owner opening `/admin` on purpose:
+ * there is no visitor to protect, and answering from the typed catalog would
+ * hand the owner an empty catalog while the database holds a hundred and twenty
+ * rows — which reads as "the catalog was lost", and the first thing they would
+ * do about it is re-seed something that is fine.
+ *
+ * So it throws instead, and the admin renders "needs the database". That is
+ * true, and it names the fix.
+ */
+export async function readTechnologyCatalog(locale: Locale): Promise<TechnologyCatalog> {
+  if (!isSupabaseContentConfigured()) {
+    throw new Error("the technology catalog requires Supabase; the typed catalog has no entities");
+  }
+
+  return (await getResumeRepository()).readTechnologyCatalog(locale);
 }
 
 /* -------------------------------------------------------------------------

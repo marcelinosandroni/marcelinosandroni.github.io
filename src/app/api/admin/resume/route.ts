@@ -145,4 +145,9 @@ const WRITABLE_TABLES: ReadonlySet<string> = new Set([
   "track_record_annotation",
   "track_record_blueprint",
   "resume_testimonial",
+  "technology",
+  "technology_category",
+  "highlight_technology",
+  "case_study_technology",
+  "case_study_media",
 ]);
