@@ -26,10 +26,13 @@ import type { PostSummary } from "@/domain/blog/post-draft";
 import { getPostRepository, readTechnologyCatalog } from "@/infrastructure/repositories";
 import { TechStackEditor } from "@/components/admin/tech-stack-editor";
 import { TechnologyCatalogEditor } from "@/components/admin/technology-catalog-editor";
+import { ExperienceEditor } from "@/components/admin/experience-editor";
 import type { TechnologyCatalog } from "@/domain/resume/resume-repository";
 import {
   readStackForEditor,
+  readExperienceEditor,
   type EditorCluster,
+  type ExperienceEditorDocument,
 } from "@/infrastructure/repositories/resume-writer";
 
 /**
@@ -159,6 +162,22 @@ export default async function AdminPage() {
     catalog = null;
   }
 
+  /*
+    The experience editor, read with the catalog rather than separately.
+
+    They travel together because the editor's job is to attach the catalog to
+    the document: a bullet list built from one moment and a technology list from
+    another produce a chip that cannot be untagged, because the option it refers
+    to had not loaded. One read, one consistent snapshot.
+  */
+  let experienceDocument: ExperienceEditorDocument | null = null;
+
+  try {
+    experienceDocument = await readExperienceEditor(DEFAULT_LOCALE);
+  } catch {
+    experienceDocument = null;
+  }
+
   let board: PresenceBoard | null = null;
   let conversationList: ReadonlyArray<ConversationSummary> | null = null;
 
@@ -276,6 +295,22 @@ export default async function AdminPage() {
         owner who opens this page to add a tool should not have to scroll past
         the thing they were about to add.
       */}
+      {experienceDocument === null ? (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <p className="text-body-sm text-body-sm text-text-secondary">
+            The experience editor needs the database. Run <code>npm run db:migrate</code> and{" "}
+            <code>npm run db:bootstrap</code> locally.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <ExperienceEditor
+            initialDocument={experienceDocument}
+            locale={DEFAULT_LOCALE}
+          />
+        </div>
+      )}
+
       {catalog === null ? (
         <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
           <p className="text-body-sm text-body-sm text-text-secondary">

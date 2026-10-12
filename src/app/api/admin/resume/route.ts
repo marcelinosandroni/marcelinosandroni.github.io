@@ -93,7 +93,7 @@ function toWrite(body: unknown): ResumeWrite | null {
     return null;
   }
 
-  const { kind, table, id, values } = body as Record<string, unknown>;
+  const { kind, table, id, values, filters } = body as Record<string, unknown>;
 
   if (typeof table !== "string" || !isWritable(table)) {
     return null;
@@ -101,6 +101,36 @@ function toWrite(body: unknown): ResumeWrite | null {
 
   if (kind === "delete") {
     return typeof id === "string" && id !== "" ? { kind, table, id } : null;
+  }
+
+  /*
+    A `deleteWhere` whose filter set is empty or malformed is refused here as
+    well as in the writer. The writer is the boundary that matters, but this one
+    answers the owner with `invalid_request` instead of routing a delete with no
+    predicate to a table that holds the document of record.
+  */
+  if (kind === "deleteWhere") {
+    if (typeof filters !== "object" || filters === null || Array.isArray(filters)) {
+      return null;
+    }
+
+    const entries = Object.entries(filters as Record<string, unknown>);
+
+    if (entries.length === 0) {
+      return null;
+    }
+
+    const clean: Record<string, string> = {};
+
+    for (const [column, value] of entries) {
+      if (!/^[a-z_][a-z0-9_]*$/.test(column) || typeof value !== "string") {
+        return null;
+      }
+
+      clean[column] = value;
+    }
+
+    return { kind, table, filters: clean };
   }
 
   if (typeof values !== "object" || values === null || Array.isArray(values)) {

@@ -1,5 +1,9 @@
 import { requireSupabaseConfig, supabaseReadConfigFromEnv } from "@/infrastructure/supabase/server";
 import { LOCALE_SEGMENTS, SUPPORTED_LOCALES, type Locale } from "@/domain/i18n";
+import type {
+  TechnologyCatalogEntry,
+  TechnologyCategory,
+} from "@/domain/resume/resume-repository";
 import type { Surface } from "@/domain/resume/types";
 import { toSurfaces } from "@/domain/resume/types";
 
@@ -83,7 +87,18 @@ const WRITABLE: ReadonlySet<string> = new Set<WritableTable>([
 export type ResumeWrite =
   | { kind: "update"; table: WritableTable; id: string; values: Record<string, unknown> }
   | { kind: "insert"; table: WritableTable; values: Record<string, unknown> }
-  | { kind: "delete"; table: WritableTable; id: string };
+  | { kind: "delete"; table: WritableTable; id: string }
+  /*
+    Delete by column values rather than by primary key.
+
+    Added for the join tables, and it exists because they have no single-column
+    primary key to delete by: `highlight_technology` is
+    `(highlight_id, technology_id)`. Without this the only way to untag a bullet
+    would be to read the row's id — which it does not have — so the feature the
+    whole catalog exists to enable, tagging a bullet with the stacks it
+    describes, would be writable but not reversible.
+  */
+  | { kind: "deleteWhere"; table: WritableTable; filters: Record<string, string> };
 
 export class ResumeWriteError extends Error {
   constructor(
@@ -123,7 +138,28 @@ export async function applyResumeWrite(
   let response: Response;
   let entry: Record<string, unknown> | undefined;
 
-  if (write.kind === "delete") {
+  if (write.kind === "deleteWhere") {
+    /*
+      Refuses an empty filter set outright.
+
+      A `DELETE` with no `WHERE` is `TRUNCATE` in everything but syntax, and this
+      module writes to the document of record with no undo and no version
+      history. A malformed request arriving with `filters: {}` must fail at the
+      boundary rather than empty `highlight_technology` and silently return every
+      bullet on the site to untagged.
+    */
+    const entries = Object.entries(write.filters);
+
+    if (entries.length === 0) {
+      throw new ResumeWriteError("delete_needs_a_filter", 400);
+    }
+
+    const query = entries
+      .map(([column, value]) => `${column}=eq.${encodeURIComponent(value)}`)
+      .join("&");
+
+    response = await fetch(`${endpoint}?${query}`, { method: "DELETE", headers });
+  } else if (write.kind === "delete") {
     response = await fetch(`${endpoint}?id=eq.${encodeURIComponent(write.id)}`, {
       method: "DELETE",
       headers,
@@ -268,6 +304,245 @@ export async function readStackForEditor(locale: Locale): Promise<EditorCluster[
 }
 
 /** One read, bounded. Failing loudly is right here: the editor must not lie. */
+
+/** A bullet as the editor needs it, with the stacks it describes. */
+export type EditorHighlight = {
+  id: string;
+  body: string;
+  sortOrder: number;
+  technologyIds: string[];
+};
+
+/** A case study as the editor needs it: text, metrics, stack and imagery. */
+export type EditorCaseStudy = {
+  id: string;
+  title: string;
+  challenge: string;
+  solution: string;
+  result: string;
+  metrics: Array<{ label: string; value: string; icon?: string }>;
+  sortOrder: number;
+  technologyIds: string[];
+  media: EditorMedia[];
+};
+
+/** One optional image. Zero rows is the normal case and renders nothing. */
+export type EditorMedia = {
+  id: string;
+  url: string;
+  alt: string;
+  caption: string;
+  sortOrder: number;
+  surfaces: Surface[];
+};
+
+/** One role, with everything under it. */
+export type EditorExperience = {
+  id: string;
+  company: string;
+  role: string;
+  period: string;
+  location: string;
+  summary: string;
+  teamSize: number | null;
+  scope: string;
+  sortOrder: number;
+  surfaces: Surface[];
+  highlights: EditorHighlight[];
+  caseStudies: EditorCaseStudy[];
+  technologies: Array<{ id: string; label: string; sortOrder: number; technologyId: string | null }>;
+};
+
+/**
+ * The whole editable document, plus the catalog to tag it with.
+ *
+ * ## Why one read and not one per row
+ *
+ * The editor renders every role, every bullet and every case study at once, in
+ * one screen the owner works down. Assembled row by row that is well over a
+ * hundred round trips against a local database that is three container hops away,
+ * and the owner would sit there watching it.
+ *
+ * ## Why the catalog travels with it
+ *
+ * Because the pickers need it on the same render. A second fetch would show a
+ * bullet list built from one moment and a technology list from another, and the
+ * result is a chip that cannot be untagged because the option it refers to had
+ * not loaded yet.
+ */
+export type ExperienceEditorDocument = {
+  experiences: EditorExperience[];
+  catalog: { categories: TechnologyCategory[]; technologies: TechnologyCatalogEntry[] };
+};
+
+export async function readExperienceEditor(locale: Locale): Promise<ExperienceEditorDocument | null> {
+  const config = supabaseReadConfigFromEnv();
+
+  if (!config.configured) {
+    return null;
+  }
+
+  const { url, publishableKey: key } = config;
+
+  const experiences = await fetchRows(url, key, "resume_experience", {
+    locale: `eq.${locale}`,
+    order: "sort_order.asc",
+  });
+
+  /*
+    One query per child table, addressed by `in.(...)` over every id in the
+    document.
+
+    A `child` call with an empty list is skipped rather than sent as a filter
+    that matches nothing: PostgREST has no `in.()` empty form, and a filter that
+    was dropped because it was "empty" would silently widen to the whole table —
+    so every bullet on the site could appear under one case study.
+  */
+  const child = async <T>(table: string, column: string, values: string[]): Promise<T[]> =>
+    values.length === 0
+      ? []
+      : ((await fetchRows(url, key, table, {
+          [column]: `in.(${values.join(",")})`,
+        })) as T[]);
+
+  const detail = await Promise.all(
+    experiences.map(async (experience) => {
+      const id = String(experience["id"]);
+
+      return {
+        experience,
+        highlights: await fetchRows(url, key, "resume_highlight", {
+          experience_id: `eq.${id}`,
+          locale: `eq.${locale}`,
+          order: "sort_order.asc",
+        }),
+        caseStudies: await fetchRows(url, key, "resume_case_study", {
+          experience_id: `eq.${id}`,
+          locale: `eq.${locale}`,
+          order: "sort_order.asc",
+        }),
+        technologies: await fetchRows(url, key, "resume_technology", {
+          experience_id: `eq.${id}`,
+          locale: `eq.${locale}`,
+          order: "sort_order.asc",
+        }),
+      };
+    }),
+  );
+
+  const highlightIds = detail.flatMap((entry) => entry.highlights.map((row) => String(row["id"])));
+  const caseStudyIds = detail.flatMap((entry) => entry.caseStudies.map((row) => String(row["id"])));
+
+  const [highlightLinks, caseStudyLinks, media, categories, technologies] = await Promise.all([
+    child<Record<string, unknown>>("highlight_technology", "highlight_id", highlightIds),
+    child<Record<string, unknown>>("case_study_technology", "case_study_id", caseStudyIds),
+    child<Record<string, unknown>>("case_study_media", "case_study_id", caseStudyIds),
+    fetchRows(url, key, "technology_category", { locale: `eq.${locale}`, order: "sort_order.asc" }),
+    fetchRows(url, key, "technology", { locale: `eq.${locale}`, order: "sort_order.asc" }),
+  ]);
+
+  const linksFor = (links: Array<Record<string, unknown>>, column: string, id: string): string[] =>
+    links
+      .filter((link) => String(link[column]) === id)
+      .map((link) => String(link["technology_id"]))
+      .filter((value) => value !== "undefined" && value !== "null");
+
+  return {
+    experiences: detail.map(({ experience, highlights, caseStudies, technologies: chips }) => ({
+      id: String(experience["id"]),
+      company: String(experience["company"] ?? ""),
+      role: String(experience["role"] ?? ""),
+      period: String(experience["period"] ?? ""),
+      location: String(experience["location"] ?? ""),
+      summary: String(experience["summary"] ?? ""),
+      teamSize: typeof experience["team_size"] === "number" ? experience["team_size"] : null,
+      scope: String(experience["scope"] ?? ""),
+      sortOrder: number(experience["sort_order"]),
+      surfaces: toSurfaces(experience["surfaces"] as string[] | null),
+      highlights: highlights.map((row, index) => ({
+        id: String(row["id"]),
+        body: String(row["body"] ?? ""),
+        sortOrder: typeof row["sort_order"] === "number" ? row["sort_order"] : index,
+        technologyIds: linksFor(highlightLinks, "highlight_id", String(row["id"])),
+      })),
+      caseStudies: caseStudies.map((row, index) => {
+        const id = String(row["id"]);
+
+        return {
+          id,
+          title: String(row["title"] ?? ""),
+          challenge: String(row["challenge"] ?? ""),
+          solution: String(row["solution"] ?? ""),
+          result: String(row["result"] ?? ""),
+          metrics: readMetrics(row["metrics"]),
+          sortOrder: typeof row["sort_order"] === "number" ? row["sort_order"] : index,
+          technologyIds: linksFor(caseStudyLinks, "case_study_id", id),
+          media: media
+            .filter((row2) => String(row2["case_study_id"]) === id)
+            .map((row2, at) => ({
+              id: String(row2["id"]),
+              url: String(row2["url"] ?? ""),
+              alt: String(row2["alt"] ?? ""),
+              caption: String(row2["caption"] ?? ""),
+              sortOrder: typeof row2["sort_order"] === "number" ? row2["sort_order"] : at,
+              surfaces: toSurfaces(row2["surfaces"] as string[] | null),
+            })),
+        };
+      }),
+      technologies: chips.map((row, index) => ({
+        id: String(row["id"]),
+        label: String(row["label"] ?? ""),
+        sortOrder: typeof row["sort_order"] === "number" ? row["sort_order"] : index,
+        technologyId:
+          typeof row["technology_id"] === "string" && row["technology_id"] !== ""
+            ? row["technology_id"]
+            : null,
+      })),
+    })),
+    catalog: {
+      categories: categories.map((row) => ({
+        id: String(row["id"]),
+        slug: String(row["slug"] ?? ""),
+        label: String(row["label"] ?? ""),
+        sortOrder: number(row["sort_order"]),
+      })),
+      technologies: technologies.map((row) => ({
+        id: String(row["id"]),
+        slug: String(row["slug"] ?? ""),
+        label: String(row["label"] ?? ""),
+        categoryId: String(row["category_id"] ?? ""),
+        categorySlug: null,
+        categoryLabel: null,
+        aliases: Array.isArray(row["aliases"])
+          ? (row["aliases"] as unknown[]).filter((a): a is string => typeof a === "string")
+          : [],
+        surfaces: toSurfaces(row["surfaces"] as string[] | null),
+        isPublished: row["is_published"] !== false,
+        sortOrder: number(row["sort_order"]),
+      })),
+    },
+  };
+}
+
+/** Metrics are JSONB; a malformed array must not take the editor down. */
+function readMetrics(value: unknown): Array<{ label: string; value: string; icon?: string }> {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((entry) => entry as Record<string, unknown>)
+    .map((entry) => ({
+      label: String(entry["label"] ?? ""),
+      value: String(entry["value"] ?? ""),
+      ...(typeof entry["icon"] === "string" ? { icon: entry["icon"] } : {}),
+    }));
+}
+
+function number(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
 async function fetchRows(
   url: string,
   key: string,
