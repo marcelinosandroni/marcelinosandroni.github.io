@@ -1,3 +1,4 @@
+import type { ResumeContent } from "@/domain/resume/types";
 import type { ResumeStackIndex } from "@/domain/resume/technology";
 
 /**
@@ -167,6 +168,80 @@ export function expandFocus(
  * mistyped edge made long.
  */
 const MAX_PROMOTED_DEPTH = 4;
+
+/**
+ * Rebuilds the document narrowed to a selection.
+ *
+ * ## Why this is here and not in the two callers
+ *
+ * The page and the PDF each narrow, and both must narrow *identically*. Two
+ * copies of this function would agree today and drift the first time one gained
+ * a field — and the drift would be a PDF that is not the page the reader was
+ * looking at, with nothing in either to say so.
+ *
+ * That is the same argument the graph walk gets, for the same reason: one
+ * answer, computed once, shared by every consumer.
+ */
+export function narrowDocument(
+  resume: ResumeContent,
+  result: FocusResult,
+): ResumeContent {
+  const byIndex = new Map(result.experiences.map((entry) => [entry.experienceIndex, entry]));
+
+  return {
+    ...resume,
+    experiences: resume.experiences.map((experience, experienceIndex) => {
+      const entry = byIndex.get(experienceIndex);
+
+      if (entry === undefined) {
+        return experience;
+      }
+
+      /*
+        Filtered rather than mapped through `title`: a case study is an object
+        with its challenge, solution and metrics, and rebuilding it from the
+        title would throw away the measured result — the part that argues the
+        work was worth doing.
+      */
+      const caseStudies = entry.caseStudies
+        .map((caseStudy) => experience.caseStudies?.[caseStudy.index])
+        .filter((study): study is NonNullable<typeof study> => study !== undefined);
+
+      return {
+        ...experience,
+        highlights: entry.highlights.map((highlight) => highlight.body),
+        caseStudies,
+      };
+    }),
+    skillGroups: promoteSkills(resume, result),
+  };
+}
+
+/**
+ * Moves the focused skills to the top of their group, keeping every one.
+ *
+ * A stable partition rather than a sort: the résumé's order is the owner's
+ * arrangement, and a focused view that reshuffled the section would be
+ * reordering the document rather than prioritising it.
+ */
+function promoteSkills(resume: ResumeContent, narrowed: FocusResult): ResumeContent["skillGroups"] {
+  return resume.skillGroups.map((group) => {
+    const promoted = new Set(
+      narrowed.skillPositions
+        .filter((entry) => entry.group === group.label && entry.primary)
+        .map((entry) => entry.index),
+    );
+
+    if (promoted.size === 0) {
+      return group;
+    }
+
+    const primary = group.skills.filter((_, index) => promoted.has(index));
+    const rest = group.skills.filter((_, index) => !promoted.has(index));
+
+    return { ...group, skills: [...primary, ...rest] };
+  });
+}
 
 /**
  * A named selection the résumé can be narrowed to: "React + Node".
