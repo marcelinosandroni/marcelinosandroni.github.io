@@ -1,4 +1,5 @@
 import { DownloadPDFButton } from "@/components/download-pdf-button";
+import { CaseStudyGallery } from "@/components/resume/case-study-gallery";
 import { SiteHeader } from "@/components/site/site-header";
 import { Icon } from "@/components/ui/icon";
 import { CONTENT_PERIOD, SITE_VERSION } from "@/domain/site/site-info";
@@ -283,6 +284,25 @@ function ResumeExperienceList({
                         </li>
                       ))}
                     </ul>
+
+                    {/*
+                      Imagery, and nothing at all when there is none.
+
+                      The gallery returns null for an empty list rather than
+                      rendering a placeholder row — a case study without images is
+                      the normal case, and a placeholder would make every card that
+                      legitimately has none look like a card that failed to load.
+                    */}
+                    <CaseStudyGallery
+                      title={caseStudy.title}
+                      media={caseStudy.media ?? []}
+                      labels={{
+                        open: t.resume.galleryOpen,
+                        previous: t.resume.galleryPrevious,
+                        next: t.resume.galleryNext,
+                        close: t.resume.galleryClose,
+                      }}
+                    />
                   </div>
                 ))}
               </div>
