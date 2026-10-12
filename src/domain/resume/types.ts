@@ -49,6 +49,20 @@ export function appearsOn(surfaces: readonly Surface[] | undefined, surface: Sur
   return surfaces === undefined || surfaces.includes(surface);
 }
 
+/**
+ * One optional image attached to a case study.
+ *
+ * Deliberately not required: a case study is argued by its challenge, response
+ * and measured result, and an image is support. Making it mandatory would mean
+ * inventing a diagram for the cases that have none, which is the kind of
+ * decoration this site does not add.
+ */
+export type CaseStudyMedia = {
+  readonly url: string;
+  readonly alt: string;
+  readonly caption: string;
+};
+
 export type CaseStudy = {
   title: string;
   challenge: string;
@@ -59,6 +73,12 @@ export type CaseStudy = {
     value: string;
     icon?: "time" | "money" | "people" | "performance";
   }[];
+  /**
+   * Imagery, in display order. Absent or empty renders nothing at all — no
+   * placeholder, no "no images" state — because a case study without images is
+   * the normal case and should look like every other case study.
+   */
+  media?: CaseStudyMedia[];
 };
 
 export type ResumeExperience = {

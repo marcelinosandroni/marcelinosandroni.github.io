@@ -71,7 +71,30 @@ export class SupabaseResumeRepository implements ResumeRepository {
           this.many("resume_technology", `experience_id=eq.${id}&locale=eq.${locale}&order=sort_order.asc`),
         ]);
 
-        return { row, highlights, caseStudies, technologies };
+        /*
+          Imagery in one batched read for the same reason as the links below: one
+          query per case study would be one round trip per card, on a page that
+          may hold twenty of them.
+
+          A failure here degrades to "no images" rather than failing the read.
+          Imagery is support for a case study, not the case study, and losing a
+          diagram must not cost a reader the document of record.
+        */
+        const caseStudyIds = caseStudies.map((row) => String(row["id"]));
+        const media =
+          caseStudyIds.length === 0
+            ? ([] as Row[])
+            : await this.many(
+                "case_study_media",
+                `case_study_id=in.(${caseStudyIds.join(",")})&locale=eq.${locale}&order=sort_order.asc`,
+              ).catch(() => [] as Row[]);
+
+        return {
+          row,
+          highlights,
+          caseStudies: caseStudies.map((row2) => toCaseStudy(row2, media)),
+          technologies,
+        };
       }),
     );
 
@@ -315,7 +338,10 @@ export class SupabaseResumeRepository implements ResumeRepository {
           location: text(row["location"]),
           summary: text(row["summary"]),
           highlights: (entry?.highlights ?? []).map((h) => text(h["body"])),
-          caseStudies: (entry?.caseStudies ?? []).map(toCaseStudy),
+          // Already assembled with its media in `readResume`, so there is no
+          // second mapping here — passing `toCaseStudy` directly would call it
+          // with an array index as its second argument.
+          caseStudies: (entry?.caseStudies ?? []) as CaseStudy[],
           technologies: (entry?.technologies ?? []).map((t) => text(t["label"])),
           teamSize: typeof row["team_size"] === "number" ? row["team_size"] : undefined,
           scope: text(row["scope"]),
@@ -711,8 +737,26 @@ function toKind(value: unknown): TechnologyKind | null {
 }
 
 /** Metrics are JSONB and never queried, so they are read as a block. */
-function toCaseStudy(row: Row): CaseStudy {
+/**
+ * A case study row, with its imagery.
+ *
+ * `media` is omitted rather than set to `[]` when there is none, so the caller
+ * can tell "no images" from "images not read", and the document can render the
+ * two identically — because a case study with no images is the normal case and
+ * must not look different from one whose images failed to load.
+ */
+function toCaseStudy(row: Row, media: Row[] = []): CaseStudy {
   const metrics = Array.isArray(row["metrics"]) ? row["metrics"] : [];
+  const caseStudyId = String(row["id"]);
+
+  const images = media
+    .filter((item) => String(item["case_study_id"]) === caseStudyId)
+    .map((item) => ({
+      url: text(item["url"]),
+      alt: text(item["alt"]),
+      caption: text(item["caption"]),
+    }))
+    .filter((item) => item.url !== "");
 
   return {
     title: text(row["title"]),
@@ -728,6 +772,7 @@ function toCaseStudy(row: Row): CaseStudy {
         icon: (typeof entry["icon"] === "string" ? entry["icon"] : undefined) as CaseStudy["metrics"][number]["icon"],
       };
     }),
+    ...(images.length > 0 ? { media: images } : {}),
   };
 }
 
