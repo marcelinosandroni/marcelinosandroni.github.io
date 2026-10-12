@@ -332,18 +332,184 @@ export function normalizeLabel(value: string): string {
 }
 
 /**
+ * Technologies matched against the *text* of a bullet, for the provisional tags.
+ *
+ * ## Why this is safe where the role-level draft was not
+ *
+ * The role-level draft assumed a bullet delivered in a role whose stack includes
+ * Kafka was about Kafka, which is false for the deployment bullets in the same
+ * role. That is why it returned a résumé that looked filtered but filtered
+ * nothing.
+ *
+ * This matches a **name that appears in the bullet itself**. "Migrating MySQL to
+ * ClickHouse with Databricks" contains all three, so the inference is not a guess
+ * about what the sentence means — it is a reading of what it says.
+ *
+ * ## Why the terms are conservative
+ *
+ * Every term is a full technology name, matched case-insensitively and on a word
+ * boundary. Deliberately excluded are terms that would over-match:
+ *
+ *   * `Java` alone, which appears inside "JavaScript"
+ *   * `Angular` where the sentence is about AngularJS (a different framework)
+ *   * `NET`, which is a substring of several networks and platform names
+ *
+ * A term that matches a bullet it has nothing to do with writes a false
+ * attribution into the document of record, which is the one thing this site
+ * cannot do. So the list is short on purpose and the owner refines it.
+ *
+ * `word` is what to look for; `slug` is what to attach it to.
+ */
+export const BULLET_TERMS: ReadonlyArray<{ word: string; slug: string }> = [
+  { word: "MySQL", slug: "mysql" },
+  { word: "PostgreSQL", slug: "postgresql" },
+  { word: "Postgres", slug: "postgresql" },
+  { word: "SQL Server", slug: "sql-server" },
+  { word: "ClickHouse", slug: "clickhouse" },
+  { word: "Databricks", slug: "databricks" },
+  { word: "MongoDB", slug: "mongodb" },
+  { word: "Redis", slug: "redis" },
+  { word: "Kafka", slug: "kafka" },
+  { word: "RabbitMQ", slug: "rabbitmq" },
+  { word: "Spring", slug: "java-spring-boot" },
+  { word: "NestJS", slug: "nestjs" },
+  { word: "Next.js", slug: "next-js" },
+  { word: "Node.js", slug: "node-js" },
+  { word: "TypeScript", slug: "typescript" },
+  { word: "JavaScript", slug: "javascript" },
+  { word: "Angular", slug: "angular" },
+  { word: "React", slug: "react" },
+  { word: "Vue.js", slug: "vue-js" },
+  { word: ".NET", slug: "net-core" },
+  { word: "Flutter", slug: "flutter" },
+  { word: "Python", slug: "python" },
+  { word: "COBOL", slug: "cobol" },
+  { word: "Kubernetes", slug: "kubernetes" },
+  { word: "k8s", slug: "kubernetes" },
+  { word: "Docker", slug: "docker" },
+  { word: "Terraform", slug: "terraform" },
+  { word: "Helm", slug: "helm" },
+  { word: "AWS", slug: "aws" },
+  { word: "Azure", slug: "azure" },
+  { word: "GCP", slug: "gcp" },
+  { word: "Prometheus", slug: "prometheus" },
+  { word: "Grafana", slug: "grafana" },
+  { word: "Playwright", slug: "playwright" },
+  { word: "Cypress", slug: "cypress" },
+  { word: "Selenium", slug: "selenium" },
+  { word: "Jenkins", slug: "jenkins" },
+  { word: "GitHub Actions", slug: "github-actions" },
+  { word: "SonarQube", slug: "sonarqube" },
+  { word: "Fortify", slug: "fortify" },
+  { word: "OpenTelemetry", slug: "opentelemetry" },
+  { word: "Datadog", slug: "datadog" },
+  { word: "Design System", slug: "design-system" },
+  { word: "DDD", slug: "ddd" },
+  { word: "DDD", slug: "ddd" },
+];
+
+/**
+ * The slugs a bullet names, from terms that appear in it.
+ *
+ * `Java` is handled by an explicit rule rather than a term, because it is a
+ * substring of `JavaScript` and a term list cannot express "match Java but not
+ * JavaScript" with a word boundary alone.
+ */
+export function bulletsMention(body: string): string[] {
+  const matched = new Set<string>();
+
+  for (const { word, slug } of BULLET_TERMS) {
+    // Word-boundary, case-insensitive. `.` and `+` are escaped because several
+    // names contain them, and an unescaped dot matches any character — which
+    // would make "Nodejs" match.
+    const pattern = new RegExp(`(^|[^A-Za-z])${escape(word)}([^A-Za-z]|$)`, "i");
+
+    if (pattern.test(body)) {
+      matched.add(slug);
+    }
+  }
+
+  const saysJava = /\bJava\b/.test(body);
+
+  if (saysJava && !/\bJavaScript\b/i.test(body)) {
+    matched.add("java");
+  }
+
+  return [...matched];
+}
+
+function escape(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * The stack profiles.
+ *
+ * ## Why these are seeded and not left empty
+ *
+ * Because a profile is a *selection*, and the seeded ones are the selections the
+ * owner asked for: React + Node, Angular + Java, Angular + .NET, Python. They are
+ * content, so they belong in the same bootstrap as everything else — an owner
+ * editing them later edits rows, and a re-run leaves those rows alone because
+ * `ignore-duplicates` only fills what is missing.
+ *
+ * ## Why `primary` names the language and the framework both
+ *
+ * Because the graph reaches the language anyway, and naming it says the owner
+ * means it. `expandFocus` seeds its root set from `primary`, so React and
+ * TypeScript listed together promote TypeScript, while React alone reaches it —
+ * which is the difference between "I am strong in React" and "I am strong in
+ * React and in the language it is written in."
+ *
+ * ## Why `listed` is not expanded
+ *
+ * Because a listed tool is shown, not adopted. Putting React in a Java profile's
+ * `listed` list must not drag TypeScript and JavaScript into that profile.
+ */
+export const PROFILES: ReadonlyArray<{
+  slug: string;
+  description: string;
+  primary: readonly string[];
+  listed: readonly string[];
+}> = [
+  {
+    slug: "react-node",
+    description: "React, Node.js and TypeScript services and interfaces.",
+    primary: ["react", "node-js", "next-js", "nestjs", "typescript", "javascript"],
+    listed: ["angular", "java-spring-boot", "postgresql", "kafka", "docker", "kubernetes", "aws"],
+  },
+  {
+    slug: "angular-java",
+    description: "Angular front ends on Spring Boot services.",
+    primary: ["angular", "java-spring-boot", "java-spring", "java", "typescript"],
+    listed: ["postgresql", "postgres", "kafka", "rabbitmq", "docker", "kubernetes", "aws"],
+  },
+  {
+    slug: "dotnet",
+    description: "Angular on .NET services.",
+    primary: ["angular", "net-core", "net", "typescript"],
+    listed: ["c-sharp", "sql-server", "postgresql", "postgres", "azure", "docker"],
+  },
+  {
+    slug: "python",
+    description: "Python services and data work.",
+    primary: ["python"],
+    listed: ["postgresql", "postgres", "docker", "aws", "fastapi", "databricks"],
+  },
+];
+/**
  * Two labels that name the same tool.
  *
  * "Java Spring Boot" and "Java Spring" are one technology; "Java" is another.
  * Merging the first two matters because they appear on different roles and a
- * focused résumé that promoted one would then show only half the roles that
+ * focused resume that promoted one would then show only half the roles that
  * actually used it.
  */
 export function sameTool(a: string, b: string): boolean {
   const normalize = (value: string): string =>
     value
       .normalize("NFD")
-      .replace(/[̀-ͯ]/g, "")
+      .replace(/[́-ͯ]/g, "")
       .toLowerCase()
       .replace(/\(([^)]*)\)/g, " $1 ")
       .replace(/[^a-z0-9+]+/g, " ")

@@ -11,9 +11,16 @@ import type {
   ResumeRepository,
   ResumeSurfaceRead,
   ResumeTestimonial,
+  StackProfileSummary,
   TechnologyCatalog,
 } from "@/domain/resume/resume-repository";
 import type { ResumeContent } from "@/domain/resume/types";
+import {
+  EMPTY_FOCUS,
+  resolveProfiles,
+  type FocusExpansion,
+  type TechnologyEdge,
+} from "@/domain/resume/focus";
 import {
   FallbackResumeRepository,
   versionedResumeRepository,
@@ -234,6 +241,65 @@ export async function readTechnologyCatalog(locale: Locale): Promise<TechnologyC
   }
 
   return (await getResumeRepository()).readTechnologyCatalog(locale);
+}
+
+/**
+ * The stack profiles, for the résumé page's selector and for the admin.
+ *
+ * Through the breaker rather than around it, unlike the catalog: a résumé page
+ * with no selector is the generic résumé, which is correct, so falling back is a
+ * real answer and worth having on the hot path.
+ */
+export async function readStackProfiles(locale: Locale): Promise<StackProfileSummary[]> {
+  return (await resolveResumeRepository()).readStackProfiles(locale);
+}
+
+/**
+ * The profiles already resolved against the relation graph.
+ *
+ * The single place the walk happens. The résumé page, the PDF and the job
+ * matcher all call this, because three implementations of the same walk would
+ * drift the first time a relation was corrected — and a page that promoted
+ * TypeScript while the PDF did not is the kind of bug nobody reports.
+ */
+export async function readResolvedProfiles(
+  locale: Locale,
+): Promise<Array<{ profile: StackProfileSummary; focus: FocusExpansion }>> {
+  const [summaries, catalog] = await Promise.all([
+    readStackProfiles(locale),
+    readTechnologyCatalog(locale).catch(() => ({ categories: [], technologies: [], relations: [] })),
+  ]);
+
+  if (summaries.length === 0) {
+    return [];
+  }
+
+  const slugById = new Map(catalog.technologies.map((entry) => [entry.id, entry.slug]));
+
+  const edges: TechnologyEdge[] = catalog.relations
+    .map((relation) => {
+      const from = slugById.get(relation.fromId);
+      const to = slugById.get(relation.toId);
+
+      return from === undefined || to === undefined ? null : { from, to, kind: relation.kind };
+    })
+    .filter((edge): edge is TechnologyEdge => edge !== null);
+
+  const resolved = resolveProfiles(
+    summaries.map((summary) => ({
+      slug: summary.slug,
+      label: summary.label,
+      description: summary.description,
+      surfaces: new Set(summary.surfaces),
+      primary: new Set(summary.primary),
+      listed: new Set(summary.listed),
+    })),
+    edges,
+  );
+
+  return summaries
+    .map((profile) => ({ profile, focus: resolved.get(profile.slug) ?? EMPTY_FOCUS }))
+    .filter((entry) => entry.focus.all.size > 0);
 }
 
 /* -------------------------------------------------------------------------

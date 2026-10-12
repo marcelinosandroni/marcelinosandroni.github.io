@@ -47,7 +47,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { getResumeContent } from "../src/infrastructure/content";
 import { getHomeContent } from "../src/infrastructure/content/home";
 import { technologySlug } from "../src/domain/resume/technology";
-import { RELATIONS, classifyKind, describe, normalizeLabel } from "./technology-descriptions";
+import { BULLET_TERMS, PROFILES, RELATIONS, bulletsMention, classifyKind, describe, normalizeLabel } from "./technology-descriptions";
 import { CATEGORIES, FALLBACK_CATEGORY, LANGUAGES, classify, sameTool } from "./technology-taxonomy";
 import { SUPPORTED_LOCALES, type Locale } from "../src/domain/i18n";
 
@@ -507,6 +507,19 @@ async function main(): Promise<void> {
     await bootstrapTechnologyCatalog(locale);
   }
 
+    for (const locale of SUPPORTED_LOCALES) {
+    console.log(`${locale} — tagging bullets`);
+    const { named, inherited } = await tagBulletsByText(locale);
+    console.log(
+      `  ${named} tag(s) read from the bullet's own text, ${inherited} bullet(s) inherited their role's stack.`,
+    );
+    console.log("  The inherited ones are the weaker reading — review them in /admin.");
+  }
+
+  for (const locale of SUPPORTED_LOCALES) {
+    await bootstrapStackProfiles(locale);
+  }
+
   /*
     The numbers that distinguish a bootstrap from a no-op.
 
@@ -752,7 +765,213 @@ async function bootstrapTechnologyCatalog(locale: Locale): Promise<void> {
   console.log(`  ${labels.length} technologies, ${linked} link(s) attached`);
 }
 
-/** Updates one row by id. The only write here that overwrites, and see above. */
+
+/**
+ * Tags each bullet, from the strongest signal available.
+ *
+ * ## Two signals, in order, because there are two kinds of bullet
+ *
+ * 1. **The bullet names a technology.** "Migrating MySQL to ClickHouse with
+ *    Databricks" names three, and the link is a reading of the sentence rather
+ *    than a guess about it. This is the signal `tagBulletsByText` uses.
+ *
+ * 2. **The bullet is a result.** "Rescued a R$ 24M/year contract, lifting
+ *    recognition accuracy <60% → 100%" names nothing, and correctly so — it is
+ *    written for a hiring manager reading outcomes. Attributing it to Kafka
+ *    because the role used Kafka is a guess; leaving it untagged means a focused
+ *    résumé either keeps it everywhere or drops it from a role where it belongs.
+ *
+ * The second kind therefore **inherits the role's own stack**, which is the only
+ * truth available about it. That is weaker evidence than a name in the text, and
+ * it is stated as such: the console says how many were inherited, and the owner
+ * refines them in `/admin` in one click.
+ *
+ * ## Why the first version was wrong and this is not
+ *
+ * The first version inherited for *every* bullet. Every role's three bullets then
+ * carried the role's whole stack, so `applyFocus` reported `narrowed=0` on every
+ * profile — a résumé that looked filtered and filtered nothing. Ordering the
+ * signals is what makes the difference: a bullet that names its stack is precise,
+ * and only a bullet that names none falls back to the weaker reading.
+ */
+async function tagBulletsByText(locale: Locale): Promise<{ named: number; inherited: number }> {
+  const technologies = await selectMany("technology", { locale: `eq.${locale}` });
+  const slugById = new Map(technologies.map((row) => [String(row["id"]), String(row["slug"])]));
+
+  const missing = new Set<string>();
+  const noChips: string[] = [];
+  const experiences = await selectMany("resume_experience", { locale: `eq.${locale}` });
+
+  const rows: Array<Record<string, unknown>> = [];
+  let named = 0;
+  let inherited = 0;
+
+  for (const experience of experiences) {
+    const experienceId = String(experience["id"]);
+    const highlights = await selectMany("resume_highlight", { experience_id: `eq.${experienceId}` });
+    const chips = await selectMany("resume_technology", { experience_id: `eq.${experienceId}` });
+
+    /*
+      Languages are excluded from the inheritance as well as from the name match.
+
+      A role that used TypeScript does not make every bullet about the type
+      system, and a focused view that promoted a language this way would claim a
+      fluency the bullet never described.
+    */
+    const inheritedIds = chips
+      .map((chip) => chip["technology_id"])
+      .filter((id): id is string => typeof id === "string" && id !== "" && id !== "null")
+      .map((id) => ({ id, slug: slugById.get(id) }))
+      .filter(
+        (chip): chip is { id: string; slug: string } =>
+          chip.slug !== undefined && !LANGUAGE_SLUGS.has(chip.slug),
+      );
+
+    for (const highlight of highlights) {
+      const body = String(highlight["body"] ?? "");
+      const mentioned = bulletsMention(body);
+
+      if (mentioned.length > 0) {
+        for (const slug of mentioned) {
+          const technologyId = slugById.get(slug);
+
+          if (technologyId === undefined) {
+            continue;
+          }
+
+          rows.push({ highlight_id: String(highlight["id"]), technology_id: technologyId });
+          named++;
+        }
+
+        continue;
+      }
+
+      if (inheritedIds.length === 0) {
+        noChips.push(String(experience["company"]));
+        continue;
+      }
+
+      for (const chip of inheritedIds) {
+        rows.push({ highlight_id: String(highlight["id"]), technology_id: chip.id });
+      }
+
+      inherited++;
+    }
+  }
+
+  if (rows.length === 0) {
+    return { named: 0, inherited: 0 };
+  }
+
+  await insertMissing("highlight_technology", rows, "highlight_id,technology_id");
+
+  if (noChips.length > 0) {
+    console.log(`  no linked chips for: ${noChips.join(", ")}`);
+  }
+
+  if (missing.size > 0) {
+    console.log(`  ${missing.size} slug(s) named by a bullet are not in the catalogue: ${[...missing].join(", ")}`);
+  }
+
+  return { named, inherited };
+}
+
+/** Languages no bullet is tagged with, either from its text or from its role. */
+const LANGUAGE_SLUGS: ReadonlySet<string> = new Set([
+  "javascript",
+  "typescript",
+  "java",
+  "c-sharp",
+  "python",
+  "go",
+  "dart",
+  "erlang",
+  "hcl",
+  "ruby",
+  "php",
+  "sql",
+  "cobol",
+]);
+
+/**
+ * Writes the stack profiles.
+ *
+ * ## Why it reports the members it could not resolve
+ *
+ * Because a profile is only as good as the slugs it points at, and a slug that
+ * names nothing is a profile that filters nothing — the narrow view simply shows
+ * the full résumé, with no indication anything was dropped. The seeded payload is
+ * hand-written, so a typo is exactly the kind of thing to catch here rather than
+ * to discover a month later in a recruiter's link.
+ *
+ * ## Why `primary` is seeded as a slug list rather than as resolved ids
+ *
+ * The table stores slugs. Resolving them to ids at write time would mean encoding
+ * the locale-specific rows into a shared profile, which is the coupling the
+ * schema was designed to avoid.
+ */
+async function bootstrapStackProfiles(locale: Locale): Promise<void> {
+  const technologyRows = await selectMany("technology", { locale: `eq.${locale}` });
+  const knownSlugs = new Set(technologyRows.map((row) => String(row["slug"])));
+
+  await insertMissing(
+    "resume_stack_profile",
+    PROFILES.map((profile, order) => ({
+      slug: profile.slug,
+      description: profile.description,
+      sort_order: order,
+      surfaces: ["resume"],
+    })),
+    "slug",
+  );
+
+  const profiles = await selectMany("resume_stack_profile", {});
+
+  const members: Array<Record<string, unknown>> = [];
+  const unresolved: string[] = [];
+
+  for (const { slug, primary, listed } of PROFILES) {
+    const row = profiles.find((candidate) => String(candidate["slug"]) === slug);
+
+    if (row === undefined) {
+      continue;
+    }
+
+    const profileId = String(row["id"]);
+
+    for (const [weight, slugs] of [
+      ["primary", primary],
+      ["listed", listed],
+    ] as const) {
+      for (const [sortOrder, slugToAdd] of slugs.entries()) {
+        if (!knownSlugs.has(slugToAdd)) {
+          unresolved.push(`${slug} ${weight}: ${slugToAdd}`);
+          continue;
+        }
+
+        members.push({
+          profile_id: profileId,
+          technology_slug: slugToAdd,
+          weight,
+          sort_order: sortOrder,
+        });
+      }
+    }
+  }
+
+  await insertMissing("resume_stack_profile_member", members, "profile_id,technology_slug");
+
+  if (unresolved.length > 0) {
+    console.log(`  ${unresolved.length} profile member(s) not in the catalogue:`);
+    console.log(`    ${unresolved.join(", ")}`);
+  }
+
+  console.log(`  ${PROFILES.length} profile(s)`);
+}
+
+/**
+ * Updates one row by id. The only write here that overwrites, and see above.
+ */
 async function patch(table: string, id: string, values: Record<string, unknown>): Promise<void> {
   const key = writeKey();
   const response = await fetch(

@@ -8,6 +8,7 @@ import type {
   ResumeRepository,
   ResumeSurfaceRead,
   ResumeTestimonial,
+  StackProfileSummary,
   TechnologyCatalog,
   TechnologyKind,
 } from "@/domain/resume/resume-repository";
@@ -72,6 +73,21 @@ export class SupabaseResumeRepository implements ResumeRepository {
         ]);
 
         /*
+          The row's own id, kept beside the domain object.
+
+          `toCaseStudy` returns a `CaseStudy`, which has no `id` — the document
+          is read by position, not by identity. Losing the ids here meant
+          `buildStackIndex` built its filter from `String(undefined)`, which is
+          the string `"undefined"`, and the query became
+          `case_study_id=in.(undefined,...)`, which Postgres answers with
+          `invalid input syntax for type uuid`.
+
+          A 400 on a join table, swallowed by a `.catch(() => [])`, produced an
+          index with no case-study links and no error anywhere. Two bugs in one
+          line, and the second is what made the first invisible.
+        */
+
+        /*
           Imagery in one batched read for the same reason as the links below: one
           query per case study would be one round trip per card, on a page that
           may hold twenty of them.
@@ -80,7 +96,7 @@ export class SupabaseResumeRepository implements ResumeRepository {
           Imagery is support for a case study, not the case study, and losing a
           diagram must not cost a reader the document of record.
         */
-        const caseStudyIds = caseStudies.map((row) => String(row["id"]));
+        const caseStudyIds = caseStudies.map((row2) => String(row2["id"]));
         const media =
           caseStudyIds.length === 0
             ? ([] as Row[])
@@ -92,8 +108,11 @@ export class SupabaseResumeRepository implements ResumeRepository {
         return {
           row,
           highlights,
-          caseStudies: caseStudies.map((row2) => toCaseStudy(row2, media)),
+          // Rows stay rows, because `buildStackIndex` needs each case study's id
+          // to resolve its relation links, and the domain object has none.
+          caseStudies,
           technologies,
+          media,
         };
       }),
     );
@@ -173,6 +192,62 @@ export class SupabaseResumeRepository implements ResumeRepository {
         kind: row["kind"] === "uses" ? "uses" : "built_on",
       })),
     };
+  }
+
+  /**
+   * Profiles and their members, in two reads.
+   *
+   * Not filtered by surface here, even though the column exists, for the same
+   * reason `readStackForEditor` is not: a profile removed from the résumé must
+   * stay visible in the admin so it can be put back. The *page* filters, because
+   * a reader should not be offered a profile that renders nothing.
+   */
+  async readStackProfiles(_locale: Locale): Promise<StackProfileSummary[]> {
+    /*
+      `locale` is accepted and ignored, deliberately.
+
+      A profile is stored by **slug**, not by technology id, precisely so one row
+      serves both locales — see the migration header. Reading it per-locale
+      would therefore return two identical lists, and someone reading this code
+      would reasonably assume the second was filtered somehow.
+    */
+    const [profiles, members] = await Promise.all([
+      this.many("resume_stack_profile", "order=sort_order.asc"),
+      this.many("resume_stack_profile_member"),
+    ]);
+
+    const primaryByProfile = new Map<string, string[]>();
+    const listedByProfile = new Map<string, string[]>();
+
+    for (const member of members) {
+      const profileId = String(member["profile_id"]);
+      const slug = text(member["technology_slug"]);
+      const target = member["weight"] === "listed" ? listedByProfile : primaryByProfile;
+      const list = target.get(profileId) ?? [];
+
+      list.push(slug);
+      target.set(profileId, list);
+    }
+
+    return profiles.map((row) => ({
+      id: String(row["id"]),
+      slug: text(row["slug"]),
+      /*
+        There is no `label` column, and that is the design rather than an
+        omission.
+
+        The profiles are named after combinations — "React + Node", "Angular +
+        Java" — so a label cannot be written once and translated: the *members*
+        are translated, and the display name is assembled from them at render
+        time. A stored label would also go stale, because renaming a member would
+        leave the profile describing a combination it no longer contains.
+      */
+      label: text(row["slug"]),
+      description: text(row["description"]),
+      surfaces: toSurfaces(row["surfaces"] as string[] | null),
+      primary: primaryByProfile.get(String(row["id"])) ?? [],
+      listed: listedByProfile.get(String(row["id"])) ?? [],
+    }));
   }
 
   async readTestimonials(locale: Locale): Promise<ResumeTestimonial[]> {
@@ -308,7 +383,7 @@ export class SupabaseResumeRepository implements ResumeRepository {
     locale: Locale,
     profile: Row | null,
     experiences: Row[],
-    detail: Array<{ row: Row; highlights: Row[]; caseStudies: Row[]; technologies: Row[] }>,
+    detail: Array<{ row: Row; highlights: Row[]; caseStudies: Row[]; technologies: Row[]; media: Row[] }>,
     groups: Row[],
     skillsByGroup: Array<{ group: Row; skills: Row[] }>,
     education: Row[],
@@ -316,6 +391,20 @@ export class SupabaseResumeRepository implements ResumeRepository {
     stackIndex: ResumeStackIndex | undefined,
   ): ResumeContent {
     const byId = new Map(detail.map((entry) => [String(entry.row["id"]), entry]));
+
+    const mediaByCaseStudy = new Map<string, Row[]>();
+
+    for (const entry of detail) {
+      for (const row of entry.media) {
+        const caseStudyId = String(row["case_study_id"]);
+        const bucket = mediaByCaseStudy.get(caseStudyId) ?? [];
+
+        bucket.push(row);
+        mediaByCaseStudy.set(caseStudyId, bucket);
+      }
+    }
+
+    const mediaFor = (caseStudyId: string): Row[] => mediaByCaseStudy.get(caseStudyId) ?? [];
 
     return {
       locale,
@@ -338,10 +427,11 @@ export class SupabaseResumeRepository implements ResumeRepository {
           location: text(row["location"]),
           summary: text(row["summary"]),
           highlights: (entry?.highlights ?? []).map((h) => text(h["body"])),
-          // Already assembled with its media in `readResume`, so there is no
-          // second mapping here — passing `toCaseStudy` directly would call it
-          // with an array index as its second argument.
-          caseStudies: (entry?.caseStudies ?? []) as CaseStudy[],
+          // Converted here rather than in `readResume`, because this is where the
+          // media rows are finally in scope for the id lookup.
+          caseStudies: (entry?.caseStudies ?? []).map((row) =>
+            toCaseStudy(row, mediaFor(String(row["id"]))),
+          ),
           technologies: (entry?.technologies ?? []).map((t) => text(t["label"])),
           teamSize: typeof row["team_size"] === "number" ? row["team_size"] : undefined,
           scope: text(row["scope"]),
@@ -437,10 +527,10 @@ export class SupabaseResumeRepository implements ResumeRepository {
     const [highlightLinks, caseStudyLinks] = await Promise.all([
       highlightIds.length === 0
         ? Promise.resolve([] as Row[])
-        : this.many("highlight_technology", `highlight_id=in.(${highlightIds.join(",")})`).catch(() => [] as Row[]),
+        : this.many("highlight_technology", `highlight_id=in.(${highlightIds.join(",")})`),
       caseStudyIds.length === 0
         ? Promise.resolve([] as Row[])
-        : this.many("case_study_technology", `case_study_id=in.(${caseStudyIds.join(",")})`).catch(() => [] as Row[]),
+        : this.many("case_study_technology", `case_study_id=in.(${caseStudyIds.join(",")})`),
     ]);
 
     /*
@@ -450,57 +540,58 @@ export class SupabaseResumeRepository implements ResumeRepository {
       both queries order by it — but the index would silently point at the wrong
       bullet the moment they diverged, so it is built from the array.
     */
-    const companyByHighlightId = new Map<string, string>();
-    const companyByCaseStudyId = new Map<string, string>();
+    /*
+      Positions are resolved from the *fetched order* rather than `sort_order`
+      read back from the database, because the index has to address the array the
+      renderer is about to walk. `sort_order` and array position agree here —
+      both queries order by it — but the index would silently point at the wrong
+      bullet the moment they diverged, so it is built from the array.
+
+      Stored as a **map from row id to its position**, not as
+      `company + " " + index` packed into one string and unpacked with
+      `split(" ")`. The packed form was the first implementation and it worked
+      for no company here: "DGT Tecnologia 2" unpacks to company="DGT",
+      index=NaN, and every highlight link is then dropped. Worse,
+      `Number("Tecnologia")` is NaN rather than a throw, so the index came back
+      with no highlights at all on a resume where every bullet was tagged — which
+      looked exactly like a data problem, and was the reason a fully tagged
+      catalogue produced an unfocused document.
+    */
+    const whereHighlight = new Map<string, { company: string; index: number }>();
+    const whereCaseStudy = new Map<string, { company: string; index: number }>();
 
     detail.forEach((entry) => {
       const company = text(entry.row["company"]);
 
       entry.highlights.forEach((row, index) => {
-        companyByHighlightId.set(String(row["id"]), `${company} ${index}`);
+        whereHighlight.set(String(row["id"]), { company, index });
       });
 
       entry.caseStudies.forEach((row, index) => {
-        companyByCaseStudyId.set(String(row["id"]), `${company} ${index}`);
+        whereCaseStudy.set(String(row["id"]), { company, index });
       });
     });
 
     for (const link of highlightLinks) {
       const slug = slugById.get(String(link["technology_id"]));
+      const where = whereHighlight.get(String(link["highlight_id"]));
 
-      if (!slug) {
+      if (slug === undefined || where === undefined) {
         continue;
       }
 
-      const where = companyByHighlightId.get(String(link["highlight_id"]));
-
-      if (!where) {
-        continue;
-      }
-
-      const [company, rawIndex] = where.split(" ");
-      const index = Number(rawIndex);
-
-      add(slug, (bucket) => bucket.highlights.push({ company, index }));
+      add(slug, (bucket) => bucket.highlights.push(where));
     }
 
     for (const link of caseStudyLinks) {
       const slug = slugById.get(String(link["technology_id"]));
+      const where = whereCaseStudy.get(String(link["case_study_id"]));
 
-      if (!slug) {
+      if (slug === undefined || where === undefined) {
         continue;
       }
 
-      const where = companyByCaseStudyId.get(String(link["case_study_id"]));
-
-      if (!where) {
-        continue;
-      }
-
-      const [company, rawIndex] = where.split(" ");
-      const index = Number(rawIndex);
-
-      add(slug, (bucket) => bucket.caseStudies.push({ company, index }));
+      add(slug, (bucket) => bucket.caseStudies.push(where));
     }
 
     // Skill → technology is a column on rows already fetched; no read at all.

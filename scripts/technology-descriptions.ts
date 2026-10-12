@@ -19,7 +19,7 @@
  * happen — and the same rule the document bootstrap follows.
  */
 
-import { CATEGORIES, FALLBACK_CATEGORY, LANGUAGES, RELATIONS, classify, classifyKind, normalizeLabel, sameTool } from "./technology-taxonomy";
+import { BULLET_TERMS, CATEGORIES, FALLBACK_CATEGORY, LANGUAGES, PROFILES, RELATIONS, bulletsMention, classify, classifyKind, normalizeLabel, sameTool } from "./technology-taxonomy";
 
 /**
  * What each tool is, in one line, for the hover tooltip.
@@ -72,4 +72,4 @@ export function describe(label: string): string | null {
   return candidates[0]?.text ?? null;
 }
 
-export { CATEGORIES, FALLBACK_CATEGORY, RELATIONS, LANGUAGES, classify, classifyKind, normalizeLabel, sameTool };
+export { BULLET_TERMS, CATEGORIES, FALLBACK_CATEGORY, PROFILES, RELATIONS, LANGUAGES, bulletsMention, classify, classifyKind, normalizeLabel, sameTool };

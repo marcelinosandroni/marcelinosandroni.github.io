@@ -177,7 +177,10 @@ const WRITABLE_TABLES: ReadonlySet<string> = new Set([
   "resume_testimonial",
   "technology",
   "technology_category",
+  "technology_relation",
   "highlight_technology",
   "case_study_technology",
   "case_study_media",
+  "resume_stack_profile",
+  "resume_stack_profile_member",
 ]);
