@@ -9,6 +9,7 @@ import type {
   ResumeSurfaceRead,
   ResumeTestimonial,
   TechnologyCatalog,
+  TechnologyKind,
 } from "@/domain/resume/resume-repository";
 import type { CaseStudy, ResumeContent, Surface } from "@/domain/resume/types";
 import { toSurfaces } from "@/domain/resume/types";
@@ -108,9 +109,10 @@ export class SupabaseResumeRepository implements ResumeRepository {
    * make the editor carry positions it cannot use.
    */
   async readTechnologyCatalog(locale: Locale): Promise<TechnologyCatalog> {
-    const [categories, technologies] = await Promise.all([
+    const [categories, technologies, relations] = await Promise.all([
       this.many("technology_category", `locale=eq.${locale}&order=sort_order.asc`),
       this.many("technology", `locale=eq.${locale}&order=sort_order.asc`),
+      this.many("technology_relation").catch(() => [] as Row[]),
     ]);
 
     const categoryById = new Map(categories.map((row) => [String(row["id"]), row]));
@@ -138,8 +140,15 @@ export class SupabaseResumeRepository implements ResumeRepository {
           surfaces: toSurfaces(row["surfaces"] as string[] | null),
           isPublished: row["is_published"] !== false,
           sortOrder: number(row["sort_order"]),
+          kind: toKind(row["kind"]),
+          description: text(row["description"]),
         };
       }),
+      relations: relations.map((row) => ({
+        fromId: String(row["from_id"]),
+        toId: String(row["to_id"]),
+        kind: row["kind"] === "uses" ? "uses" : "built_on",
+      })),
     };
   }
 
@@ -507,7 +516,7 @@ export class SupabaseResumeRepository implements ResumeRepository {
    * rather than smuggled into `query`, so the surface filter is an explicit
    * argument and not something a future edit has to notice inside a string.
    */
-  private async many(table: string, query: string, ...extraFilters: string[]): Promise<Row[]> {
+  private async many(table: string, query = "", ...extraFilters: string[]): Promise<Row[]> {
     const params: Record<string, string> = {
       ...queryParams(query),
       ...Object.fromEntries(extraFilters.map((filter) => filter.split("="))),
@@ -675,6 +684,30 @@ function text(value: unknown): string {
 /** A number from a database column, defaulting rather than producing NaN. */
 function number(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+/**
+ * The enum, narrowed, or `null`.
+ *
+ * `null` rather than a default: a row nobody has filed is unfiled, and
+ * substituting `library` would put a claim in the database that nobody made.
+ */
+function toKind(value: unknown): TechnologyKind | null {
+  const known: readonly string[] = [
+    "language",
+    "platform",
+    "framework",
+    "library",
+    "datastore",
+    "messaging",
+    "infrastructure",
+    "observability",
+    "testing",
+    "practice",
+    "domain",
+  ];
+
+  return typeof value === "string" && known.includes(value) ? (value as TechnologyKind) : null;
 }
 
 /** Metrics are JSONB and never queried, so they are read as a block. */

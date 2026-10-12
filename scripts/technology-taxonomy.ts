@@ -177,6 +177,161 @@ export function classify(label: string): CategorySlug {
 }
 
 /**
+ * The graph: what rests on what, and what merely uses what.
+ *
+ * ## Why these are written out rather than inferred
+ *
+ * Because every edge is a claim, and `built_on` in particular is one that is
+ * easy to get subtly wrong. NestJS does rest on Node.js; React does *not* rest
+ * on JavaScript — it runs in a browser and is written in JavaScript, which is
+ * `uses`. Guessing the distinction from a label would get that backwards and
+ * produce a focus view that promotes a browser library to a language.
+ *
+ * So the owner writes them. The table is small — about forty edges for a
+ * hundred and twenty technologies — and every one of them is checkable at a
+ * glance by someone who knows the tools, which is exactly what an inferred edge
+ * is not.
+ *
+ * ## Why `uses` is not traversed upward
+ *
+ * Because it would be wrong. A `uses` edge says "this is composed with that",
+ * and the thing it is composed with is not underneath it. Walking them for
+ * promotion is how a résumé focused on React ends up claiming JavaScript
+ * expertise, which it may well have — but not by that argument.
+ */
+export const RELATIONS: ReadonlyArray<{
+  from: string;
+  to: string;
+  kind: "built_on" | "uses";
+}> = [
+  // --- JavaScript ecosystem -------------------------------------------
+  { from: "TypeScript", to: "JavaScript", kind: "built_on" },
+  { from: "Node.js", to: "JavaScript", kind: "built_on" },
+  { from: "NestJS", to: "Node.js", kind: "built_on" },
+  { from: "NestJS", to: "TypeScript", kind: "uses" },
+  { from: "Next.js", to: "React", kind: "built_on" },
+  { from: "Next.js", to: "Node.js", kind: "built_on" },
+  { from: "Next.js", to: "TypeScript", kind: "uses" },
+  { from: "React", to: "TypeScript", kind: "uses" },
+  { from: "React", to: "JavaScript", kind: "uses" },
+  { from: "Angular", to: "TypeScript", kind: "uses" },
+  { from: "Angular", to: "JavaScript", kind: "uses" },
+  { from: "Vue.js", to: "JavaScript", kind: "uses" },
+  { from: "Redux", to: "JavaScript", kind: "uses" },
+  { from: "Zustand", to: "JavaScript", kind: "uses" },
+  { from: "Tailwind CSS", to: "JavaScript", kind: "uses" },
+  { from: "Storybook", to: "React", kind: "uses" },
+  { from: "Flutter", to: "Dart", kind: "built_on" },
+  { from: "React Native", to: "React", kind: "built_on" },
+
+  // --- JVM --------------------------------------------------------------
+  { from: "Java Spring", to: "Java", kind: "built_on" },
+  { from: "Java Spring Boot", to: "Java Spring", kind: "built_on" },
+
+  // --- .NET -------------------------------------------------------------
+  { from: ".NET", to: "C#", kind: "built_on" },
+  { from: ".NET Core", to: ".NET", kind: "built_on" },
+
+  // --- Data -------------------------------------------------------------
+  { from: "RabbitMQ", to: "Erlang", kind: "built_on" },
+  { from: "Apache Kafka", to: "Java", kind: "uses" },
+  { from: "Kafka", to: "Java", kind: "uses" },
+
+  // --- Cloud and infrastructure -----------------------------------------
+  { from: "Helm", to: "Kubernetes", kind: "built_on" },
+  { from: "K8s (Helm, HPA)", to: "Kubernetes", kind: "built_on" },
+  { from: "Terraform", to: "HCL", kind: "built_on" },
+  { from: "IaC (Terraform)", to: "Terraform", kind: "built_on" },
+  { from: "Prometheus", to: "Go", kind: "built_on" },
+  { from: "Grafana", to: "Go", kind: "built_on" },
+  { from: "Kubernetes", to: "Go", kind: "built_on" },
+  { from: "Docker", to: "Go", kind: "built_on" },
+  { from: "OpenTelemetry", to: "Go", kind: "built_on" },
+
+  // --- Practices that rest on a language ---------------------------------
+  { from: "Playwright", to: "TypeScript", kind: "uses" },
+  { from: "Cypress", to: "JavaScript", kind: "uses" },
+  { from: "SonarQube", to: "Java", kind: "uses" },
+];
+
+/**
+ * Technologies that are languages.
+ *
+ * Only the ones the résumé actually uses. A language has nothing to rest on, so
+ * it is the root of its chain — which is what makes it the thing a selection
+ * expands *down to*.
+ */
+export const LANGUAGES: ReadonlyArray<string> = [
+  "JavaScript",
+  "TypeScript",
+  "Java",
+  "C#",
+  "Python",
+  "Go",
+  "Dart",
+  "Erlang",
+  "HCL",
+  "Ruby",
+  "PHP",
+  "SQL",
+];
+
+/**
+ * What kind of thing a technology is, where it is not a language.
+ *
+ * The order of the lists is the order they are tested, so the specific wins:
+ * checking "framework" before "library" is what keeps NestJS out of `library`,
+ * and checking "infrastructure" before "observability" is what keeps Docker
+ * from being filed as a monitoring tool.
+ */
+const KIND_RULES: ReadonlyArray<{ kind: string; terms: readonly string[] }> = [
+  {
+    kind: "framework",
+    terms: ["nest", "spring", "next", "angular", "react", "vue", "flutter", "django", "flask", "fastapi", "rails", "native"],
+  },
+  {
+    kind: "platform",
+    terms: ["node", "dotnet", "net core", "kubernetes", "k8s", "aws", "azure", "gcp", "docker"],
+  },
+  { kind: "datastore", terms: ["postgres", "mysql", "mongo", "redis", "clickhouse", "dynamodb", "rds", "sqlite", "sql server", "databricks"] },
+  { kind: "messaging", terms: ["kafka", "rabbitmq", "sqs", "sns", "eventbridge"] },
+  { kind: "observability", terms: ["grafana", "prometheus", "opentelemetry", "datadog", "cloudwatch"] },
+  { kind: "testing", terms: ["playwright", "cypress", "jest", "vitest", "selenium", "k6", "tdd"] },
+  { kind: "infrastructure", terms: ["terraform", "hcl", "helm", "ansible", "jenkins", "bitbucket", "actions"] },
+  { kind: "library", terms: ["redux", "zustand", "tailwind", "storybook", "langchain", "qdrant", "pgvector"] },
+  { kind: "practice", terms: ["ddd", "tdd", "cqrs", "solid", "clean", "hexagonal", "observabilidade", "observability", "ci/cd", "circuit breaker", "microsservicos", "microservices", "sonar", "fortify", "event-driven", "orientacao"] },
+  { kind: "domain", terms: ["b3", "etf", "erp", "contabeis", "accounting", "ativos", "asset", "pagamentos", "payments", "mercado", "financial", "dashboard", "planilha", "spreadsheet", "compliance", "integrated"] },
+];
+
+/** The kind a label belongs to, or `null` for anything not listed above. */
+export function classifyKind(label: string): string | null {
+  if (sameTool(label, LANGUAGES.find((language) => sameTool(language, label)) ?? "")) {
+    return "language";
+  }
+
+  const normalized = normalizeLabel(label);
+
+  for (const rule of KIND_RULES) {
+    if (rule.terms.some((term) => normalized.includes(term))) {
+      return rule.kind;
+    }
+  }
+
+  return null;
+}
+
+/** Lower-case, accent-free, punctuation to spaces — shared by both classifiers. */
+export function normalizeLabel(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[().]/g, " ")
+    .replace(/[^a-z0-9+]+/g, " ")
+    .trim();
+}
+
+/**
  * Two labels that name the same tool.
  *
  * "Java Spring Boot" and "Java Spring" are one technology; "Java" is another.

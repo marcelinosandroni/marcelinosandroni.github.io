@@ -6,10 +6,12 @@ import type {
   TechnologyCatalog,
   TechnologyCatalogEntry,
   TechnologyCategory,
+  TechnologyKind,
 } from "@/domain/resume/resume-repository";
 import { suspectedDuplicates, technologySlug } from "@/domain/resume/technology";
 import type { Surface } from "@/domain/resume/types";
 import { toSurfaces } from "@/domain/resume/types";
+import { HoverHint } from "@/components/ui/hover-hint";
 import { useAdminWrite } from "@/components/admin/use-admin-write";
 
 /**
@@ -50,6 +52,8 @@ function toEntry(
       : fallback.surfaces,
     isPublished: row["is_published"] !== false,
     sortOrder: typeof row["sort_order"] === "number" ? row["sort_order"] : fallback.sortOrder,
+    kind: (typeof row["kind"] === "string" ? row["kind"] : null) as TechnologyCatalogEntry["kind"],
+    description: typeof row["description"] === "string" ? row["description"] : fallback.description,
   };
 }
 
@@ -139,6 +143,7 @@ export function TechnologyCatalogEditor({
         // guessed. Re-reading the catalog instead would be a second round trip
         // that could disagree with the row just written.
         setCatalog((current) => ({
+          ...current,
           categories: current.categories,
           technologies: [
             ...current.technologies,
@@ -149,6 +154,8 @@ export function TechnologyCatalogEditor({
               categoryId: draft.categoryId,
               categorySlug: null,
               categoryLabel: null,
+              kind: null,
+              description: "",
               aliases: [],
               surfaces: ["resume"],
               isPublished: true,
@@ -167,6 +174,7 @@ export function TechnologyCatalogEditor({
       "Saved.",
       () =>
         setCatalog((current) => ({
+          ...current,
           categories: current.categories,
           technologies: current.technologies.map((candidate) =>
             candidate.id === entry.id ? { ...candidate, ...values } : candidate,
@@ -321,6 +329,20 @@ function CategorySection({
   );
 }
 
+const KINDS: ReadonlyArray<TechnologyKind> = [
+  "language",
+  "platform",
+  "framework",
+  "library",
+  "datastore",
+  "messaging",
+  "infrastructure",
+  "observability",
+  "testing",
+  "practice",
+  "domain",
+];
+
 function TechnologyChip({
   entry,
   onUpdate,
@@ -331,6 +353,7 @@ function TechnologyChip({
   const [editing, setEditing] = useState(false);
   const [label, setLabel] = useState(entry.label);
   const [aliases, setAliases] = useState(entry.aliases.join(", "));
+  const [description, setDescription] = useState(entry.description);
 
   const toggle = (surface: Surface): void =>
     onUpdate(entry, {
@@ -347,8 +370,16 @@ function TechnologyChip({
     >
       <div className="flex items-center gap-2">
         <button type="button" onClick={() => setEditing((value) => !value)} className="text-text-primary">
-          {entry.label}
+          <HoverHint label={entry.label} description={entry.description}>
+            {entry.label}
+          </HoverHint>
         </button>
+
+        {entry.kind !== null ? (
+          <span className="font-label-mono text-label-mono uppercase tracking-widest text-text-muted">
+            {entry.kind}
+          </span>
+        ) : null}
 
         {(["home", "resume"] as const).map((surface) => (
           <label key={surface} className="flex items-center gap-1 text-body-sm text-text-secondary">
@@ -382,6 +413,33 @@ function TechnologyChip({
             onChange={(event) => setLabel(event.target.value)}
             className="border border-border-subtle bg-surface-base px-2 py-1 text-body-sm text-text-primary"
           />
+
+          <label className="flex items-center gap-2 text-body-sm text-text-secondary">
+            Kind
+            <select
+              value={entry.kind ?? ""}
+              onChange={(event) =>
+                onUpdate(entry, { kind: event.target.value === "" ? null : event.target.value })
+              }
+              className="border border-border-subtle bg-surface-base px-2 py-1 text-body-sm text-text-primary"
+            >
+              <option value="">— unfiled —</option>
+              {KINDS.map((kind) => (
+                <option key={kind} value={kind}>
+                  {kind}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <textarea
+            value={description}
+            rows={3}
+            placeholder="One line on what this is, for the hover tooltip. Say what the acronym does not."
+            onChange={(event) => setDescription(event.target.value)}
+            className="border border-border-subtle bg-surface-base px-2 py-1 text-body-sm text-text-primary"
+          />
+
           <input
             value={aliases}
             onChange={(event) => setAliases(event.target.value)}
@@ -397,6 +455,7 @@ function TechnologyChip({
             onClick={() => {
               onUpdate(entry, {
                 label: label.trim(),
+                description: description.trim(),
                 aliases: aliases
                   .split(",")
                   .map((value) => value.trim())

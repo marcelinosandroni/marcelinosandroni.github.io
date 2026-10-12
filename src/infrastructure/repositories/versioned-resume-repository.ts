@@ -69,7 +69,7 @@ export class VersionedResumeRepository implements ResumeRepository {
    * edited anything, so there is nothing to fall back *to*.
    */
   async readTechnologyCatalog(_locale: Locale): Promise<TechnologyCatalog> {
-    return { categories: [], technologies: [] };
+    return { categories: [], technologies: [], relations: [] };
   }
 }
 
