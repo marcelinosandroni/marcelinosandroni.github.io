@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 import type {
   TechnologyCatalog,
@@ -10,6 +10,7 @@ import type {
 import { suspectedDuplicates, technologySlug } from "@/domain/resume/technology";
 import type { Surface } from "@/domain/resume/types";
 import { toSurfaces } from "@/domain/resume/types";
+import { useAdminWrite } from "@/components/admin/use-admin-write";
 
 /**
  * Turns a row from the API into the shape this component holds.
@@ -87,10 +88,13 @@ export function TechnologyCatalogEditor({
   locale: string;
 }): React.ReactElement {
   const [catalog, setCatalog] = useState(initialCatalog);
-  const [status, setStatus] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const { status, pending: writing, notify, write } = useAdminWrite();
 
-  const [draft, setDraft] = useState({ label: "", categoryId: initialCatalog.categories[0]?.id ?? "" });
+  const [draft, setDraft] = useState({
+    label: "",
+    categoryId: initialCatalog.categories[0]?.id ?? "",
+  });
   const [showDuplicates, setShowDuplicates] = useState(true);
 
   const duplicates = useMemo(
@@ -98,60 +102,20 @@ export function TechnologyCatalogEditor({
     [initialCatalog.technologies],
   );
 
-  /**
-   * Performs one write and hands the server's answer to the caller.
-   *
-   * `mutate` receives the response body rather than closing over it, because the
-   * caller needs a value that only exists *after* the request — an insert's
-   * generated id. A closure that read `body` would be reading a variable from an
-   * enclosing scope it no longer owns, and the id would be `undefined` at exactly
-   * the moment the editor needs it.
-   */
-  const write = useCallback(
-    async (
-      payload: Record<string, unknown>,
-      successMessage: string,
-      mutate: (body: { entry?: TechnologyCatalogEntry }) => void,
-    ): Promise<void> => {
-      setStatus("Saving…");
-
-      const response = await fetch("/api/admin/resume", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const raw = (await response.json().catch(() => ({}))) as {
-        error?: string;
-        entry?: TechnologyCatalogEntry;
-      };
-
-      if (!response.ok) {
-        // The three causes need three different responses from the owner: no
-        // session, no database, or a rejected payload. "Something went wrong"
-        // answers none of them.
-        setStatus(`Not saved: ${raw.error ?? response.status}`);
-        return;
-      }
-
-      mutate(raw);
-      setStatus(successMessage);
-    },
-    [],
-  );
+  const busy = pending || writing;
 
   const addTechnology = (): void => {
     const label = draft.label.trim();
 
     if (label === "" || draft.categoryId === "") {
-      setStatus("A technology needs a label and a category.");
+      notify("A technology needs a label and a category.");
       return;
     }
 
     const slug = technologySlug(label);
 
     if (initialCatalog.technologies.some((entry) => entry.slug === slug)) {
-      setStatus(`"${label}" already exists (slug "${slug}").`);
+      notify(`"${label}" already exists (slug "${slug}").`);
       return;
     }
 
