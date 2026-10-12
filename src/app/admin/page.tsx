@@ -28,6 +28,7 @@ import { TechStackEditor } from "@/components/admin/tech-stack-editor";
 import { TechnologyCatalogEditor } from "@/components/admin/technology-catalog-editor";
 import { StackProfileEditor } from "@/components/admin/stack-profile-editor";
 import { ExperienceEditor } from "@/components/admin/experience-editor";
+import { JobMatchPanel } from "@/components/admin/job-match-panel";
 import type {
   StackProfileSummary,
   TechnologyCatalog,
@@ -359,6 +360,17 @@ export default async function AdminPage() {
           )}
         </div>
       )}
+
+      {/*
+    After the editors and before the CMS.
+
+    It reads what the experience editor writes, so it sits below it: the panel
+    is only as good as the tagging above it, and an owner who has just tagged
+    bullets wants to see what they are now worth on a real posting.
+  */}
+      <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+        <JobMatchPanel locale={DEFAULT_LOCALE} />
+      </div>
 
       <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
         <PostEditor t={t} locale={DEFAULT_LOCALE} initialPosts={postList} />

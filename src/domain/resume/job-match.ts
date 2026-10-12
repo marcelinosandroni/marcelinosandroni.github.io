@@ -264,7 +264,13 @@ export function matchJobDescription(
   */
   const named = new Set(covered.map((entry) => entry.matchedOn));
 
-  for (const token of postingTerms(description)) {
+  const catalogue = new Set(
+    technologies.flatMap((technology) =>
+      [technology.label, ...technology.aliases].map((term) => normalizeForMatch(term)),
+    ),
+  );
+
+  for (const token of postingTerms(description, catalogue)) {
     if (named.has(token)) {
       continue;
     }
@@ -280,6 +286,15 @@ export function matchJobDescription(
         (term) => normalizeForMatch(term) === slug,
       ),
     )) {
+      continue;
+    }
+
+    /*
+      Already answered above — a token the posting and the résumé share is
+      covered, not a gap. Without this the catalogue check below is redundant
+      and, worse, would silently re-report every covered technology.
+    */
+    if (catalogue.has(slug)) {
       continue;
     }
 
@@ -336,30 +351,212 @@ function overlapFor(
 }
 
 /**
+ * The connective tissue of a job posting.
+ *
+ * Common words that are neither a technology nor furniture, in the languages this
+ * site is written in. Without this, the gaps rule — "not common, not catalogue"
+ * — would flag "software", "como", "para" and "com" as requirements the owner
+ * does not meet, because they are absent from the technology catalogue by
+ * definition.
+ *
+ * An exhaustive English word list is not the goal; only the words a posting is
+ * actually built from. A miss costs one line in a short list the owner scans.
+ */
+const COMMON: ReadonlySet<string> = new Set([
+  "a", "ao", "as", "com", "como", "da", "das", "de", "do", "dos", "e", "em", "entre",
+  "ou", "para", "por", "que", "se", "sem", "the", "and", "or", "of", "for", "with",
+  "to", "from", "in", "on", "at", "by", "an", "is", "are", "be", "was", "as", "that",
+  "this", "these", "those", "it", "its", "we", "our", "you", "your", "will", "can",
+  "mais", "menos", "muito", "tambem", "também", "sobre", "entre", "ate", "até",
+  "apos", "após", "onde", "quando", "qual", "quais", "cada", "todo", "toda", "todos",
+  "todas", "um", "uma", "uns", "umas", "seu", "sua", "seus", "suas", "nos", "nas",
+  "pela", "pelas", "pelo", "pelos", "dentro", "fora", "against", "across", "between",
+  "any", "all", "some", "other", "such", "very", "more", "most", "no", "not", "only",
+  "same", "than", "then", "them", "they", "he", "she", "his", "her", "their", "them",
+]);
+
+/**
  * Requirement-shaped tokens from a posting.
  *
- * Capitalised or camel-cased words, plus any token the catalogue might plausibly
- * carry. Deliberately narrow: this feeds a *gaps* list, and a term list that is
- * too generous turns the gaps column into a transcript of the posting.
+ * A capitalised word is *not* enough on its own. A posting capitalises its
+ * headings and its first words — "Desenvolvedor", "Empresa", "Requisitos" — and
+ * reporting those as gaps produces a gaps column that is half the posting's own
+ * furniture, which is worse than no gaps column because it looks like a finding.
+ *
+ * The rule is inverted from the obvious one: a token is a **gap** when it is
+ * *name-shaped* — shout-cased, dotted, camel-cased, or carrying a digit — **and**
+ * it is not furniture. "Jest" is a single capitalised word and neither shout nor
+ * camel, but it is a tool the owner does not have, and hiding it would be the
+ * one kind of gap that costs an interview.
+ *
+ * So the fallback for a leading-capital word is: is it a known technology? If
+ * the catalogue has it, it is covered (handled above). If the catalogue does not
+ * have it *and* it is not furniture, it is offered as a possible gap. That is the
+ * honest uncertainty — "Jest" might be a real requirement, or it might be a
+ * product name — and the owner, who reads the posting, is the one who knows.
  */
-function postingTerms(description: string): string[] {
+function postingTerms(description: string, catalogue: ReadonlySet<string>): string[] {
   const terms: string[] = [];
 
-  for (const match of description.matchAll(/[A-Za-z][A-Za-z0-9.+#-]{1,24}/g)) {
-    const word = match[0];
-    const capitalised = /^[A-Z]/.test(word) || /[a-z][A-Z]/.test(word);
+  for (const match of description.matchAll(/[\p{L}][\p{L}\p{N}.+#-]{1,24}/gu)) {
+    const word = match[0].replace(/[.,;]+$/, "");
+    const slug = normalizeForMatch(word);
 
-    // A lowercase word only counts when it looks like a proper noun's cousin:
-    // all-caps, or dotted like ".NET".
+    if (slug === "" || NOISE.has(slug) || HEADINGS.has(slug)) {
+      continue;
+    }
+
     const shouty = word === word.toUpperCase() && word.length > 2;
+    const dotted = word.startsWith(".") || word.includes(".");
+    const camel = /^[A-Z][a-z]+[A-Z]/.test(word);
+    const versioned = /\d/.test(word);
 
-    if (capitalised || shouty || word.startsWith(".")) {
-      terms.push(word.replace(/[.,;]+$/, ""));
+    /*
+      A single capitalised word like "Jest" is neither shout, nor dotted, nor
+      camel — but it is a real requirement the owner does not have, and hiding it
+      costs an interview. So the fallback is whether the word is an ordinary
+      English or Portuguese word: `COMMON` holds the connective tissue of a job
+      posting. If it is not common, not furniture, and not in the catalogue, it is
+      offered as a candidate gap — the owner, who reads the posting, decides.
+    */
+    const ordinary = COMMON.has(slug);
+
+    if (shouty || dotted || camel || versioned || (!ordinary && !catalogue.has(slug))) {
+      terms.push(word);
     }
   }
 
   return terms;
 }
+
+/**
+ * The furniture of a job posting.
+ *
+ * Short and explicit on purpose. An exhaustive list is not possible — these are
+ * written in two languages and a dozen house styles — but the words that appear
+ * are few and recurring, and a miss costs one line in a list the owner is
+ * already scanning.
+ */
+const HEADINGS: ReadonlySet<string> = new Set([
+  "desenvolvedor",
+  "desenvolvedora",
+  "desenvolvimento",
+  "vaga",
+  "vagas",
+  "empresa",
+  "requisitos",
+  "requisito",
+  "diferenciais",
+  "diferencial",
+  "responsabilidades",
+  "atividades",
+  "qualificacoes",
+  "qualificacoes",
+  "beneficios",
+  "local",
+  "localizacao",
+  "remoto",
+  "presencial",
+  "hibrido",
+  "salario",
+  "remuneracao",
+  "contratacao",
+  "candidate",
+  "candidato",
+  "candidata",
+  "inscribase",
+  "candidate-se",
+  "about",
+  "requirements",
+  "responsibilities",
+  "qualifications",
+  "benefits",
+  "salary",
+  "location",
+  "remote",
+  "hybrid",
+  "onsite",
+  "apply",
+  "please",
+  "strong",
+  "forte",
+  "strong",
+  "solid",
+  "solida",
+  "experiencia",
+  "experience",
+  "experienced",
+  "vivencia",
+  "vivendo",
+  "conhecimento",
+  "knowledge",
+  "habilidade",
+  "habilidades",
+  "skill",
+  "skills",
+  "competencia",
+  "competencias",
+  "formacao",
+  "formacao",
+  "graduacao",
+  "graduacao",
+  "ensino",
+  "superior",
+  "completo",
+  "completa",
+  "integral",
+  "excellent",
+  "excelente",
+  "avancado",
+  "advanced",
+  "intermediario",
+  "plus",
+  "bonus",
+  "obrigatorio",
+  "obrigatoria",
+  "obrigatorios",
+  "obrigatorias",
+  "desejavel",
+  "desejavel",
+  "desejaveis",
+  "senior",
+  "pleno",
+  "junior",
+  "trainee",
+  "estagio",
+  "aprendiz",
+  "software",
+  "hardware",
+  "sistema",
+  "sistemas",
+  "required",
+  "must",
+  "have",
+  "ter",
+  "work",
+  "trabalhar",
+  "trabalha",
+  "atuacao",
+  "atuacoes",
+  "projeto",
+  "projetos",
+  "sistema",
+  "sistemas",
+  "solucao",
+  "solucoes",
+  "produto",
+  "cliente",
+  "clientes",
+  "negocio",
+  "processo",
+  "processos",
+  "otimizacao",
+  "melhoria",
+  "melhorias",
+  "evolucao",
+  "ingles",
+  "english",
+]);
 
 export { expandFocus };
 export type { ResumeStackIndex };
