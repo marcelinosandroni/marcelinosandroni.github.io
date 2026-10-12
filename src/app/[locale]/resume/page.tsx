@@ -9,8 +9,7 @@ import {
   toOpenGraphLocale,
 } from "@/domain/i18n";
 import { readResume, readResolvedProfiles } from "@/infrastructure/repositories";
-import { applyFocus, type FocusResult } from "@/domain/resume/focus";
-import type { ResumeContent, ResumeExperience } from "@/domain/resume/types";
+import { applyFocus, narrowDocument } from "@/domain/resume/focus";
 import { getDictionary } from "@/i18n";
 
 const SUFFIX = "/resume";
@@ -131,41 +130,14 @@ export default async function Page({
       ? null
       : applyFocus(resume.stackIndex, resume, selected.focus);
 
-  const focused =
-    narrowed === null
-      ? undefined
-      : {
-          ...resume,
-          experiences: resume.experiences.map((experience, experienceIndex): ResumeExperience => {
-            const entry = narrowed.experiences.find((candidate) => candidate.experienceIndex === experienceIndex);
+  /*
+    The same `narrowDocument` the PDF route uses.
 
-            if (entry === undefined) {
-              return experience;
-            }
-
-            /*
-              Filtered rather than mapped through `title`, because the case study
-              is an object with its challenge, solution and metrics, and rebuilding
-              it from the title would throw away the measured result — the part
-              that argues the work was worth doing.
-
-              The `filter(Boolean)` drops an index the document no longer has.
-              `applyFocus` only returns positions it read from the document, so
-              this cannot happen; it is there so the type is right without an
-              assertion, rather than because the case is expected.
-            */
-            const caseStudies = entry.caseStudies
-              .map((caseStudy) => experience.caseStudies?.[caseStudy.index])
-              .filter((study): study is NonNullable<typeof study> => study !== undefined);
-
-            return {
-              ...experience,
-              highlights: entry.highlights.map((highlight) => highlight.body),
-              caseStudies,
-            };
-          }),
-          skillGroups: focusSkillGroups(resume, narrowed),
-        };
+    Two copies of this would agree today and drift the first time one gained a
+    field, and the drift would be a download that is not the page the reader was
+    looking at — with nothing in either to say so.
+  */
+  const focused = narrowed === null ? undefined : narrowDocument(resume, narrowed);
 
   return (
     <ResumeDocument
@@ -182,33 +154,4 @@ export default async function Page({
       untaggedDropped={narrowed?.untaggedDropped ?? 0}
     />
   );
-}
-
-/**
- * Promotes the focused skills within each group, keeping every one.
- *
- * A stable partition rather than a sort: the résumé's own order is the owner's
- * arrangement, and a focused view that reshuffled the section would be
- * reordering the document rather than prioritising it.
- */
-function focusSkillGroups(
-  resume: ResumeContent,
-  narrowed: FocusResult,
-): ResumeContent["skillGroups"] {
-  return resume.skillGroups.map((group) => {
-    const promoted = new Set(
-      narrowed.skillPositions
-        .filter((entry) => entry.group === group.label && entry.primary)
-        .map((entry) => entry.index),
-    );
-
-    if (promoted.size === 0) {
-      return group;
-    }
-
-    const primary = group.skills.filter((_, index) => promoted.has(index));
-    const rest = group.skills.filter((_, index) => !promoted.has(index));
-
-    return { ...group, skills: [...primary, ...rest] };
-  });
 }

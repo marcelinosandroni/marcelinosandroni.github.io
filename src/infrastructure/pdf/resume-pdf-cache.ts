@@ -14,9 +14,10 @@ export class ResumePdfCache {
     content: ResumeContent,
     templateId: string,
     preferredFilename: string,
+    focus: string | null = null,
   ): string {
-    const signature = this.buildSignature(version, locale, content, templateId);
-    const cacheDir = join(this.rootDir, locale, version, templateId);
+    const signature = this.buildSignature(version, locale, content, templateId, focus);
+    const cacheDir = this.cacheDir(locale, version, templateId, focus);
     const targetPath = join(cacheDir, preferredFilename);
     const signaturePath = join(cacheDir, `${this.safeName(preferredFilename)}.${signature}.meta`);
 
@@ -34,9 +35,10 @@ export class ResumePdfCache {
     templateId: string,
     pdfBuffer: Buffer,
     preferredFilename: string,
+    focus: string | null = null,
   ): string {
-    const signature = this.buildSignature(version, locale, content, templateId);
-    const cacheDir = join(this.rootDir, locale, version, templateId);
+    const signature = this.buildSignature(version, locale, content, templateId, focus);
+    const cacheDir = this.cacheDir(locale, version, templateId, focus);
     mkdirSync(cacheDir, { recursive: true });
 
     const targetPath = join(cacheDir, preferredFilename);
@@ -57,15 +59,61 @@ export class ResumePdfCache {
     content: ResumeContent,
     templateId: string,
     preferredFilename: string,
+    focus: string | null = null,
   ): boolean {
-    return Boolean(this.getPath(version, locale, content, templateId, preferredFilename));
+    return Boolean(this.getPath(version, locale, content, templateId, preferredFilename, focus));
   }
 
-  private buildSignature(version: string, locale: string, content: ResumeContent, templateId: string): string {
+  /**
+   * One directory per focus, not one directory per signature.
+   *
+   * The signature already separates renders, so the directory does not need to —
+   * except that a focus produces a file per render, and without a directory of
+   * its own each new profile would overwrite the previous one's filename inside
+   * the same folder. Five profiles would leave one file and five orphan `.meta`
+   * files, and the folder would grow without bound as profiles were added and
+   * removed.
+   *
+   * `safeName` on the focus because the value reaches here from a query
+   * parameter and becomes a path segment.
+   */
+  private cacheDir(
+    locale: string,
+    version: string,
+    templateId: string,
+    focus: string | null,
+  ): string {
+    const segment = focus === null || focus === "" ? "full" : this.safeName(focus);
+
+    return join(this.rootDir, locale, version, templateId, segment);
+  }
+
+  /**
+   * The signature that decides whether two renders are the same document.
+   *
+   * `focus` is part of it because a narrowed résumé is a **different document**.
+   * Signing only the content would work today — `applyFocus` returns different
+   * bullets, so the hashes differ — but that is a coincidence of the current
+   * narrowing, not a property worth depending on. A profile that promotes skills
+   * without dropping any bullet is a valid configuration: it reorders the skills
+   * section and leaves every experience intact, so two profiles on the same
+   * document would share a signature and the second download would serve the
+   * first profile's PDF.
+   *
+   * Naming the profile in the signature makes that unreachable.
+   */
+  private buildSignature(
+    version: string,
+    locale: string,
+    content: ResumeContent,
+    templateId: string,
+    focus: string | null,
+  ): string {
     const payload = JSON.stringify({
       version,
       locale,
       templateId,
+      focus: focus ?? "",
       name: content.name,
       title: content.title,
       location: content.location,
