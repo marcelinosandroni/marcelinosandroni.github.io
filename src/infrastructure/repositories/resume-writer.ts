@@ -519,6 +519,8 @@ export async function readExperienceEditor(locale: Locale): Promise<ExperienceEd
         surfaces: toSurfaces(row["surfaces"] as string[] | null),
         isPublished: row["is_published"] !== false,
         sortOrder: number(row["sort_order"]),
+        kind: null,
+        description: String(row["description"] ?? ""),
       })),
     },
   };

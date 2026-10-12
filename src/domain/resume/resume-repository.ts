@@ -87,6 +87,42 @@ export type TechnologyCatalogEntry = {
   readonly surfaces: readonly Surface[];
   readonly isPublished: boolean;
   readonly sortOrder: number;
+  /**
+   * What kind of thing this is. `null` until the owner files it — a migration
+   * that guessed `library` for a hundred and twenty rows would be making a
+   * claim about all of them from a keyword list, invisibly.
+   */
+  readonly kind: TechnologyKind | null;
+  /** Why the owner has it, in their words. Empty renders nothing. */
+  readonly description: string;
+};
+
+/**
+ * The distinction a reader has to be able to make.
+ *
+ * `language` is what a focused selection expands down to; the rest are the tools
+ * that rest on, or merely use, one. Collapsing them would make "I write
+ * TypeScript" and "I use React" the same kind of claim, which is the
+ * difference between fluency and exposure.
+ */
+export type TechnologyKind =
+  | "language"
+  | "platform"
+  | "framework"
+  | "library"
+  | "datastore"
+  | "messaging"
+  | "infrastructure"
+  | "observability"
+  | "testing"
+  | "practice"
+  | "domain";
+
+/** One edge of the graph: what rests on, or uses, what. */
+export type TechnologyRelation = {
+  readonly fromId: string;
+  readonly toId: string;
+  readonly kind: "built_on" | "uses";
 };
 
 /**
@@ -101,6 +137,16 @@ export type TechnologyCatalogEntry = {
 export type TechnologyCatalog = {
   readonly categories: readonly TechnologyCategory[];
   readonly technologies: readonly TechnologyCatalogEntry[];
+  /**
+   * Every edge in the graph, as ids.
+   *
+   * Returned whole and unfiltered because the expansion needs the whole
+   * neighbourhood of whatever the visitor selects, and a server that resolved
+   * that per-selection would be a second place implementing the walk in
+   * `src/domain/resume/focus.ts` — which is where it has to live, so the page,
+   * the PDF and the job matcher all promote the same things.
+   */
+  readonly relations: readonly TechnologyRelation[];
 };;
 
 /** One named reference. See the `resume_testimonial` table for why it ships empty. */

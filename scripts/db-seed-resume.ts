@@ -47,7 +47,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { getResumeContent } from "../src/infrastructure/content";
 import { getHomeContent } from "../src/infrastructure/content/home";
 import { technologySlug } from "../src/domain/resume/technology";
-import { CATEGORIES, FALLBACK_CATEGORY, classify, sameTool } from "./technology-taxonomy";
+import { RELATIONS, classifyKind, describe, normalizeLabel } from "./technology-descriptions";
+import { CATEGORIES, FALLBACK_CATEGORY, LANGUAGES, classify, sameTool } from "./technology-taxonomy";
 import { SUPPORTED_LOCALES, type Locale } from "../src/domain/i18n";
 
 /**
@@ -569,18 +570,33 @@ async function bootstrapTechnologyCatalog(locale: Locale): Promise<void> {
     Deduplicated on the *normalised* label rather than the slug, because
     "Java Spring Boot" and "Java Spring Boot " are the same tool and a slug
     comparison would treat the stray space as a second one.
+
+    Languages are added on top of what the document names, and that is not
+    padding. **The résumé never says "JavaScript"** — it says React, NestJS and
+    Next.js, all of which rest on it — so a catalog derived only from the chips
+    would have no row for the root of its own graph. The first bootstrap run
+    silently dropped fourteen relations for exactly this reason: "TypeScript →
+    JavaScript" had nowhere to point.
+
+    A language is a node in the graph whether or not it is a chip, and it earns
+    its place here by being an endpoint of a real edge.
   */
   const labels: string[] = [];
 
-  for (const label of [
-    ...experienceChips.map((row) => String(row["label"] ?? "")),
-    ...skillRows.map((row) => String(row["label"] ?? "")),
-  ]) {
+  const offer = (label: string): void => {
     const trimmed = label.trim();
 
     if (trimmed !== "" && !labels.some((existing) => sameTool(existing, trimmed))) {
       labels.push(trimmed);
     }
+  };
+
+  for (const label of [
+    ...experienceChips.map((row) => String(row["label"] ?? "")),
+    ...skillRows.map((row) => String(row["label"] ?? "")),
+    ...LANGUAGES,
+  ]) {
+    offer(label);
   }
 
   await insertMissing(
@@ -598,6 +614,89 @@ async function bootstrapTechnologyCatalog(locale: Locale): Promise<void> {
   );
 
   const technologyRows = await selectMany("technology", { locale: `eq.${locale}` });
+
+  /*
+    `kind` and `description` are patched onto existing rows rather than passed
+    to the insert.
+
+    The insert cannot carry them, because on a populated database it inserts
+    nothing at all — `ignore-duplicates` skips every row — and a column absent
+    from the payload is never written. So a second pass fills them in, which is
+    also what lets a re-run pick up a description the owner rewrote, provided
+    the patch never overwrites a non-empty one.
+  */
+  let shaped = 0;
+
+  for (const row of technologyRows) {
+    const label = String(row["label"] ?? "");
+    const kind = classifyKind(label);
+    const description = describe(label);
+
+    const values: Record<string, unknown> = {};
+
+    if (kind !== null && row["kind"] == null) {
+      values["kind"] = kind;
+    }
+
+    // Empty-only, so the owner's own wording is never overwritten. See header.
+    if (description !== null && String(row["description"] ?? "") === "") {
+      values["description"] = description;
+    }
+
+    if (Object.keys(values).length === 0) {
+      continue;
+    }
+
+    await patch("technology", String(row["id"]), values);
+    shaped++;
+  }
+
+  /*
+    Relations, matched by label.
+
+    Written as `[from, to]` label pairs rather than slugs so that a pair whose
+    endpoint does not exist in this locale is skipped with a note instead of
+    inserting an edge to nothing. "Flutter rests on Dart" is a true claim; if
+    Dart is not in the catalogue yet the edge has nowhere to point, and an edge
+    to a missing row is a relation that will never expand.
+  */
+  const idBySlug = new Map(technologyRows.map((row) => [String(row["slug"]), String(row["id"])]));
+  const labelBySlug = new Map(technologyRows.map((row) => [String(row["slug"]), String(row["label"])]));
+
+  const findId = (label: string): string | undefined => {
+    const wanted = normalizeLabel(label);
+
+    for (const [slug, candidate] of labelBySlug) {
+      if (normalizeLabel(candidate) === wanted) {
+        return idBySlug.get(slug);
+      }
+    }
+
+    return undefined;
+  };
+
+  const edges: Array<Record<string, unknown>> = [];
+  const unresolved: string[] = [];
+
+  for (const relation of RELATIONS) {
+    const fromId = findId(relation.from);
+    const toId = findId(relation.to);
+
+    if (fromId === undefined || toId === undefined) {
+      unresolved.push(`${relation.from} → ${relation.to}`);
+      continue;
+    }
+
+    edges.push({ from_id: fromId, to_id: toId, kind: relation.kind });
+  }
+
+  await insertMissing("technology_relation", edges, "from_id,to_id,kind");
+
+  if (unresolved.length > 0) {
+    console.log(`  ${unresolved.length} relation(s) skipped, endpoint not in the catalogue:`);
+    console.log(`    ${unresolved.join(", ")}`);
+  }
+
   const idByLabel = new Map<string, string>();
 
   for (const row of technologyRows) {
