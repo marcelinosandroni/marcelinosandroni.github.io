@@ -20,15 +20,29 @@
 
 create extension if not exists pgcrypto;
 
-create type public.blog_category as enum (
-  'distributed-systems',
-  'data-platforms',
-  'leadership',
-  'ai-ml',
-  'fintech'
-);
+-- Both guarded so re-applying this migration is a no-op. `create type` has no
+-- `if not exists`, and a migration is applied to databases that already hold
+-- rows, so the second application must not fail.
+-- See tests/unit/publication/migration-safety.test.ts.
+do $$
+begin
+  create type public.blog_category as enum (
+    'distributed-systems',
+    'data-platforms',
+    'leadership',
+    'ai-ml',
+    'fintech'
+  );
+exception
+  when duplicate_object then null;
+end $$;
 
-create type public.article_status as enum ('published', 'draft');
+do $$
+begin
+  create type public.article_status as enum ('published', 'draft');
+exception
+  when duplicate_object then null;
+end $$;
 
 create table if not exists public.blog_articles (
   id uuid primary key,

@@ -26,7 +26,7 @@ import { join } from "node:path";
 
 /** Where the local Postgres listens. Matches `docker-compose.supabase.yml`. */
 const HOST = process.env["LOCAL_DB_HOST"] ?? "127.0.0.1";
-const PORT = process.env["LOCAL_DB_PORT"] ?? "54324";
+const PORT = process.env["LOCAL_DB_PORT"] ?? "54331";
 const USER = process.env["LOCAL_DB_USER"] ?? "postgres";
 const PASSWORD = process.env["LOCAL_DB_PASSWORD"] ?? "postgres";
 const DATABASE = process.env["LOCAL_DB_NAME"] ?? "postgres";
