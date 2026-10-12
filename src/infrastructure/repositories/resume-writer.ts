@@ -41,7 +41,22 @@ export type WritableTable =
   | "tech_stack_item"
   | "track_record_annotation"
   | "track_record_blueprint"
-  | "resume_testimonial";
+  | "resume_testimonial"
+  /*
+    The technology catalog and its links.
+
+    `technology` and `technology_category` are the entities every other row now
+    points at, so they are writable here for the same reason `resume_experience`
+    is. The three join tables are included so the admin can tag a bullet or a
+    case study with a stack — which is the write that makes a targeted résumé
+    possible at all, and without it the catalog would be a list nobody could
+    attach anything to.
+  */
+  | "technology"
+  | "technology_category"
+  | "highlight_technology"
+  | "case_study_technology"
+  | "case_study_media";
 
 const WRITABLE: ReadonlySet<string> = new Set<WritableTable>([
   "resume_profile",
@@ -58,6 +73,11 @@ const WRITABLE: ReadonlySet<string> = new Set<WritableTable>([
   "track_record_annotation",
   "track_record_blueprint",
   "resume_testimonial",
+  "technology",
+  "technology_category",
+  "highlight_technology",
+  "case_study_technology",
+  "case_study_media",
 ]);
 
 export type ResumeWrite =
@@ -85,7 +105,7 @@ export class ResumeWriteError extends Error {
 export async function applyResumeWrite(
   write: ResumeWrite,
   revalidate: (path: string, type: "page" | "layout") => void,
-): Promise<{ affected: number }> {
+): Promise<{ affected: number; entry?: Record<string, unknown> }> {
   const { url, secretKey } = requireSupabaseConfig();
 
   if (!WRITABLE.has(write.table)) {
@@ -101,6 +121,7 @@ export async function applyResumeWrite(
   };
 
   let response: Response;
+  let entry: Record<string, unknown> | undefined;
 
   if (write.kind === "delete") {
     response = await fetch(`${endpoint}?id=eq.${encodeURIComponent(write.id)}`, {
@@ -108,11 +129,28 @@ export async function applyResumeWrite(
       headers,
     });
   } else if (write.kind === "insert") {
+    /*
+      `return=representation`, not `return=minimal`, because the editor needs the
+      id the database assigned.
+
+      Without it a newly created technology has no id in the editor's hands, and
+      the two choices are both bad: re-reading the catalog is a second round trip
+      that can disagree with the row just written, and a client-side id is a guess
+      that silently attaches later links to nothing.
+    */
     response = await fetch(endpoint, {
       method: "POST",
-      headers: { ...headers, Prefer: "return=minimal,resolution=merge-duplicates" },
+      headers: { ...headers, Prefer: "return=representation,resolution=merge-duplicates" },
       body: JSON.stringify([write.values]),
     });
+
+    if (response.ok) {
+      const written = (await response.json().catch(() => [])) as unknown;
+
+      if (Array.isArray(written) && written.length > 0) {
+        entry = written[0] as Record<string, unknown>;
+      }
+    }
   } else {
     response = await fetch(`${endpoint}?id=eq.${encodeURIComponent(write.id)}`, {
       method: "PATCH",
@@ -141,7 +179,7 @@ export async function applyResumeWrite(
     revalidate(path, "page");
   }
 
-  return { affected: 1 };
+  return entry === undefined ? { affected: 1 } : { affected: 1, entry };
 }
 
 /**

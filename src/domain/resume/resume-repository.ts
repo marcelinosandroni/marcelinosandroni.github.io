@@ -3,7 +3,7 @@ import type {
   HomeExperienceAnnotation,
   HomeStackSection,
 } from "@/domain/portfolio";
-import type { ResumeContent } from "@/domain/resume/types";
+import type { ResumeContent, Surface } from "@/domain/resume/types";
 
 /**
  * Storage contract for résumé content.
@@ -56,7 +56,52 @@ export type ResumeRepository = {
   readHomeStack(locale: Locale): Promise<HomeStackSection | null>;
   /** The home page track-record annotations, or `null` when unavailable. */
   readHomeTrackRecord(locale: Locale): Promise<HomeExperienceAnnotation[] | null>;
+  /**
+   * The whole technology catalog for a locale, grouped by category.
+   *
+   * The entity view — slug, label, aliases, publish state — as opposed to the
+   * relation view `ResumeContent.stackIndex` carries. Reading the catalog is an
+   * owner action; the résumé never needs it, and adding it to `readResume`
+   * would put two unused columns on the hot path.
+   */
+  readTechnologyCatalog(locale: Locale): Promise<TechnologyCatalog>;
+}
+
+/** One category, as the admin lists them. */
+export type TechnologyCategory = {
+  readonly id: string;
+  readonly slug: string;
+  readonly label: string;
+  readonly sortOrder: number;
 };
+
+/** One catalog row, as the admin edits it. */
+export type TechnologyCatalogEntry = {
+  readonly id: string;
+  readonly slug: string;
+  readonly label: string;
+  readonly categoryId: string;
+  readonly categorySlug: string | null;
+  readonly categoryLabel: string | null;
+  readonly aliases: readonly string[];
+  readonly surfaces: readonly Surface[];
+  readonly isPublished: boolean;
+  readonly sortOrder: number;
+};
+
+/**
+ * The catalog as one value.
+ *
+ * Returned whole rather than through a list method per category: the admin
+ * renders all of it at once, and splitting it would mean the editor could load a
+ * category list and a technology list from different moments in time — which
+ * produces a technology whose category was deleted between the two requests,
+ * rendered as an orphaned chip with no way to re-file it.
+ */
+export type TechnologyCatalog = {
+  readonly categories: readonly TechnologyCategory[];
+  readonly technologies: readonly TechnologyCatalogEntry[];
+};;
 
 /** One named reference. See the `resume_testimonial` table for why it ships empty. */
 export type ResumeTestimonial = {

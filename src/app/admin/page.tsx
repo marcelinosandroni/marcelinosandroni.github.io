@@ -23,8 +23,10 @@ import { createPresenceRealtime } from "@/infrastructure/supabase/presence-realt
 import type { ConversationSummary } from "@/domain/chat/message";
 import { ListPosts } from "@/application/blog/manage-posts";
 import type { PostSummary } from "@/domain/blog/post-draft";
-import { getPostRepository } from "@/infrastructure/repositories";
+import { getPostRepository, readTechnologyCatalog } from "@/infrastructure/repositories";
 import { TechStackEditor } from "@/components/admin/tech-stack-editor";
+import { TechnologyCatalogEditor } from "@/components/admin/technology-catalog-editor";
+import type { TechnologyCatalog } from "@/domain/resume/resume-repository";
 import {
   readStackForEditor,
   type EditorCluster,
@@ -135,6 +137,28 @@ export default async function AdminPage() {
     stack = null;
   }
 
+  /*
+    The technology catalog, read separately from the stack above.
+
+    Two different things that used to look like one. The stack is what the home
+    page *shows* — four clusters of chips, curated for a first impression. The
+    catalog is what a tool *is* — one entity per tool, which the roles, the
+    bullets, the skills and the job matcher all point at.
+
+    The catalog is read through the repository rather than a writer helper
+    because it is the one read here that has no fallback: see
+    `VersionedResumeRepository.readTechnologyCatalog`. `null` therefore means
+    "needs the database", and the panel says exactly that rather than rendering
+    an empty catalog, which would read as "you have no technologies".
+  */
+  let catalog: TechnologyCatalog | null = null;
+
+  try {
+    catalog = await readTechnologyCatalog(DEFAULT_LOCALE);
+  } catch {
+    catalog = null;
+  }
+
   let board: PresenceBoard | null = null;
   let conversationList: ReadonlyArray<ConversationSummary> | null = null;
 
@@ -243,6 +267,25 @@ export default async function AdminPage() {
       ) : (
         <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
           <TechStackEditor initialClusters={stack} locale={DEFAULT_LOCALE} />
+        </div>
+      )}
+
+      {/*
+        Before the stack editor, not after: the catalog is what the chips and the
+        roles are *made of*, so it is the thing you fix when a chip is wrong. An
+        owner who opens this page to add a tool should not have to scroll past
+        the thing they were about to add.
+      */}
+      {catalog === null ? (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <p className="text-body-sm text-body-sm text-text-secondary">
+            The technology catalog needs the database. Run <code>npm run db:migrate</code> to
+            create it, then <code>npm run db:bootstrap</code> to fill it from the existing résumé.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <TechnologyCatalogEditor initialCatalog={catalog} locale={DEFAULT_LOCALE} />
         </div>
       )}
 

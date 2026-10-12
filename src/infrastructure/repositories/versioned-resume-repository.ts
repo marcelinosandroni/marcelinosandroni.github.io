@@ -7,6 +7,7 @@ import type {
   ResumeRepository,
   ResumeSurfaceRead,
   ResumeTestimonial,
+  TechnologyCatalog,
 } from "@/domain/resume/resume-repository";
 import type { ResumeContent } from "@/domain/resume/types";
 import { getResumeContent } from "@/infrastructure/content";
@@ -51,6 +52,24 @@ export class VersionedResumeRepository implements ResumeRepository {
 
   async readHomeTrackRecord(locale: Locale): Promise<HomeExperienceAnnotation[] | null> {
     return getHomeContent(locale).trackRecord.annotations;
+  }
+
+  /**
+   * Empty, deliberately.
+   *
+   * The typed catalog has no technology *entity* — it has the strings that were
+   * written per role, which is exactly what this catalog was introduced to
+   * stop being the source of. Synthesising rows from those strings here would
+   * look like a working fallback and quietly reintroduce the ambiguity: "Java
+   * Spring" and "Java" would become two technologies that no focused résumé
+   * could group.
+   *
+   * So the fallback reports no catalog, and the admin says so. An owner editing
+   * the catalog needs the database anyway; a deployment without one cannot have
+   * edited anything, so there is nothing to fall back *to*.
+   */
+  async readTechnologyCatalog(_locale: Locale): Promise<TechnologyCatalog> {
+    return { categories: [], technologies: [] };
   }
 }
 
@@ -127,6 +146,20 @@ export class FallbackResumeRepository implements ResumeRepository {
 
       return this.fallback.readHomeTrackRecord(locale);
     }
+  }
+
+  /**
+   * Unlike the two above, an empty catalog is **not** a reason to fall back.
+   *
+   * The other three reads have a typed answer, so a failure degrades to a
+   * document that is slightly stale. This one has none, and a catalog invented
+   * from the fallback's flat strings would be indistinguishable from a real one
+   * while merging tools that should stay separate. So the caller's failure is
+   * the honest answer, and the admin renders "needs the database" — which is
+   * true, and actionable in a way an empty table is not.
+   */
+  async readTechnologyCatalog(locale: Locale): Promise<TechnologyCatalog> {
+    return this.primary.readTechnologyCatalog(locale);
   }
 
   private report(error: unknown): void {
