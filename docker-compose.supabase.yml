@@ -41,9 +41,13 @@ services:
     image: supabase/postgres:17.6.1.166
     pull_policy: if_not_present
     ports:
-      # Host-side port for psql and for the migration script. Deliberately not
-      # 54322, which the app's own docker-compose already claims for postgres.
-      - "54324:5432"
+      # Deliberately in the 54_3xx range the Supabase CLI uses, but shifted
+      # past the ports it claims. Running two local Supabase stacks is normal —
+      # this machine had another project's stack holding 54321 through 54327 —
+      # and the failure when they collide is `Bind for 0.0.0.0:54324 failed:
+      # port is already allocated`, which names neither stack and reads like a
+      # bug in this file rather than a port somebody else already had.
+      - "54331:5432"
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
@@ -64,7 +68,10 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "54321:3000"
+      # Also shifted: the CLI claims 54321 for its own API gateway, so a stack
+      # that puts PostgREST there collides with any other Supabase project on
+      # the machine rather than only with the CLI.
+      - "54330:3000"
     environment:
       PGRST_DB_URI: postgres://authenticator:postgres@db:5432/postgres
       PGRST_DB_SCHEMAS: public
