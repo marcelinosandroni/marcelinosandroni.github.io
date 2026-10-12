@@ -158,6 +158,12 @@ export const ptBR: Dictionary = {
     galleryPrevious: "Anterior",
     galleryNext: "Próxima",
     galleryClose: "Fechar",
+    stackAll: "Todas",
+    stackChoose: "Ver o currículo por stack",
+    stackFocusedOn: "Focado em {stack}",
+    stackNarrowed: "Esta versão destaca as stacks selecionadas",
+    stackNarrowedSummary:
+      "Esta versão foi filtrada: {roles} cargo(s) com menos bullets, {bullets} bullet(s) sem stack marcada foram omitidos.",
     problem: "Problema",
     solution: "Solução",
     result: "Resultado",

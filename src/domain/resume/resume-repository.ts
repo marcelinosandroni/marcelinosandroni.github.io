@@ -65,6 +65,14 @@ export type ResumeRepository = {
    * would put two unused columns on the hot path.
    */
   readTechnologyCatalog(locale: Locale): Promise<TechnologyCatalog>;
+  /**
+   * The named stack profiles, unresolved.
+   *
+   * See `StackProfileSummary`: resolving a profile into the set of technologies
+   * a résumé filters by is a graph walk, and it belongs in one place in the
+   * domain — not here, and not once per consumer.
+   */
+  readStackProfiles(locale: Locale): Promise<StackProfileSummary[]>;
 }
 
 /** One category, as the admin lists them. */
@@ -147,6 +155,28 @@ export type TechnologyCatalog = {
    * the PDF and the job matcher all promote the same things.
    */
   readonly relations: readonly TechnologyRelation[];
+}
+
+/**
+ * The named stack profiles: "React + Node", "Angular + Java", "Python".
+ *
+ * Returned unresolved on purpose. A profile is stored as slugs weighted
+ * `primary`/`listed`, and turning that into the set of technologies a résumé
+ * must filter by is a graph walk — so it happens in the domain, once, where the
+ * page, the PDF and the job matcher all use the same answer. Resolving it per
+ * consumer would put three implementations of the walk in the codebase, and
+ * they would drift the first time a relation was corrected.
+ */
+export type StackProfileSummary = {
+  /** The database row's id. Needed by the editor to write members. */
+  readonly id: string;
+  readonly slug: string;
+  readonly label: string;
+  readonly description: string;
+  readonly surfaces: readonly Surface[];
+  /** Slugs, not ids — a profile is about the tool, not about this locale's row. */
+  readonly primary: readonly string[];
+  readonly listed: readonly string[];
 };;
 
 /** One named reference. See the `resume_testimonial` table for why it ships empty. */

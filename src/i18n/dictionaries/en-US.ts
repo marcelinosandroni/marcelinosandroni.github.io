@@ -175,6 +175,12 @@ export const enUS = {
     galleryPrevious: "Previous",
     galleryNext: "Next",
     galleryClose: "Close",
+    stackAll: "All",
+    stackChoose: "View the résumé by stack",
+    stackFocusedOn: "Focused on {stack}",
+    stackNarrowed: "This version leads with the selected stacks",
+    stackNarrowedSummary:
+      "This version was narrowed: {roles} role(s) show fewer bullets, and {bullets} bullet(s) with no stack tagged were left out.",
     problem: "Problem",
     solution: "Solution",
     result: "Result",

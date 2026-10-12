@@ -7,6 +7,7 @@ import type {
   ResumeRepository,
   ResumeSurfaceRead,
   ResumeTestimonial,
+  StackProfileSummary,
   TechnologyCatalog,
 } from "@/domain/resume/resume-repository";
 import type { ResumeContent } from "@/domain/resume/types";
@@ -70,6 +71,21 @@ export class VersionedResumeRepository implements ResumeRepository {
    */
   async readTechnologyCatalog(_locale: Locale): Promise<TechnologyCatalog> {
     return { categories: [], technologies: [], relations: [] };
+  }
+
+  /**
+   * Empty, for the same reason the catalog is.
+   *
+   * A profile is a selection of technologies, and the typed catalog has no
+   * technology entities to select from. Synthesising profiles from the flat chip
+   * strings would invent a taxonomy the owner never chose and could not edit,
+   * which is the whole thing the catalog exists to prevent.
+   *
+   * So there are no profiles offline, and the page shows the generic résumé —
+   * the default view, and the one that is always correct.
+   */
+  async readStackProfiles(_locale: Locale): Promise<StackProfileSummary[]> {
+    return [];
   }
 }
 
@@ -160,6 +176,26 @@ export class FallbackResumeRepository implements ResumeRepository {
    */
   async readTechnologyCatalog(locale: Locale): Promise<TechnologyCatalog> {
     return this.primary.readTechnologyCatalog(locale);
+  }
+
+  /**
+   * Falls back, unlike the catalog above — because this one has a usable answer.
+   *
+   * The catalog has no fallback because inventing technology entities from flat
+   * chip strings would merge tools that should stay apart. A profile is only a
+   * selection of slugs, so an absent one degrades to the generic résumé, which
+   * is the default view and is always correct.
+   */
+  async readStackProfiles(locale: Locale): Promise<StackProfileSummary[]> {
+    try {
+      const profiles = await this.primary.readStackProfiles(locale);
+
+      return profiles.length > 0 ? profiles : await this.fallback.readStackProfiles(locale);
+    } catch (error) {
+      this.report(error);
+
+      return this.fallback.readStackProfiles(locale);
+    }
   }
 
   private report(error: unknown): void {

@@ -1,6 +1,7 @@
 import { requireSupabaseConfig, supabaseReadConfigFromEnv } from "@/infrastructure/supabase/server";
 import { LOCALE_SEGMENTS, SUPPORTED_LOCALES, type Locale } from "@/domain/i18n";
 import type {
+  StackProfileSummary,
   TechnologyCatalogEntry,
   TechnologyCategory,
 } from "@/domain/resume/resume-repository";
@@ -58,9 +59,21 @@ export type WritableTable =
   */
   | "technology"
   | "technology_category"
+  | "technology_relation"
   | "highlight_technology"
   | "case_study_technology"
-  | "case_study_media";
+  | "case_study_media"
+  /*
+    The profiles and their members.
+
+    `resume_stack_profile_member` has a composite primary key, so removing a
+    technology from a profile is a `deleteWhere` — the same reason the bullet
+    tagging needs one. Without it a profile could be created but never edited
+    down, and the owner would recreate it from scratch each time a tool left the
+    emphasis.
+  */
+  | "resume_stack_profile"
+  | "resume_stack_profile_member";
 
 const WRITABLE: ReadonlySet<string> = new Set<WritableTable>([
   "resume_profile",
@@ -79,9 +92,12 @@ const WRITABLE: ReadonlySet<string> = new Set<WritableTable>([
   "resume_testimonial",
   "technology",
   "technology_category",
+  "technology_relation",
   "highlight_technology",
   "case_study_technology",
   "case_study_media",
+  "resume_stack_profile",
+  "resume_stack_profile_member",
 ]);
 
 export type ResumeWrite =
@@ -374,6 +390,59 @@ export type ExperienceEditorDocument = {
   experiences: EditorExperience[];
   catalog: { categories: TechnologyCategory[]; technologies: TechnologyCatalogEntry[] };
 };
+
+/**
+ * The profiles, for the admin.
+ *
+ * Returned with their member rows attached, because the editor's whole job is
+ * to change which technologies are in each list — and an editor that had to fetch
+ * members separately per profile would show a member list and a profile list from
+ * different moments, which is how a technology ends up in a profile the owner
+ * just removed it from.
+ */
+export async function readStackProfileEditor(
+  locale: Locale,
+): Promise<StackProfileSummary[] | null> {
+  const config = supabaseReadConfigFromEnv();
+
+  if (!config.configured) {
+    return null;
+  }
+
+  const { url, publishableKey: key } = config;
+
+  const [profiles, members] = await Promise.all([
+    fetchRows(url, key, "resume_stack_profile", { order: "sort_order.asc" }),
+    fetchRows(url, key, "resume_stack_profile_member", { order: "sort_order.asc" }),
+  ]);
+
+  const primaryByProfile = new Map<string, string[]>();
+  const listedByProfile = new Map<string, string[]>();
+
+  for (const member of members) {
+    const profileId = String(member["profile_id"]);
+    const slug = String(member["technology_slug"] ?? "");
+    const target = member["weight"] === "listed" ? listedByProfile : primaryByProfile;
+    const list = target.get(profileId) ?? [];
+
+    list.push(slug);
+    target.set(profileId, list);
+  }
+
+  return profiles.map((row) => {
+    const id = String(row["id"]);
+
+    return {
+      id: String(row["id"]),
+      slug: String(row["slug"] ?? ""),
+      label: String(row["slug"] ?? ""),
+      description: String(row["description"] ?? ""),
+      surfaces: toSurfaces(row["surfaces"] as string[] | null),
+      primary: primaryByProfile.get(id) ?? [],
+      listed: listedByProfile.get(id) ?? [],
+    };
+  });
+}
 
 export async function readExperienceEditor(locale: Locale): Promise<ExperienceEditorDocument | null> {
   const config = supabaseReadConfigFromEnv();

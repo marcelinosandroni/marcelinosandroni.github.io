@@ -26,10 +26,15 @@ import type { PostSummary } from "@/domain/blog/post-draft";
 import { getPostRepository, readTechnologyCatalog } from "@/infrastructure/repositories";
 import { TechStackEditor } from "@/components/admin/tech-stack-editor";
 import { TechnologyCatalogEditor } from "@/components/admin/technology-catalog-editor";
+import { StackProfileEditor } from "@/components/admin/stack-profile-editor";
 import { ExperienceEditor } from "@/components/admin/experience-editor";
-import type { TechnologyCatalog } from "@/domain/resume/resume-repository";
+import type {
+  StackProfileSummary,
+  TechnologyCatalog,
+} from "@/domain/resume/resume-repository";
 import {
   readStackForEditor,
+  readStackProfileEditor,
   readExperienceEditor,
   type EditorCluster,
   type ExperienceEditorDocument,
@@ -178,6 +183,22 @@ export default async function AdminPage() {
     experienceDocument = null;
   }
 
+  /*
+    The profiles, read alongside the catalog rather than after it.
+
+    The editor's job is to move technologies between a profile's two lists, so it
+    needs both in the same render: fetched apart, a picker could offer a tool the
+    profile already lists, and the owner would toggle it and watch nothing
+    change.
+  */
+  let profiles: StackProfileSummary[] | null = null;
+
+  try {
+    profiles = await readStackProfileEditor(DEFAULT_LOCALE);
+  } catch {
+    profiles = null;
+  }
+
   let board: PresenceBoard | null = null;
   let conversationList: ReadonlyArray<ConversationSummary> | null = null;
 
@@ -321,6 +342,21 @@ export default async function AdminPage() {
       ) : (
         <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
           <TechnologyCatalogEditor initialCatalog={catalog} locale={DEFAULT_LOCALE} />
+
+          {profiles === null ? (
+            <p className="mt-space-md text-body-sm text-text-secondary">
+              The stack profiles need the database too — they reference technologies by slug.
+            </p>
+          ) : (
+            <div className="mt-space-lg border-t border-border-subtle pt-space-md">
+              <StackProfileEditor
+                initialProfiles={profiles}
+                catalog={catalog.technologies}
+                categories={catalog.categories}
+                locale={DEFAULT_LOCALE}
+              />
+            </div>
+          )}
         </div>
       )}
 

@@ -73,9 +73,21 @@ export const EMPTY_FOCUS: FocusExpansion = {
  * answer either way. The walk cannot produce a wrong set, only a shallower one,
  * and the shallower one is a superset of everything actually reachable.
  */
-export function expandFocus(roots: readonly string[], edges: readonly TechnologyEdge[]): FocusExpansion {
+export function expandFocus(
+  roots: readonly string[],
+  edges: readonly TechnologyEdge[],
+  /**
+   * Slugs the caller asserts are primary regardless of how the graph reaches
+   * them. See `resolveProfiles`.
+   */
+  alsoPrimary: readonly string[] = [],
+): FocusExpansion {
   const primary = new Set<string>(roots);
   const secondary = new Set<string>();
+
+  for (const slug of alsoPrimary) {
+    primary.add(slug);
+  }
 
   if (roots.length === 0) {
     return EMPTY_FOCUS;
@@ -155,6 +167,135 @@ export function expandFocus(roots: readonly string[], edges: readonly Technology
  * mistyped edge made long.
  */
 const MAX_PROMOTED_DEPTH = 4;
+
+/**
+ * A named selection the résumé can be narrowed to: "React + Node".
+ *
+ * A profile is **not** a template and **not** a second résumé. It is the same
+ * document with the skills reordered and the bullets filtered, which is why it
+ * stores slugs rather than technology ids: a profile is about the tool, not
+ * about this locale's row for it, so one profile serves both locales instead of
+ * two lists that drift apart.
+ */
+export type StackProfile = {
+  readonly slug: string;
+  readonly label: string;
+  readonly description: string;
+  readonly surfaces: ReadonlySet<string>;
+  /**
+   * Promoted: these lead the skills section, and their bullets survive.
+   *
+   * Not ordered. The résumé's own order wins, so adding a profile cannot reorder
+   * anything the owner has already arranged — the profile is a selection, not a
+   * layout.
+   */
+  readonly primary: ReadonlySet<string>;
+  /** Shown, but not promoted and not a filter. Everything else worth a line. */
+  readonly listed: ReadonlySet<string>;
+};
+
+/**
+ * Resolves profiles into a selection, expanding each one through the graph.
+ *
+ * ## Why expansion happens here and not at write time
+ *
+ * Because the graph changes. A profile saved as "React + Node" today expands to
+ * TypeScript and JavaScript because node-js rests on JavaScript — and if the
+ * owner later files `Next.js` as resting on React, that profile should start
+ * reaching it without being re-saved. Baking the expansion into the stored rows
+ * would make every graph edit require re-saving every profile, and the first one
+ * that was missed would be silently wrong.
+ *
+ * ## Why `primary` and `listed` expand differently
+ *
+ * `primary` expands through everything, because the point of "focus more on
+ * React and Node" is that React reaches TypeScript and Node reaches JavaScript —
+ * the whole chain is what should be promoted. `listed` expands through nothing:
+ * a listed technology is shown, and promoting what it happens to use would
+ * promote tools nobody chose. That asymmetry is the difference between a profile
+ * that says what it means and one that quietly grows.
+ */
+export function resolveProfiles(
+  profiles: readonly StackProfile[],
+  edges: readonly TechnologyEdge[],
+): Map<string, FocusExpansion> {
+  const resolved = new Map<string, FocusExpansion>();
+
+  for (const profile of profiles) {
+    /*
+      `primary` is seeded into the expansion's own root set alongside the
+      graph-derived primaries, so a technology the owner listed as primary stays
+      primary even when the graph says it is merely reached.
+
+      Without this, a profile naming React as primary — which reaches TypeScript
+      by `uses` — would come out with TypeScript secondary, and writing the same
+      profile with TypeScript in `primary` would rank the identical stack
+      differently. A profile is the owner's assertion about their own emphasis;
+      the graph can add to it, not overrule it.
+    */
+    const fromPrimary = expandFocus([...profile.primary], edges);
+
+    /*
+      A listed technology that a primary already reached is dropped from
+      `secondary`, so the ordering is not decided by which list happened to be
+      walked first. React in `primary` and TypeScript in `listed` must promote
+      TypeScript, not leave it as secondary because the second list overwrote the
+      first.
+    */
+    /*
+      The owner named these primary, so they are primary.
+
+      This is the assertion that makes a profile a profile. React listed as
+      primary reaches TypeScript by `uses`, and the graph ranks TypeScript
+      secondary — which would mean a profile written "React, TypeScript as
+      primary" ranks differently from the same profile written "React as primary,
+      TypeScript as listed". The owner's statement about their own emphasis is
+      not something the graph gets to overrule; the graph adds to it.
+
+      The seed roots are exactly `profile.primary`, so the expansion's `primary`
+      set already contains them. This is spelled out rather than assumed, because
+      the alternative is a silent dependence on that invariant in another
+      function — and the invariant is the whole point of the two lists.
+    */
+    const primary = new Set(profile.primary);
+
+    for (const slug of fromPrimary.primary) {
+      primary.add(slug);
+    }
+
+    /*
+      A listed technology is shown but expands to nothing.
+
+      Expanding it would promote every tool it happens to use, which is exactly
+      the failure the two lists exist to prevent: writing "React" under `listed`
+      in a profile called "Java" would drag TypeScript and JavaScript into a
+      Java profile, and the page would claim a stack the owner never chose.
+    */
+    const secondary = new Set<string>(profile.listed);
+
+    for (const slug of profile.listed) {
+      secondary.delete(slug);
+    }
+
+    for (const slug of profile.primary) {
+      secondary.delete(slug);
+    }
+
+    for (const slug of fromPrimary.secondary) {
+      if (!primary.has(slug)) {
+        secondary.add(slug);
+      }
+    }
+
+    resolved.set(profile.slug, {
+      primary,
+      secondary,
+      all: new Set([...primary, ...secondary]),
+    });
+  }
+
+  return resolved;
+}
 
 /**
  * What a focused résumé keeps.
