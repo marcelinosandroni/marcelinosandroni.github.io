@@ -5,6 +5,7 @@ import type {
 } from "@/domain/portfolio";
 import type {
   ResumeRepository,
+  ResumeSnapshot,
   ResumeSurfaceRead,
   ResumeTestimonial,
   StackProfileSummary,
@@ -37,6 +38,23 @@ import { getHomeContent } from "@/infrastructure/content/home";
 export class VersionedResumeRepository implements ResumeRepository {
   async readResume(locale: Locale, _surface: ResumeSurfaceRead): Promise<ResumeContent> {
     return getResumeContent(locale);
+  }
+
+  /**
+   * The catalog is the catalog, so the source is a constant here.
+   *
+   * No `reason`, and that is the informative part: this adapter is reached when
+   * it is configured as the only source (no `SUPABASE_URL`) *or* when it is
+   * chosen over a database that failed, and those are different situations. The
+   * first is worth reporting and the second carries a reason from the caller, so
+   * neither is guessed at here — the reader that assembles the panel is the one
+   * that knows which.
+   */
+  async readResumeSnapshot(
+    locale: Locale,
+    _surface: ResumeSurfaceRead,
+  ): Promise<ResumeSnapshot> {
+    return { content: await this.readResume(locale, _surface), source: "versioned" };
   }
 
   async readTestimonials(_locale: Locale): Promise<ResumeTestimonial[]> {
@@ -111,20 +129,49 @@ export class FallbackResumeRepository implements ResumeRepository {
   ) {}
 
   async readResume(locale: Locale, surface: ResumeSurfaceRead): Promise<ResumeContent> {
-    try {
-      const content = await this.primary.readResume(locale, surface);
+    return (await this.readResumeSnapshot(locale, surface)).content;
+  }
 
-      if (content.experiences.length === 0 && content.name === "") {
+  /**
+   * The read, plus which of the two answered.
+   *
+   * This is the adapter that *knows*, so this is where the provenance is
+   * decided — and the fallback's reason is carried across verbatim rather than
+   * replaced by the catalog's own "I am the catalog", because the owner needs
+   * the error to act on, not the fact that a fallback exists.
+   */
+  async readResumeSnapshot(
+    locale: Locale,
+    surface: ResumeSurfaceRead,
+  ): Promise<ResumeSnapshot> {
+    try {
+      /*
+       * `readResumeSnapshot` on the primary, not `readResume`: the snapshot is
+       * the same single read with the source attached, so asking for it costs
+       * nothing extra and avoids guessing. Assuming `"database"` here would be
+       * a hardcoded answer that stays right only as long as the primary is the
+       * database — which is precisely the assumption that hides a wrapped or
+       * re-pointed adapter.
+       */
+      const snapshot = await this.primary.readResumeSnapshot(locale, surface);
+
+      if (snapshot.content.experiences.length === 0 && snapshot.content.name === "") {
         // Provisioned but empty: a migration that ran without its seed. The
         // document of record is better served by the catalog than by a blank.
         throw new Error(`resume content for ${locale} is empty`);
       }
 
-      return content;
+      return snapshot;
     } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+
       this.report(error);
 
-      return this.fallback.readResume(locale, surface);
+      return {
+        content: await this.fallback.readResume(locale, surface),
+        source: "versioned",
+        reason,
+      };
     }
   }
 

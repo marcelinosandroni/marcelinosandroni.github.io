@@ -8,6 +8,7 @@ import { getDictionary } from "@/i18n";
 import { DEFAULT_LOCALE } from "@/domain/i18n";
 import { AdminSignIn } from "@/components/admin/admin-sign-in";
 import { DatabaseStatusPanel } from "@/components/admin/database-status-panel";
+import { ResumeSourcePanel } from "@/components/admin/resume-source-panel";
 import {
   databaseStatusClient,
   readDatabaseStatus,
@@ -23,7 +24,12 @@ import { createPresenceRealtime } from "@/infrastructure/supabase/presence-realt
 import type { ConversationSummary } from "@/domain/chat/message";
 import { ListPosts } from "@/application/blog/manage-posts";
 import type { PostSummary } from "@/domain/blog/post-draft";
-import { getPostRepository, readTechnologyCatalog } from "@/infrastructure/repositories";
+import {
+  getPostRepository,
+  readResumeSource,
+  readTechnologyCatalog,
+  type ResumeSourceReport,
+} from "@/infrastructure/repositories";
 import { TechStackEditor } from "@/components/admin/tech-stack-editor";
 import { TechnologyCatalogEditor } from "@/components/admin/technology-catalog-editor";
 import { StackProfileEditor } from "@/components/admin/stack-profile-editor";
@@ -239,6 +245,25 @@ export default async function AdminPage() {
     database = { reachable: false, reason: "the status could not be read" };
   }
 
+  /*
+    Which adapter served the résumé, read through the same path a visitor takes.
+
+    Not derived from `isSupabaseContentConfigured` and not derived from
+    `database` above. Both of those are true statements about the environment
+    that stay true when the database is reachable and the document still comes
+    from the catalog — a URL without `/rest/v1`, a paused project, a migration
+    run without its bootstrap. The deployment once spent a stretch serving the
+    shipped catalog while the panel above said CONNECTED, which is why the
+    question is asked of the repository instead of the configuration.
+  */
+  let resumeSource: ResumeSourceReport | null = null;
+
+  try {
+    resumeSource = await readResumeSource(DEFAULT_LOCALE);
+  } catch {
+    resumeSource = null;
+  }
+
   return (
     <main className="mx-auto w-full max-w-[1320px] px-margin py-space-lg md:px-margin-tablet lg:px-margin-desktop">
       <section className="border border-border-subtle bg-surface-raised p-space-md">
@@ -282,6 +307,26 @@ export default async function AdminPage() {
       <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
         <DatabaseStatusPanel status={database} />
       </div>
+
+      {/*
+        Directly under the database panel, because they answer the same question
+        from two directions and either one alone is misleading.
+
+        `DatabaseStatusPanel` says the connection works and which migrations ran.
+        It cannot say whether *this* document came back, because the fallback
+        swallows the read that would have answered it — so a reachable database
+        and a résumé being served from the shipped catalog coexist perfectly, and
+        that combination is precisely the one an owner needs flagged.
+
+        `null` only when the read itself threw, which the fallback is built not to
+        do; the panel has no way to report "unknown" without inventing a state
+        that the repository layer does not have.
+      */}
+      {resumeSource === null ? null : (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <ResumeSourcePanel report={resumeSource} />
+        </div>
+      )}
 
       <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
         <ThemeFeedbackPanel counts={counts} />

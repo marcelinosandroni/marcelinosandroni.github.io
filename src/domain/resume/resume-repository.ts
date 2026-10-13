@@ -30,18 +30,57 @@ import type { ResumeContent, Surface } from "@/domain/resume/types";
 /** What a reader is served. */
 export type ResumeSurfaceRead = "home" | "resume" | "both";
 
-/** The adapter that answered, and why — surfaced for the telemetry and logs. */
+/**
+ * The adapter that answered.
+ *
+ * `versioned` means the typed catalog — the document that ships with the code.
+ * Both names are about *where the bytes came from*, not about whether they were
+ * any good, because both answers are the same document and a reader cannot tell
+ * them apart.
+ */
 export type ResumeSource = "database" | "versioned";
 
+/**
+ * The content, plus the fact that it came from somewhere.
+ *
+ * ## Why the source travels with the content
+ *
+ * `FallbackResumeRepository` degrades silently and on purpose: an outage should
+ * cost a recruiter a stale section, not a blank page. But the same silence is
+ * what makes a *misconfiguration* invisible — a wrong `SUPABASE_URL` answers
+ * 404 for every table forever, the catalog covers it, and the site looks perfect
+ * while every admin write goes nowhere. There is no symptom to notice.
+ *
+ * Attaching the source to the read is what turns that from invisible to
+ * reportable. It is deliberately part of the port rather than something the
+ * owner-only admin recomputes: an adapter that knows the answer should be the
+ * one reporting it, and a panel that derived its own opinion could disagree with
+ * the page the visitor actually received.
+ */
 export type ResumeSnapshot = {
   readonly content: ResumeContent;
   readonly source: ResumeSource;
+  /**
+   * Why the catalog answered, when it did.
+   *
+   * `undefined` on the database path — "no reason" and "no failure" being the
+   * same statement, so an optional field carries it without a sentinel.
+   */
+  readonly reason?: string;
 };
 
 /** The port the application layer depends on. */
 export type ResumeRepository = {
   /** The whole document for a locale, filtered to a surface. */
   readResume(locale: Locale, surface: ResumeSurfaceRead): Promise<ResumeContent>;
+  /**
+   * The same read, reporting which adapter answered.
+   *
+   * Required rather than optional so no adapter can quietly omit the
+   * provenance: an optional method is one a future adapter forgets, and the
+   * failure of forgetting is a green light on a dark panel.
+   */
+  readResumeSnapshot(locale: Locale, surface: ResumeSurfaceRead): Promise<ResumeSnapshot>;
   /** Published testimonials for a locale, in display order. */
   readTestimonials(locale: Locale): Promise<ResumeTestimonial[]>;
   /**

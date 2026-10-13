@@ -6,6 +6,7 @@ import type {
 } from "@/domain/portfolio";
 import type {
   ResumeRepository,
+  ResumeSnapshot,
   ResumeSurfaceRead,
   ResumeTestimonial,
   StackProfileSummary,
@@ -54,6 +55,27 @@ type StackEntry = {
  * each other about the same employer.
  */
 export class SupabaseResumeRepository implements ResumeRepository {
+  /**
+   * Always `"database"`, including when this adapter throws.
+   *
+   * The absence of a reason here is not an oversight. This adapter never
+   * degrades — a failure propagates to `FallbackResumeRepository`, which is the
+   * component that decides the catalog is the answer and the component that
+   * therefore owns the reason. An adapter labelling itself `"versioned"` on
+   * failure would be claiming a decision it did not make, and the owner reading
+   * the panel would be told the site is degraded by an adapter that simply
+   * could not reach the database.
+   */
+  async readResumeSnapshot(
+    locale: Locale,
+    surface: ResumeSurfaceRead,
+  ): Promise<ResumeSnapshot> {
+    return {
+      content: await this.readResume(locale, surface),
+      source: "database",
+    };
+  }
+
   async readResume(locale: Locale, surface: ResumeSurfaceRead): Promise<ResumeContent> {
     const [profile, experiences, groups, education, languages] = await Promise.all([
       this.one("resume_profile", `locale=eq.${locale}`),

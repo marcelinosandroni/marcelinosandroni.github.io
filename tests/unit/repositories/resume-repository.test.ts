@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { SUPPORTED_LOCALES } from "@/domain/i18n";
+import { SUPPORTED_LOCALES, type Locale } from "@/domain/i18n";
 import {
   FallbackResumeRepository,
   VersionedResumeRepository,
@@ -44,18 +44,66 @@ describe("the versioned résumé repository", () => {
   });
 });
 
+/**
+ * A provisioned but empty document — the shape a migration run without its seed
+ * leaves behind.
+ */
+function emptyDocument(locale: Locale): ResumeContent {
+  return {
+    locale,
+    name: "",
+    title: "",
+    location: "",
+    contact: { phone: "", email: "", linkedin: "" },
+    summary: "",
+    experiences: [],
+    skillGroups: [],
+    education: [],
+    languages: [],
+  };
+}
+
 /** A repository that answers with whatever it is told to. */
 function stub(overrides: Partial<ResumeRepository> = {}): ResumeRepository {
-  const base: ResumeRepository = {
-    readResume: async () => getResumeContent("en-US"),
-    readTestimonials: async () => [],
+  /*
+    Spreading `Partial<ResumeRepository>` straight into a `ResumeRepository`
+    would make every key optional in the result, so the snapshot is attached
+    after the merge instead of going through it.
+  */
+  const { readResumeSnapshot: overrideSnapshot, ...rest } = overrides;
+
+  const merged = {
+    readResume: async (): Promise<ResumeContent> => getResumeContent("en-US"),
+    readTestimonials: async (): Promise<ResumeTestimonial[]> => [],
     readHomeStack: async () => null,
     readHomeTrackRecord: async () => null,
     readTechnologyCatalog: async () => ({ categories: [], technologies: [], relations: [] }),
     readStackProfiles: async () => [],
+    ...rest,
   };
 
-  return { ...base, ...overrides };
+  /*
+    `readResumeSnapshot` is derived from the *merged* `readResume` rather than
+    stubbed separately.
+
+    Two reasons, and the second is the one that matters. A stub that hardcoded
+    `"database"` would let a fallback reporting the wrong source pass every
+    assertion in this file — the tests exist to prove which adapter answered, so
+    the fake has to answer the same way the real one does. And calling through
+    `merged` rather than the original base object is what makes a test's
+    rejecting `readResume` still reach the snapshot: deriving from the base would
+    quietly answer from the catalog-backed read and the fallback would never
+    trigger, so the test would pass while testing nothing.
+  */
+  return {
+    ...merged,
+    readResumeSnapshot:
+      overrideSnapshot ??
+      (async (locale, surface) => ({
+        content: await merged.readResume(locale, surface),
+        source: "database",
+      })),
+  };
 }
 
 describe("the fallback résumé repository", () => {
@@ -86,6 +134,80 @@ describe("the fallback résumé repository", () => {
     expect(await repository.readResume("en-US", "both")).toEqual(getResumeContent("en-US"));
   });
 
+  /*
+    The provenance assertions below exist because the whole point of the admin's
+    source indicator is to be trusted. Every other test in this file passes with
+    a fallback that mislabels its own source, since the *content* is identical
+    either way — a recruiter cannot tell, and neither could a green test run.
+  */
+  it("reports the database as the source when it answers", async () => {
+    const repository = new FallbackResumeRepository(
+      stub(),
+      new VersionedResumeRepository(),
+    );
+
+    const snapshot = await repository.readResumeSnapshot("en-US", "both");
+
+    expect(snapshot.source).toBe("database");
+    expect(snapshot.reason).toBeUndefined();
+  });
+
+  it("reports the catalog and the reason when the database rejects", async () => {
+    const repository = new FallbackResumeRepository(
+      stub({
+        readResume: async () => {
+          throw new Error("PGRST116: connection refused");
+        },
+      }),
+      new VersionedResumeRepository(),
+    );
+
+    const snapshot = await repository.readResumeSnapshot("en-US", "both");
+
+    expect(snapshot.source).toBe("versioned");
+    // The owner's fix is in this string, so it has to survive the degradation.
+    expect(snapshot.reason).toBe("PGRST116: connection refused");
+    expect(snapshot.content).toEqual(getResumeContent("en-US"));
+  });
+
+  it("carries a reason even when the database answers but the document is empty", async () => {
+    /*
+      A migration that ran without its seed is the failure mode most likely to be
+      mistaken for success, because the fallback makes the page look right. The
+      indicator is the only place that can say "you are looking at the shipped
+      catalog, not your data".
+    */
+    const repository = new FallbackResumeRepository(
+      stub({ readResume: async () => emptyDocument("en-US") }),
+      new VersionedResumeRepository(),
+    );
+
+    const snapshot = await repository.readResumeSnapshot("en-US", "both");
+
+    expect(snapshot.source).toBe("versioned");
+    expect(snapshot.reason).toContain("is empty");
+  });
+
+  it("respected the primary's own source claim rather than assuming the database", async () => {
+    /*
+      A composition root that wraps the database in a cache or a replica still
+      serves database content. Relabelling that as anything else would tell the
+      owner their deployment is degraded while it is serving exactly what they
+      configured.
+    */
+    const repository = new FallbackResumeRepository(
+      stub({
+        readResumeSnapshot: async () => ({
+          content: getResumeContent("en-US"),
+          source: "database",
+        }),
+      }),
+      new VersionedResumeRepository(),
+    );
+
+    expect((await repository.readResumeSnapshot("en-US", "both")).source).toBe("database");
+  });
+
   it("falls back rather than rendering a blank résumé", async () => {
     /*
       The distinction this exists for: a database that is *empty* and a database
@@ -93,18 +215,7 @@ describe("the fallback résumé repository", () => {
       second is how a hiring manager ends up looking at a résumé with no
       experience in it — indistinguishable, to them, from a person with no career.
     */
-    const empty: ResumeContent = {
-      locale: "en-US",
-      name: "",
-      title: "",
-      location: "",
-      contact: { phone: "", email: "", linkedin: "" },
-      summary: "",
-      experiences: [],
-      skillGroups: [],
-      education: [],
-      languages: [],
-    };
+    const empty = emptyDocument("en-US");
 
     const repository = new FallbackResumeRepository(
       stub({ readResume: async () => empty }),
