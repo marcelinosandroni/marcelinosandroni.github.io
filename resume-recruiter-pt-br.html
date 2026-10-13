@@ -69,10 +69,13 @@
          * Impressão.
          *
          * O rodapé diz "Página 1 de 2" e "Página 2 de 2", então duas páginas é o
-         * layout pretendido. Esta versão do conteúdo é mais curta do que a
-         * anterior, e por isso o ajuste aqui é bem mais leve: o entrelinhamento
-         * de tela continua quase como designed, e o que sobra é só o necessário
-         * para as duas páginas fecharem em A4.
+         * layout pretendido. E o objetivo aqui é o oposto de "enfiar": manter a
+         * leitura e a sensação de espaço do HTML de tela, tirando só o necessário
+         * para o documento fechar em A4.
+         *
+         * A página 2 é a que manda. Ela é a mais cheia do documento e, sozinha,
+         * define quão apertado o conjunto pode ficar - a página 1 tem folga de
+         * sobra e não participa da conta.
          *
          * O `!important` é necessário: esta folha está no <head> e as classes
          * utilitárias do Tailwind estão na mesma folha, mais abaixo e na mesma
@@ -85,15 +88,14 @@
             .a4-page {
                 margin: 0;
                 box-shadow: none;
-                padding: 9mm 12mm;
+                padding: 10mm 14mm;
                 page-break-after: always;
             }
 
             /*
-             * Entrelinha. O corpo herda `text-sm` (20px) sobre texto de 11.5px,
-             * ou seja 1.74 - arejado demais para duas páginas. 1.32 é apertado mas
-             * continua confortável de ler, e é o que fecha o documento nesta versão
-             * do conteúdo.
+             * Entrelinha. O corpo herda `text-sm` (20px) sobre texto de 11.5px, ou
+             * seja 1.74 - arejado demais para duas páginas, e arejado demais
+             * também. 1.38 é o mais próximo do desenho de tela que ainda fecha.
              *
              * O `leading-relaxed` (1.625) entra aqui explicitamente porque aparece
              * nos parágrafos de Competências Técnicas e nas descrições das caixas
@@ -101,34 +103,44 @@
              * não - e essa era a maior fatia isolada do excedente.
              */
             .a4-page,
-            .a4-page ul { line-height: 1.32 !important; }
-            .a4-page .leading-relaxed { line-height: 1.32 !important; }
+            .a4-page ul { line-height: 1.38 !important; }
+            .a4-page .leading-relaxed { line-height: 1.38 !important; }
 
-            /* Ritmo vertical: proporcional, sem achatar a hierarquia. */
-            .a4-page .mb-4 { margin-bottom: 0.49rem !important; }
-            .a4-page .mb-5 { margin-bottom: 0.49rem !important; }
-            .a4-page .mb-3 { margin-bottom: 0.3rem !important; }
+            /*
+             * Ritmo vertical, em 45% do valor original de cada utilitário.
+             * Proporcional de propósito: um cargo continua se separando do
+             * seguinte por bem mais espaço do que uma bullet se separa da
+             * próxima, então a hierarquia sobrevive ao ajuste.
+             */
+            .a4-page .mb-4 { margin-bottom: 0.45rem !important; }
+            .a4-page .mb-5 { margin-bottom: 0.45rem !important; }
+            .a4-page .mb-3 { margin-bottom: 0.34rem !important; }
             .a4-page .mb-2 { margin-bottom: 0.23rem !important; }
-            .a4-page .mb-1 { margin-bottom: 0.15rem !important; }
+            .a4-page .mb-1 { margin-bottom: 0.11rem !important; }
             .a4-page .mt-2 { margin-top: 0.23rem !important; }
-            .a4-page .mt-1 { margin-top: 0.15rem !important; }
-            .a4-page .space-y-1\.5 > * + * { margin-top: 0.26rem !important; }
-            .a4-page .space-y-2 > * + * { margin-top: 0.34rem !important; }
-            .a4-page .gap-y-1\.5 { row-gap: 0.19rem !important; }
+            .a4-page .mt-1 { margin-top: 0.11rem !important; }
+            .a4-page .space-y-1\.5 > * + * { margin-top: 0.17rem !important; }
+            .a4-page .space-y-2 > * + * { margin-top: 0.23rem !important; }
+            .a4-page .gap-y-1\.5 { row-gap: 0.17rem !important; }
             .a4-page .gap-3 { gap: 0.34rem !important; }
-            .a4-page .gap-4 { gap: 0.53rem !important; }
+            .a4-page .gap-4 { gap: 0.45rem !important; }
             .a4-page p { margin: 0 !important; }
 
-            /* Títulos e caixas perdem respiro antes de perderem o fio lateral. */
+            /*
+             * Títulos e as caixas de tecnologia ficam com o respiro *deles*, não
+             * com o das margens utilitárias: são 45% de 1rem, e um cabeçalho de
+             * seção que sobe colado ao bloco anterior lê como continuation em vez
+             * de como título.
+             */
             .a4-page .section-title {
                 margin-top: 0.45rem !important;
-                margin-bottom: 0.19rem !important;
-            }
-            .a4-page .tech-box {
-                padding: 4px 9px !important;
                 margin-bottom: 0.23rem !important;
             }
-            .a4-page .p-2 { padding: 0.35rem !important; }
+            .a4-page .tech-box {
+                padding: 5px 9px !important;
+                margin-bottom: 0.23rem !important;
+            }
+            .a4-page .p-2 { padding: 0.4rem !important; }
 
             .no-print { display: none !important; }
             .keep-together { page-break-inside: avoid; }
@@ -142,11 +154,13 @@
         <!-- HEADER -->
         <header class="mb-4">
             <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase">Marcelino Sandroni Dias</h1>
-            <h2 class="text-base font-bold text-slate-700 mt-1 mb-3">Engenheiro de Software &amp; IA Sênior · Tech Lead</h2>
+            <h2 class="text-base font-bold text-slate-700 mt-1 mb-3">Engenheiro de Software &amp; IA Sênior</h2>
 
             <div class="text-[11.5px] text-slate-700 bg-slate-50 p-2 rounded border border-slate-100">
                 <!-- GRID DE 3 COLUNAS ALINHADO E SEM QUEBRA DE LINHA -->
-                <div class="grid grid-cols-3 w-full items-center whitespace-nowrap">
+                <div class="grid w-full items-center whitespace-nowrap" style="
+    grid-template-columns: 1.4fr 1fr 1fr;
+">
 
                     <!-- Coluna 1: Esquerda -->
                     <div class="flex flex-col gap-y-1.5 text-left">
@@ -174,7 +188,7 @@
         <section class="mb-4">
             <h3 class="section-title">Resumo Profissional</h3>
             <p class="text-[12.5px] leading-relaxed text-slate-700 text-justify">
-                <strong>Engenheiro de Software &amp; IA Sênior | Tech Lead Full Stack, </strong>unindo visão estratégica e análise de negócio à execução end-to-end em UI/UX, mobile, frontend, backend, DevOps, engenharia de dados e IA, com 6 anos em engenharia de software e 15 em governança financeira, criando soluções escaláveis e sistemas críticos que movimentam bilhões de reais.</p>
+                <strong>Engenheiro Full Stack de verdade, </strong>unindo visão estratégica e análise de negócio à execução end-to-end em UI/UX, mobile, frontend, backend, DevOps, engenharia de dados e IA, com 6 anos em engenharia de software e 15 em governança financeira, criando soluções escaláveis e sistemas críticos que movimentam bilhões de reais.</p>
         </section>
 
         <!-- MÉTRICAS DE IMPACTO -->
@@ -296,7 +310,7 @@
                 </div>
                 <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
                     <li><strong>Migração Cloud Acelerada:</strong> Conduzi migração completa para infraestrutura AWS concluída na metade do prazo estimado, dobrando a performance sistêmica.</li>
-                    <li><strong>FinOps e Otimização Cloud:</strong> Reduzi custos em 50% aplicando políticas de auto-scaling e right-sizing em instâncias spot EC2.</li>
+                    <li><strong>FinOps e Otimização Cloud:</strong> Reduzi custos em 50% aplicando políticas de auto-scaling e right-sizing na AWS.</li>
                     <li><strong>Confiabilidade em Telemedicina:</strong> Mitiguei perdas em filas assíncronas implementando idempotência estrita, blindando o tráfego de prontuários eletrônicos de pacientes.</li>
                 </ul>
             </div>
@@ -312,7 +326,7 @@
                     <strong>Core Business:</strong> FinOps, Automação de Processos ERP, IFRS &amp; CPC, SOX Compliance, Planejamento Tributário.
                 </div>
                 <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
-                    <li><strong>Fechamento Contábil Acelerado em 83%:</strong> Redesenho de processos de conciliação reduzindo o ciclo temporal de 30 para 5 dias corridos.</li>
+                    <li><strong>Fechamento Contábil Acelerado em 10x:</strong> Redesenho de processos reduzindo o ciclo temporal de 30 para 2 dias.</li>
                     <li><strong>Economia e Rentabilidade (+R$ 3M):</strong> Execução de planejamento tributário robusto gerando economia milionária e alocação precisa de capital de giro.</li>
                 </ul>
             </div>
