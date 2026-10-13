@@ -2,7 +2,7 @@
 
 ## Fonte canônica
 
-O PDF anexado pelo usuário em 7 de setembro de 2026 é a referência visual e textual do modelo `REFERENCE` para o currículo PT-BR. O modelo `CLEAN` é o padrão do botão principal e mantém a apresentação editorial existente. A saída `REFERENCE` deve reproduzir sua estrutura, conteúdo, ordem e paginação de duas páginas.
+O PDF anexado pelo usuário em 7 de setembro de 2026 é a referência visual e textual do modelo `DETAILED` para o currículo PT-BR. O modelo `CLEAN` é o padrão do botão principal e mantém a apresentação editorial existente. A saída `DETAILED` deve reproduzir sua estrutura, conteúdo, ordem e paginação de duas páginas.
 
 A referência contém:
 
@@ -17,7 +17,7 @@ A referência contém:
 ## Modelos disponíveis
 
 - `CLEAN`: padrão, usado quando `/api/resume/{locale}/pdf` não recebe `template`.
-- `REFERENCE`: modelo fiel ao PDF anexado, usado com `/api/resume/{locale}/pdf?template=REFERENCE`.
+- `DETAILED`: modelo fiel ao PDF anexado, usado com `/api/resume/{locale}/pdf?template=DETAILED`.
 
 O botão principal baixa sempre `CLEAN`. A seta abre o menu de modelos e baixa o modelo escolhido. O cache separa versão, locale, conteúdo e modelo.
 
@@ -29,7 +29,7 @@ O botão principal baixa sempre `CLEAN`. A seta abre o menu de modelos e baixa o
 4. O workflow de publicação deve construir a imagem LaTeX antes de compilar os artefatos.
 5. Alterações visuais devem ser validadas por comparação com a referência anexada, incluindo número de páginas, ordem das seções, quebras de linha e densidade de conteúdo.
 6. PT-BR e EN-US devem manter a mesma estrutura, com tradução explícita apenas no conteúdo textual.
-7. O modelo `REFERENCE` deve manter a ordem `Resumo Executivo`, `Core Skills & Arquitetura de Software`, `Experiência Profissional`, `Formação Acadêmica & Certificações` e `Idiomas`.
+7. O modelo `DETAILED` deve manter a ordem `Resumo Executivo`, `Core Skills & Arquitetura de Software`, `Experiência Profissional`, `Formação Acadêmica & Certificações` e `Idiomas`.
 
 ## Implementação
 

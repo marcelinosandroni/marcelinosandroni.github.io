@@ -5,7 +5,7 @@ import type { ResumeTemplateId } from "@/infrastructure/pdf/resume-template-regi
 /**
  * Picks the section headings for the template being rendered.
  *
- * The REFERENCE template reproduces the headings of the original reference PDF,
+ * The DETAILED template reproduces the headings of the original reference PDF,
  * so each template carries its own set. Kept next to the PDF infrastructure
  * because choosing the headings is a presentation decision, not a rendering one.
  */
@@ -13,5 +13,5 @@ export function getPdfSectionLabels(
   t: Dictionary,
   templateId: ResumeTemplateId,
 ): ResumeSectionLabels {
-  return templateId === "REFERENCE" ? t.pdf.referenceSections : t.pdf.sections;
+  return templateId === "DETAILED" ? t.pdf.referenceSections : t.pdf.sections;
 }

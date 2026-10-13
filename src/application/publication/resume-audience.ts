@@ -23,7 +23,7 @@ import type { CaseStudy, ResumeExperience } from "@/domain/resume/types";
  * studies and 96 metrics was written, rendered, and then dropped on the floor for
  * the one artifact an evaluator actually downloads.
  *
- * The split below is what makes `REFERENCE` deserve its name.
+ * The split below is what makes `DETAILED` deserve its name.
  */
 
 /** Fields the compact template reads. Everything else is depth it does not need. */
@@ -33,7 +33,7 @@ export type CleanExperience = Pick<
 >;
 
 /** Everything, for the template whose job is to be evidence. */
-export type ReferenceExperience = ResumeExperience;
+export type DetailedExperience = ResumeExperience;
 
 /** Narrows to what the compact template reads, dropping the depth it ignores. */
 export function toCleanExperience(experience: ResumeExperience): CleanExperience {
@@ -48,11 +48,11 @@ export function toCleanExperience(experience: ResumeExperience): CleanExperience
 }
 
 /**
- * How many case studies the reference template prints per employer.
+ * How many case studies the detailed template prints per employer.
  *
  * Not a quality judgement about the ones left out — the web page carries all of
  * them, and it is the better place to read a full narrative. A PDF is a
- * different medium with a different cost per paragraph, and a reference document
+ * different medium with a different cost per paragraph, and a detailed document
  * that runs to twenty pages stops being read at all.
  *
  * The cut is even rather than "the first few", so the selection cannot depend on
@@ -60,18 +60,18 @@ export function toCleanExperience(experience: ResumeExperience): CleanExperience
  * five studies shows two and a role with four shows two, which keeps the document
  * proportional to the shape of the career rather than to its chronology.
  */
-export const REFERENCE_CASES_PER_EXPERIENCE = 2;
+export const DETAILED_CASES_PER_EXPERIENCE = 2;
 
-/** Picks the case studies a reference document will print. */
-export function selectReferenceCases(cases: readonly CaseStudy[]): CaseStudy[] {
-  if (cases.length <= REFERENCE_CASES_PER_EXPERIENCE) {
+/** Picks the case studies a detailed document will print. */
+export function selectDetailedCases(cases: readonly CaseStudy[]): CaseStudy[] {
+  if (cases.length <= DETAILED_CASES_PER_EXPERIENCE) {
     return [...cases];
   }
 
-  const step = cases.length / REFERENCE_CASES_PER_EXPERIENCE;
+  const step = cases.length / DETAILED_CASES_PER_EXPERIENCE;
   const picked: CaseStudy[] = [];
 
-  for (let index = 0; index < REFERENCE_CASES_PER_EXPERIENCE; index += 1) {
+  for (let index = 0; index < DETAILED_CASES_PER_EXPERIENCE; index += 1) {
     // `Math.floor` rather than `Math.round` so the last pick is always inside the
     // array — a rounding artefact on a 5-case role would index past the end.
     picked.push(cases[Math.floor(index * step)] as CaseStudy);
@@ -80,8 +80,8 @@ export function selectReferenceCases(cases: readonly CaseStudy[]): CaseStudy[] {
   return picked;
 }
 
-/** True when the reference template would print more than the compact one. */
-export function hasReferenceDepth(experience: ResumeExperience): boolean {
+/** True when the detailed template would print more than the compact one. */
+export function hasDetailedDepth(experience: ResumeExperience): boolean {
   return (
     (experience.caseStudies?.length ?? 0) > 0 ||
     (experience.technologies?.length ?? 0) > 0 ||

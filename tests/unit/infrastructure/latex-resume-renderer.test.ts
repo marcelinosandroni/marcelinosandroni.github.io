@@ -55,7 +55,7 @@ const sampleContent = {
 const escapeLatex = escapeForTest;
 
 /**
- * Content carrying the fields only the REFERENCE template reads: scope, team
+ * Content carrying the fields only the DETAILED template reads: scope, team
  * size, the stack and case studies. Without these the detailed path is never
  * exercised, and a test over it would pass without proving anything.
  */
@@ -137,12 +137,12 @@ describe("LaTeXResumeRenderer", () => {
   });
 
   it("renders the reference model with the reference section contract", async () => {
-    const renderer = new LaTeXResumeRenderer("REFERENCE");
+    const renderer = new LaTeXResumeRenderer("DETAILED");
     const result = await renderer.render({
       version: ResumeVersion.create("0.2.0"),
       locale: "pt-BR",
       content: sampleContent,
-      labels: await labelsFor("pt-BR", "REFERENCE"),
+      labels: await labelsFor("pt-BR", "DETAILED"),
     });
 
     expect(result.content).toContain("\\section{Resumo Executivo}");
@@ -157,7 +157,7 @@ describe("LaTeXResumeRenderer", () => {
     // Guards the contract that no heading is hardcoded in the renderer: whatever
     // the catalog resolves must be what reaches the document, after escaping.
     for (const locale of ["pt-BR", "en-US"] as const) {
-      for (const templateId of ["CLEAN", "REFERENCE"] as const) {
+      for (const templateId of ["CLEAN", "DETAILED"] as const) {
         const labels = await labelsFor(locale, templateId);
         const result = await new LaTeXResumeRenderer(templateId).render({
           version: ResumeVersion.create("1.0.0"),
@@ -175,10 +175,10 @@ describe("LaTeXResumeRenderer", () => {
     }
   });
 
-  it("prints the detail in REFERENCE, where it belongs", async () => {
+  it("prints the detail in DETAILED, where it belongs", async () => {
     for (const locale of ["pt-BR", "en-US"] as const) {
-      const labels = await labelsFor(locale, "REFERENCE");
-      const result = await new LaTeXResumeRenderer("REFERENCE").render({
+      const labels = await labelsFor(locale, "DETAILED");
+      const result = await new LaTeXResumeRenderer("DETAILED").render({
         version: ResumeVersion.create("1.0.0"),
         locale,
         content: detailedSampleContent,
@@ -202,8 +202,8 @@ describe("LaTeXResumeRenderer", () => {
         ["solution", first.caseStudies[0].solution],
         ["result", first.caseStudies[0].result],
       ] as const) {
-        expect(result.content, `${locale}/REFERENCE must use "${key}"`).toContain(escapeLatex(labels[key]));
-        expect(result.content, `${locale}/REFERENCE must carry the ${key} text`).toContain(escapeLatex(text));
+        expect(result.content, `${locale}/DETAILED must use "${key}"`).toContain(escapeLatex(labels[key]));
+        expect(result.content, `${locale}/DETAILED must carry the ${key} text`).toContain(escapeLatex(text));
       }
     }
   });

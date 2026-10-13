@@ -20,7 +20,7 @@ describe("ResumePdfCache", () => {
       expect(firstPath).toBe(secondPath);
       expect(readFileSync(secondPath)).toEqual(payload);
 
-      const referencePath = cache.write("0.1.28", "pt-BR", content, "REFERENCE", payload, "Marcelino Sandroni Resume v0.1.28 pt-BR REFERENCE.pdf");
+      const referencePath = cache.write("0.1.28", "pt-BR", content, "DETAILED", payload, "Marcelino Sandroni Resume v0.1.28 pt-BR DETAILED.pdf");
       expect(referencePath).not.toBe(firstPath);
     } finally {
       rmSync(tempDir, { recursive: true, force: true });

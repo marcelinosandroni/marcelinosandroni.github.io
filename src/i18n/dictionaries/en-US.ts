@@ -293,7 +293,7 @@ export const enUS = {
     /**
      * Section headings printed in the generated PDF. Kept apart from the web UI
      * because the document follows its own editorial structure, and the
-     * REFERENCE template reproduces the headings of the original reference PDF.
+     * DETAILED template reproduces the headings of the original reference PDF.
      */
     sections: {
       summary: "Summary",
@@ -322,11 +322,12 @@ export const enUS = {
     templates: {
       CLEAN: {
         label: "CLEAN",
-        description: "Default editorial template",
+        description: "Compact. Roles, dates, and the outcomes that carry a number.",
       },
-      REFERENCE: {
-        label: "REFERENCE",
-        description: "Template faithful to the reference PDF",
+      DETAILED: {
+        label: "DETAILED",
+        description:
+          "Everything, with the evidence: case studies, their metrics, the stack behind each role, team size and scope.",
       },
     },
   },

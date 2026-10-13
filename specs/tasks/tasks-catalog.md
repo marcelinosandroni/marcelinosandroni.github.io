@@ -611,7 +611,7 @@ existe, mas em outro lugar e com outro escopo:
 - ✅ Interface `ResumeDocumentInput` definida em `build-resume-document.ts`
 - ✅ Contrato LaTeX implementado em `latex-templates.ts`
 - ✅ Renderer `LaTeXResumeRenderer` implementa contrato completo
-- ✅ Template registry com múltiplas versões (REFERENCE, default)
+- ✅ Template registry com múltiplas versões (DETAILED, default)
 - ✅ Validação de dados integrada no renderer
 
 **Critérios de Conclusão**:
@@ -643,7 +643,7 @@ Contrato já implementado. Próxima tarefa é evolução do template.
 **O Que Foi Feito**:
 - ✅ Template LaTeX com interpolação de variáveis implementado
 - ✅ Estilo profissional consistente (fontes, cores, margens)
-- ✅ Suporte a dois templates: REFERENCE (formal) e default (moderno)
+- ✅ Suporte a dois templates: DETAILED (formal) e default (moderno)
 - ✅ Hyperlinks funcionais (email, LinkedIn) via `hyperref`
 - ✅ Seções renderizadas: Summary, Skills, Experiences, Education, Languages
 - ✅ Escape de caracteres especiais LaTeX
