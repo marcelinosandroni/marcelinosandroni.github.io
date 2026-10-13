@@ -260,7 +260,7 @@ export const ptBR: Dictionary = {
     chooseTemplate: "Escolher modelo de PDF",
     /**
      * Seções impressas no PDF gerado. "Core Skills & Arquitetura de Software" é
-     * intencional: o modelo REFERENCE reproduz os títulos do PDF de referência.
+     * intencional: o modelo DETAILED reproduz os títulos do PDF de referência.
      */
     sections: {
       summary: "Resumo",
@@ -289,11 +289,12 @@ export const ptBR: Dictionary = {
     templates: {
       CLEAN: {
         label: "CLEAN",
-        description: "Modelo editorial padrão",
+        description: "Compacto. Cargos, datas e os resultados que carregam número.",
       },
-      REFERENCE: {
-        label: "REFERENCE",
-        description: "Modelo fiel ao PDF de referência",
+      DETAILED: {
+        label: "DETAILED",
+        description:
+          "Tudo, com as evidências: estudos de caso, suas métricas, a stack de cada cargo, tamanho do time e escopo.",
       },
     },
   },

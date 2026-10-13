@@ -5,7 +5,7 @@ import type { ResumeVersion } from "@/domain/publication/resume-version";
  * Section headings printed in the document. Resolved from the message catalog by
  * the caller, so no user-facing text lives in the renderer.
  *
- * The last five are the *inline* labels the reference template needs: the team
+ * The last five are the *inline* labels the detailed template needs: the team
  * size, the stack and the three parts of a case study. They are labels rather
  * than fixed words because a printed "Team: 10" in English is a bug in the
  * Portuguese document, and the whole point of the catalog is that this class of

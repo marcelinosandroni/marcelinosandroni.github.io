@@ -14,8 +14,7 @@ import { applyFocus, narrowDocument } from "@/domain/resume/focus";
 import { getDictionary } from "@/i18n";
 import { getPdfSectionLabels } from "@/infrastructure/pdf/pdf-section-labels";
 import {
-  DEFAULT_RESUME_TEMPLATE,
-  isResumeTemplateId,
+  resolveResumeTemplateId,
   type ResumeTemplateId,
 } from "@/infrastructure/pdf/resume-template-registry";
 import { createErrorResponse } from "@/infrastructure/http/error-handler";
@@ -81,11 +80,7 @@ export async function GET(
 
     const normalizedLocale = locale as "pt-BR" | "en-US";
     const requestedTemplate = request.nextUrl.searchParams.get("template");
-    const templateId = requestedTemplate === null
-      ? DEFAULT_RESUME_TEMPLATE
-      : isResumeTemplateId(requestedTemplate)
-        ? requestedTemplate
-        : null;
+    const templateId = resolveResumeTemplateId(requestedTemplate);
 
     if (!templateId) {
       throw new InvalidTemplateError(`Invalid template: ${requestedTemplate}`, { providedTemplate: requestedTemplate });

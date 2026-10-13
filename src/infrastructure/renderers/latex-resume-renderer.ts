@@ -4,7 +4,7 @@ import { DEFAULT_RESUME_TEMPLATE, type ResumeTemplateId } from "@/infrastructure
 import type { CaseStudy, ResumeExperience } from "@/domain/resume/types";
 import { escapeLatex } from "@/infrastructure/renderers/latex-escape";
 import {
-  selectReferenceCases,
+  selectDetailedCases,
   toCleanExperience,
   type CleanExperience,
 } from "@/application/publication/resume-audience";
@@ -13,7 +13,7 @@ import {
  * LaTeX renderer for both PDF templates.
  *
  * The two templates are two documents, not one document reordered. `CLEAN` is
- * for a thirty-second scan: the three bullets that carry the number. `REFERENCE`
+ * for a thirty-second scan: the three bullets that carry the number. `DETAILED`
  * is for someone who wants the reasoning behind them, so it prints the scope,
  * the team size, the stack and the case studies with their metrics.
  *
@@ -29,7 +29,7 @@ export class LaTeXResumeRenderer implements ResumeDocumentRenderer {
   async render(input: ResumeDocumentInput): Promise<ResumeDocument> {
     const { version, locale, content, labels } = input;
 
-    const detailed = this.templateId === "REFERENCE";
+    const detailed = this.templateId === "DETAILED";
 
     const sections = detailed
       ? [
@@ -131,7 +131,7 @@ export class LaTeXResumeRenderer implements ResumeDocumentRenderer {
           const detail = experience as ResumeExperience;
           const cases = detail.caseStudies ?? [];
 
-          for (const entry of selectReferenceCases(cases)) {
+          for (const entry of selectDetailedCases(cases)) {
             lines.push(this.renderCaseStudy(entry, labels));
           }
 
@@ -202,7 +202,7 @@ export class LaTeXResumeRenderer implements ResumeDocumentRenderer {
        * better in a fixed pitch. It does not work in this document: `\ttfamily`
        * selects Computer Modern Typewriter, whose characters are ~20% wider than
        * the Helvetica body text, and a row of metrics is long enough that the line
-       * ran up to 51pt past the right margin — ten times across the REFERENCE
+       * ran up to 51pt past the right margin — ten times across the DETAILED
        * template, visibly broken in the PDF while the build stayed green.
        *
        * A bold value gets the same scannability without the width, and the line

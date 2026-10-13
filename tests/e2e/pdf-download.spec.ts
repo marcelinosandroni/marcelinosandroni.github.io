@@ -210,7 +210,7 @@ test.describe("Localized routing and PDF download", () => {
     const downloadPromise = page.waitForEvent("download");
     await page.getByRole("menuitem", { name: /reference/i }).click();
 
-    expect((await downloadPromise).suggestedFilename()).toContain("REFERENCE");
+    expect((await downloadPromise).suggestedFilename()).toContain("DETAILED");
   });
 
   test("ships no resume content in the browser JavaScript bundle", async ({ page }) => {

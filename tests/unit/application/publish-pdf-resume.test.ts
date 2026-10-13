@@ -65,12 +65,12 @@ describe("PublishPDFResume", () => {
       },
     };
 
-    const labels = await labelsFor("en-US", "REFERENCE");
+    const labels = await labelsFor("en-US", "DETAILED");
     await new PublishPDFResume(new BuildResumeDocument(renderer), renderer, {
       compile: async () => Buffer.from(""),
-    }).execute(ResumeVersion.create("1.0.0"), "en-US", sampleContent, labels, "REFERENCE");
+    }).execute(ResumeVersion.create("1.0.0"), "en-US", sampleContent, labels, "DETAILED");
 
-    expect(received?.templateId).toBe("REFERENCE");
+    expect(received?.templateId).toBe("DETAILED");
     expect(received?.labels).toEqual(labels);
   });
 });
