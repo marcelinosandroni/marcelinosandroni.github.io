@@ -76,3 +76,4 @@ public/artifacts/cache/
 playwright-report/
 test-results/
 supabase/.temp/
+.openchamber/
