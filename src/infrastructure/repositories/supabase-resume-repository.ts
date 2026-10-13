@@ -6,6 +6,7 @@ import type {
 } from "@/domain/portfolio";
 import type {
   ResumeRepository,
+  ResumeSnapshot,
   ResumeSurfaceRead,
   ResumeTestimonial,
   StackProfileSummary,
@@ -54,6 +55,27 @@ type StackEntry = {
  * each other about the same employer.
  */
 export class SupabaseResumeRepository implements ResumeRepository {
+  /**
+   * Always `"database"`, including when this adapter throws.
+   *
+   * The absence of a reason here is not an oversight. This adapter never
+   * degrades — a failure propagates to `FallbackResumeRepository`, which is the
+   * component that decides the catalog is the answer and the component that
+   * therefore owns the reason. An adapter labelling itself `"versioned"` on
+   * failure would be claiming a decision it did not make, and the owner reading
+   * the panel would be told the site is degraded by an adapter that simply
+   * could not reach the database.
+   */
+  async readResumeSnapshot(
+    locale: Locale,
+    surface: ResumeSurfaceRead,
+  ): Promise<ResumeSnapshot> {
+    return {
+      content: await this.readResume(locale, surface),
+      source: "database",
+    };
+  }
+
   async readResume(locale: Locale, surface: ResumeSurfaceRead): Promise<ResumeContent> {
     const [profile, experiences, groups, education, languages] = await Promise.all([
       this.one("resume_profile", `locale=eq.${locale}`),
@@ -647,7 +669,7 @@ export class SupabaseResumeRepository implements ResumeRepository {
     filters: Record<string, string>,
     limit?: number,
   ): Promise<Row[]> {
-    const { publishableKey } = requireSupabaseReadConfig();
+    const { publishableKey, restUrl } = requireSupabaseReadConfig();
 
     /*
       `order` is the one filter that is not an equality match, so it is kept out
@@ -664,8 +686,17 @@ export class SupabaseResumeRepository implements ResumeRepository {
       params.set("limit", String(limit));
     }
 
+    /*
+      `restUrl`, not `url`.
+
+      PostgREST is at `/rest/v1` behind the hosted gateway and at the **root** of
+      its own port in the local stack, while the project base also serves auth and
+      realtime. Using the project base here is what made production answer 404 on
+      every table and serve the versioned catalog instead, with nothing on the
+      page to say so.
+    */
     const { data, error } = await this.withDeadline(
-      fetch(`${requireSupabaseReadConfig().url}/${table}?${params.toString()}`, {
+      fetch(`${restUrl}/${table}?${params.toString()}`, {
         headers: { apikey: publishableKey, Authorization: `Bearer ${publishableKey}` },
       }).then(async (response) => {
         if (!response.ok) {

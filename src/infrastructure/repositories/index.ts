@@ -1,5 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
-
 import { versionedArticleRepository } from "@/infrastructure/content/blog";
 import { FallbackArticleRepository, GetArticle, ListArticles } from "@/application/blog";
 import type { Locale } from "@/domain/i18n";
@@ -9,6 +7,7 @@ import type {
 } from "@/domain/portfolio";
 import type {
   ResumeRepository,
+  ResumeSource,
   ResumeSurfaceRead,
   ResumeTestimonial,
   StackProfileSummary,
@@ -28,8 +27,10 @@ import {
 import {
   isSupabaseContentConfigured,
   supabaseConfigFromEnv,
+  supabaseRestBase,
   type EnvironmentLike,
 } from "@/infrastructure/supabase/server";
+import { createPostgrestClient } from "@/infrastructure/supabase/postgrest";
 import type { ArticleRepository } from "@/application/blog";
 import {
   DEFAULT_POST_ADAPTER_ID,
@@ -155,6 +156,20 @@ const RESUME_COOLDOWN_MS = 60_000;
 let resumeRepositoryPromise: Promise<ResumeRepository> | null = null;
 let resumeOpenedUntil = 0;
 
+/**
+ * Why the breaker opened, kept so the admin can still say it.
+ *
+ * The breaker short-circuits to the catalog without attempting a read, so
+ * `VersionedResumeRepository` has no failure of its own to report and answers
+ * `source: "versioned"` with no reason. That is correct for a visitor — there is
+ * nothing to tell them — and wrong for the owner, who would open `/admin`
+ * during the cooldown window and see "STATIC CATALOG" with nothing to act on.
+ *
+ * Kept here rather than on the repository because this is the only place that
+ * decides to skip the read. One string, overwritten on each failure.
+ */
+let resumeFailureReason: string | null = null;
+
 async function buildResumeRepository(): Promise<ResumeRepository> {
   if (!isSupabaseContentConfigured()) {
     return versionedResumeRepository;
@@ -169,6 +184,7 @@ async function buildResumeRepository(): Promise<ResumeRepository> {
     versionedResumeRepository,
     (error) => {
       resumeOpenedUntil = Date.now() + RESUME_COOLDOWN_MS;
+      resumeFailureReason = error.message;
       console.warn(
         `[resume] Supabase unavailable for ${RESUME_COOLDOWN_MS / 1000}s; serving the versioned catalog. Reason: ${error.message}`,
       );
@@ -197,6 +213,60 @@ export async function readResume(
   surface: ResumeSurfaceRead = "both",
 ): Promise<ResumeContent> {
   return (await resolveResumeRepository()).readResume(locale, surface);
+}
+
+/**
+ * Which adapter the résumé actually served, for the admin's source indicator.
+ *
+ * ## Why this performs a read instead of inspecting the environment
+ *
+ * The tempting version checks whether `SUPABASE_URL` is set and reports the
+ * answer. That is a prediction, and the prediction is wrong in exactly the case
+ * that matters: a configured URL that answers 404 — the bare host without
+ * `/rest/v1`, a paused project, a typo in the project ref — passes every
+ * configuration check and still serves the catalog forever. Reporting
+ * "database" there is the one answer that must never be given wrongly.
+ *
+ * So this asks the repository that served the page which one it was. The cost is
+ * one résumé read on an owner-only page, and it is the same read the visitor
+ * gets, so the panel and the site cannot disagree.
+ *
+ * The three states are kept apart because they need different fixes:
+ * - `unconfigured` — no `SUPABASE_URL`; the catalog is correct, not degraded.
+ * - `versioned` — configured but the database could not answer; there is a reason.
+ * - `database` — the database answered.
+ */
+export type ResumeSourceReport = {
+  readonly source: ResumeSource;
+  /** Present whenever the catalog answered, and never otherwise. */
+  readonly reason?: string;
+  /** How many experiences came back, so "empty" is visible as its own state. */
+  readonly experiences: number;
+};
+
+export async function readResumeSource(locale: Locale): Promise<ResumeSourceReport> {
+  const snapshot = await (await resolveResumeRepository()).readResumeSnapshot(locale, "both");
+
+  /*
+    The breaker's own reason is the fallback for a missing one.
+
+    A snapshot from `versionedResumeRepository` carries no reason because it was
+    never asked to fail — the breaker chose it without trying. Filling that gap
+    from `resumeFailureReason` is what keeps the panel honest during the cooldown:
+    it is degraded, it knows why, and the owner does not have to reload in 60
+    seconds to find out.
+
+    Deliberately not cleared when the breaker closes. The report describes *this*
+    read; a read that succeeded against the database reports `database` and the
+    stale reason is never shown, because the two are chosen by the same branch.
+  */
+  const reason = snapshot.reason ?? resumeFailureReason ?? undefined;
+
+  return {
+    source: snapshot.source,
+    ...(reason === undefined ? {} : { reason }),
+    experiences: snapshot.content.experiences.length,
+  };
 }
 
 /** Published testimonials, which is empty until the owner adds a real one. */
@@ -396,9 +466,23 @@ export function resolvePostRepository(
     };
   }
 
-  const client = createClient(config.url, config.secretKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  }) as unknown as PostCmsClient;
+  /*
+    `createPostgrestClient` rather than `createClient`.
+
+    Every blog read was failing with `PGRST125 Invalid path specified in request
+    URL` against the local stack, because `supabase-js` appends `/rest/v1` to a
+    project URL whose PostgREST is mounted at the root. The fallback answered from
+    the versioned catalog, so the blog looked published and nothing was wrong
+    where anyone would look for it.
+
+    The cast is the one this line already needed: `PostCmsClient` is narrower than
+    a client that cannot know the schema, which is a good reason for the port to
+    stay narrow and a bad reason to widen the client's own types.
+  */
+  const client = createPostgrestClient(
+    supabaseRestBase(config.url),
+    config.secretKey,
+  ) as unknown as PostCmsClient;
 
   return { configured: true, adapterId, repository: new SupabasePostRepository(client) };
 }

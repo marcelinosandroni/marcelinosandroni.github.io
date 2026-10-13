@@ -62,7 +62,12 @@ describe("supabase configuration", () => {
       [SUPABASE_SECRET_KEY_ENV]: SECRET_VALUE,
     });
 
-    expect(read).toEqual({ configured: true, url: URL_VALUE, publishableKey: PUBLISHABLE_VALUE });
+    expect(read).toEqual({
+      configured: true,
+      url: URL_VALUE,
+      restUrl: `${URL_VALUE}/rest/v1`,
+      publishableKey: PUBLISHABLE_VALUE,
+    });
     expect(read).not.toHaveProperty("secretKey");
 
     expect(
@@ -151,7 +156,11 @@ describe("supabase configuration", () => {
         [SUPABASE_URL_ENV]: URL_VALUE,
         [SUPABASE_PUBLISHABLE_KEY_ENV]: PUBLISHABLE_VALUE,
       }),
-    ).toEqual({ url: URL_VALUE, publishableKey: PUBLISHABLE_VALUE });
+    ).toEqual({
+        url: URL_VALUE,
+        restUrl: `${URL_VALUE}/rest/v1`,
+        publishableKey: PUBLISHABLE_VALUE,
+      });
 
     expect(() => requireSupabaseConfig({})).toThrow(/SUPABASE_URL/);
     expect(() => requireSupabaseConfig({})).toThrow(/SUPABASE_SECRET_KEY/);

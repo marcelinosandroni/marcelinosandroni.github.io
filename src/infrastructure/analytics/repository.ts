@@ -1,9 +1,8 @@
-import { createClient } from "@supabase/supabase-js";
-
 import { InMemoryClickAggregateRepository } from "@/infrastructure/analytics/in-memory-click-repository";
 import { SupabaseClickAggregateRepository, type CountableClient } from "@/infrastructure/analytics/supabase-click-repository";
 import type { ClickAggregateRepository } from "@/application/analytics/click-aggregate-repository";
-import { supabaseConfigFromEnv } from "@/infrastructure/supabase/server";
+import { supabaseConfigFromEnv, supabaseRestBase } from "@/infrastructure/supabase/server";
+import { createPostgrestClient } from "@/infrastructure/supabase/postgrest";
 
 /**
  * Composition root for click analytics.
@@ -39,9 +38,20 @@ export async function getClickRepository(): Promise<ClickAggregateRepository> {
     return cached;
   }
 
-  const client = createClient(config.url, config.secretKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  }) as unknown as CountableClient;
+  /*
+    `createPostgrestClient` rather than `createClient`.
+
+    `supabase-js` resolves `new URL('rest/v1', url)` against the project URL, so
+    against the local stack it asks a port whose PostgREST is mounted at the root
+    for a `/rest/v1` that is not there, and every click write failed while the
+    page looked fine. `supabaseRestBase` resolves the base once; the cast is the
+    same one this line already needed, because the port is narrower than a client
+    that cannot know the schema.
+  */
+  const client = createPostgrestClient(
+    supabaseRestBase(config.url),
+    config.secretKey,
+  ) as unknown as CountableClient;
 
   cached = new SupabaseClickAggregateRepository(client);
   return cached;

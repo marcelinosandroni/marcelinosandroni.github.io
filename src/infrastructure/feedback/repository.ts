@@ -1,12 +1,11 @@
-import { createClient } from "@supabase/supabase-js";
-
 import { InMemoryThemeFeedbackRepository } from "@/infrastructure/feedback/in-memory-theme-feedback-repository";
 import {
   SupabaseThemeFeedbackRepository,
   type FeedbackClient,
 } from "@/infrastructure/feedback/supabase-theme-feedback-repository";
 import type { ThemeFeedbackRepository } from "@/application/feedback/theme-feedback-repository";
-import { supabaseConfigFromEnv } from "@/infrastructure/supabase/server";
+import { supabaseConfigFromEnv, supabaseRestBase } from "@/infrastructure/supabase/server";
+import { createPostgrestClient } from "@/infrastructure/supabase/postgrest";
 
 /**
  * Composition root for theme feedback.
@@ -39,9 +38,16 @@ export async function getThemeFeedbackRepository(): Promise<ThemeFeedbackReposit
     return cached;
   }
 
-  const client = createClient(config.url, config.secretKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  }) as unknown as FeedbackClient;
+  /*
+    `createPostgrestClient` rather than `createClient`, for the same reason as the
+    click aggregate: `supabase-js` appends `/rest/v1` to a project URL that the
+    local stack serves at its root, so every vote failed silently against a page
+    that looked healthy.
+  */
+  const client = createPostgrestClient(
+    supabaseRestBase(config.url),
+    config.secretKey,
+  ) as unknown as FeedbackClient;
 
   cached = new SupabaseThemeFeedbackRepository(client);
 

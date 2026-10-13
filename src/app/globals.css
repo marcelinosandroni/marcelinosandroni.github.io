@@ -410,6 +410,18 @@
     @apply relative inline-flex;
   }
 
+  /*
+    Below the narrowest layout the menu becomes a block that takes the width of
+    the page, because the options are no longer absolutely positioned and an
+    inline-flex parent would otherwise shrink them to the button's width — which
+    is the same unreadable-width problem in a different guise.
+  */
+  @media (max-width: 30rem) {
+    .download-menu {
+      @apply flex w-full flex-col;
+    }
+  }
+
   .download-action {
     @apply flex;
   }
@@ -430,8 +442,38 @@
   }
 
   .download-options {
-    @apply absolute right-0 z-30 mt-2 min-w-72 rounded-xl border border-border-prominent bg-surface-overlay p-1.5;
+    @apply absolute z-30 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-border-prominent bg-surface-overlay p-1.5;
+    /*
+      Anchored to the control's **left** edge, not its right.
+
+      `right-0` aligns the menu's right edge to the button's, which puts a
+      288px panel extending to the *left* whenever the button sits near the left
+      side of the viewport — and this button is in the résumé's action row, on
+      the left. The panel then runs off the left edge and the first option is
+      unreadable.
+
+      `left-0` opens it downward and to the right, which is where there is room
+      on every layout the résumé has. The width is capped against the viewport
+      so a long template description cannot push it past the right edge on a
+      phone.
+    */
+    left: 0;
     box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.9);
+  }
+
+  /*
+    Below the narrowest layout the résumé has, the menu drops the absolute
+    positioning entirely and becomes a static block in the flow.
+
+    A popup anchored to a button is a reasonable thing on a screen with room
+    for one. On a 390px phone there is no room, so the honest arrangement is for
+    the options to take the width they need and push the page down — which is
+    what `static` does, and what a negative `right` cannot.
+  */
+  @media (max-width: 30rem) {
+    .download-options {
+      @apply static mt-2 w-full;
+    }
   }
 
   .download-option {

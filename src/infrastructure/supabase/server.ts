@@ -55,13 +55,101 @@ export const SUPABASE_PUBLISHABLE_KEY_ENV = "SUPABASE_PUBLISHABLE_KEY";
  */
 export const SUPABASE_SECRET_KEY_ENV = "SUPABASE_SECRET_KEY";
 
+/**
+ * Optional override for the PostgREST base.
+ *
+ * Set it only when {@link supabaseRestBase} cannot work out the right answer for
+ * a deployment — a self-hosted Supabase reached through a proxy that mounts
+ * PostgREST somewhere other than `/rest/v1`, for instance. The derivation below
+ * handles both the hosted project and the local Docker stack, so a normal
+ * deployment never needs this.
+ *
+ * It exists as an escape hatch *and* as documentation: the fact that a variable
+ * can be set to contradict the derivation is what makes the derivation's
+ * heuristic safe to rely on.
+ */
+export const SUPABASE_REST_URL_ENV = "SUPABASE_REST_URL";
+
+/**
+ * The PostgREST base for a project URL — the root under which tables live.
+ *
+ * ## Why this is not `url`
+ *
+ * Because Supabase serves two APIs from one project address and they are **not**
+ * at the same path, which is the whole reason this function exists.
+ *
+ * | API | hosted | local Docker stack |
+ * |---|---|---|
+ * | auth, realtime, storage | `/auth/v1`, `/realtime/v1`, `/storage/v1` | not used |
+ * | PostgREST (tables) | `/rest/v1` | the **root** — the container publishes no prefix |
+ *
+ * `supabase-js` assumes the two coincide: it resolves `new URL('rest/v1', url)`
+ * against the project URL and gets auth, realtime and storage the same way. That
+ * assumption is why there is one variable and one convention for a project that
+ * needs two. It is also why the two deployments disagreed:
+ *
+ * - **hosted** — `supabase-js` correct, a bare `fetch` to `<url>/<table>` 404s
+ * - **local** — a bare `fetch` correct, `supabase-js` appends `/rest/v1` and 404s
+ *
+ * Neither deployment was misconfigured in the sense of a typo. Each was correct
+ * for the reader it happened to exercise, and silently wrong for the other.
+ *
+ * ## The rule
+ *
+ * Explicit override, else the URL as given when it already carries the REST
+ * path or points at the local stack, else `/rest/v1` appended.
+ *
+ * The local test is `http` plus a loopback host. That is a heuristic and it is
+ * written down as one: the local stack is plain HTTP on a high port and a hosted
+ * project is HTTPS on 443 behind a gateway that routes by path. Guessing wrong
+ * in the hosted direction costs a 404 that the admin's source panel now reports,
+ * which is the failure mode this whole arrangement exists to stop being silent.
+ */
+export function supabaseRestBase(url: string): string {
+  const trimmed = url.trim().replace(/\/+$/, "");
+
+  if (trimmed.endsWith(REST_PATH)) {
+    return trimmed;
+  }
+
+  if (isLoopbackHttp(trimmed)) {
+    return trimmed;
+  }
+
+  return `${trimmed}${REST_PATH}`;
+}
+
+/** The path PostgREST is mounted at behind the hosted gateway. */
+const REST_PATH = "/rest/v1";
+
+function isLoopbackHttp(url: string): boolean {
+  if (!url.startsWith("http://")) {
+    return false;
+  }
+
+  try {
+    const host = new URL(url).hostname;
+
+    return host === "localhost" || host === "127.0.0.1" || host === "[::1]" || host === "::1";
+  } catch {
+    return false;
+  }
+}
+
 export type SupabaseConfig =
   | { readonly configured: true; readonly url: string; readonly secretKey: string }
   | { readonly configured: false };
 
 /** The pair content reads need. */
 export type SupabaseReadConfig =
-  | { readonly configured: true; readonly url: string; readonly publishableKey: string }
+  | {
+      readonly configured: true;
+      /** The project base, for `supabase-js` — auth, realtime, storage. */
+      readonly url: string;
+      /** The PostgREST base, for a direct `fetch`. See {@link supabaseRestBase}. */
+      readonly restUrl: string;
+      readonly publishableKey: string;
+    }
   | { readonly configured: false };
 
 /**
@@ -114,7 +202,23 @@ export function supabaseReadConfigFromEnv(env: EnvironmentLike = process.env): S
     return { configured: false };
   }
 
-  return { configured: true, url, publishableKey };
+  /*
+    The override is used **verbatim**, not run through {@link supabaseRestBase}.
+
+    That is the difference between an override and a hint. Someone who set it has
+    already looked at where their PostgREST is mounted; appending `/rest/v1` to
+    their answer would make the variable useless for the one case it exists to
+    serve — a deployment that mounts it somewhere the rule cannot guess — and
+    would do so silently, as a 404.
+  */
+  const override = readEnv(env, SUPABASE_REST_URL_ENV);
+
+  return {
+    configured: true,
+    url,
+    restUrl: override ?? supabaseRestBase(url),
+    publishableKey,
+  };
 }
 
 /** Whether owner authentication can work on this deployment. */
@@ -146,6 +250,7 @@ export function requireSupabaseConfig(env: EnvironmentLike = process.env): {
 /** The content-read configuration, or `null` when absent. */
 export function requireSupabaseReadConfig(env: EnvironmentLike = process.env): {
   url: string;
+  restUrl: string;
   publishableKey: string;
 } {
   const config = supabaseReadConfigFromEnv(env);
@@ -156,7 +261,11 @@ export function requireSupabaseReadConfig(env: EnvironmentLike = process.env): {
     );
   }
 
-  return { url: config.url, publishableKey: config.publishableKey };
+  return {
+    url: config.url,
+    restUrl: config.restUrl,
+    publishableKey: config.publishableKey,
+  };
 }
 
 /**

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { Locale } from "@/domain/i18n";
 import {
@@ -58,6 +58,62 @@ export function DownloadPDFButton({
   const [error, setError] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  /*
+    The menu is a popup, so it needs the three things a popup has to have: it
+    closes when the reader clicks somewhere else, it closes on Escape, and it
+    returns focus to the control that opened it.
+
+    Without them it is not a menu, it is a panel that stays open — which is
+    worse than not having one, because the reader clicks the page expecting the
+    page to respond and the only thing that changes is that the panel stays where
+    it is.
+
+    The ref is what makes "somewhere else" mean something: a click *inside* the
+    control must not close it, or choosing a template would close the menu twice
+    and the second close would land after the download had already started.
+  */
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    const onClick = (event: MouseEvent): void => {
+      if (containerRef.current?.contains(event.target as Node)) {
+        return;
+      }
+
+      setIsMenuOpen(false);
+    };
+
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    };
+
+    /*
+      `click`, not `pointerdown`.
+
+      Pointer events fire earlier and sound better, but they are not universal:
+      a synthesised click, a keyboard-activated element, and an assistive
+      technology's activation all produce `click` and none of them produce
+      `pointerdown`. Listening only for the earlier event leaves the menu open
+      for every reader who did not happen to use a mouse.
+
+      `click` is the event that means "the reader activated something", which is
+      exactly the question being asked here.
+    */
+    document.addEventListener("click", onClick);
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.removeEventListener("click", onClick);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isMenuOpen]);
+
   const handleDownload = async (templateId: ResumeTemplateId = DEFAULT_RESUME_TEMPLATE) => {
     setIsLoading(true);
     setError(null);
@@ -101,7 +157,7 @@ export function DownloadPDFButton({
 
   return (
     <>
-      <div className="download-menu">
+      <div className="download-menu" ref={containerRef}>
         <div className="download-action">
           <button
             onClick={() => handleDownload()}
