@@ -68,19 +68,18 @@
         /*
          * Impressão.
          *
-         * O rodapé diz "Página 1 de 2" e "Página 2 de 2", então duas páginas é o
-         * layout pretendido. E o objetivo aqui é o oposto de "enfiar": manter a
-         * leitura e a sensação de espaço do HTML de tela, tirando só o necessário
-         * para o documento fechar em A4.
+         * Nenhuma regra de tipografia aqui. A Inter, os tamanhos e as entrelinhas
+         * são exatamente os que o Tailwind define para a tela - este bloco só
+         * remove a moldura de visualização (sombra, margem de centralização) e
+         * neutraliza a quebra de página no último bloco, que geraria uma terceira
+         * folha em branco.
          *
-         * A página 2 é a que manda. Ela é a mais cheia do documento e, sozinha,
-         * define quão apertado o conjunto pode ficar - a página 1 tem folga de
-         * sobra e não participa da conta.
-         *
-         * O `!important` é necessário: esta folha está no <head> e as classes
-         * utilitárias do Tailwind estão na mesma folha, mais abaixo e na mesma
-         * ordem de especificidade - sem ele estas regras perdem para `mb-4`,
-         * `space-y-1.5` e companhia.
+         * Foi tentado o caminho de comprimir a entrelinha para o conteúdo caber em
+         * duas páginas, e foi medido que não é suficiente: com a tipografia
+         * intacta o documento tem 681mm de conteúdo contra 562mm de capacidade,
+         * ou 17,5% a mais do que duas folhas comportam. Estreitar as margens
+         * compra 20mm desse déficit. O que fecha são duas páginas com o
+         * espaçamento de tela, e o conteúdo foi enxugado para chegar lá.
          */
         @media print {
             body { background-color: white; }
@@ -91,56 +90,6 @@
                 padding: 10mm 14mm;
                 page-break-after: always;
             }
-
-            /*
-             * Entrelinha. O corpo herda `text-sm` (20px) sobre texto de 11.5px, ou
-             * seja 1.74 - arejado demais para duas páginas, e arejado demais
-             * também. 1.38 é o mais próximo do desenho de tela que ainda fecha.
-             *
-             * O `leading-relaxed` (1.625) entra aqui explicitamente porque aparece
-             * nos parágrafos de Competências Técnicas e nas descrições das caixas
-             * de métrica. As bullets respondem à regra do `ul`; parágrafos com `p`,
-             * não - e essa era a maior fatia isolada do excedente.
-             */
-            .a4-page,
-            .a4-page ul { line-height: 1.38 !important; }
-            .a4-page .leading-relaxed { line-height: 1.38 !important; }
-
-            /*
-             * Ritmo vertical, em 45% do valor original de cada utilitário.
-             * Proporcional de propósito: um cargo continua se separando do
-             * seguinte por bem mais espaço do que uma bullet se separa da
-             * próxima, então a hierarquia sobrevive ao ajuste.
-             */
-            .a4-page .mb-4 { margin-bottom: 0.45rem !important; }
-            .a4-page .mb-5 { margin-bottom: 0.45rem !important; }
-            .a4-page .mb-3 { margin-bottom: 0.34rem !important; }
-            .a4-page .mb-2 { margin-bottom: 0.23rem !important; }
-            .a4-page .mb-1 { margin-bottom: 0.11rem !important; }
-            .a4-page .mt-2 { margin-top: 0.23rem !important; }
-            .a4-page .mt-1 { margin-top: 0.11rem !important; }
-            .a4-page .space-y-1\.5 > * + * { margin-top: 0.17rem !important; }
-            .a4-page .space-y-2 > * + * { margin-top: 0.23rem !important; }
-            .a4-page .gap-y-1\.5 { row-gap: 0.17rem !important; }
-            .a4-page .gap-3 { gap: 0.34rem !important; }
-            .a4-page .gap-4 { gap: 0.45rem !important; }
-            .a4-page p { margin: 0 !important; }
-
-            /*
-             * Títulos e as caixas de tecnologia ficam com o respiro *deles*, não
-             * com o das margens utilitárias: são 45% de 1rem, e um cabeçalho de
-             * seção que sobe colado ao bloco anterior lê como continuation em vez
-             * de como título.
-             */
-            .a4-page .section-title {
-                margin-top: 0.45rem !important;
-                margin-bottom: 0.23rem !important;
-            }
-            .a4-page .tech-box {
-                padding: 5px 9px !important;
-                margin-bottom: 0.23rem !important;
-            }
-            .a4-page .p-2 { padding: 0.4rem !important; }
 
             .no-print { display: none !important; }
             .keep-together { page-break-inside: avoid; }
@@ -240,8 +189,6 @@
                     <li><strong>Preservação de contrato de R$ 24M/ano (R$ 2M/mês):</strong> Liderei a reestruturação arquitetural de motor de IA e visão computacional, elevando assertividade de leitura de placas de &lt;60% para 100% absoluto.</li>
                     <li><strong>Aceleração de 10x no processamento (100M+ eventos/dia):</strong> Migrei arquitetura relacional gargalo para cluster colunar ClickHouse integrado a ETLs e microsserviços distribuídos em Go/.NET.</li>
                     <li><strong>Interfaces Mobile e Micro-frontends (Pixel Perfect):</strong> Desenvolvi interfaces web e apps robustos (React, Next.js, Angular, React Native) baseadas em micro-frontends reaproveitáveis, garantindo entregas pixel-perfect com foco em excelência de UI/UX para maximizar engajamento.</li>
-                    <li><strong>Arquitetura Preditiva de Segurança Pública:</strong> Concebi sistema inteligente integrando câmeras e cercamento digital com modelos de IA de borda e mapas de risco de criminalidade em tempo real.</li>
-                    <li><strong>Redução de 40% no Lead Time:</strong> Criei um Design System corporativo unificado e bibliotecas privadas (NPM/NuGet), eliminando duplicação e acelerando o delivery da squad de 10 pessoas.</li>
                     <li><strong>Automação CI/CD &amp; Agentes LLM:</strong> Implantei esteiras declarativas no Kubernetes com testes E2E (Playwright) e revisões de código automatizadas via IA Generativa, garantindo &gt;90% de cobertura.</li>
                 </ul>
             </div>
@@ -273,9 +220,6 @@
 
     <!-- PÁGINA 2 -->
     <div class="a4-page">
-        <!-- Espaçador invisível para manter layout -->
-        <div class="pt-2 mb-2"></div>
-
         <section>
             <h3 class="section-title mt-0">Experiência Profissional (Continuação)</h3>
 
@@ -311,7 +255,6 @@
                 <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
                     <li><strong>Migração Cloud Acelerada:</strong> Conduzi migração completa para infraestrutura AWS concluída na metade do prazo estimado, dobrando a performance sistêmica.</li>
                     <li><strong>FinOps e Otimização Cloud:</strong> Reduzi custos em 50% aplicando políticas de auto-scaling e right-sizing na AWS.</li>
-                    <li><strong>Confiabilidade em Telemedicina:</strong> Mitiguei perdas em filas assíncronas implementando idempotência estrita, blindando o tráfego de prontuários eletrônicos de pacientes.</li>
                 </ul>
             </div>
 
@@ -321,37 +264,13 @@
                     <h4 class="font-bold text-slate-900 text-[13px]">Analista Contábil &amp; Gestor Financeiro <span class="text-slate-400 font-normal">| Consultoria Corporativa (15 Anos)</span></h4>
                     <span class="text-xs font-semibold text-slate-600">Jul/2005 – Dez/2020 · São Paulo</span>
                 </div>
-                <p class="text-[11.5px] text-slate-500 italic mb-1">Diferencial estratégico: profunda visão de negócios, balanço financeiro e compliance para desenvolvimento tech.</p>
                 <div class="tech-box">
-                    <strong>Core Business:</strong> FinOps, Automação de Processos ERP, IFRS &amp; CPC, SOX Compliance, Planejamento Tributário.
+                    <strong>Core Business:</strong> FinOps, Automação de Processos ERP, IFRS &amp; CPC, SOX Compliance, Planejamento Tributário. Diferencial estratégico: visão de negócios, balanço e compliance para desenvolvimento tech.
                 </div>
                 <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
                     <li><strong>Fechamento Contábil Acelerado em 10x:</strong> Redesenho de processos reduzindo o ciclo temporal de 30 para 2 dias.</li>
                     <li><strong>Economia e Rentabilidade (+R$ 3M):</strong> Execução de planejamento tributário robusto gerando economia milionária e alocação precisa de capital de giro.</li>
                 </ul>
-            </div>
-        </section>
-
-        <!-- COMPETÊNCIAS / SKILLS -->
-        <section class="mb-4 keep-together">
-            <h3 class="section-title">Competências Técnicas</h3>
-            <div class="grid grid-cols-2 gap-4 text-xs text-slate-700">
-                <div>
-                    <h4 class="font-bold text-slate-900 mb-1">Engenharia Frontend &amp; Mobile UI:</h4>
-                    <p class="leading-relaxed">JavaScript/TypeScript, React, Next.js, Angular, Vue, React Native, Flutter, Micro-frontends, Tailwind CSS, Design System, Acessibilidade, SSR/SSG.</p>
-                </div>
-                <div>
-                    <h4 class="font-bold text-slate-900 mb-1">Backend &amp; Arquitetura Distribuída:</h4>
-                    <p class="leading-relaxed">C# (.NET), Go (Golang), Java (Spring Boot), Node.js (NestJS), Python (Django), PHP, Clean Architecture, DDD, CQRS, Microsserviços, API Gateway, BFF, TDD.</p>
-                </div>
-                <div>
-                    <h4 class="font-bold text-slate-900 mb-1">Mensageria &amp; Big Data:</h4>
-                    <p class="leading-relaxed">Apache Kafka, RabbitMQ, PostgreSQL, MySQL, MSSQL, SQL Server, Redis, Databricks, MongoDB, DynamoDB, ClickHouse, pgvector, Qdrant, Event-Driven Architecture.</p>
-                </div>
-                <div>
-                    <h4 class="font-bold text-slate-900 mb-1">IA, Cloud &amp; DevOps:</h4>
-                    <p class="leading-relaxed">AWS, Azure, GCP, K8s, Docker, Terraform (IaC), CI/CD, Jenkins, OpenAI/Claude, LangChain, PyTorch, TensorFlow, YOLOv8, Playwright, Cypress.</p>
-                </div>
             </div>
         </section>
 
@@ -366,14 +285,6 @@
                 <div class="flex justify-between">
                     <div><strong>Bacharelado em Ciências Contábeis</strong> — Estácio (Governança e Análise Financeira)</div>
                     <div class="text-slate-500 font-semibold">Concluído 2017</div>
-                </div>
-                <div class="flex justify-between">
-                    <div><strong>CS50: Introduction to Computer Science</strong> — Harvard University (edX)</div>
-                    <div class="text-slate-500 font-semibold">2021</div>
-                </div>
-                <div class="flex justify-between">
-                    <div><strong>Master of Computer Applications (Full Stack)</strong> — Labenu</div>
-                    <div class="text-slate-500 font-semibold">2021</div>
                 </div>
             </div>
         </section>
@@ -400,12 +311,11 @@
             <h3 class="section-title">Informações Adicionais &amp; Perfil Profissional</h3>
             <div class="grid grid-cols-2 gap-4 text-[11.5px] text-slate-700">
                 <div>
-                    <p class="mb-1"><strong>Disponibilidade &amp; Setup:</strong> Imediata (100% Remoto, Global). Possuo infraestrutura própria de alto desempenho para início imediato (Zero Onboarding Tech Delay).</p>
-                    <p class="mb-1"><strong>Pretensão Salarial Média:</strong> CLT: R$ 10.000 / PJ: R$ 14.000.</p>
-                    <p><strong>Contratação:</strong> B2B/Contractor Brasil, EUA e Europa.</p>
+                    <p class="mb-1"><strong>Disponibilidade &amp; Setup:</strong> Imediata (100% Remoto, Global). Infraestrutura própria de alto desempenho, início imediato (Zero Onboarding Tech Delay).</p>
+                    <p><strong>Pretensão &amp; Contratação:</strong> CLT R$ 10.000 / PJ R$ 14.000. Apto a B2B/Contractor no Brasil, EUA e Europa.</p>
                 </div>
                 <div>
-                    <p><strong>Fit Cultural &amp; Soft Skills:</strong> <em>Extreme Ownership</em> (Postura de Dono), resiliência máxima na gestão de incidentes críticos, comunicação assertiva direta adaptável (do C-Level à base técnica), gestão ágil e alta capacidade autodidata para rápida absorção de novas stacks.</p>
+                    <p><strong>Fit Cultural &amp; Soft Skills:</strong> <em>Extreme Ownership</em> (Postura de Dono), resiliência na gestão de incidentes críticos, comunicação assertiva direta (do C-Level à base técnica), gestão ágil e autodidatismo para rápida absorção de novas stacks.</p>
                 </div>
             </div>
         </section>
