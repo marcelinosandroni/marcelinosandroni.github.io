@@ -69,20 +69,14 @@
          * Impressão.
          *
          * O rodapé diz "Página 1 de 2" e "Página 2 de 2", então duas páginas é o
-         * layout pretendido. O conteúdo, porém, não cabia no entrelinhamento de
-         * tela: o corpo herda `text-sm` (20px) sobre bullets de 11.5px, ou seja
-         * 1.74 — muito arejado para duas páginas. Renderizado sem ajuste, saíam
-         * quatro páginas, com bullet cortado ao meio, meia página vazia e o
-         * rodapé `position: absolute` caindo na página errada por estar preso ao
-         * fundo de um container maior que o papel.
+         * layout pretendido. Esta versão do conteúdo é mais curta do que a
+         * anterior, e por isso o ajuste aqui é bem mais leve: o entrelinhamento
+         * de tela continua quase como designed, e o que sobra é só o necessário
+         * para as duas páginas fecharem em A4.
          *
-         * Estes ajustes são de impressão, não de conteúdo: nenhum texto é
-         * removido, nenhuma fonte é encolhida. Muda o quanto ar cada elemento
-         * respira.
-         *
-         * O `!important` é necessário: esta folha é embutida no <head> e as
-         * classes utilitárias do Tailwind estão na mesma folha, mais abaixo e na
-         * mesma ordem de especificidade — sem ele estas regras perdem para `mb-4`,
+         * O `!important` é necessário: esta folha está no <head> e as classes
+         * utilitárias do Tailwind estão na mesma folha, mais abaixo e na mesma
+         * ordem de especificidade - sem ele estas regras perdem para `mb-4`,
          * `space-y-1.5` e companhia.
          */
         @media print {
@@ -91,51 +85,50 @@
             .a4-page {
                 margin: 0;
                 box-shadow: none;
-                padding: 8mm 12mm;
+                padding: 9mm 12mm;
                 page-break-after: always;
             }
 
             /*
-             * Entrelinha. 1.30 é apertado mas legível para um currículo denso de
-             * duas páginas. A hierarquia continua legível porque as distâncias
-             * entre blocos são reduzidas em bloco, e não na mesma proporção: um
-             * cargo ainda se separa do seguinte por mais espaço do que uma bullet
-             * se separa da próxima.
+             * Entrelinha. O corpo herda `text-sm` (20px) sobre texto de 11.5px,
+             * ou seja 1.74 - arejado demais para duas páginas. 1.32 é apertado mas
+             * continua confortável de ler, e é o que fecha o documento nesta versão
+             * do conteúdo.
              *
-             * O `leading-relaxed` (1.625) precisa entrar aqui explicitamente. Ele
-             * aparece nos parágrafos de Competências Técnicas e nas descrições das
-             * caixas de métrica, e é a maior fatia isolada do excedente — as
-             * bullets respondem à regra do `ul`, mas parágrafos com `p` não.
+             * O `leading-relaxed` (1.625) entra aqui explicitamente porque aparece
+             * nos parágrafos de Competências Técnicas e nas descrições das caixas
+             * de métrica. As bullets respondem à regra do `ul`; parágrafos com `p`,
+             * não - e essa era a maior fatia isolada do excedente.
              */
             .a4-page,
-            .a4-page ul { line-height: 1.30 !important; }
-            .a4-page .leading-relaxed { line-height: 1.30 !important; }
+            .a4-page ul { line-height: 1.32 !important; }
+            .a4-page .leading-relaxed { line-height: 1.32 !important; }
 
-            .a4-page .mb-4 { margin-bottom: 0.5rem !important; }
-            .a4-page .mb-5 { margin-bottom: 0.5rem !important; }
+            /* Ritmo vertical: proporcional, sem achatar a hierarquia. */
+            .a4-page .mb-4 { margin-bottom: 0.49rem !important; }
+            .a4-page .mb-5 { margin-bottom: 0.49rem !important; }
             .a4-page .mb-3 { margin-bottom: 0.3rem !important; }
-            .a4-page .mb-2 { margin-bottom: 0.25rem !important; }
+            .a4-page .mb-2 { margin-bottom: 0.23rem !important; }
             .a4-page .mb-1 { margin-bottom: 0.15rem !important; }
-            .a4-page .mt-2 { margin-top: 0.25rem !important; }
+            .a4-page .mt-2 { margin-top: 0.23rem !important; }
             .a4-page .mt-1 { margin-top: 0.15rem !important; }
-            .a4-page .space-y-1\.5 > * + * { margin-top: 0.25rem !important; }
-            .a4-page .space-y-2 > * + * { margin-top: 0.3rem !important; }
-            .a4-page .gap-y-1\.5 { row-gap: 0.2rem !important; }
-            .a4-page .gap-1 { gap: 0.2rem !important; }
-            .a4-page .gap-3 { gap: 0.35rem !important; }
-            .a4-page .gap-4 { gap: 0.5rem !important; }
+            .a4-page .space-y-1\.5 > * + * { margin-top: 0.26rem !important; }
+            .a4-page .space-y-2 > * + * { margin-top: 0.34rem !important; }
+            .a4-page .gap-y-1\.5 { row-gap: 0.19rem !important; }
+            .a4-page .gap-3 { gap: 0.34rem !important; }
+            .a4-page .gap-4 { gap: 0.53rem !important; }
             .a4-page p { margin: 0 !important; }
 
             /* Títulos e caixas perdem respiro antes de perderem o fio lateral. */
             .a4-page .section-title {
                 margin-top: 0.45rem !important;
-                margin-bottom: 0.2rem !important;
+                margin-bottom: 0.19rem !important;
             }
             .a4-page .tech-box {
-                padding: 3px 8px !important;
-                margin-bottom: 0.2rem !important;
+                padding: 4px 9px !important;
+                margin-bottom: 0.23rem !important;
             }
-            .a4-page .p-2 { padding: 0.3rem !important; }
+            .a4-page .p-2 { padding: 0.35rem !important; }
 
             .no-print { display: none !important; }
             .keep-together { page-break-inside: avoid; }
@@ -181,8 +174,7 @@
         <section class="mb-4">
             <h3 class="section-title">Resumo Profissional</h3>
             <p class="text-[12.5px] leading-relaxed text-slate-700 text-justify">
-                <strong>Engenheiro de Software &amp; IA Sênior</strong> e Tech Lead com atuação pragmática de ponta a ponta: do entendimento estratégico do negócio à arquitetura, liderança de equipe técnica, DevOps, backend, frontend, mobile, engenharia de dados e inteligência artificial. Trajetória singular combinando 15 anos de governança financeira corporativa a 6 anos de engenharia de software de alta performance. Especialista em traduzir regras complexas em arquiteturas web escaláveis, aplicações de IA generativa/preditiva e sistemas distribuídos para altíssima volumetria de processamento de dados. Vivência comprovada em sustentar infraestruturas críticas, desenvolver e gerenciar aplicações que envolvem bilhões de reais, além de liderar equipes multidisciplinares impulsionando a inovação tecnológica e o crescimento acelerado do negócio.
-            </p>
+                <strong>Engenheiro de Software &amp; IA Sênior | Tech Lead Full Stack, </strong>unindo visão estratégica e análise de negócio à execução end-to-end em UI/UX, mobile, frontend, backend, DevOps, engenharia de dados e IA, com 6 anos em engenharia de software e 15 em governança financeira, criando soluções escaláveis e sistemas críticos que movimentam bilhões de reais.</p>
         </section>
 
         <!-- MÉTRICAS DE IMPACTO -->
@@ -227,8 +219,8 @@
                 </div>
                 <div class="tech-box">
                     <strong>Front/Mobile:</strong> React, Next.js, Angular, React Native, JavaScript/TypeScript, Micro-frontends, TailwindCSS.<br>
-                    <strong>Back/Data:</strong> C# (.NET), Go (Golang), Node.js, NestJS, Python, PostgreSQL, MySQL, MongoDB, Redis, Databricks, ClickHouse, Kafka, RabbitMQ.<br>
-                    <strong>DevOps &amp; IA:</strong> AWS, Oracle Cloud, Kubernetes, Docker, Jenkins, CI/CD, Terraform, PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, Agentes LLM, SDD (Spec Driven Development) e AI Oriented Development (Claude, Cursor, Codex).
+                    <strong>Back/Data:</strong> C# .NET, Go, Nodejs, Python, PostgreSQL, MySQL, MongoDB, Redis, Databricks, RabbitMQ.<br>
+                    <strong>DevOps &amp; IA:</strong> AWS, Oracle Cloud, Kubernetes, Docker, Jenkins, CI/CD, Terraform, PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, Agentes LLM, SDD (Spec Driven Development) e AI Oriented Development (Claude, Codex).
                 </div>
                 <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
                     <li><strong>Preservação de contrato de R$ 24M/ano (R$ 2M/mês):</strong> Liderei a reestruturação arquitetural de motor de IA e visão computacional, elevando assertividade de leitura de placas de &lt;60% para 100% absoluto.</li>
@@ -248,8 +240,8 @@
                 </div>
                 <div class="tech-box">
                     <strong>Front/Mobile:</strong> Angular, React, Next.js, JavaScript/TypeScript, Tailwind CSS, Design Systems, Micro-frontends.<br>
-                    <strong>Back/Data:</strong> Java (Spring), C# (.NET), Python, Go, Oracle SQL, MySQL, MSSQL, PostgreSQL, Redis, Kafka, RabbitMQ, ActiveMQ.<br>
-                    <strong>DevOps &amp; IA:</strong> Docker, Jenkins, CI/CD, IBM Cloud, AWS, Azure, Kubernetes, Helm, Arquitetura RAG, LangChain e IA Oriented Development (Claude).
+                    <strong>Back/Data:</strong> Java (Spring), C# (.NET), Python, Go, Oracle SQL, MySQL, PostgreSQL, Redis, Kafka, RabbitMQ<br>
+                    <strong>DevOps &amp; IA:</strong> Docker, Jenkins, CI/CD, IBM Cloud, AWS, Azure, Kubernetes, Helm, RAG, LangChain e Claude.
                 </div>
                 <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
                     <li><strong>Modernização de Monolito Bancário:</strong> Desacoplei sistemas legados críticos (COBOL, VB) em arquitetura orientada a eventos e micro-frontends, alcançando cobertura de testes de 95%.</li>
@@ -299,7 +291,7 @@
                 </div>
                 <div class="tech-box">
                     <strong>Front/Mobile:</strong> React, Next.js, Angular, JavaScript/TypeScript, Micro-frontends, Tailwind CSS, Design System.<br>
-                    <strong>Back/Data:</strong> Node (Nest, Express), Java (Spring), C# (.NET), PHP, Go, Python, PostgreSQL, MySQL, MongoDB, Redis, Kafka, RabbitMQ, NAS.<br>
+                    <strong>Back/Data:</strong> NodeJS, Java (Spring), C# (.NET), Go, Python, PostgreSQL, MySQL, MongoDB, Redis, RabbitMQ<br>
                     <strong>DevOps &amp; IA:</strong> AWS, GCP, Kubernetes, Docker, Terraform, Automação IA Básica.
                 </div>
                 <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
@@ -375,9 +367,17 @@
         <!-- IDIOMAS -->
         <section class="mb-4 keep-together">
             <h3 class="section-title">Idiomas</h3>
-            <div class="text-xs text-slate-700 flex flex-col gap-1">
+            <div class="text-xs text-slate-700 flex flex-col gap-1" style="
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    /* gap: 1rem; */
+">
                 <p><strong>Português:</strong> Nativo</p>
-                <p><strong>Inglês:</strong> Profissional Avançado (Vivência técnica plena, negociações, code reviews e documentação)</p>
+<p><strong>Espanhol:</strong> Básico - Comunicação simples mas suficiente para trabalho no dia a dia</p>
+                <p><strong>Inglês:</strong> Profissional - 100% autônomo no workflow de SWE (Dailies, Code Reviews, Docs e negociação de requisitos).</p>
             </div>
         </section>
 
@@ -388,7 +388,7 @@
                 <div>
                     <p class="mb-1"><strong>Disponibilidade &amp; Setup:</strong> Imediata (100% Remoto, Global). Possuo infraestrutura própria de alto desempenho para início imediato (Zero Onboarding Tech Delay).</p>
                     <p class="mb-1"><strong>Pretensão Salarial Média:</strong> CLT: R$ 10.000 / PJ: R$ 14.000.</p>
-                    <p><strong>Contratação:</strong> Apto para contratos B2B/Contractor Brasil, EUA e Europa.</p>
+                    <p><strong>Contratação:</strong> B2B/Contractor Brasil, EUA e Europa.</p>
                 </div>
                 <div>
                     <p><strong>Fit Cultural &amp; Soft Skills:</strong> <em>Extreme Ownership</em> (Postura de Dono), resiliência máxima na gestão de incidentes críticos, comunicação assertiva direta adaptável (do C-Level à base técnica), gestão ágil e alta capacidade autodidata para rápida absorção de novas stacks.</p>
