@@ -1,15 +1,23 @@
 import { BlogPreviewSection } from "@/components/home/blog-preview";
 import { ContactGatewaySection } from "@/components/home/contact-gateway";
 import { HomeHeroSection } from "@/components/home/home-hero";
+import { HowILeadSection } from "@/components/home/how-i-lead";
 import { KpiSection } from "@/components/home/kpi-grid";
 import { TechArsenalSection } from "@/components/home/tech-arsenal";
 import { TrackRecordSection } from "@/components/home/track-record";
 import { ResumeCopilot } from "@/components/ai/resume-copilot";
 import { VisitorChat } from "@/components/chat/visitor-chat";
+import { TestimonialSection } from "@/components/home/testimonials";
 import { FirstVisitIntro } from "@/components/site/first-visit-intro";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import type { Locale } from "@/domain/i18n";
+import { isFeatureEnabled } from "@/domain/feature-flags/feature-flags";
+import type { ResumeTestimonial } from "@/domain/resume/resume-repository";
+import type {
+  HomeExperienceAnnotation,
+  HomeStackSection,
+} from "@/domain/portfolio";
 import type { ResumeContent } from "@/domain/resume/types";
 import { blogPath, resumePath } from "@/domain/site/routes";
 import { SITE_OWNER } from "@/domain/site/site-info";
@@ -18,8 +26,27 @@ import { getHomeContent } from "@/infrastructure/content/home";
 
 export interface HomeViewProps {
   locale: Locale;
-  /** The document of record, reused for the track record. */
+  /** The document of record, already filtered to the `home` surface. */
   resume: ResumeContent;
+  /**
+   * Database-resolved tech stack, or `null` to use the typed one.
+   *
+   * Optional rather than required-with-a-default so the fallback is explicit at
+   * the call site: a route that has not wired the database yet still renders,
+   * and a reviewer can see which view is authoritative.
+   */
+  stack?: HomeStackSection | null;
+  /** Database-resolved track-record annotations, or `null` for the typed ones. */
+  annotations?: HomeExperienceAnnotation[] | null;
+  /**
+   * Published references, and whether the site offers the section at all.
+   *
+   * Both are passed in rather than read here, so this stays a Server Component
+   * that resolves data and composes — and so the flag is read by the same
+   * `process.env` the rest of the server uses, never by the browser.
+   */
+  testimonials?: readonly ResumeTestimonial[];
+  testimonialsEnabled?: boolean;
 }
 
 /**
@@ -35,17 +62,52 @@ export interface HomeViewProps {
  * client islands are the copilot terminal and the boot sequence, both of which
  * receive already-translated strings as props.
  */
-export async function HomeView({ locale, resume }: HomeViewProps) {
+export async function HomeView({
+  locale,
+  resume,
+  stack,
+  annotations,
+  testimonials = [],
+  testimonialsEnabled = false,
+}: HomeViewProps) {
   const t = await getDictionary(locale);
-  const home = getHomeContent(locale);
+  const typed = getHomeContent(locale);
+
+  /*
+    The database wins where it answered, and the typed catalog answers everywhere
+    else. Merged field by field rather than replaced wholesale, because the
+    section *prose* — the kicker, the title, the sentence that introduces the
+    cluster — is editorial and belongs to the page, while the rows are facts the
+    owner edits. Swapping the whole object would hand a content edit authority
+    over the sentence that frames it.
+  */
+  const home = {
+    ...typed,
+    stack: stack === null || stack === undefined
+      ? typed.stack
+      : { ...typed.stack, clusters: stack.clusters },
+    trackRecord:
+      annotations === null || annotations === undefined
+        ? typed.trackRecord
+        : { ...typed.trackRecord, annotations },
+  };
 
   const sections = [
+    /*
+      Contact leads, and it is not a styling preference.
+      It used to be last, on the reasoning that the reader works down the page and
+      arrives at it having been convinced. That is how a portfolio is read by
+      somebody evaluating it. It is not how a hiring manager reads one: they arrive
+      from a link, they decide in seconds whether to keep reading, and the question
+      in their head is "can I contact this person". Making that the first tab means
+      it is answered before they have to look for it.
+    */
+    { key: "contact", label: t.nav.contact, href: `#${home.contact.id}` },
     { key: "kpis", label: t.nav.home, href: `#${home.kpis.id}` },
     { key: "arsenal", label: t.nav.arsenal, href: `#${home.stack.id}` },
     { key: "experience", label: t.nav.experience, href: `#${home.trackRecord.id}` },
     { key: "blog", label: t.nav.blog, href: blogPath(locale) },
     { key: "resume", label: t.nav.resume, href: resumePath(locale) },
-    { key: "contact", label: t.nav.contact, href: `#${home.contact.id}` },
   ];
 
   return (
@@ -68,12 +130,12 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
         something the reader has just watched appear — see `first-visit-intro.tsx`
         for why that was worth removing rather than animating harder.
       */}
-      <FirstVisitIntro name={SITE_OWNER.introName} logLines={BOOT_DIAGNOSTICS[locale]} />
+      <FirstVisitIntro name={SITE_OWNER.introName} />
 
       <SiteHeader locale={locale} t={t} sections={sections} />
 
       <main id="main" aria-label={t.a11y.mainContent}>
-        <HomeHeroSection hero={home.hero} t={t} />
+        <HomeHeroSection hero={home.hero} t={t} locale={locale} />
         <KpiSection section={home.kpis} />
         <TechArsenalSection section={home.stack} />
         <TrackRecordSection
@@ -81,6 +143,18 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
           experiences={resume.experiences}
           locale={locale}
           openResumeLabel={home.trackRecord.resumeCtaLabel}
+        />
+        <HowILeadSection section={home.leadership} />
+
+        {/*
+          After the leadership section and before the copilot: a reference is the
+          answer to "can I trust this person", and that question follows "what is
+          it like to work with them" rather than preceding it.
+        */}
+        <TestimonialSection
+          testimonials={testimonials}
+          enabled={testimonialsEnabled}
+          labels={t.testimonials}
         />
         <ResumeCopilot locale={locale} labels={t.copilot} />
         {/*
@@ -113,30 +187,3 @@ export async function HomeView({ locale, resume }: HomeViewProps) {
     </>
   );
 }
-
-/**
- * Terminal lines for the boot sequence. Data, not markup, so the copy is
- * translatable and reviewable in the same place as every other string.
- *
- * Every line is a checkable fact drawn from the resume — no codenames, no
- * theatrical jargon, and the arithmetic is stated outright because it is the
- * single most useful thing a reader can learn in the first second.
- */
-const BOOT_DIAGNOSTICS = {
-  "en-US": [
-    "> Loading profile and portfolio...",
-    "> 15 yrs financial governance (2005-2020) + 6 yrs software engineering (2021-2026)",
-    "> Combined: 21 years of applied expertise",
-    "> Platform: Go / .NET / Java / Kafka / Kubernetes / AWS",
-    "> Protected revenue R$ 24M per year · 100M messages per day",
-    "> READY. AWAITING INSTRUCTION...",
-  ],
-  "pt-BR": [
-    "> Carregando perfil e portfólio...",
-    "> 15 anos de governança financeira (2005-2020) + 6 anos de engenharia (2021-2026)",
-    "> Combinado: 21 anos de expertise aplicada",
-    "> Plataforma: Go / .NET / Java / Kafka / Kubernetes / AWS",
-    "> Receita protegida de R$ 24M por ano · 100M de mensagens por dia",
-    "> PRONTO. AGUARDANDO INSTRUÇÃO...",
-  ],
-} as const satisfies Record<Locale, string[]>;

@@ -21,54 +21,67 @@ export const enUS = {
     title: "Marcelino Sandroni Dias | Senior Software Engineer & Tech Lead",
     jobTitle: "Senior Software Engineer & Tech Lead",
     description:
-      "Marcelino Sandroni Dias — senior software engineer and tech lead. Executive engineering across distributed systems, AI pipelines and financial infrastructure, with R$ 24M/year and 100M messages/day of measured impact.",
+      "Senior Software Engineer and Tech Lead. Go, distributed systems, ClickHouse, Kafka and Kubernetes at fintech scale — R$ 24M/year in contract value rescued and 100M telemetry events a day.",
     siteName: "Marcelino Sandroni Dias",
     openGraphDescription:
-      "Senior Software Engineer & Tech Lead. Distributed systems, AI pipelines and financial infrastructure — with measured fiscal impact.",
+      "Senior Software Engineer & Tech Lead. Go, distributed systems and data platforms at fintech scale — R$ 24M/year rescued, 100M events/day.",
     structuredDataDescription:
-      "Senior full-stack software engineer and tech lead combining cutting-edge engineering with 15 years of experience in corporate finance and accounting.",
+      "Senior software engineer and tech lead with six years of software engineering and fifteen years of corporate financial governance, working across distributed systems, data platforms and cloud infrastructure.",
+    /*
+      Ordered by what the last three roles actually ran, not by how long the list
+      can get. An ATS scores a candidate against the stack in the requisition, and
+      a keyword list padded with five languages and four frameworks reads as
+      generalist work rather than as depth in one place. Everything here appears
+      on the resume; nothing here is aspirational.
+    */
     keywords: [
       "Marcelino Sandroni Dias",
       "Senior Software Engineer",
       "Tech Lead",
-      "Software Architect",
-      "Full Stack",
-      "TypeScript",
-      "Node.js",
-      "Next.js",
-      "React",
-      ".NET",
-      "C#",
-      "Java",
-      "Spring Boot",
-      "Python",
       "Go",
-      "Kubernetes",
-      "Docker",
-      "Cloud",
-      "Microservices",
       "Distributed Systems",
-      "DDD",
+      "Event-Driven Architecture",
       "Apache Kafka",
       "ClickHouse",
+      "Kubernetes",
+      "AWS",
+      "Terraform",
+      "Observability",
+      "Microservices",
+      "DDD",
+      "CQRS",
+      "TypeScript",
+      "Python",
+      "Node.js",
+      "PostgreSQL",
+      "Redis",
+      "Databricks",
+      "ETL",
+      "Docker",
+      "Site Reliability Engineering",
+      "CI/CD",
+      "Platform Engineering",
     ],
     knowsAbout: [
       "Software Engineering",
       "Distributed Systems",
+      "Event-Driven Architecture",
+      "Data Platforms",
       "Cloud Computing",
+      "Site Reliability Engineering",
       "DDD",
       "CQRS",
       "Hexagonal Architecture",
-      "TypeScript",
-      "C#",
-      ".NET",
-      "Java",
       "Go",
-      "Python",
-      "React",
-      "Next.js",
       "Apache Kafka",
       "ClickHouse",
+      "Kubernetes",
+      "AWS",
+      "Terraform",
+      "Observability",
+      "TypeScript",
+      "Python",
+      "Node.js",
     ],
   },
   /** UI-only affordances that must exist even with content removed. */
@@ -99,7 +112,7 @@ export const enUS = {
     skills: "Skills",
     education: "Education",
     home: "Overview",
-    arsenal: "Arsenal",
+    arsenal: "Stack",
     trackRecord: "Track record",
     blog: "Writing",
     resume: "Resume",
@@ -109,9 +122,27 @@ export const enUS = {
     liveResume: "Live Resume · v{version} · Updated {period}",
     note: "Engineering connecting distributed systems, product and financial outcomes.",
     backToOverview: "Back to overview",
+    /** Accessible name for the band of measured results under the role line. */
+    proofLabel: "Measured results",
   },
   signal: {
     available: "Available for opportunities",
+  },
+  /**
+   * Named references.
+   *
+   * The `empty` string is deliberately about the *database* and not about the
+   * owner. "No references yet" would read as a claim about the person — that
+   * nobody would vouch for them — which is not a thing this component knows and
+   * not a thing the copy should imply.
+   */
+  testimonials: {
+    kicker: "// REFERENCES",
+    title: "What working together is like",
+    note: "Named, with a link where one exists. An empty section here means nobody has written one yet — it does not mean there are none to be had.",
+    empty:
+      "No references have been added yet. Ask, and this section will carry what they say.",
+    itemsLabel: "References",
   },
   experience: {
     title: "Track Record: Production Systems Experience",
@@ -140,6 +171,16 @@ export const enUS = {
     scopeLabel: "Scope",
     teamLabel: "Team",
     caseStudiesLabel: "Case study",
+    galleryOpen: "Open image",
+    galleryPrevious: "Previous",
+    galleryNext: "Next",
+    galleryClose: "Close",
+    stackAll: "All",
+    stackChoose: "View the résumé by stack",
+    stackFocusedOn: "Focused on {stack}",
+    stackNarrowed: "This version leads with the selected stacks",
+    stackNarrowedSummary:
+      "This version was narrowed: {roles} role(s) show fewer bullets, and {bullets} bullet(s) with no stack tagged were left out.",
     problem: "Problem",
     solution: "Solution",
     result: "Result",
@@ -252,7 +293,7 @@ export const enUS = {
     /**
      * Section headings printed in the generated PDF. Kept apart from the web UI
      * because the document follows its own editorial structure, and the
-     * REFERENCE template reproduces the headings of the original reference PDF.
+     * DETAILED template reproduces the headings of the original reference PDF.
      */
     sections: {
       summary: "Summary",
@@ -281,11 +322,12 @@ export const enUS = {
     templates: {
       CLEAN: {
         label: "CLEAN",
-        description: "Default editorial template",
+        description: "Compact. Roles, dates, and the outcomes that carry a number.",
       },
-      REFERENCE: {
-        label: "REFERENCE",
-        description: "Template faithful to the reference PDF",
+      DETAILED: {
+        label: "DETAILED",
+        description:
+          "Everything, with the evidence: case studies, their metrics, the stack behind each role, team size and scope.",
       },
     },
   },

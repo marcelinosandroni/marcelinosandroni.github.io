@@ -13,55 +13,61 @@ export const ptBR: Dictionary = {
     title: "Marcelino Sandroni Dias | Engenheiro de Software Sênior & Tech Lead",
     jobTitle: "Engenheiro de Software Sênior & Tech Lead",
     description:
-      "Currículo vivo e interativo de Marcelino Sandroni Dias, engenheiro de software sênior e tech lead. Engenharia executiva em sistemas distribuídos, pipelines de IA e infraestrutura financeira, com R$ 24M/ano e 100M de mensagens/dia de impacto medido.",
+      "Engenheiro de Software Sênior e Tech Lead. Go, sistemas distribuídos, ClickHouse, Kafka e Kubernetes em escala fintech — R$ 24M/ano em contrato resgatado e 100M de eventos de telemetria por dia.",
     siteName: "Marcelino Sandroni Dias",
     openGraphDescription:
-      "Engenheiro de Software Sênior & Tech Lead. Sistemas distribuídos, pipelines de IA e infraestrutura financeira — com impacto fiscal medido.",
+      "Engenheiro de Software Sênior & Tech Lead. Go, sistemas distribuídos e plataformas de dados em escala fintech — R$ 24M/ano resgatados, 100M eventos/dia.",
     structuredDataDescription:
-      "Engenheiro de software sênior full stack e tech lead que combina engenharia de ponta a 15 anos de experiência em finanças corporativas e contabilidade.",
+      "Engenheiro de software sênior e tech lead com seis anos de engenharia de software e quinze anos de governança financeira corporativa, atuando em sistemas distribuídos, plataformas de dados e infraestrutura em nuvem.",
     keywords: [
       "Marcelino Sandroni Dias",
       "Engenheiro de Software",
       "Engenheiro de Software Sênior",
       "Tech Lead",
-      "Arquiteto de Software",
-      "Full Stack",
-      "TypeScript",
-      "Node.js",
-      "Next.js",
-      "React",
-      ".NET",
-      "C#",
-      "Java",
-      "Spring Boot",
-      "Python",
       "Go",
-      "Kubernetes",
-      "Docker",
-      "Cloud",
-      "Microservices",
       "Sistemas Distribuídos",
-      "DDD",
+      "Arquitetura Orientada a Eventos",
       "Apache Kafka",
       "ClickHouse",
+      "Kubernetes",
+      "AWS",
+      "Terraform",
+      "Observabilidade",
+      "Microservices",
+      "DDD",
+      "CQRS",
+      "TypeScript",
+      "Python",
+      "Node.js",
+      "PostgreSQL",
+      "Redis",
+      "Databricks",
+      "ETL",
+      "Docker",
+      "Engenharia de Confiabilidade de Sites",
+      "CI/CD",
+      "Plataformas de Dados",
     ],
     knowsAbout: [
       "Engenharia de Software",
       "Sistemas Distribuídos",
+      "Arquitetura Orientada a Eventos",
+      "Plataformas de Dados",
       "Computação em Nuvem",
+      "Engenharia de Confiabilidade de Sites",
       "DDD",
       "CQRS",
       "Arquitetura Hexagonal",
-      "TypeScript",
-      "C#",
-      ".NET",
-      "Java",
       "Go",
-      "Python",
-      "React",
-      "Next.js",
       "Apache Kafka",
       "ClickHouse",
+      "Kubernetes",
+      "AWS",
+      "Terraform",
+      "Observabilidade",
+      "TypeScript",
+      "Python",
+      "Node.js",
     ],
   },
   a11y: {
@@ -90,7 +96,7 @@ export const ptBR: Dictionary = {
     skills: "Habilidades",
     education: "Formação",
     home: "Visão geral",
-    arsenal: "Arsenal",
+    arsenal: "Stack",
     trackRecord: "Trajetória",
     blog: "blog",
     resume: "Currículo",
@@ -100,9 +106,26 @@ export const ptBR: Dictionary = {
     liveResume: "Currículo vivo · v{version} · Atualizado em {period}",
     note: "Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.",
     backToOverview: "Voltar para a visão geral",
+    /** Accessible name for the band of measured results under the role line. */
+    proofLabel: "Resultados medidos",
   },
   signal: {
     available: "Disponível para conversas",
+  },
+  /**
+   * Referências nomeadas.
+   *
+   * O texto de "vazio" fala do *banco de dados* e não da pessoa. "Sem
+   * referências" leria como uma afirmação sobre o candidato — que ninguém fala
+   * por ele —, o que esta seção não sabe e o que a copy não deve sugerir.
+   */
+  testimonials: {
+    kicker: "// REFERÊNCIAS",
+    title: "Como é trabalhar comigo",
+    note: "Nomeadas, com link quando existe. Uma seção vazia aqui significa que ninguém escreveu uma ainda — não que não existam.",
+    empty:
+      "Nenhuma referência foi adicionada ainda. Peça, e esta seção trará o que disserem.",
+    itemsLabel: "Referências",
   },
   experience: {
     title: "Experiência: Execução em Sistemas de Produção",
@@ -131,6 +154,16 @@ export const ptBR: Dictionary = {
     scopeLabel: "Escopo",
     teamLabel: "Time",
     caseStudiesLabel: "Estudo de caso",
+    galleryOpen: "Abrir imagem",
+    galleryPrevious: "Anterior",
+    galleryNext: "Próxima",
+    galleryClose: "Fechar",
+    stackAll: "Todas",
+    stackChoose: "Ver o currículo por stack",
+    stackFocusedOn: "Focado em {stack}",
+    stackNarrowed: "Esta versão destaca as stacks selecionadas",
+    stackNarrowedSummary:
+      "Esta versão foi filtrada: {roles} cargo(s) com menos bullets, {bullets} bullet(s) sem stack marcada foram omitidos.",
     problem: "Problema",
     solution: "Solução",
     result: "Resultado",
@@ -227,7 +260,7 @@ export const ptBR: Dictionary = {
     chooseTemplate: "Escolher modelo de PDF",
     /**
      * Seções impressas no PDF gerado. "Core Skills & Arquitetura de Software" é
-     * intencional: o modelo REFERENCE reproduz os títulos do PDF de referência.
+     * intencional: o modelo DETAILED reproduz os títulos do PDF de referência.
      */
     sections: {
       summary: "Resumo",
@@ -256,11 +289,12 @@ export const ptBR: Dictionary = {
     templates: {
       CLEAN: {
         label: "CLEAN",
-        description: "Modelo editorial padrão",
+        description: "Compacto. Cargos, datas e os resultados que carregam número.",
       },
-      REFERENCE: {
-        label: "REFERENCE",
-        description: "Modelo fiel ao PDF de referência",
+      DETAILED: {
+        label: "DETAILED",
+        description:
+          "Tudo, com as evidências: estudos de caso, suas métricas, a stack de cada cargo, tamanho do time e escopo.",
       },
     },
   },

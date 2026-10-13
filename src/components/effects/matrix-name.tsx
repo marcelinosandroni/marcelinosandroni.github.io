@@ -72,9 +72,16 @@ export const MATRIX_NAME_TRAIL = 9;
  * at once: long enough that a falling glyph is readable rather than a blur, and
  * with enough spread between columns that the name assembles rather than arriving
  * as a block. Every column falling in the same time reads as a slide.
+ *
+ * Both numbers came down with the intro's three-second budget. A glyph crossing the
+ * screen in ~900ms is still legible as a column falling; much under that it stops
+ * being one and becomes a letter appearing, which is a different effect and a worse
+ * one. They are tuned against the `locking` beat together — the last column has to
+ * land before the beat ends, and `tests/unit/effects/matrix-name.test.ts` asserts
+ * both ends of that rather than trusting the arithmetic here.
  */
-const MIN_FALL_MS = 1_000;
-const FALL_SPREAD_MS = 520;
+const MIN_FALL_MS = 580;
+const FALL_SPREAD_MS = 300;
 
 /**
  * The left-to-right stagger between columns, in ms.
@@ -83,31 +90,31 @@ const FALL_SPREAD_MS = 520;
  * left to right — the way text is read — with a jitter on top, because a purely
  * random order produces a name no reader can follow as it forms.
  *
- * The budget matters: `INTRO_PHASES` gives the `locking` beat 2.6 seconds, and
+ * The budget matters: `INTRO_PHASES` gives the `locking` beat 1.35 seconds, and
  * with seventeen columns the last one has to have landed before the beat ends. At
- * 42ms a column plus the jitter ceiling and the slowest fall that lands at about
- * 2.23s, leaving the name alone for over a third of a second. Raising this number is
- * the first thing that would cut the last letters off mid-fall, and
+ * 28ms a column plus the jitter ceiling and the slowest fall lands at about 1.2s,
+ * leaving the name alone for a fifth of a second. Raising this number is the first
+ * thing that would cut the last letters off mid-fall, and
  * `tests/unit/effects/matrix-name.test.ts` asserts the budget rather than trusting
  * the arithmetic.
  */
-const STAGGER_MS = 42;
+const STAGGER_MS = 40;
 
 /**
  * Jitter, on top of the stagger.
  *
  * Must stay *below* `STAGGER_MS`, and that constraint is the whole reason this is a
- * named constant next to it rather than a number typed into the formula: at 160ms of
- * jitter on a 42ms stagger, a column can start before the one to its left and the
- * name forms out of order, which is exactly the thing the left-to-right stagger
- * exists to prevent. The unit test caught that by asserting the order rather than by
+ * named constant next to it rather than a number typed into the formula: jitter
+ * above the stagger lets a column start before the one to its left and the name
+ * forms out of order, which is exactly the thing the left-to-right stagger exists
+ * to prevent. The unit test caught that by asserting the order rather than by
  * looking at it.
  *
- * The organic quality does not come from here. It comes from the 520ms spread in
- * fall *durations* below, which randomises how long each column takes without
- * touching the order they set off in — and order is what a readable name needs.
+ * The organic quality does not come from here. It comes from the spread in fall
+ * *durations* above, which randomises how long each column takes without touching
+ * the order they set off in — and order is what a readable name needs.
  */
-const STAGGER_JITTER_MS = 38;
+const STAGGER_JITTER_MS = 24;
 
 export type MatrixNameCell = {
   /** Position in the name. The index is the identity; these never reorder. */

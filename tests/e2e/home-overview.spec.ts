@@ -1,5 +1,16 @@
 import { expect, test } from "@playwright/test";
 
+import { SITE_OWNER } from "../../src/domain/site/site-info";
+
+/**
+ * The address this page is expected to render.
+ *
+ * Read from the site identity rather than typed, because the address changed once
+ * already and every literal in this file had to be found by hand. Reading the
+ * constant means the next change is one edit here rather than a search.
+ */
+const OWNER_EMAIL = SITE_OWNER.email;
+
 /**
  * Marks this reader as someone who has already been here, so the first-visit
  * arrival does not run.
@@ -69,15 +80,28 @@ test.describe("Home executive overview", () => {
     await expect(page.locator("#kpis")).toContainText("21 years");
   });
 
-  test("states the career arithmetic the way the filter requires", async ({ page }) => {
+  test("states both career periods, and leads the hero with the claims", async ({ page }) => {
     await page.goto("/en-us");
 
     const hero = page.locator("#top");
 
-    await expect(hero).toContainText("15 years");
+    /*
+     * The hero used to open with "15 years ... + 6 years ... = 21 years of combined
+     * expertise". The arithmetic was right and the framing was not, so it is gone
+     * from the hero: what a reader needs is the two periods with their dates, and
+     * then the figures that answer whether to keep reading. The combined total
+     * still appears on the KPI tile, labelled as combined.
+     */
     await expect(hero).toContainText("2005");
-    await expect(hero).toContainText("6 years");
-    await expect(hero).toContainText("21 years");
+    await expect(hero).toContainText("2021");
+    await expect(hero).toContainText(/fifteen years/i);
+    await expect(hero).toContainText(/six years/i);
+
+    // The proof band: three claims, each with the scope that makes it defensible.
+    await expect(hero.locator("li")).toHaveCount(3);
+    await expect(hero).toContainText("R$ 24M/yr");
+    await expect(hero).toContainText("100M msgs/day");
+    await expect(hero).toContainText("15min");
   });
 
   test("groups the arsenal into exactly the four required categories", async ({ page }) => {
@@ -137,9 +161,9 @@ test.describe("Home executive overview", () => {
   test("exposes a contact channel and a brief launcher", async ({ page }) => {
     await page.goto("/en-us");
 
-    await expect(page.locator("#contact")).toContainText("marcelino.sandroni@gmail.com");
+    await expect(page.locator("#contact")).toContainText(OWNER_EMAIL);
     await expect(
-      page.locator('#contact a[href^="mailto:marcelino.sandroni@gmail.com?subject="]'),
+      page.locator(`#contact a[href^="mailto:${OWNER_EMAIL}?subject="]`),
     ).toHaveCount(1);
   });
 
@@ -164,7 +188,7 @@ test.describe("Home executive overview", () => {
 
     // Email still works: WhatsApp is added beside it, never instead of it.
     await expect(
-      page.locator('#contact a[href^="mailto:marcelino.sandroni@gmail.com?subject="]'),
+      page.locator(`#contact a[href^="mailto:${OWNER_EMAIL}?subject="]`),
     ).toHaveCount(1);
   });
 
@@ -181,7 +205,7 @@ test.describe("Home executive overview", () => {
     // carries the direct channel beside the email.
     await page.goto("/en-us/resume");
     await expect(page.locator(waLink)).toHaveCount(1);
-    await expect(page.locator("footer")).toContainText("marcelino.sandroni@gmail.com");
+    await expect(page.locator("footer")).toContainText(OWNER_EMAIL);
   });
 
   test("teases all four articles on the home route, newest first", async ({ page }) => {

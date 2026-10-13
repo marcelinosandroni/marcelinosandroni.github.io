@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { SITE_OWNER } from "../../src/domain/site/site-info";
+
 /**
  * The admin surface is the one place on this site where access control is the
  * feature, so it gets its own guards rather than an incidental assertion.
@@ -19,7 +21,7 @@ test.describe("Owner admin area", () => {
 
     const body = await page.locator("body").innerText();
 
-    expect(body).not.toContain("marcelino.sandroni@gmail.com");
+    expect(body).not.toContain(SITE_OWNER.email);
     expect(body).not.toMatch(/signed in as/i);
   });
 
@@ -111,7 +113,7 @@ test.describe("Owner sign-in endpoint", () => {
      * Supabase, and therefore can never be distinguished by a provider error.
      */
     const allowed = await request.post("/api/auth/magic-link", {
-      data: { email: "marcelino.sandroni@gmail.com" },
+      data: { email: SITE_OWNER.email },
     });
     const refused = await request.post("/api/auth/magic-link", {
       data: { email: "stranger@attacker.test" },

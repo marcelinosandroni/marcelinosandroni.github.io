@@ -21,7 +21,7 @@ export const resumeContentEnUs: ResumeContent = {
   location: "Fortaleza, CE, Brazil · Remote",
   contact: {
     phone: SITE_OWNER.phone,
-    email: "marcelino.sandroni@gmail.com",
+    email: SITE_OWNER.email,
     linkedin: "linkedin.com/in/marcelinosandroni",
   },
   summary:
@@ -131,7 +131,7 @@ export const resumeContentEnUs: ResumeContent = {
     {
       company: "Antlia",
       role: "Tech Lead & Strategic Consultant",
-      period: "Jul/2024 – Dec/2025",
+      period: "Dec/2022 – Dec/2025",
       location: "Remote",
       summary:
         "Technical leadership in the modernization of critical legacy systems for BNPP Paribas, the bank's largest client, recreating the payments ecosystem and integrating with consolidated systems. Involved from planning through delivery, focusing on scalable distributed systems with Java Spring, an Angular microfrontend, Kafka messaging and complete DevOps (Kubernetes, Jenkins, Helm). Delivery of new applications for asset management with investment funds in the primary/wholesale market, integrating B3, US/European ETFs and large banks/brokers.",

@@ -4,7 +4,7 @@
 
 O aplicativo separa conteúdo e apresentação. O currículo é um objeto `ResumeContent`, com textos PT-BR e EN-US. Um modelo LaTeX recebe esse objeto já normalizado e devolve um documento `.tex`; ele não deve cadastrar, alterar ou duplicar fatos do currículo.
 
-O modelo padrão é `CLEAN`. O modelo `REFERENCE` reproduz a estrutura do PDF anexado: cabeçalho de contato, resumo executivo, skills em duas colunas, experiência, formação e idiomas em duas páginas.
+O modelo padrão é `CLEAN`. O modelo `DETAILED` reproduz a estrutura do PDF anexado: cabeçalho de contato, resumo executivo, skills em duas colunas, experiência, formação e idiomas em duas páginas.
 
 ## Onde cada parte fica
 
@@ -61,7 +61,7 @@ Entregue:
 
 ## Contrato de execução
 
-A URL `/api/resume/{locale}/pdf` usa `CLEAN` quando nenhum modelo é informado. Para selecionar outro modelo, use `?template=REFERENCE`. O botão principal sempre chama o padrão `CLEAN`; a seta abre o menu de modelos e baixa o modelo escolhido.
+A URL `/api/resume/{locale}/pdf` usa `CLEAN` quando nenhum modelo é informado. Para selecionar outro modelo, use `?template=DETAILED`. O botão principal sempre chama o padrão `CLEAN`; a seta abre o menu de modelos e baixa o modelo escolhido.
 
 A chave de cache inclui versão, locale, modelo e conteúdo completo. Portanto, mudar o modelo gera um artefato separado mesmo que o conteúdo seja idêntico.
 

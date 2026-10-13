@@ -491,9 +491,16 @@
      Applied to standalone controls. Opt-in rather than a global `*` rule
      because a blanket `min-height` on every link would stretch links inside
      paragraphs and break the text flow.
+
+     Both dimensions, not just the height. A control with a short label can
+     satisfy `min-h-11` while measuring 39px across, and the accessibility floor
+     is on the smallest dimension — so `min-w-11` lives here rather than being
+     added one call site at a time. Renaming a nav label from "Arsenal" to
+     "Stack" silently dropped a target below the floor; the rule belongs where
+     the failure mode is impossible rather than where it is currently caught.
   */
   .tap-target {
-    @apply inline-flex min-h-11 items-center;
+    @apply inline-flex min-h-11 min-w-11 items-center justify-center;
   }
 
   /* ==========================================================================

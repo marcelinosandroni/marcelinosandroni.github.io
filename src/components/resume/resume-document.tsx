@@ -1,4 +1,6 @@
 import { DownloadPDFButton } from "@/components/download-pdf-button";
+import { CaseStudyGallery } from "@/components/resume/case-study-gallery";
+import { StackProfileSelector } from "@/components/resume/stack-profile-selector";
 import { SiteHeader } from "@/components/site/site-header";
 import { Icon } from "@/components/ui/icon";
 import { CONTENT_PERIOD, SITE_VERSION } from "@/domain/site/site-info";
@@ -14,6 +16,31 @@ import { formatMessage } from "@/i18n/format-message";
 export interface ResumeDocumentProps {
   locale: Locale;
   resume: ResumeContent;
+  /**
+   * The stack profiles offered below the download button.
+   *
+   * Absent when the database has none — a deployment before the profiles
+   * migration, or one whose owner has not created any. The selector then renders
+   * nothing and the document is the generic résumé, which is the default view
+   * and is always correct. An empty `<select>` would be worse: it would offer a
+   * choice between nothing and nothing.
+   */
+  profiles?: ReadonlyArray<{ slug: string; label: string; description: string }>;
+  /** The profile in force, or `null` for the generic résumé. */
+  selectedProfile?: string | null;
+  /**
+   * The document already narrowed to the selected profile.
+   *
+   * Passed in rather than derived here, because narrowing is a graph walk and
+   * this component is a server component that renders whatever it is given. A
+   * reader of the résumé should not be able to make the page disagree with the
+   * PDF by opening a second copy of the walk in a second file.
+   */
+  focused?: ResumeContent;
+  /** How many roles the narrowing changed, so the page can say so. */
+  narrowedRoles?: number;
+  /** How many untagged bullets were dropped, so the page can say so. */
+  untaggedDropped?: number;
 }
 
 /**
@@ -29,8 +56,26 @@ export interface ResumeDocumentProps {
  * The data is the original resume content, byte for byte. The redesign did not
  * restyle, reorder or reword a single fact.
  */
-export async function ResumeDocument({ locale, resume }: ResumeDocumentProps) {
+export async function ResumeDocument({
+  locale,
+  resume,
+  profiles = [],
+  selectedProfile = null,
+  focused,
+  narrowedRoles = 0,
+  untaggedDropped = 0,
+}: ResumeDocumentProps) {
   const t = await getDictionary(locale);
+
+  /*
+    The narrowed document when there is one, the full document otherwise.
+
+    Defaulting to `resume` rather than guarding the whole component: every
+    renderer below takes its document from this one variable, so there is a
+    single decision and no section that can be served the un-narrowed document
+    while another is served the narrowed one.
+  */
+  const document_ = focused ?? resume;
 
   const pdfTemplates = RESUME_TEMPLATES.map((template) => ({
     id: template.id as ResumeTemplateId,
@@ -92,15 +137,15 @@ export async function ResumeDocument({ locale, resume }: ResumeDocumentProps) {
           </span>
           <h1 className="font-display-hero text-display-hero-mobile font-extrabold tracking-tight text-text-primary md:text-display-hero">
             <span className="mb-space-sm block font-label-mono text-label-mono uppercase tracking-widest text-secondary">
-              {resume.name}
+              {document_.name}
             </span>
             {t.resume.title}
           </h1>
           <p className="hero-title font-editorial-quote text-editorial-quote italic text-secondary">
-            {resume.title}
+            {document_.title}
           </p>
           <p className="max-w-2xl font-body-lg text-body-lg text-text-secondary">
-            {resume.summary}
+            {document_.summary}
           </p>
           <p className="font-label-mono text-label-mono text-text-muted">
             {formatMessage(t.hero.liveResume, { version: SITE_VERSION, period: CONTENT_PERIOD })}
@@ -118,6 +163,17 @@ export async function ResumeDocument({ locale, resume }: ResumeDocumentProps) {
               <DownloadPDFButton
                 locale={locale}
                 templates={pdfTemplates}
+                /*
+                  The stack travels into the PDF request.
+
+                  Without it the download is always the generic résumé while the
+                  page shows the React + Node one — and a recruiter who reads the
+                  narrowed page and then downloads gets a different document. The
+                  parameter is ignored by a PDF route that does not support focus,
+                  which is the safe direction for a feature added ahead of its
+                  consumer.
+                */
+                stack={selectedProfile}
                 messages={{
                   download: t.pdf.download,
                   generating: t.pdf.generating,
@@ -132,11 +188,52 @@ export async function ResumeDocument({ locale, resume }: ResumeDocumentProps) {
               {t.hero.backToOverview}
             </a>
           </div>
+
+          {/*
+            Below the download, as asked.
+
+            The download is the primary action, so the selector sits under it
+            rather than competing with it above: a reader who wants the whole
+            document should reach for the button without having to pass a choice.
+          */}
+          <div className="pt-space-sm">
+            <StackProfileSelector
+              locale={locale}
+              profiles={profiles}
+              selected={selectedProfile}
+              labels={{
+                all: t.resume.stackAll,
+                choose: t.resume.stackChoose,
+                focusedOn: t.resume.stackFocusedOn,
+                narrowed: t.resume.stackNarrowed,
+              }}
+            />
+          </div>
         </header>
 
-        <ResumeExperienceList experiences={resume.experiences} t={t} />
-        <ResumeSkills resume={resume} t={t} />
-        <ResumeEducationSection resume={resume} t={t} />
+        {/*
+          What the narrowing actually did, stated plainly.
+
+          Not decoration: a reader who sees fewer bullets needs to know whether
+          that is the profile working or a page that failed to load. And the
+          untagged count is the honest signal that tagging is still in progress —
+          without it, an unfinished tagging pass looks exactly like a deliberate
+          short résumé.
+        */}
+        {selectedProfile === null ? null : (
+          <p
+            role="status"
+            className="mb-space-md border border-border-subtle bg-surface-raised p-space-sm text-body-sm text-text-secondary"
+          >
+            {t.resume.stackNarrowedSummary
+              .replace("{roles}", String(narrowedRoles))
+              .replace("{bullets}", String(untaggedDropped))}
+          </p>
+        )}
+
+        <ResumeExperienceList experiences={document_.experiences} t={t} />
+        <ResumeSkills resume={document_} t={t} />
+        <ResumeEducationSection resume={document_} t={t} />
 
         <footer className="mt-space-2xl border-t border-border-subtle pt-space-xl">
           <p className="flex flex-wrap items-center gap-x-space-lg gap-y-space-sm font-label-mono text-label-mono text-text-muted">
@@ -283,6 +380,25 @@ function ResumeExperienceList({
                         </li>
                       ))}
                     </ul>
+
+                    {/*
+                      Imagery, and nothing at all when there is none.
+
+                      The gallery returns null for an empty list rather than
+                      rendering a placeholder row — a case study without images is
+                      the normal case, and a placeholder would make every card that
+                      legitimately has none look like a card that failed to load.
+                    */}
+                    <CaseStudyGallery
+                      title={caseStudy.title}
+                      media={caseStudy.media ?? []}
+                      labels={{
+                        open: t.resume.galleryOpen,
+                        previous: t.resume.galleryPrevious,
+                        next: t.resume.galleryNext,
+                        close: t.resume.galleryClose,
+                      }}
+                    />
                   </div>
                 ))}
               </div>

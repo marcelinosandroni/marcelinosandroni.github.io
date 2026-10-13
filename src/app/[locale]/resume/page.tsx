@@ -8,10 +8,27 @@ import {
   toLocale,
   toOpenGraphLocale,
 } from "@/domain/i18n";
-import { getResumeContent } from "@/infrastructure/content";
+import { readResume, readResolvedProfiles } from "@/infrastructure/repositories";
+import { applyFocus, narrowDocument } from "@/domain/resume/focus";
 import { getDictionary } from "@/i18n";
 
 const SUFFIX = "/resume";
+
+/**
+ * Time-based revalidation, and the reason this page still counts as static.
+ *
+ * The document now comes from the database, so the page cannot be finished at
+ * build time or an admin edit would need a redeploy to appear. But reading it
+ * on every request is the other extreme: a page view spent waiting on a network
+ * round trip is a page view that costs a recruiter.
+ *
+ * So the page stays prerendered and regenerates at most hourly, and an admin
+ * save calls `revalidatePath` to make the change visible immediately. The
+ * hourly figure is the safety net for the case where that call is missed — a
+ * restore, a direct database edit, a webhook that did not arrive — not the
+ * expected path to an edit going live.
+ */
+export const revalidate = 3_600;
 
 /**
  * Resume document route.
@@ -54,12 +71,87 @@ export async function generateMetadata({
   };
 }
 
-export default async function Page({ params }: PageProps<"/[locale]/resume">) {
-  const locale = toLocale((await params).locale);
+/**
+ * The stack to narrow to, from `?stack=`.
+ *
+ * Read through `searchParams` rather than a typed segment, and that is not an
+ * oversight: the stack is a *query parameter* so a narrowed résumé is one
+ * addressable URL rather than a client-side variant of a page. A URL that can be
+ * pasted into a follow-up email is the entire reason for the feature; a
+ * `<select>` holding the choice in component state would lose it on reload.
+ */
+export default async function Page({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/resume"> & { searchParams: Promise<{ stack?: string }> }) {
+  const { locale: segment } = await params;
+  const { stack } = await searchParams;
+  const locale = toLocale(segment);
 
   if (!locale) {
     return null;
   }
 
-  return <ResumeDocument locale={locale} resume={getResumeContent(locale)} />;
+  const profiles = await readResolvedProfiles(locale);
+
+  /*
+    An unrecognised `stack` falls back to the generic résumé rather than 404ing.
+
+    Three reasons, and the third is the one that settles it. A shareable URL must
+    not break when a profile is renamed; the generic view is the default and is
+    always correct, so it is a safe answer rather than a wrong one; and a 404 on
+    a query parameter teaches a reader that this page has rules, which invites
+    them to guess at others.
+
+    The selector below the download button always offers "all", so the generic
+    view is one click away from anywhere.
+  */
+  const selected = profiles.find((entry) => entry.profile.slug === stack);
+
+  /*
+    `"resume"` rather than `"both"`: this is the document of record, so every row
+    the owner has written appears here regardless of where it is also shown. A
+    role marked résumé-only is invisible for exactly this reason — it is not on
+    the summary and it does not belong to be removed from the document.
+  */
+  const resume = await readResume(locale, "resume");
+
+  /*
+    Narrowing is the domain's, not the page's.
+
+    `applyFocus` reads positions out of `stackIndex` and returns them; turning
+    those positions back into a `ResumeContent` is the one piece of assembly that
+    lives here, because it is the only place that has both the document and the
+    result. Doing it in the domain would mean the domain could rebuild a document
+    it was only ever given positions into.
+  */
+  const narrowed =
+    selected === undefined || resume.stackIndex === undefined
+      ? null
+      : applyFocus(resume.stackIndex, resume, selected.focus);
+
+  /*
+    The same `narrowDocument` the PDF route uses.
+
+    Two copies of this would agree today and drift the first time one gained a
+    field, and the drift would be a download that is not the page the reader was
+    looking at — with nothing in either to say so.
+  */
+  const focused = narrowed === null ? undefined : narrowDocument(resume, narrowed);
+
+  return (
+    <ResumeDocument
+      locale={locale}
+      resume={resume}
+      profiles={profiles.map((entry) => ({
+        slug: entry.profile.slug,
+        label: entry.profile.label,
+        description: entry.profile.description,
+      }))}
+      selectedProfile={selected?.profile.slug ?? null}
+      focused={focused}
+      narrowedRoles={narrowed?.narrowedRoles ?? 0}
+      untaggedDropped={narrowed?.untaggedDropped ?? 0}
+    />
+  );
 }

@@ -1,0 +1,83 @@
+# A local Supabase-compatible stack, without the whole platform.
+#
+# ## Why this exists instead of `supabase start`
+#
+# This application talks to Postgres over **PostgREST** and nothing else: no
+# storage, no realtime, no edge functions, no Studio. `supabase start` boots
+# fourteen containers to provide those — several gigabytes of images for a stack
+# this site never calls, and on a cold cache a long wait before `npm run dev`
+# can be pointed at a database at all.
+#
+# So this brings up the two pieces the code actually depends on:
+#
+#   db    Postgres, with the four Supabase roles already created by the image
+#   rest  PostgREST, which is what `@supabase/supabase-js` speaks
+#
+# The REST API is exposed directly rather than behind the CLI's API gateway.
+# Only this site talks to it, always from the server, so the gateway would add a
+# hop and a layer of JWT rewriting without changing a single query.
+#
+# ## Roles
+#
+# The image's own init script creates `anon`, `authenticated`, `authenticator`
+# and `service_role` — so **no init script is mounted here**. A second
+# role-creating script collides with the image's and aborts the entrypoint.
+#
+# The image leaves `authenticator` without a password, and PostgREST connects as
+# that role, so `npm run db:roles` sets it. It is run automatically by
+# `npm run db:migrate`, which also sets `search_path` so the migrations' bare
+# `create extension pgcrypto` resolves into `extensions` rather than failing
+# with "no schema has been selected to create it in".
+#
+# ## Migrations
+#
+# Applied from the host by `npm run db:migrate`, not mounted into the
+# entrypoint: an entrypoint script only runs against an empty data directory, so
+# editing a migration and restarting would silently do nothing — the worst
+# possible behaviour for a schema you are iterating on.
+
+services:
+  db:
+    image: supabase/postgres:17.6.1.166
+    pull_policy: if_not_present
+    ports:
+      # Deliberately in the 54_3xx range the Supabase CLI uses, but shifted
+      # past the ports it claims. Running two local Supabase stacks is normal —
+      # this machine had another project's stack holding 54321 through 54327 —
+      # and the failure when they collide is `Bind for 0.0.0.0:54324 failed:
+      # port is already allocated`, which names neither stack and reads like a
+      # bug in this file rather than a port somebody else already had.
+      - "54331:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      JWT_SECRET: super-secret-jwt-token-with-at-least-32-characters-long
+      JWT_EXP: 3600
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - supabase_db:/var/lib/postgresql/data
+
+  rest:
+    image: postgrest/postgrest:v14.5
+    pull_policy: if_not_present
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      # Also shifted: the CLI claims 54321 for its own API gateway, so a stack
+      # that puts PostgREST there collides with any other Supabase project on
+      # the machine rather than only with the CLI.
+      - "54330:3000"
+    environment:
+      PGRST_DB_URI: postgres://authenticator:postgres@db:5432/postgres
+      PGRST_DB_SCHEMAS: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: super-secret-jwt-token-with-at-least-32-characters-long
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+
+volumes:
+  supabase_db:

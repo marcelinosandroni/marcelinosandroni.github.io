@@ -29,22 +29,23 @@ describe("the intro timeline", () => {
     ]);
 
     /*
-      A floor, not a ceiling. The whole sequence is the price of a first
-      impression, and a reader who has already decided to stay should not have to
-      wait through an argument for it. If a phase is ever lengthened this is the
-      assertion that notices.
+      A ceiling, and a tight one. The sequence ran 6.7s while it was built, which
+      is a long time to look at rain before finding out what the site is — and the
+      reader who gives up during it is a recruiter who opened the link between two
+      meetings. This is the assertion that stops the budget quietly growing back.
     */
-    expect(INTRO_TOTAL_MS).toBeLessThan(7_000);
+    expect(INTRO_TOTAL_MS).toBeLessThanOrEqual(3_000);
   });
 
   it("gives the name longer than the handshake, because the name is the point", () => {
     const connecting = INTRO_PHASES.find((step) => step.phase === "connecting");
     const locking = INTRO_PHASES.find((step) => step.phase === "locking");
 
-    // Reversed from the previous sequence, where the handshake was the longest
-    // beat. There is now nothing to read during the handshake and one word to read
-    // during the lock, so the time follows the subject.
+    // `connecting` is now 200ms rather than a beat of its own: long enough for the
+    // rain to be on screen, far too short to read the log it used to carry. The
+    // time belongs to the name.
     expect(locking?.durationMs).toBeGreaterThan(connecting?.durationMs ?? 0);
+    expect(connecting?.durationMs).toBeLessThanOrEqual(300);
   });
 
   it("names the phase at any point, and nothing after the end", () => {

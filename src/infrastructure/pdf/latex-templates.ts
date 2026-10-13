@@ -21,7 +21,7 @@ export const resumeLatexTemplate = ({
   locale: string;
   body: string;
 }) => {
-  const isReference = templateId === "REFERENCE";
+  const isReference = templateId === "DETAILED";
   const margin = isReference ? "0.60in" : "0.68in";
   const fontSize = isReference ? "10.5pt" : "10pt";
   const nameSize = isReference ? "22" : "24";

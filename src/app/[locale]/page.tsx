@@ -2,8 +2,14 @@ import type { Metadata } from "next";
 
 import { HomeView } from "@/components/home/home-view";
 import { toLocale } from "@/domain/i18n";
-import { getResumeContent } from "@/infrastructure/content";
+import { isFeatureEnabled } from "@/domain/feature-flags/feature-flags";
 import { getHomeContent } from "@/infrastructure/content/home";
+import {
+  readHomeStack,
+  readHomeTrackRecord,
+  readResume,
+  readTestimonials,
+} from "@/infrastructure/repositories";
 
 /**
  * Home route — the executive overview.
@@ -32,6 +38,12 @@ export async function generateMetadata({ params }: PageProps<"/[locale]">): Prom
   };
 }
 
+/**
+ * The same hourly regeneration as the résumé, for the same reason: the summary
+ * is assembled from the database now, and an edit should not need a redeploy.
+ */
+export const revalidate = 3_600;
+
 export default async function Page({ params }: PageProps<"/[locale]">) {
   const locale = toLocale((await params).locale);
 
@@ -39,7 +51,31 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
     return null;
   }
 
-  const resume = getResumeContent(locale);
+  /*
+    `"home"`: the summary shows the roles the owner marked for it, and reading
+    `"both"` would put a résumé-only role back onto the landing page — which is
+    precisely the decision the `surfaces` column exists to express.
+  */
+  const [
+    resume,
+    stack,
+    annotations,
+    testimonials,
+  ] = await Promise.all([
+    readResume(locale, "home"),
+    readHomeStack(locale),
+    readHomeTrackRecord(locale),
+    readTestimonials(locale),
+  ]);
 
-  return <HomeView locale={locale} resume={resume} />;
+  return (
+    <HomeView
+      locale={locale}
+      resume={resume}
+      stack={stack}
+      annotations={annotations}
+      testimonials={testimonials}
+      testimonialsEnabled={isFeatureEnabled("testimonials")}
+    />
+  );
 }

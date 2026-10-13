@@ -160,7 +160,7 @@ Regras transversais de SEO que também são contrato:
 - **Rótulos acessíveis** (`aria-label`, `role`, `alt`) também são traduzidos.
 - **Âncoras de seção são neutras**: `#experience`, `#skills`, `#education`.
 - **Identificadores técnicos** não são traduzidos: `ResumeTemplateId` (`CLEAN`,
-  `REFERENCE`) e `RESUME_TEMPLATE_IDS` permanecem estáveis, pois são contrato
+  `DETAILED`) e `RESUME_TEMPLATE_IDS` permanecem estáveis, pois são contrato
   com o endpoint de PDF.
 - **Metadados de arquivo** não são traduzidos: o PDF mantém o nome do autor.
 
@@ -201,8 +201,8 @@ obedecem à mesma regra dos catálogos.
 | Elemento | Origem |
 |---|---|
 | Títulos de seção do template `CLEAN` | `pdf.sections` do catálogo |
-| Títulos de seção do template `REFERENCE` | `pdf.referenceSections` do catálogo |
-| Nomes e descrições de template | `pdf.templates.{CLEAN,REFERENCE}` do catálogo |
+| Títulos de seção do template `DETAILED` | `pdf.referenceSections` do catálogo |
+| Nomes e descrições de template | `pdf.templates.{CLEAN,DETAILED}` do catálogo |
 | Rótulos de ação e erro | `pdf.download`, `pdf.generating`, `pdf.failed`, `pdf.unknownError`, `pdf.chooseTemplate` |
 
 **Contrato de entrada**
@@ -234,7 +234,7 @@ conter texto próprio. O chamador resolve via
    que lê o fonte do renderer.
 2. Os títulos são preservados **exatamente** como eram antes da extração, para
    que o PDF do cliente não mude. "Core Skills & Arquitetura de Software" é
-   intencional: o modelo REFERENCE reproduz os títulos do PDF de referência.
+   intencional: o modelo DETAILED reproduz os títulos do PDF de referência.
 3. `src/i18n/dictionaries/loader.ts` não importa Next.js, permitindo que o
    script `compile-pdf.ts` resolva os catálogos fora do runtime do Next.
 4. `caseStudies` **não** são renderizados por nenhum renderer. Todo o conteúdo de

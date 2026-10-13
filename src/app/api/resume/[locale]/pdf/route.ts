@@ -9,12 +9,12 @@ import { LaTeXResumeRenderer } from "@/infrastructure/renderers/latex-resume-ren
 import { DockerPDFCompiler } from "@/infrastructure/pdf/docker-pdf-compiler";
 import { PdfKitPDFCompiler } from "@/infrastructure/pdf/pdfkit-pdf-compiler";
 import { ResumePdfCache } from "@/infrastructure/pdf/resume-pdf-cache";
-import { getResumeContent } from "@/infrastructure/content";
+import { readResume, readResolvedProfiles } from "@/infrastructure/repositories";
+import { applyFocus, narrowDocument } from "@/domain/resume/focus";
 import { getDictionary } from "@/i18n";
 import { getPdfSectionLabels } from "@/infrastructure/pdf/pdf-section-labels";
 import {
-  DEFAULT_RESUME_TEMPLATE,
-  isResumeTemplateId,
+  resolveResumeTemplateId,
   type ResumeTemplateId,
 } from "@/infrastructure/pdf/resume-template-registry";
 import { createErrorResponse } from "@/infrastructure/http/error-handler";
@@ -36,8 +36,24 @@ function getCacheDirectory(): string {
   return join(process.cwd(), "public", "artifacts", "cache");
 }
 
-function createPreferredFilename(locale: "pt-BR" | "en-US", version: string, templateId: ResumeTemplateId): string {
-  return `Marcelino Sandroni Resume v${version} ${locale} ${templateId}.pdf`;
+function createPreferredFilename(
+  locale: "pt-BR" | "en-US",
+  version: string,
+  templateId: ResumeTemplateId,
+  focus: string | null,
+): string {
+  /*
+    The focus is in the *filename*, not only in the cache key.
+
+    A recruiter who downloads "React + Node" and "Angular + Java" into the same
+    folder gets two files with the same name, and the second silently replaces
+    the first — which is the one place a reader might genuinely want both, and
+    the place where they would have least reason to check. Nothing else on the
+    page distinguishes the two files once they are on disk.
+  */
+  const suffix = focus === null ? "" : ` ${focus}`;
+
+  return `Marcelino Sandroni Resume v${version} ${locale}${suffix} ${templateId}.pdf`;
 }
 
 export async function GET(
@@ -64,28 +80,76 @@ export async function GET(
 
     const normalizedLocale = locale as "pt-BR" | "en-US";
     const requestedTemplate = request.nextUrl.searchParams.get("template");
-    const templateId = requestedTemplate === null
-      ? DEFAULT_RESUME_TEMPLATE
-      : isResumeTemplateId(requestedTemplate)
-        ? requestedTemplate
-        : null;
+    const templateId = resolveResumeTemplateId(requestedTemplate);
 
     if (!templateId) {
       throw new InvalidTemplateError(`Invalid template: ${requestedTemplate}`, { providedTemplate: requestedTemplate });
     }
 
-    const version = CURRENT_RESUME_VERSION;
+        const version = CURRENT_RESUME_VERSION;
     const renderer = new LaTeXResumeRenderer(templateId);
     const compiler = new DockerPDFCompiler(30000);
     const builder = new BuildResumeDocument(renderer);
     const publisher = new PublishPDFResume(builder, renderer, compiler);
-    const resumeByLocale = getResumeContent(normalizedLocale);
+
+    /*
+      The database, not the typed catalog.
+
+      This used to read `getResumeContent`, which made the PDF the third copy of
+      the résumé: the page showed the database's content while the download
+      showed a version frozen in TypeScript at whatever commit last edited it.
+      "Add NestJS and it appears in the résumé and the PDF" was therefore half
+      true — the page yes, the PDF no, with nothing saying so.
+
+      `readResume` already falls back to the typed catalog when the database is
+      unreachable, so this is strictly an improvement: the same answer in the
+      degraded case, a current one otherwise.
+    */
+    const resumeByLocale = await readResume(normalizedLocale, "resume");
+
+    /*
+      Focus, applied before the render rather than after.
+
+      Narrowing after the PDF exists would mean re-typesetting it, which is the
+      expensive step. Narrowing the document first means the renderer, the cache
+      signature and the filename all describe the same thing by construction.
+    */
+    const requestedStack = request.nextUrl.searchParams.get("stack");
+    const profiles = await readResolvedProfiles(normalizedLocale).catch(() => []);
+    const selected = profiles.find((entry) => entry.profile.slug === requestedStack);
+
+    const focused =
+      selected === undefined || resumeByLocale.stackIndex === undefined
+        ? null
+        : applyFocus(resumeByLocale.stackIndex, resumeByLocale, selected.focus);
+
+    const document_ = focused === null ? resumeByLocale : narrowDocument(resumeByLocale, focused);
+
     const t = await getDictionary(normalizedLocale);
     const sectionLabels = getPdfSectionLabels(t, templateId);
     const cacheDir = getCacheDirectory();
     const cache = new ResumePdfCache(cacheDir);
-    const preferredFilename = createPreferredFilename(normalizedLocale, version.toString(), templateId);
-    const cachedFilePath = cache.getPath(version.toString(), normalizedLocale, resumeByLocale, templateId, preferredFilename);
+
+    /*
+      `null` rather than the raw query value, so a stack that does not resolve to
+      a profile is the generic document with the generic filename rather than a
+      document signed with a name that produced nothing.
+    */
+    const focusKey = selected?.profile.slug ?? null;
+    const preferredFilename = createPreferredFilename(
+      normalizedLocale,
+      version.toString(),
+      templateId,
+      focusKey,
+    );
+    const cachedFilePath = cache.getPath(
+      version.toString(),
+      normalizedLocale,
+      document_,
+      templateId,
+      preferredFilename,
+      focusKey,
+    );
 
     let pdfBytes: Buffer;
     if (cachedFilePath) {
@@ -93,17 +157,37 @@ export async function GET(
     } else {
       let artifact;
       try {
-        artifact = await publisher.execute(version, normalizedLocale, resumeByLocale, sectionLabels, templateId);
+        artifact = await publisher.execute(
+          version,
+          normalizedLocale,
+          document_,
+          sectionLabels,
+          templateId,
+        );
       } catch (error) {
-        // Log the primary compiler failure for debugging
-        console.warn('Primary PDF compiler failed, attempting fallback', error);
-        
+        // Log the primary PDF compiler failure for debugging
+        console.warn("Primary PDF compiler failed, attempting fallback", error);
+
         const fallbackCompiler = new PdfKitPDFCompiler();
         const fallbackPublisher = new PublishPDFResume(builder, renderer, fallbackCompiler);
-        artifact = await fallbackPublisher.execute(version, normalizedLocale, resumeByLocale, sectionLabels, templateId);
+        artifact = await fallbackPublisher.execute(
+          version,
+          normalizedLocale,
+          document_,
+          sectionLabels,
+          templateId,
+        );
       }
 
-      const generatedPath = cache.write(version.toString(), normalizedLocale, resumeByLocale, templateId, artifact.pdfBuffer, preferredFilename);
+      const generatedPath = cache.write(
+        version.toString(),
+        normalizedLocale,
+        document_,
+        templateId,
+        artifact.pdfBuffer,
+        preferredFilename,
+        focusKey,
+      );
       pdfBytes = readFileSync(generatedPath);
     }
 

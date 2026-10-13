@@ -1,7 +1,9 @@
 import { ChannelLink, StatusPill } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
 import type { HomeHero } from "@/domain/portfolio";
+import { getClaim } from "@/domain/portfolio/claims";
 import { isFeatureEnabled, visibleChannels } from "@/domain/feature-flags/feature-flags";
+import type { Locale } from "@/domain/i18n";
 import type { Dictionary } from "@/i18n";
 
 import { PortraitFrame } from "./portrait-frame";
@@ -9,6 +11,7 @@ import { PortraitFrame } from "./portrait-frame";
 export interface HomeHeroSectionProps {
   hero: HomeHero;
   t: Dictionary;
+  locale: Locale;
 }
 
 /**
@@ -17,8 +20,18 @@ export interface HomeHeroSectionProps {
  * The full name is rendered as a mono kicker *inside* the heading rather than as
  * a separate element: it keeps a single, correctly-outlined `<h1>` while making
  * the name the first thing a reader's eye lands on.
+ *
+ * ## Why the proof band sits between the role and the narrative
+ *
+ * Because those three lines are the only part of the page a hiring manager is
+ * guaranteed to read. Everything below the fold is opt-in; this is not. The role
+ * line says what he is, the proof says what he has done, and only then does the
+ * narrative ask for the attention that a paragraph of prose has to earn.
+ *
+ * The figures resolve from the claims module at render time, so what the hero
+ * promises and what the document of record says are the same numbers.
  */
-export function HomeHeroSection({ hero, t }: HomeHeroSectionProps) {
+export function HomeHeroSection({ hero, t, locale }: HomeHeroSectionProps) {
   return (
     <section
       id="top"
@@ -67,6 +80,34 @@ export function HomeHeroSection({ hero, t }: HomeHeroSectionProps) {
             <p className="font-editorial-quote text-editorial-quote hero-title italic text-text-secondary">
               {hero.role}
             </p>
+
+            {/*
+              The proof band. Three claims, each with the scope that makes it
+              defensible, resolved from the claims module so the hero cannot quote
+              a figure the resume and the PDF contradict.
+            */}
+            <ul
+              className="grid grid-cols-1 gap-x-space-lg gap-y-space-md border-y border-border-subtle py-space-md sm:grid-cols-3"
+              aria-label={t.hero.proofLabel}
+            >
+              {hero.proof.map((item) => {
+                const claim = getClaim(item.id, locale);
+
+                return (
+                  <li key={item.id} className="flex flex-col gap-space-xs">
+                    <span className="font-display-lg text-display-lg font-extrabold leading-none text-primary-container">
+                      {claim.display}
+                    </span>
+                    <span className="font-label-mono text-label-mono uppercase tracking-wider text-text-muted">
+                      {item.label}
+                    </span>
+                    <span className="text-body-sm text-body-sm text-text-secondary">
+                      {claim.scope}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
 
             <p className="max-w-2xl font-body-lg text-body-lg text-text-secondary">
               {hero.narrative}

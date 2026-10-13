@@ -2,6 +2,67 @@ export type { Locale } from "@/domain/i18n";
 
 import type { Locale } from "@/domain/i18n";
 
+/**
+ * Where a piece of résumé content is allowed to appear.
+ *
+ * ## Why this is a value and not two copies
+ *
+ * The home page and the résumé render the same career at different depths: the
+ * résumé is the document of record and shows every role in full, the home page
+ * is a summary an employer reads in seconds. Those were two independent typed
+ * datasets, which is exactly the arrangement that let the two drift apart into
+ * contradicting each other.
+ *
+ * One dataset with a declared surface keeps a single source of the facts, and
+ * still lets the owner decide that a role is résumé-only — a decision a global
+ * boolean cannot express and a duplicated dataset cannot represent.
+ *
+ * Absent means "both". That is the right default: a new row added by the
+ * database is visible by default, and hiding something is a deliberate act.
+ */
+export type Surface = "home" | "resume";
+
+/** Every surface, for validation and for the admin's checkboxes. */
+export const SURFACES: readonly Surface[] = ["home", "resume"] as const;
+
+/** Whether a value names a real surface. */
+export function isSurface(value: string): value is Surface {
+  return (SURFACES as readonly string[]).includes(value);
+}
+
+/** Narrow an arbitrary list to the surfaces, dropping anything unknown. */
+export function toSurfaces(values: readonly string[] | null | undefined): Surface[] {
+  if (!Array.isArray(values)) {
+    return [...SURFACES];
+  }
+
+  const known = values.filter(isSurface);
+
+  // An empty or wholly unrecognised set means "nowhere", not "everywhere".
+  // Collapsing it to every surface would make a typo hide nothing and show
+  // everything, which is the opposite of what the database recorded.
+  return known.length > 0 ? known : [];
+}
+
+/** Whether an item carrying these surfaces belongs on `surface`. */
+export function appearsOn(surfaces: readonly Surface[] | undefined, surface: Surface): boolean {
+  return surfaces === undefined || surfaces.includes(surface);
+}
+
+/**
+ * One optional image attached to a case study.
+ *
+ * Deliberately not required: a case study is argued by its challenge, response
+ * and measured result, and an image is support. Making it mandatory would mean
+ * inventing a diagram for the cases that have none, which is the kind of
+ * decoration this site does not add.
+ */
+export type CaseStudyMedia = {
+  readonly url: string;
+  readonly alt: string;
+  readonly caption: string;
+};
+
 export type CaseStudy = {
   title: string;
   challenge: string;
@@ -12,6 +73,12 @@ export type CaseStudy = {
     value: string;
     icon?: "time" | "money" | "people" | "performance";
   }[];
+  /**
+   * Imagery, in display order. Absent or empty renders nothing at all — no
+   * placeholder, no "no images" state — because a case study without images is
+   * the normal case and should look like every other case study.
+   */
+  media?: CaseStudyMedia[];
 };
 
 export type ResumeExperience = {
@@ -25,6 +92,14 @@ export type ResumeExperience = {
   technologies?: string[];
   teamSize?: number;
   scope?: string;
+  /**
+   * Where this role is shown. Absent means both — see `Surface`.
+   *
+   * A role can be résumé-only when the home page is better for not leading with
+   * it: a short early stint reads as a gap on a summary and as context on the
+   * document. That is a judgement about the page, not about the truth.
+   */
+  surfaces?: readonly Surface[];
 };
 
 export type ResumeSkillGroup = {
@@ -54,4 +129,16 @@ export type ResumeContent = {
   skillGroups: ResumeSkillGroup[];
   education: ResumeEducation[];
   languages: string[];
+  /**
+   * Which technologies appear where, resolved to positions in this document.
+   *
+   * Absent when nothing is tagged — the typed fallback, a database that predates
+   * the catalog, or a deployment that has not applied the migration. The
+   * distinction is deliberate: `undefined` is the renderer saying "I have no
+   * relation data", and a focused view has to treat it as *render everything*
+   * rather than *render nothing*, because a résumé that silently drops three
+   * roles because a relation table is empty reads as a shorter career rather
+   * than as a missing table.
+   */
+  stackIndex?: import("./technology").ResumeStackIndex;
 };

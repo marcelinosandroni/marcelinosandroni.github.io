@@ -19,4 +19,4 @@ import { ResumeVersion } from "@/domain/publication/resume-version";
  * fingerprint, so editing the resume without bumping this fails CI instead of
  * shipping a mislabelled document.
  */
-export const CURRENT_RESUME_VERSION = ResumeVersion.create("0.1.28");
+export const CURRENT_RESUME_VERSION = ResumeVersion.create("0.2.1");

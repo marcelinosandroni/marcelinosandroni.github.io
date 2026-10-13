@@ -26,6 +26,19 @@ interface DownloadPDFButtonProps {
   locale: Locale;
   messages: PdfButtonMessages;
   templates: ReadonlyArray<PdfTemplateOption>;
+  /**
+   * The stack profile the page is currently showing, or `null` for the generic
+   * résumé.
+   *
+   * Travels into the request so the PDF matches the page the reader is looking
+   * at. Without it, a reader who narrows to React + Node and then downloads gets
+   * the full document — a different document from the one they chose, produced by
+   * the same button directly beneath it.
+   *
+   * A PDF route that does not support focus ignores it, which is the safe
+   * direction for this arriving before its consumer.
+   */
+  stack?: string | null;
 }
 
 /**
@@ -35,7 +48,12 @@ interface DownloadPDFButtonProps {
  * props from the parent Server Component, so this Client Component carries no
  * dictionary and no locale data of its own.
  */
-export function DownloadPDFButton({ locale, messages, templates }: DownloadPDFButtonProps) {
+export function DownloadPDFButton({
+  locale,
+  messages,
+  templates,
+  stack = null,
+}: DownloadPDFButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,7 +64,18 @@ export function DownloadPDFButton({ locale, messages, templates }: DownloadPDFBu
     setIsMenuOpen(false);
 
     try {
-      const response = await fetch(`/api/resume/${locale}/pdf?template=${templateId}`);
+      /*
+        Built with URLSearchParams rather than string concatenation, because the
+        stack slug comes from a URL parameter and only two characters of escaping
+        would be needed to let one into the query.
+      */
+      const query = new URLSearchParams({ template: templateId });
+
+      if (stack !== null && stack !== "") {
+        query.set("stack", stack);
+      }
+
+      const response = await fetch(`/api/resume/${locale}/pdf?${query.toString()}`);
       if (!response.ok) {
         throw new Error(messages.failed);
       }
@@ -55,7 +84,10 @@ export function DownloadPDFButton({ locale, messages, templates }: DownloadPDFBu
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `resume-marcelino-sandroni-${locale}-${templateId}.pdf`;
+      link.download =
+        `resume-marcelino-sandroni-${locale}-${templateId}` +
+        (stack === null || stack === "" ? "" : `-${stack}`) +
+        ".pdf";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

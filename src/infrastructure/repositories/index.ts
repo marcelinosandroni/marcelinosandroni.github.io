@@ -2,6 +2,29 @@ import { createClient } from "@supabase/supabase-js";
 
 import { versionedArticleRepository } from "@/infrastructure/content/blog";
 import { FallbackArticleRepository, GetArticle, ListArticles } from "@/application/blog";
+import type { Locale } from "@/domain/i18n";
+import type {
+  HomeExperienceAnnotation,
+  HomeStackSection,
+} from "@/domain/portfolio";
+import type {
+  ResumeRepository,
+  ResumeSurfaceRead,
+  ResumeTestimonial,
+  StackProfileSummary,
+  TechnologyCatalog,
+} from "@/domain/resume/resume-repository";
+import type { ResumeContent } from "@/domain/resume/types";
+import {
+  EMPTY_FOCUS,
+  resolveProfiles,
+  type FocusExpansion,
+  type TechnologyEdge,
+} from "@/domain/resume/focus";
+import {
+  FallbackResumeRepository,
+  versionedResumeRepository,
+} from "@/infrastructure/repositories/versioned-resume-repository";
 import {
   isSupabaseContentConfigured,
   supabaseConfigFromEnv,
@@ -109,6 +132,174 @@ async function resolveRepository(): Promise<ArticleRepository> {
   }
 
   return versionedArticleRepository;
+}
+
+/* -------------------------------------------------------------------------
+ * Composition root for résumé content
+ *
+ * The same arrangement as the blog, for the same reason: which of two answers
+ * a visitor gets is a question about *this deployment's* environment, and a
+ * page that had to answer it could only be tested against a real Supabase
+ * project.
+ *
+ * The breaker matters more here than it does for the blog. The blog is a
+ * side-channel; the résumé is the document of record, and a page view that
+ * waits on a database round trip is a page view that costs a recruiter. After
+ * one failure the catalog answers directly for `COOLDOWN_MS`, so an outage
+ * costs one slow request rather than one per visitor.
+ * ---------------------------------------------------------------------- */
+
+/** How long the versioned catalog answers directly after a database failure. */
+const RESUME_COOLDOWN_MS = 60_000;
+
+let resumeRepositoryPromise: Promise<ResumeRepository> | null = null;
+let resumeOpenedUntil = 0;
+
+async function buildResumeRepository(): Promise<ResumeRepository> {
+  if (!isSupabaseContentConfigured()) {
+    return versionedResumeRepository;
+  }
+
+  const { SupabaseResumeRepository } = await import(
+    "@/infrastructure/repositories/supabase-resume-repository"
+  );
+
+  return new FallbackResumeRepository(
+    new SupabaseResumeRepository(),
+    versionedResumeRepository,
+    (error) => {
+      resumeOpenedUntil = Date.now() + RESUME_COOLDOWN_MS;
+      console.warn(
+        `[resume] Supabase unavailable for ${RESUME_COOLDOWN_MS / 1000}s; serving the versioned catalog. Reason: ${error.message}`,
+      );
+    },
+  );
+}
+
+function getResumeRepository(): Promise<ResumeRepository> {
+  resumeRepositoryPromise ??= buildResumeRepository();
+  return resumeRepositoryPromise;
+}
+
+async function resolveResumeRepository(): Promise<ResumeRepository> {
+  const repository = await getResumeRepository();
+
+  if (repository === versionedResumeRepository || Date.now() >= resumeOpenedUntil) {
+    return repository;
+  }
+
+  return versionedResumeRepository;
+}
+
+/** The résumé as a page serves it. See `ResumeSurfaceRead`. */
+export async function readResume(
+  locale: Locale,
+  surface: ResumeSurfaceRead = "both",
+): Promise<ResumeContent> {
+  return (await resolveResumeRepository()).readResume(locale, surface);
+}
+
+/** Published testimonials, which is empty until the owner adds a real one. */
+export async function readTestimonials(locale: Locale): Promise<ResumeTestimonial[]> {
+  return (await resolveResumeRepository()).readTestimonials(locale);
+}
+
+/**
+ * The home page tech stack, database-first.
+ *
+ * Merged over the typed section rather than replacing it, so the kicker, title
+ * and note — which are editorial, not facts, and which the admin does not edit —
+ * survive either way. Only the clusters themselves come from the database.
+ */
+export async function readHomeStack(locale: Locale): Promise<HomeStackSection | null> {
+  return (await resolveResumeRepository()).readHomeStack(locale);
+}
+
+/** The home page track-record annotations, database-first. */
+export async function readHomeTrackRecord(locale: Locale): Promise<HomeExperienceAnnotation[] | null> {
+  return (await resolveResumeRepository()).readHomeTrackRecord(locale);
+}
+
+/**
+ * The technology catalog, for the admin.
+ *
+ * ## Why it bypasses the circuit breaker
+ *
+ * The breaker exists so a database outage does not add a latency to every page
+ * view. That argument does not apply to an owner opening `/admin` on purpose:
+ * there is no visitor to protect, and answering from the typed catalog would
+ * hand the owner an empty catalog while the database holds a hundred and twenty
+ * rows — which reads as "the catalog was lost", and the first thing they would
+ * do about it is re-seed something that is fine.
+ *
+ * So it throws instead, and the admin renders "needs the database". That is
+ * true, and it names the fix.
+ */
+export async function readTechnologyCatalog(locale: Locale): Promise<TechnologyCatalog> {
+  if (!isSupabaseContentConfigured()) {
+    throw new Error("the technology catalog requires Supabase; the typed catalog has no entities");
+  }
+
+  return (await getResumeRepository()).readTechnologyCatalog(locale);
+}
+
+/**
+ * The stack profiles, for the résumé page's selector and for the admin.
+ *
+ * Through the breaker rather than around it, unlike the catalog: a résumé page
+ * with no selector is the generic résumé, which is correct, so falling back is a
+ * real answer and worth having on the hot path.
+ */
+export async function readStackProfiles(locale: Locale): Promise<StackProfileSummary[]> {
+  return (await resolveResumeRepository()).readStackProfiles(locale);
+}
+
+/**
+ * The profiles already resolved against the relation graph.
+ *
+ * The single place the walk happens. The résumé page, the PDF and the job
+ * matcher all call this, because three implementations of the same walk would
+ * drift the first time a relation was corrected — and a page that promoted
+ * TypeScript while the PDF did not is the kind of bug nobody reports.
+ */
+export async function readResolvedProfiles(
+  locale: Locale,
+): Promise<Array<{ profile: StackProfileSummary; focus: FocusExpansion }>> {
+  const [summaries, catalog] = await Promise.all([
+    readStackProfiles(locale),
+    readTechnologyCatalog(locale).catch(() => ({ categories: [], technologies: [], relations: [] })),
+  ]);
+
+  if (summaries.length === 0) {
+    return [];
+  }
+
+  const slugById = new Map(catalog.technologies.map((entry) => [entry.id, entry.slug]));
+
+  const edges: TechnologyEdge[] = catalog.relations
+    .map((relation) => {
+      const from = slugById.get(relation.fromId);
+      const to = slugById.get(relation.toId);
+
+      return from === undefined || to === undefined ? null : { from, to, kind: relation.kind };
+    })
+    .filter((edge): edge is TechnologyEdge => edge !== null);
+
+  const resolved = resolveProfiles(
+    summaries.map((summary) => ({
+      slug: summary.slug,
+      label: summary.label,
+      description: summary.description,
+      surfaces: new Set(summary.surfaces),
+      primary: new Set(summary.primary),
+      listed: new Set(summary.listed),
+    })),
+    edges,
+  );
+
+  return summaries
+    .map((profile) => ({ profile, focus: resolved.get(profile.slug) ?? EMPTY_FOCUS }))
+    .filter((entry) => entry.focus.all.size > 0);
 }
 
 /* -------------------------------------------------------------------------

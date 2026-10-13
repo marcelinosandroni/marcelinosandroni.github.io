@@ -611,7 +611,7 @@ existe, mas em outro lugar e com outro escopo:
 - ✅ Interface `ResumeDocumentInput` definida em `build-resume-document.ts`
 - ✅ Contrato LaTeX implementado em `latex-templates.ts`
 - ✅ Renderer `LaTeXResumeRenderer` implementa contrato completo
-- ✅ Template registry com múltiplas versões (REFERENCE, default)
+- ✅ Template registry com múltiplas versões (DETAILED, default)
 - ✅ Validação de dados integrada no renderer
 
 **Critérios de Conclusão**:
@@ -643,7 +643,7 @@ Contrato já implementado. Próxima tarefa é evolução do template.
 **O Que Foi Feito**:
 - ✅ Template LaTeX com interpolação de variáveis implementado
 - ✅ Estilo profissional consistente (fontes, cores, margens)
-- ✅ Suporte a dois templates: REFERENCE (formal) e default (moderno)
+- ✅ Suporte a dois templates: DETAILED (formal) e default (moderno)
 - ✅ Hyperlinks funcionais (email, LinkedIn) via `hyperref`
 - ✅ Seções renderizadas: Summary, Skills, Experiences, Education, Languages
 - ✅ Escape de caracteres especiais LaTeX
@@ -1686,6 +1686,8 @@ histórico.
 | 2026-10-06 | TASK-060 | A linha direta passa a se abrir para todo mundo atrás de `CHAT_INVITATION` (default `off`): notificação no canto, terminal que digita as quatro linhas do *Matrix*, primeira palavra abre a conversa. A regra do dono continua no banco — `closed` ainda encerra, e o limite de taxa ainda vale. 14 comentários de código deixaram de dizer "recruiter" | opencode |
 | 2026-09-28 | TASK-050..054 | ÉPICO 05: home executiva com design system tokenizado, currículo movido para `/[locale]/resume`, blog persistido em `blog_articles` com fallback versionado, e gate de cobertura corrigido (a `main` estava em 56.61%) | opencode |
 | 2026-09-28 | TASK-019 | Títulos de seção do PDF movidos dos literais do renderer para os catálogos | opencode |
+| 2026-10-11 | TASK-062 | Currículo no banco. Treze tabelas (uma por entidade visível), `surfaces` decidindo onde cada item aparece, editor de stack por chip, referências nomeadas atrás de flag e vazias por padrão. Stack local de Postgres + PostgREST em vez de `supabase start`, com script de seed gerado do catálogo tipado. Antlia volta para Dez/2022, fechando um buraco de 20 meses | opencode |
+| 2026-10-10 | TASK-061 | Reconciliação de credibilidade e conversão de contratação. Números de manchete movidos para `src/domain/portfolio/claims.ts` (fonte única, com unidade e escopo) com teste de paridade contra site, currículo e export markdown — que é a comparação que teria falhado: as paridades existentes comparavam PT contra EN, e duas superfícies erradas igual passam. Antlia `Dec/2022`→`Jul/2024`, cargos com `& Tech Lead`, throughput do RabbitMQ (10M) separado do pipeline (100M). Intro de 6,7s para 3,0s, com o nome caindo no primeiro frame e o log terminal removido (2,4s para texto ilegível). Hero abre com o que faz, depois prova, e para de oferecer consultoria. Faixa de provas no hero resolvida do módulo de claims. Seção "Como eu lidero". Contato primeiro no nav. E-mail no domínio próprio (`SITE_OWNER`, 20 cópias literais eliminadas). Keywords de ATS focadas no stack real. `.tap-target` passou a cobrir largura, não só altura | opencode |
 | 2026-09-28 | TASK-012, TASK-018 | Versão EN-US reescrita como tradução completa do PT-BR (fonte da verdade), com paridade de estrutura e fatos verificada em CI | opencode |
 | 2026-09-28 | TASK-010, TASK-014..017 | Roteamento i18n, catálogos tipados, SEO por idioma e Server Components. EN-US passou a ser o locale padrão. Ver [ADR-005](../../docs/adr/ADR-005-internationalization-strategy.md) | opencode |
 | 2025-01-15 | Todas | Criação inicial do catálogo | System |

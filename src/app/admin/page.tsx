@@ -23,7 +23,23 @@ import { createPresenceRealtime } from "@/infrastructure/supabase/presence-realt
 import type { ConversationSummary } from "@/domain/chat/message";
 import { ListPosts } from "@/application/blog/manage-posts";
 import type { PostSummary } from "@/domain/blog/post-draft";
-import { getPostRepository } from "@/infrastructure/repositories";
+import { getPostRepository, readTechnologyCatalog } from "@/infrastructure/repositories";
+import { TechStackEditor } from "@/components/admin/tech-stack-editor";
+import { TechnologyCatalogEditor } from "@/components/admin/technology-catalog-editor";
+import { StackProfileEditor } from "@/components/admin/stack-profile-editor";
+import { ExperienceEditor } from "@/components/admin/experience-editor";
+import { JobMatchPanel } from "@/components/admin/job-match-panel";
+import type {
+  StackProfileSummary,
+  TechnologyCatalog,
+} from "@/domain/resume/resume-repository";
+import {
+  readStackForEditor,
+  readStackProfileEditor,
+  readExperienceEditor,
+  type EditorCluster,
+  type ExperienceEditorDocument,
+} from "@/infrastructure/repositories/resume-writer";
 
 /**
  * Never indexable. A private area that a search engine can read the existence of
@@ -114,6 +130,76 @@ export default async function AdminPage() {
    * inverted on purpose: an empty visitor list is a plausible reading of a working
    * site, so claiming it would be a guess.
    */
+  /*
+    The tech stack, read on the server for the same reason as the post list.
+
+    `null` means "this deployment has no database", which is a different fact
+    from "the stack is empty" — so the two are kept apart rather than collapsed,
+    and the editor says which one it is instead of rendering an empty form that
+    looks like the owner deleted everything.
+  */
+  let stack: EditorCluster[] | null = null;
+
+  try {
+    stack = await readStackForEditor(DEFAULT_LOCALE);
+  } catch {
+    stack = null;
+  }
+
+  /*
+    The technology catalog, read separately from the stack above.
+
+    Two different things that used to look like one. The stack is what the home
+    page *shows* — four clusters of chips, curated for a first impression. The
+    catalog is what a tool *is* — one entity per tool, which the roles, the
+    bullets, the skills and the job matcher all point at.
+
+    The catalog is read through the repository rather than a writer helper
+    because it is the one read here that has no fallback: see
+    `VersionedResumeRepository.readTechnologyCatalog`. `null` therefore means
+    "needs the database", and the panel says exactly that rather than rendering
+    an empty catalog, which would read as "you have no technologies".
+  */
+  let catalog: TechnologyCatalog | null = null;
+
+  try {
+    catalog = await readTechnologyCatalog(DEFAULT_LOCALE);
+  } catch {
+    catalog = null;
+  }
+
+  /*
+    The experience editor, read with the catalog rather than separately.
+
+    They travel together because the editor's job is to attach the catalog to
+    the document: a bullet list built from one moment and a technology list from
+    another produce a chip that cannot be untagged, because the option it refers
+    to had not loaded. One read, one consistent snapshot.
+  */
+  let experienceDocument: ExperienceEditorDocument | null = null;
+
+  try {
+    experienceDocument = await readExperienceEditor(DEFAULT_LOCALE);
+  } catch {
+    experienceDocument = null;
+  }
+
+  /*
+    The profiles, read alongside the catalog rather than after it.
+
+    The editor's job is to move technologies between a profile's two lists, so it
+    needs both in the same render: fetched apart, a picker could offer a tool the
+    profile already lists, and the owner would toggle it and watch nothing
+    change.
+  */
+  let profiles: StackProfileSummary[] | null = null;
+
+  try {
+    profiles = await readStackProfileEditor(DEFAULT_LOCALE);
+  } catch {
+    profiles = null;
+  }
+
   let board: PresenceBoard | null = null;
   let conversationList: ReadonlyArray<ConversationSummary> | null = null;
 
@@ -206,6 +292,86 @@ export default async function AdminPage() {
         handles the unauthenticated case — so an anonymous request never receives
         a post title, a slug or a status in its payload.
       */}
+      {/*
+        Before the CMS, because the tech stack is what actually changes: a new
+        tool, a dropped one, a chip that belongs on the résumé and not on the
+        summary. The blog is written on the order of a month; this is edited on
+        the order of a week.
+      */}
+      {stack === null ? (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <p className="text-body-sm text-body-sm text-text-secondary">
+            The tech stack editor needs Supabase. Run <code>npm run db:setup</code> locally, or
+            set the deployment&apos;s Supabase variables.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <TechStackEditor initialClusters={stack} locale={DEFAULT_LOCALE} />
+        </div>
+      )}
+
+      {/*
+        Before the stack editor, not after: the catalog is what the chips and the
+        roles are *made of*, so it is the thing you fix when a chip is wrong. An
+        owner who opens this page to add a tool should not have to scroll past
+        the thing they were about to add.
+      */}
+      {experienceDocument === null ? (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <p className="text-body-sm text-body-sm text-text-secondary">
+            The experience editor needs the database. Run <code>npm run db:migrate</code> and{" "}
+            <code>npm run db:bootstrap</code> locally.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <ExperienceEditor
+            initialDocument={experienceDocument}
+            locale={DEFAULT_LOCALE}
+          />
+        </div>
+      )}
+
+      {catalog === null ? (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <p className="text-body-sm text-body-sm text-text-secondary">
+            The technology catalog needs the database. Run <code>npm run db:migrate</code> to
+            create it, then <code>npm run db:bootstrap</code> to fill it from the existing résumé.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <TechnologyCatalogEditor initialCatalog={catalog} locale={DEFAULT_LOCALE} />
+
+          {profiles === null ? (
+            <p className="mt-space-md text-body-sm text-text-secondary">
+              The stack profiles need the database too — they reference technologies by slug.
+            </p>
+          ) : (
+            <div className="mt-space-lg border-t border-border-subtle pt-space-md">
+              <StackProfileEditor
+                initialProfiles={profiles}
+                catalog={catalog.technologies}
+                categories={catalog.categories}
+                locale={DEFAULT_LOCALE}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/*
+    After the editors and before the CMS.
+
+    It reads what the experience editor writes, so it sits below it: the panel
+    is only as good as the tagging above it, and an owner who has just tagged
+    bullets wants to see what they are now worth on a real posting.
+  */}
+      <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+        <JobMatchPanel locale={DEFAULT_LOCALE} />
+      </div>
+
       <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
         <PostEditor t={t} locale={DEFAULT_LOCALE} initialPosts={postList} />
       </div>
