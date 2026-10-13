@@ -669,7 +669,7 @@ export class SupabaseResumeRepository implements ResumeRepository {
     filters: Record<string, string>,
     limit?: number,
   ): Promise<Row[]> {
-    const { publishableKey } = requireSupabaseReadConfig();
+    const { publishableKey, restUrl } = requireSupabaseReadConfig();
 
     /*
       `order` is the one filter that is not an equality match, so it is kept out
@@ -686,8 +686,17 @@ export class SupabaseResumeRepository implements ResumeRepository {
       params.set("limit", String(limit));
     }
 
+    /*
+      `restUrl`, not `url`.
+
+      PostgREST is at `/rest/v1` behind the hosted gateway and at the **root** of
+      its own port in the local stack, while the project base also serves auth and
+      realtime. Using the project base here is what made production answer 404 on
+      every table and serve the versioned catalog instead, with nothing on the
+      page to say so.
+    */
     const { data, error } = await this.withDeadline(
-      fetch(`${requireSupabaseReadConfig().url}/${table}?${params.toString()}`, {
+      fetch(`${restUrl}/${table}?${params.toString()}`, {
         headers: { apikey: publishableKey, Authorization: `Bearer ${publishableKey}` },
       }).then(async (response) => {
         if (!response.ok) {

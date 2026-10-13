@@ -1,6 +1,8 @@
-import { createClient } from "@supabase/supabase-js";
-
-import { supabaseConfigFromEnv, type EnvironmentLike } from "@/infrastructure/supabase/server";
+import {
+  supabaseConfigFromEnv,
+  supabaseRestBase,
+  type EnvironmentLike,
+} from "@/infrastructure/supabase/server";
 
 /**
  * Whether the deployment can reach its database, and what is on the other side.
@@ -126,11 +128,52 @@ export function databaseStatusClient(
     };
   }
 
-  const client = createClient(config.url, config.secretKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  });
+  const restUrl = supabaseRestBase(config.url);
 
-  return { client: client as unknown as DatabaseStatusClient };
+  /*
+    A direct POST rather than `createClient`.
+
+    The status panel used to build a `supabase-js` client, which resolves
+    `new URL('rest/v1', url)` against the project URL. Against the local stack
+    that asks for `<host>/rest/v1` on a port whose PostgREST is mounted at the
+    root, so it 404s and the panel reports UNREACHABLE for a database that is
+    right there. Against the hosted project it is correct — which is why the panel
+    said UNREACHABLE locally and CONNECTED in production, on the same code.
+
+    `POST <rest>/rpc/<fn>` is the whole of what `client.rpc(fn)` did here, so the
+    port above and its tests are unchanged by this.
+  */
+  const client: DatabaseStatusClient = {
+    rpc: async (fn: string) => {
+      const response = await fetch(`${restUrl}/rpc/${fn}`, {
+        method: "POST",
+        headers: {
+          apikey: config.secretKey,
+          Authorization: `Bearer ${config.secretKey}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const body: unknown = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        return {
+          data: null,
+          error: {
+            code: String(response.status),
+            message:
+              typeof body === "object" && body !== null && "message" in body
+                ? String((body as { message: unknown }).message)
+                : response.statusText,
+          },
+        };
+      }
+
+      return { data: body, error: null };
+    },
+  };
+
+  return { client };
 }
 
 /** The first row, whatever shape PostgREST hands it back. */

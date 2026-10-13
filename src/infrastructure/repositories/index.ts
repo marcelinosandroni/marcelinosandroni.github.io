@@ -1,5 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
-
 import { versionedArticleRepository } from "@/infrastructure/content/blog";
 import { FallbackArticleRepository, GetArticle, ListArticles } from "@/application/blog";
 import type { Locale } from "@/domain/i18n";
@@ -29,8 +27,10 @@ import {
 import {
   isSupabaseContentConfigured,
   supabaseConfigFromEnv,
+  supabaseRestBase,
   type EnvironmentLike,
 } from "@/infrastructure/supabase/server";
+import { createPostgrestClient } from "@/infrastructure/supabase/postgrest";
 import type { ArticleRepository } from "@/application/blog";
 import {
   DEFAULT_POST_ADAPTER_ID,
@@ -466,9 +466,23 @@ export function resolvePostRepository(
     };
   }
 
-  const client = createClient(config.url, config.secretKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  }) as unknown as PostCmsClient;
+  /*
+    `createPostgrestClient` rather than `createClient`.
+
+    Every blog read was failing with `PGRST125 Invalid path specified in request
+    URL` against the local stack, because `supabase-js` appends `/rest/v1` to a
+    project URL whose PostgREST is mounted at the root. The fallback answered from
+    the versioned catalog, so the blog looked published and nothing was wrong
+    where anyone would look for it.
+
+    The cast is the one this line already needed: `PostCmsClient` is narrower than
+    a client that cannot know the schema, which is a good reason for the port to
+    stay narrow and a bad reason to widen the client's own types.
+  */
+  const client = createPostgrestClient(
+    supabaseRestBase(config.url),
+    config.secretKey,
+  ) as unknown as PostCmsClient;
 
   return { configured: true, adapterId, repository: new SupabasePostRepository(client) };
 }
