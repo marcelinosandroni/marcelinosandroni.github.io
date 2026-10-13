@@ -60,14 +60,72 @@
             color: #059669; /* Emerald 600 */
             text-decoration-color: #059669;
         }
+        /*
+         * Impressão.
+         *
+         * O rodapé diz "Página 1 de 2" e "Página 2 de 2", então duas páginas é o
+         * layout pretendido. O conteúdo, porém, não cabia: 312mm na primeira e
+         * 351mm na segunda, contra os 273mm úteis de um A4 com a margem original
+         * de 12mm. Renderizado sem ajuste, saíam quatro páginas — com um bullet
+         * cortado ao meio, meia página vazia e o rodapé `position: absolute`
+         * preso ao fundo de um container esticado, caindo na página errada.
+         *
+         * Estes ajustes são de *impressão*, não de conteúdo: nenhum texto é
+         * removido, nenhuma fonte é encolhida, nenhum bloco some. O que muda é
+         * quanto ar cada elemento respira.
+         *
+         * O `!important` não é descuido. O Tailwind por CDN injeta a folha em
+         * tempo de execução e semântica normal não garante a precedência, então
+         * sem ele estas regras perdem para `mb-4`, `space-y-1.5` e companhia.
+         */
         @media print {
             body { background-color: white; }
+
             .a4-page {
                 margin: 0;
                 box-shadow: none;
-                padding: 12mm 15mm; 
+                padding: 8mm 12mm;
                 page-break-after: always;
             }
+
+            /*
+             * Entrelinha. O corpo herdava 20px de `text-sm` — 1.74 sobre corpo de
+             * 11.5px nas bullets, muito arejado para um currículo de duas
+             * páginas. 1.38 é apertado mas legível, e é o que recupera 32mm.
+             */
+            .a4-page,
+            .a4-page ul { line-height: 1.38 !important; }
+
+            /*
+             * Ritmo vertical. Os espaçamentos utilitários são a segunda maior
+             * fatia do excedente, e none deles carrega informação: reduzir
+             * proporcionalmente mantém a hierarquia — um cargo continua separado
+             * do seguinte por mais espaço do que uma bullet se separa da próxima.
+             */
+            .a4-page .mb-4 { margin-bottom: 0.5rem !important; }
+            .a4-page .mb-5 { margin-bottom: 0.5rem !important; }
+            .a4-page .mb-3 { margin-bottom: 0.3rem !important; }
+            .a4-page .mb-2 { margin-bottom: 0.25rem !important; }
+            .a4-page .mb-1 { margin-bottom: 0.15rem !important; }
+            .a4-page .mt-2 { margin-top: 0.25rem !important; }
+            .a4-page .mt-1 { margin-top: 0.15rem !important; }
+            .a4-page .space-y-1\.5 > * + * { margin-top: 0.25rem !important; }
+            .a4-page .space-y-2 > * + * { margin-top: 0.4rem !important; }
+            .a4-page .gap-1\.5 { gap: 0.2rem !important; }
+            .a4-page .gap-3 { gap: 0.35rem !important; }
+            .a4-page .gap-4 { gap: 0.5rem !important; }
+            .a4-page p { margin: 0 !important; }
+
+            /* Títulos e caixas perdem padding antes de perderem o fio lateral. */
+            .a4-page .section-title {
+                margin-top: 0.45rem !important;
+                margin-bottom: 0.2rem !important;
+            }
+            .a4-page .tech-box {
+                padding: 3px 8px !important;
+                margin-bottom: 0.2rem !important;
+            }
+
             .no-print { display: none !important; }
             .keep-together { page-break-inside: avoid; }
         }

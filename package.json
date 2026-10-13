@@ -18,7 +18,7 @@
     "test:e2e:debug": "playwright test --debug",
     "compile:pdf": "tsx scripts/compile-pdf.ts",
     "pdf:from-html": "tsx scripts/html-to-pdf.ts",
-    "pdf:recruiter": "tsx scripts/html-to-pdf.ts resume-recruiter-pt-br.html resume-recruiter-pt-br.pdf",
+    "pdf:recruiter": "tsx scripts/html-to-pdf.ts resume-recruiter-pt-br.html resume-recruiter-pt-br.pdf 2",
     "encode:portrait": "tsx scripts/encode-portrait-video.ts",
     "compile:pdf:watch": "node --watch scripts/compile-pdf.ts",
     "generate:blog-seed": "tsx scripts/generate-blog-seed.ts",

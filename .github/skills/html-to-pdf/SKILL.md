@@ -56,10 +56,28 @@ número esperado transforma um defeito de layout em erro de build.
 Estouro produz o pior resultado possível quando não é sinalizado: conteúdo
 cortado no meio de um bloco, metade da página em branco e um footer
 `position: absolute` preso ao fundo do container esticado, caindo na página
-errada. **Não escale o HTML para esconder isso** — escala tipográfica que cabe
-em A4 deixa o texto em torno de 7pt, e um currícuo ilegível pontua pior que um
-currícuo longo. As saídas honestas são: cortar conteúdo, reduzir espaçamento
-com consentimento de quem desenhou, ou aceitar mais páginas com quebras limpas.
+errada.
+
+## Como um currículo denso cabe em duas páginas
+
+Um currículo de engenharia sênior raramente cabe em duas páginas A4 no
+entrelinhamento confortável de uma tela. Antes de cortar conteúdo, reduza o
+**ar**, não a **letra** — ver o bloco `@media print` de
+`resume-recruiter-pt-br.html`, que é exatamente esse trabalho:
+
+- entrelinha de 20px (1.74 sobre corpo de 11.5px) para 1.38;
+- margens e gaps utilitários reduzidos proporcionalmente;
+- padding de impressão de 12mm para 8mm.
+
+Resultado medido: **fonte inalterada em 11.5px**, e o conteúdo passou de
+312/351mm para 240/267mm contra 281mm úteis. Sobra 41mm na primeira página e
+13.8mm na segunda — o que significa que algumas linhas a mais na segunda já
+estouram, e é para isso que a asserção de páginas existe.
+
+**Não escale tipografia para forçar o encaixe.** A escala necessária deixaria o
+texto em torno de 7pt, e um currículo ilegível pontua pior que um currículo
+longo. Se ainda assim não couber, as saídas honestas são cortar conteúdo ou
+aceitar mais páginas com quebras limpas.
 
 ## Limites conhecidos
 
