@@ -213,6 +213,83 @@ test.describe("Localized routing and PDF download", () => {
     expect((await downloadPromise).suggestedFilename()).toContain("DETAILED");
   });
 
+  test("closes the template menu when the reader clicks somewhere else", async ({ page }) => {
+    /*
+      A menu that only closes by clicking its own toggle is a panel that stays
+      open, which is worse than not having one: the reader clicks the page
+      expecting the page to respond and the only thing that changes is that
+      nothing happens at all.
+    */
+    await page.goto("/en-us/resume");
+
+    const toggle = page.getByRole("button", { name: /choose pdf template/i });
+
+    await toggle.click();
+    await expect(page.getByRole("menu")).toBeVisible();
+
+    await page.locator("h1").click();
+
+    await expect(page.getByRole("menu")).toBeHidden();
+  });
+
+  test("closes the template menu on Escape", async ({ page }) => {
+    await page.goto("/en-us/resume");
+
+    const toggle = page.getByRole("button", { name: /choose pdf template/i });
+
+    await toggle.click();
+    await expect(page.getByRole("menu")).toBeVisible();
+
+    await page.keyboard.press("Escape");
+
+    await expect(page.getByRole("menu")).toBeHidden();
+  });
+
+  test("closes the template menu when the reader clicks the toggle again", async ({ page }) => {
+    /*
+      The document listener also sees this click, because the toggle is inside
+      the container the listener treats as "not outside". If both reacted, the
+      second one would reopen the menu on the gesture that closed it — the
+      button would appear not to work at all.
+    */
+    await page.goto("/en-us/resume");
+
+    const toggle = page.getByRole("button", { name: /choose pdf template/i });
+
+    await toggle.click();
+    await expect(page.getByRole("menu")).toBeVisible();
+
+    await toggle.click();
+
+    await expect(page.getByRole("menu")).toBeHidden();
+  });
+
+  test("opens the template menu inside the viewport, not off its left edge", async ({ page }) => {
+    /*
+      This is the desktop bug as reported: the menu was anchored to the button's
+      *right* edge, and the button sits at the left of the résumé's action row, so
+      a 288px panel extended to the left of x=0 and the first option was
+      unreadable.
+
+      Asserted on geometry rather than on a class name so a regression that
+      reintroduces the anchoring — by any means — fails here.
+    */
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/en-us/resume");
+
+    await page.getByRole("button", { name: /choose pdf template/i }).click();
+
+    const menu = page.getByRole("menu");
+
+    await expect(menu).toBeVisible();
+
+    const box = await menu.boundingBox();
+
+    expect(box).not.toBeNull();
+    expect(box?.x ?? -1).toBeGreaterThanOrEqual(0);
+    expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(1440);
+  });
+
   test("ships no resume content in the browser JavaScript bundle", async ({ page }) => {
     const chunks: string[] = [];
 
