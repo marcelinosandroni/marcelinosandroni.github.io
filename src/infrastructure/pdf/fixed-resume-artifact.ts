@@ -29,8 +29,21 @@ const FILENAMES: Record<Locale, string> = {
 
 export type FixedResumeArtifact = {
   readonly bytes: Buffer;
-  readonly filename: string;
 };
+
+/**
+ * The name the recruiter's file arrives under.
+ *
+ * Deliberately the same shape the download button builds client-side, and the
+ * reason is that the button's name is the one that survives: it fetches the PDF
+ * as a blob and saves it under a name it composes, so a `Content-Disposition`
+ * here is only used by someone hitting the URL directly. Two different
+ * conventions for the same file is the kind of thing that looks like a bug to
+ * whoever finds it next, so they are the same string.
+ */
+export function fixedResumeFilename(locale: Locale): string {
+  return `resume-marcelino-sandroni-${locale}-CLEAN.pdf`;
+}
 
 /**
  * The artifact for a locale, or `null` when there is none.
@@ -59,7 +72,7 @@ export async function readFixedResumeArtifact(
       return null;
     }
 
-    return { bytes, filename };
+    return { bytes };
   } catch {
     return null;
   }

@@ -4,7 +4,10 @@ import {
   RESUME_PDF_SOURCE_ENV,
   resolveResumePdfSource,
 } from "@/domain/publication/resume-pdf-source";
-import { readFixedResumeArtifact } from "@/infrastructure/pdf/fixed-resume-artifact";
+import {
+  fixedResumeFilename,
+  readFixedResumeArtifact,
+} from "@/infrastructure/pdf/fixed-resume-artifact";
 
 /**
  * The fixed recruiter PDF, and the switch that will eventually put the database
@@ -69,9 +72,19 @@ describe("the fixed artifact", () => {
     const artifact = await readFixedResumeArtifact("pt-BR", process.cwd());
 
     expect(artifact).not.toBeNull();
-    expect(artifact?.filename).toBe("resume-fixed-pt-BR.pdf");
     // A PDF, by its own header - not a truncated file that would open as nothing.
     expect(artifact?.bytes.subarray(0, 5).toString("latin1")).toBe("%PDF-");
+  });
+
+  it("names the file the same way the download button does", () => {
+    /*
+      The button fetches the PDF as a blob and saves it under a name it composes,
+      so its name is the one a recruiter actually gets. A different name here
+      would only ever be seen by someone hitting the URL directly, and two
+      conventions for one file reads as a bug to whoever finds it.
+    */
+    expect(fixedResumeFilename("pt-BR")).toBe("resume-marcelino-sandroni-pt-BR-CLEAN.pdf");
+    expect(fixedResumeFilename("en-US")).toBe("resume-marcelino-sandroni-en-US-CLEAN.pdf");
   });
 
   it("treats a zero-byte file as absent", async () => {

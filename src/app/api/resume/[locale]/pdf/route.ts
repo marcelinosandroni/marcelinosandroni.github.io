@@ -19,7 +19,10 @@ import {
 } from "@/infrastructure/pdf/resume-template-registry";
 import { createErrorResponse } from "@/infrastructure/http/error-handler";
 import { assertResumeDownloadEnabled } from "@/application/publication/assert-resume-download-enabled";
-import { readFixedResumeArtifact } from "@/infrastructure/pdf/fixed-resume-artifact";
+import {
+  fixedResumeFilename,
+  readFixedResumeArtifact,
+} from "@/infrastructure/pdf/fixed-resume-artifact";
 import { resolveResumePdfSource } from "@/domain/publication/resume-pdf-source";
 import {
   InvalidLocaleError,
@@ -124,7 +127,7 @@ export async function GET(
         return new NextResponse(new Uint8Array(artifact.bytes), {
           headers: {
             "Content-Type": "application/pdf",
-            "Content-Disposition": `attachment; filename="${artifact.filename}"`,
+            "Content-Disposition": `attachment; filename="${fixedResumeFilename(normalizedLocale)}"`,
             "Content-Length": String(artifact.bytes.length),
             "Cache-Control": "public, max-age=3600, s-maxage=86400",
           },
