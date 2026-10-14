@@ -19,7 +19,17 @@ import {
 } from "@/infrastructure/pdf/resume-template-registry";
 import { createErrorResponse } from "@/infrastructure/http/error-handler";
 import { assertResumeDownloadEnabled } from "@/application/publication/assert-resume-download-enabled";
-import { InvalidLocaleError, InvalidTemplateError, PdfGenerationError } from "@/domain/errors";
+import {
+  fixedResumeFilename,
+  readFixedResumeArtifact,
+} from "@/infrastructure/pdf/fixed-resume-artifact";
+import { resolveResumePdfSource } from "@/domain/publication/resume-pdf-source";
+import {
+  InvalidLocaleError,
+  InvalidStackForFixedSourceError,
+  InvalidTemplateError,
+  PdfGenerationError,
+} from "@/domain/errors";
 
 function getCacheDirectory(): string {
   // Em ambientes serverless (Vercel, AWS Lambda, etc.), apenas /tmp é gravável
@@ -87,6 +97,54 @@ export async function GET(
     }
 
         const version = CURRENT_RESUME_VERSION;
+
+    /*
+      The fixed source, checked before anything is built.
+
+      Order matters: this runs before the renderer, the compiler, the cache and
+      the database read, because on this path none of them are needed. Serving a
+      file removes the LaTeX container and the database round trip from a
+      download a recruiter is waiting on, which is the whole point.
+
+      Focus is rejected rather than ignored. Narrowing works by tagging roles and
+      bullets in the relation graph, and a fixed document has none - so a
+      `?stack=react-node` request would otherwise answer with the generic résumé
+      under a filename promising React + Node. The page hides the selector when
+      this source is active, so this is the backstop for a hand-typed URL.
+    */
+    if (resolveResumePdfSource() === "fixed") {
+      const requestedStack = request.nextUrl.searchParams.get("stack");
+
+      if (requestedStack !== null && requestedStack.trim() !== "") {
+        return createErrorResponse(
+          new InvalidStackForFixedSourceError(requestedStack),
+        );
+      }
+
+      const artifact = await readFixedResumeArtifact(normalizedLocale);
+
+      if (artifact !== null) {
+        return new NextResponse(new Uint8Array(artifact.bytes), {
+          headers: {
+            "Content-Type": "application/pdf",
+            "Content-Disposition": `attachment; filename="${fixedResumeFilename(normalizedLocale)}"`,
+            "Content-Length": String(artifact.bytes.length),
+            "Cache-Control": "public, max-age=3600, s-maxage=86400",
+          },
+        });
+      }
+
+      /*
+        No artifact for this locale. The typed catalog is the documented second
+        source, and it is a real answer: the fixed document exists only in the
+        language it was designed in, and an English reader served the Portuguese
+        one would be worse than one served the catalog.
+      */
+      console.warn(
+        `[resume-pdf] fixed source has no artifact for ${normalizedLocale}; using the database path`,
+      );
+    }
+
     const renderer = new LaTeXResumeRenderer(templateId);
     const compiler = new DockerPDFCompiler(30000);
     const builder = new BuildResumeDocument(renderer);

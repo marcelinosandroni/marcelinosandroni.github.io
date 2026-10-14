@@ -9,6 +9,7 @@ import {
   toOpenGraphLocale,
 } from "@/domain/i18n";
 import { readResume, readResolvedProfiles } from "@/infrastructure/repositories";
+import { resolveResumePdfSource } from "@/domain/publication/resume-pdf-source";
 import { applyFocus, narrowDocument } from "@/domain/resume/focus";
 import { getDictionary } from "@/i18n";
 
@@ -92,7 +93,21 @@ export default async function Page({
     return null;
   }
 
-  const profiles = await readResolvedProfiles(locale);
+  /*
+    The stack selector is offered only when the PDF could honour it.
+
+    With the fixed source the download is a pre-rendered document that has no
+    relation graph, so a stack the reader picks cannot reach it — the endpoint
+    answers 400 rather than quietly serving the generic résumé under a filename
+    that promises React + Node.
+
+    Offering a control that cannot work is worse than not offering it: the reader
+    narrows the page, reads the narrowed version and then downloads something
+    that does not match it. So the selector disappears, and this page goes back
+    to being the generic résumé it has always been able to be.
+  */
+  const focusable = resolveResumePdfSource() === "database";
+  const profiles = focusable ? await readResolvedProfiles(locale) : [];
 
   /*
     An unrecognised `stack` falls back to the generic résumé rather than 404ing.
