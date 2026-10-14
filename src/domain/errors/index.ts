@@ -146,6 +146,25 @@ export class InvalidTemplateError extends DomainError {
 }
 
 /**
+ * A stack focus was requested from a document that has no relation graph.
+ *
+ * Narrowing a résumé works by tagging roles and bullets with technologies and
+ * walking that graph, and a fixed document has none. So the answer cannot be the
+ * generic résumé: it would carry a filename promising "React + Node" while the
+ * content is the generic one, which is the one place a reader has no way to
+ * notice.
+ */
+export class InvalidStackForFixedSourceError extends DomainError {
+  constructor(
+    stack: string,
+    message: string = `The fixed resume has no stack variants, so "${stack}" cannot be applied to it`,
+    metadata?: Record<string, unknown>
+  ) {
+    super(message, 'INVALID_STACK_FOR_FIXED_SOURCE', 400, true, { stack, ...metadata });
+  }
+}
+
+/**
  * Error thrown when locale is invalid
  */
 export class InvalidLocaleError extends DomainError {

@@ -77,3 +77,8 @@ playwright-report/
 test-results/
 supabase/.temp/
 .openchamber/
+
+# The recruiter PDF is served as a pre-rendered artifact: a browser cannot run in
+# a serverless function, so the conversion happens ahead of time and the result is
+# committed. Regenerate with `npm run pdf:fixed`.
+!public/artifacts/fixed/*.pdf
