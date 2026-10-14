@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcelino Sandroni - Senior Resume</title>
+    <!--
+        A folha do Tailwind vem compilada e embutida abaixo, então este arquivo não
+        depende de CDN para o layout. A fonte continua vindo da Google Fonts: o
+        original apontava para uma cópia local (`./..._files/css2`) que não viaja
+        junto com o HTML, e sem a Inter carregando o navegador cai no fallback do
+        sistema - as métricas mudam e o layout inteiro desalinha.
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 20px auto;
+            padding: 15mm 15mm;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            position: relative;
+        }
+        .section-title {
+            border-left: 4px solid #1f2937;
+            padding-left: 8px;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            margin-top: 1rem;
+            background-color: #f3f4f6;
+            padding: 4px 8px;
+        }
+        .tech-box {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+        }
+        .tech-box strong {
+            color: #1f2937;
+        }
+        .link-hover {
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            text-decoration-color: #cbd5e1;
+            transition: all 0.2s;
+        }
+        .link-hover:hover {
+            color: #059669; /* Emerald 600 */
+            text-decoration-color: #059669;
+        }
+        /*
+         * Impressão.
+         *
+         * Nenhuma regra de tipografia aqui. A Inter, os tamanhos e as entrelinhas
+         * são exatamente os que o Tailwind define para a tela - este bloco só
+         * remove a moldura de visualização (sombra, margem de centralização) e
+         * neutraliza a quebra de página no último bloco, que geraria uma terceira
+         * folha em branco.
+         *
+         * Foi tentado o caminho de comprimir a entrelinha para o conteúdo caber em
+         * duas páginas, e foi medido que não é suficiente: com a tipografia
+         * intacta o documento tem 681mm de conteúdo contra 562mm de capacidade,
+         * ou 17,5% a mais do que duas folhas comportam. Estreitar as margens
+         * compra 20mm desse déficit. O que fecha são duas páginas com o
+         * espaçamento de tela, e o conteúdo foi enxugado para chegar lá.
+         */
+        @media print {
+            body { background-color: white; }
+
+            .a4-page {
+                margin: 0;
+                box-shadow: none;
+                padding: 10mm 14mm;
+                page-break-after: always;
+            }
+
+            .no-print { display: none !important; }
+            .keep-together { page-break-inside: avoid; }
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;height:auto}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:not([hidden=until-found]){display:none}.absolute{position:absolute}.bottom-4{bottom:1rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.ml-1{margin-left:0.25rem}.mt-0{margin-top:0px}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.mb-1\.5{margin-bottom:0.375rem}.flex{display:flex}.grid{display:grid}.w-\[calc\(100\%-30mm\)\]{width:calc(100% - 30mm)}.w-full{width:100%}.list-disc{list-style-type:disc}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-start{justify-content:flex-start}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-y-1\.5{row-gap:0.375rem}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.justify-self-center{justify-self:center}.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:0.25rem}.border{border-width:1px}.border-t{border-top-width:1px}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.p-2{padding:0.5rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.pl-4{padding-left:1rem}.pt-2{padding-top:0.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-justify{text-align:justify}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11\.5px\]{font-size:11.5px}.text-\[12\.5px\]{font-size:12.5px}.text-\[13px\]{font-size:13px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-\[16px\]{font-size:16px}.font-black{font-weight:900}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.leading-none{line-height:1}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}</style></head>
+<body class="antialiased text-sm">
+
+    <!-- PÁGINA 1 -->
+    <div class="a4-page">
+        <!-- HEADER -->
+        <header class="mb-4">
+            <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase">Marcelino Sandroni Dias</h1>
+            <h2 class="text-base font-bold text-slate-700 mt-1 mb-3">Senior Software &amp; AI Engineer</h2>
+
+            <div class="text-[11.5px] text-slate-700 bg-slate-50 p-2 rounded border border-slate-100">
+                <!-- GRID DE 3 COLUNAS ALINHADO E SEM QUEBRA DE LINHA -->
+                <div class="grid w-full items-center whitespace-nowrap" style="
+    grid-template-columns: 1.4fr 1fr 1fr;
+">
+
+                    <!-- Coluna 1: Esquerda -->
+                    <div class="flex flex-col gap-y-1.5 text-left">
+                        <div><strong>Location:</strong> Fortaleza, CE (Fully Remote)</div>
+                        <div><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/marcelinosandroni" target="_blank" class="link-hover font-medium">linkedin.com/in/marcelinosandroni</a></div>
+                    </div>
+
+                    <!-- Coluna 2: Centro (Centralizado no grid, mas alinhado à esquerda internamente) -->
+                    <div class="flex flex-col gap-y-1.5 justify-self-center text-left ai-style-change-1">
+                        <div><strong>Email:</strong> <a href="mailto:marcelino.sandroni@gmail.com" class="link-hover font-medium">marcelino.sandroni@gmail.com</a></div>
+                        <div><strong>Git:</strong> <a href="https://github.com/marcelinosandroni" target="_blank" class="link-hover font-medium">github.com/marcelinosandroni</a></div>
+                    </div>
+
+                    <!-- Coluna 3: Direita -->
+                    <div class="flex flex-col gap-y-1.5 text-right">
+                        <div><strong>WhatsApp:</strong> <a href="https://wa.me/5511914461993" target="_blank" class="link-hover font-medium">+55 11 91446-1993</a></div>
+                        <div><strong>Portfolio:</strong> <a href="https://marcelinosandroni.com/" target="_blank" class="link-hover font-medium">marcelinosandroni.com</a></div>
+                    </div>
+
+                </div>
+            </div>
+        </header>
+
+        <!-- RESUMO PROFISSIONAL -->
+        <section class="mb-4">
+            <h3 class="section-title">Professional Summary</h3>
+            <p class="text-[12.5px] leading-relaxed text-slate-700 text-justify">
+                <strong>A genuine full-stack engineer, </strong>pairing strategic vision and business analysis with end-to-end delivery across UI/UX, mobile, frontend, backend, DevOps, data engineering and AI. Six years in software engineering and fifteen in financial governance, building scalable solutions and critical systems that move billions of reais.</p>
+        </section>
+
+        <!-- MÉTRICAS DE IMPACTO -->
+        <section class="mb-4 keep-together">
+            <h3 class="section-title">Key Production Impact Metrics</h3>
+            <div class="grid grid-cols-4 gap-3 text-center">
+                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">+R$ 500Bn</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Asset Management</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight">Building and maintaining critical applications for fund custody.</div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">D+0 (Real-Time)</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Synchronous Settlement</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight">Engineering a real-time payment processing system.</div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">100M+ msgs/dia</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">High Scale</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight">Architecture for asynchronous event processing.</div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">R$ 24M/ano (ROI)</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Artificial Intelligence</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight">Contract saved through state-of-the-art AI implementation.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EXPERIÊNCIA PROFISSIONAL (PÁGINA 1) -->
+        <section>
+            <h3 class="section-title">Professional Experience</h3>
+
+            <!-- DGT -->
+            <div class="mb-4 keep-together">
+                <div class="flex justify-between items-end mb-1">
+                    <h4 class="font-bold text-slate-900 text-[13px]">Senior Software Engineer &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT Tecnologia</span></h4>
+                    <span class="text-xs font-semibold text-slate-600">Jan/2026 – Set/2026 · Remote</span>
+                </div>
+                <div class="tech-box">
+                    <strong>Front/Mobile:</strong> React, Next.js, Angular, React Native, JavaScript/TypeScript, Micro-frontends, TailwindCSS.<br>
+                    <strong>Back/Data:</strong> C# .NET, Go, Nodejs, Python, PostgreSQL, MySQL, MongoDB, Redis, Databricks, RabbitMQ.<br>
+                    <strong>DevOps &amp; AI:</strong> AWS, Oracle Cloud, Kubernetes, Docker, Jenkins, CI/CD, Terraform, PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, Agentes LLM, SDD (Spec Driven Development) e AI Oriented Development (Claude, Codex).
+                </div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
+                    <li><strong>Rescued a R$ 24M/year contract (R$ 2M/month):</strong> Led the architectural rebuild of an AI and computer-vision engine, raising license-plate read accuracy from &lt;60% to a full 100%.</li>
+                    <li><strong>10x processing speed-up (100M+ events/day):</strong> Migrated a bottlenecked relational architecture to a ClickHouse columnar cluster with ETLs and distributed microservices in Go/.NET.</li>
+                    <li><strong>Mobile interfaces and micro-frontends (pixel-perfect):</strong> Built robust web interfaces and apps (React, Next.js, Angular, React Native) on reusable micro-frontends, delivering pixel-perfect work with a UI/UX standard aimed at engagement.</li>
+                    <li><strong>CI/CD automation &amp; LLM agents:</strong> Shipped declarative pipelines on Kubernetes with E2E tests (Playwright) and AI-generated code review, holding coverage above 90%.</li>
+                </ul>
+            </div>
+
+            <!-- ANTLIA -->
+            <div class="mb-2 keep-together">
+                <div class="flex justify-between items-end mb-1">
+                    <h4 class="font-bold text-slate-900 text-[13px]">Senior Software Engineer <span class="text-slate-400 font-normal">| Antlia / BNP Paribas</span></h4>
+                    <span class="text-xs font-semibold text-slate-600">Mar/2023 – Dez/2025 · Hybrid</span>
+                </div>
+                <div class="tech-box">
+                    <strong>Front/Mobile:</strong> Angular, React, Next.js, JavaScript/TypeScript, Tailwind CSS, Design Systems, Micro-frontends.<br>
+                    <strong>Back/Data:</strong> Java (Spring), C# (.NET), Python, Go, Oracle SQL, MySQL, PostgreSQL, Redis, Kafka, RabbitMQ<br>
+                    <strong>DevOps &amp; AI:</strong> Docker, Jenkins, CI/CD, IBM Cloud, AWS, Azure, Kubernetes, Helm, RAG, LangChain e Claude.
+                </div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
+                    <li><strong>Core banking monolith modernisation:</strong> Decoupled critical COBOL and VB legacy systems into an event-driven architecture with micro-frontends, reaching 95% test coverage.</li>
+                    <li><strong>D+0 settlement &amp; real-time payments:</strong> Replaced D+1 pipelines with real-time synchronous and asynchronous fund reconciliation at a 100% uptime SLA, with no accounting impact.</li>
+                    <li><strong>Cost and scale (+R$ 50M/year):</strong> Automated global ETF orchestration under SOX compliance, creating the operating capacity to attract large institutional fortunes.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- FOOTER PAGINA 1 -->
+        <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+            Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v0.16.8 — Page 1 of 2
+        </div>
+    </div>
+
+    <!-- PÁGINA 2 -->
+    <div class="a4-page">
+        <section>
+            <h3 class="section-title mt-0">Professional Experience (Continued)</h3>
+
+            <!-- ITAÚ -->
+            <div class="mb-4 keep-together">
+                <div class="flex justify-between items-end mb-1">
+                    <h4 class="font-bold text-slate-900 text-[13px]">Software Engineer <span class="text-slate-400 font-normal">| Banco Itaú</span></h4>
+                    <span class="text-xs font-semibold text-slate-600">Mar/2022 – Fev/2023 · Hybrid</span>
+                </div>
+                <div class="tech-box">
+                    <strong>Front/Mobile:</strong> JavaScript/TypeScript, Angular, React, Flutter, Micro-frontends, Tailwind CSS, Design Systems.<br>
+                    <strong>Back/Data:</strong> C# (.NET), Java (Spring), Node.js, Python, PostgreSQL, Redis, Kafka, RabbitMQ.<br>
+                    <strong>DevOps &amp; AI:</strong> AWS, Docker, Kubernetes, IaC Terraform, CI/CD, Cypress, Processamento de Dados Preditivos.
+                </div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
+                    <li><strong>Strategic institutional custody:</strong> Designed and sustained a B2B platform integrated with B3 for continuous accrual and a unified multi-portfolio view serving very high net worth investors.</li>
+                    <li><strong>Crisis management and resolution in &lt;24h:</strong> Cleared a critical concurrency bottleneck in messaging under highly volatile traffic with transaction integrity intact.</li>
+                    <li><strong>Mentorship and full-stack QA (8x quality):</strong> Built and trained the team on end-to-end automated testing across backend (Java/Node), frontend (React) and data architecture.</li>
+                </ul>
+            </div>
+
+            <!-- POLLUX -->
+            <div class="mb-4 keep-together">
+                <div class="flex justify-between items-end mb-1">
+                    <h4 class="font-bold text-slate-900 text-[13px]">Full Software Engineer <span class="bg-emerald-100 text-emerald-800 px-1 py-0.5 rounded text-[9px] ml-1 uppercase font-bold">Promoted in 3 months</span> <span class="text-slate-400 font-normal">| Pollux Technology</span></h4>
+                    <span class="text-xs font-semibold text-slate-600">Fev/2021 – Fev/2022 · Remote</span>
+                </div>
+                <div class="tech-box">
+                    <strong>Front/Mobile:</strong> React, Next.js, Angular, JavaScript/TypeScript, Micro-frontends, Tailwind CSS, Design System.<br>
+                    <strong>Back/Data:</strong> NodeJS, Java (Spring), C# (.NET), Go, Python, PostgreSQL, MySQL, MongoDB, Redis, RabbitMQ<br>
+                    <strong>DevOps &amp; AI:</strong> AWS, GCP, Kubernetes, Docker, Terraform, Automação IA Básica.
+                </div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
+                    <li><strong>Accelerated cloud migration:</strong> Led the full move to AWS infrastructure, delivered in half the estimated time and doubling system performance.</li>
+                    <li><strong>FinOps and cloud optimisation:</strong> Cut costs by 50% through auto-scaling policies and right-sizing on AWS.</li>
+                </ul>
+            </div>
+
+            <!-- CONTABILIDADE / GOVERNANÇA -->
+            <div class="mb-5 keep-together">
+                <div class="flex justify-between items-end mb-1">
+                    <h4 class="font-bold text-slate-900 text-[13px]">Accounting Analyst &amp; Finance Manager <span class="text-slate-400 font-normal">| Corporate Consulting (15 Years)</span></h4>
+                    <span class="text-xs font-semibold text-slate-600">Jul/2005 – Dez/2020 · São Paulo</span>
+                </div>
+                <div class="tech-box">
+                    <strong>Core Business:</strong> FinOps, Automação de Processos ERP, IFRS &amp; CPC, SOX Compliance, Tax Planning. Strategic edge: business insight, financial reporting and compliance applied to tech development.
+                </div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
+                    <li><strong>Month-end close accelerated 10x:</strong> Redesigned processes cutting the cycle from 30 days to 2.</li>
+                    <li><strong>Cost and profitability (+R$ 3M):</strong> Executed a rigorous tax plan that generated seven-figure savings and precise working-capital allocation.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- FORMAÇÃO -->
+        <section class="mb-4 keep-together">
+            <h3 class="section-title">Academic Education &amp; Specializations</h3>
+            <div class="space-y-2 text-xs text-slate-700">
+                <div class="flex justify-between">
+                    <div><strong>BSc in Computer Engineering</strong> — UNIVESP</div>
+                    <div class="text-slate-500 font-semibold">2021 – 2026</div>
+                </div>
+                <div class="flex justify-between">
+                    <div><strong>BSc in Accounting</strong> — Estácio (Governance and Financial Analysis)</div>
+                    <div class="text-slate-500 font-semibold">Completed 2017</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- IDIOMAS -->
+        <section class="mb-4 keep-together">
+            <h3 class="section-title">Languages</h3>
+            <div class="text-xs text-slate-700 flex flex-col gap-1" style="
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    /* gap: 1rem; */
+">
+                <p><strong>Portuguese:</strong> Native</p>
+<p><strong>Spanish:</strong> Basic - simple communication, enough for day-to-day work</p>
+                <p><strong>English:</strong> Professional - 100% autonomous in the SWE workflow (stand-ups, code reviews, docs and requirements negotiation).</p>
+            </div>
+        </section>
+
+        <!-- INFORMAÇÕES ADICIONAIS & FIT CULTURAL -->
+        <section class="keep-together">
+            <h3 class="section-title">Additional Information &amp; Professional Profile</h3>
+            <div class="grid grid-cols-2 gap-4 text-[11.5px] text-slate-700">
+                <div>
+                    <p class="mb-1"><strong>Availability &amp; setup:</strong> Immediate (100% remote, global). Own high-performance infrastructure for an immediate start (zero onboarding delay).</p>
+                    <p><strong>Compensation &amp; engagement:</strong> R$ 10,000/month employee or R$ 14,000/month contractor. Open to B2B/contractor engagements in Brazil, the US and Europe.</p>
+                </div>
+                <div>
+                    <p><strong>Cultural fit &amp; soft skills:</strong> <em>Extreme ownership</em>, resilience through critical incidents, direct and assertive communication (from C-level to the engineering floor), agile delivery and self-teaching ability to adopt new stacks fast.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER PAGINA 2 -->
+        <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+            Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v0.16.8 — Page 2 of 2
+        </div>
+    </div>
+
+
+</body></html>

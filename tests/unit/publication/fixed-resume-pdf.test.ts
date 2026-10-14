@@ -61,11 +61,26 @@ describe("the résumé PDF source", () => {
 describe("the fixed artifact", () => {
   it("reports absent rather than throwing, so the caller can use the other source", () => {
     /*
-      A missing artifact is not a failure. The fixed document exists in one
-      language, and the endpoint has a second source precisely so that a
-      deployment without one of them still serves a PDF.
+      A missing artifact is not a failure. A locale with no designed document - and
+      the endpoint has a second source precisely so a deployment without one of
+      them still serves a PDF - must fall through rather than 500.
+
+      Root rather than `process.cwd()`, because both locales have an artifact now
+      and asserting on the working tree would only pass until someone deleted one.
     */
-    return expect(readFixedResumeArtifact("en-US", process.cwd())).resolves.toBeNull();
+    return expect(
+      readFixedResumeArtifact("en-US", "no-such-root-for-tests"),
+    ).resolves.toBeNull();
+  });
+
+  it("reads both committed artifacts", async () => {
+    const [pt, en] = await Promise.all([
+      readFixedResumeArtifact("pt-BR", process.cwd()),
+      readFixedResumeArtifact("en-US", process.cwd()),
+    ]);
+
+    expect(pt?.bytes.subarray(0, 5).toString("latin1")).toBe("%PDF-");
+    expect(en?.bytes.subarray(0, 5).toString("latin1")).toBe("%PDF-");
   });
 
   it("reads the committed Portuguese artifact", async () => {
