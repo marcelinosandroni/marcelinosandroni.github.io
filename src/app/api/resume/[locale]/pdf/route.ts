@@ -20,15 +20,19 @@ import {
 import { createErrorResponse } from "@/infrastructure/http/error-handler";
 import { assertResumeDownloadEnabled } from "@/application/publication/assert-resume-download-enabled";
 import {
+  RESUME_VARIANTS,
+  availableResumeVariants,
   fixedResumeFilename,
   readFixedResumeArtifact,
+  resolveResumeVariant,
 } from "@/infrastructure/pdf/fixed-resume-artifact";
 import { resolveResumePdfSource } from "@/domain/publication/resume-pdf-source";
 import {
   InvalidLocaleError,
-  InvalidStackForFixedSourceError,
   InvalidTemplateError,
   PdfGenerationError,
+  ResumeVariantNotRenderedError,
+  UnknownResumeVariantError,
 } from "@/domain/errors";
 
 function getCacheDirectory(): string {
@@ -106,28 +110,28 @@ export async function GET(
       file removes the LaTeX container and the database round trip from a
       download a recruiter is waiting on, which is the whole point.
 
-      Focus is rejected rather than ignored. Narrowing works by tagging roles and
-      bullets in the relation graph, and a fixed document has none - so a
-      `?stack=react-node` request would otherwise answer with the generic résumé
-      under a filename promising React + Node. The page hides the selector when
-      this source is active, so this is the backstop for a hand-typed URL.
+      `?stack=` chooses *which document*, not which part of one. A fixed document
+      has no relation graph, so the stack cannot narrow it at request time - the
+      specialised versions are separate documents written for that stack, and the
+      slug selects between them. An unknown slug is refused rather than silently
+      answered with the general résumé, which would be a document that never
+      mentions the stack the reader asked about.
     */
     if (resolveResumePdfSource() === "fixed") {
       const requestedStack = request.nextUrl.searchParams.get("stack");
+      const variant = resolveResumeVariant(requestedStack);
 
-      if (requestedStack !== null && requestedStack.trim() !== "") {
-        return createErrorResponse(
-          new InvalidStackForFixedSourceError(requestedStack),
-        );
+      if (variant === null) {
+        return createErrorResponse(new UnknownResumeVariantError(requestedStack ?? "", RESUME_VARIANTS));
       }
 
-      const artifact = await readFixedResumeArtifact(normalizedLocale);
+      const artifact = await readFixedResumeArtifact(normalizedLocale, variant);
 
       if (artifact !== null) {
         return new NextResponse(new Uint8Array(artifact.bytes), {
           headers: {
             "Content-Type": "application/pdf",
-            "Content-Disposition": `attachment; filename="${fixedResumeFilename(normalizedLocale)}"`,
+            "Content-Disposition": `attachment; filename="${fixedResumeFilename(normalizedLocale, variant)}"`,
             "Content-Length": String(artifact.bytes.length),
             "Cache-Control": "public, max-age=3600, s-maxage=86400",
           },
@@ -135,13 +139,29 @@ export async function GET(
       }
 
       /*
-        No artifact for this locale. The typed catalog is the documented second
-        source, and it is a real answer: the fixed document exists only in the
-        language it was designed in, and an English reader served the Portuguese
-        one would be worse than one served the catalog.
+        No artifact for this variant in this locale.
+
+        Two different situations share this branch, and they get different answers
+        because they are different problems.
+
+        When the *locale* has nothing rendered, the typed catalog is the documented
+        second source and a real answer - the site still serves a PDF. When the
+        locale does have documents but not this one, falling through would hand the
+        reader the general résumé under a URL that promised a specialised one. That
+        document is complete and correct, which is what makes it the worst possible
+        answer: it looks like a successful download and silently drops the
+        specialisation that was asked for. So that case is refused.
       */
+      const offered = await availableResumeVariants(normalizedLocale);
+
+      if (offered.length > 0) {
+        return createErrorResponse(
+          new ResumeVariantNotRenderedError(variant, normalizedLocale, offered),
+        );
+      }
+
       console.warn(
-        `[resume-pdf] fixed source has no artifact for ${normalizedLocale}; using the database path`,
+        `[resume-pdf] fixed source has no artifacts at all for ${normalizedLocale}; using the database path`,
       );
     }
 

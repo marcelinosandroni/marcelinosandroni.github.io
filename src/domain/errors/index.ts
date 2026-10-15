@@ -98,6 +98,31 @@ export class InternalServerError extends DomainError {
 }
 
 /**
+ * A résumé variant that exists in the catalog but has no rendered document.
+ *
+ * Distinct from `UnknownResumeVariantError` because the two mean different things
+ * to a reader, and both are wrong answers in different ways. An unknown slug is a
+ * mistake in the URL. A known slug with nothing behind it is a document that has
+ * not been produced yet.
+ *
+ * Neither may be answered with the general résumé. That document is complete and
+ * correct, which is exactly the problem: it looks like an answer, and it silently
+ * drops the specialisation the reader asked for. So this is a 404 rather than a
+ * fallback, and the message carries what there is to choose from.
+ */
+export class ResumeVariantNotRenderedError extends DomainError {
+  constructor(
+    slug: string,
+    locale: string,
+    available: ReadonlyArray<string>,
+    message: string = `The "${slug}" resume has not been rendered for ${locale}. Available here: ${available.length > 0 ? available.join(", ") : "none"}.`,
+    metadata?: Record<string, unknown>
+  ) {
+    super(message, 'RESUME_VARIANT_NOT_RENDERED', 404, true, { slug, locale, available, ...metadata });
+  }
+}
+
+/**
  * Error thrown when a service is unavailable
  */
 export class ServiceUnavailableError extends DomainError {
@@ -146,21 +171,21 @@ export class InvalidTemplateError extends DomainError {
 }
 
 /**
- * A stack focus was requested from a document that has no relation graph.
+ * A stack slug that names no fixed document.
  *
- * Narrowing a résumé works by tagging roles and bullets with technologies and
- * walking that graph, and a fixed document has none. So the answer cannot be the
- * generic résumé: it would carry a filename promising "React + Node" while the
- * content is the generic one, which is the one place a reader has no way to
- * notice.
+ * Refused rather than answered with the general résumé, because the reader asked
+ * for a specialised one and would otherwise receive a document that never
+ * mentions the stack they asked about - which looks correct and says nothing.
+ * The known variants travel in the metadata so the response can list them.
  */
-export class InvalidStackForFixedSourceError extends DomainError {
+export class UnknownResumeVariantError extends DomainError {
   constructor(
-    stack: string,
-    message: string = `The fixed resume has no stack variants, so "${stack}" cannot be applied to it`,
+    slug: string,
+    available: ReadonlyArray<string>,
+    message: string = `Unknown resume variant "${slug}". Available: ${available.join(", ")}.`,
     metadata?: Record<string, unknown>
   ) {
-    super(message, 'INVALID_STACK_FOR_FIXED_SOURCE', 400, true, { stack, ...metadata });
+    super(message, 'UNKNOWN_RESUME_VARIANT', 400, true, { slug, available, ...metadata });
   }
 }
 

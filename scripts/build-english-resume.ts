@@ -20,8 +20,8 @@ type Rule = { readonly from: string; readonly to: string };
 
 const TEXT: ReadonlyArray<Rule> = [
   // Head and identity
-  { from: "Marcelino Sandroni - Resume Sênior", to: "Marcelino Sandroni - Senior Resume" },
-  { from: "Engenheiro de Software &amp; IA Sênior<", to: "Senior Software &amp; AI Engineer<" },
+  { from: "Marcelino Sandroni - Curriculo", to: "Marcelino Sandroni - Resume" },
+  { from: "Engenheiro de Software &amp; IA<", to: "Software &amp; AI Engineer<" },
 
   // Contact block
   { from: "<strong>Localização:</strong> Fortaleza, CE (Atuação Remota)", to: "<strong>Location:</strong> Fortaleza, CE (Fully Remote)" },
@@ -51,8 +51,8 @@ const TEXT: ReadonlyArray<Rule> = [
   // Experience
   { from: ">Experiência Profissional<", to: ">Professional Experience<" },
   { from: ">Experiência Profissional (Continuação)<", to: ">Professional Experience (Continued)<" },
-  { from: "Engenheiro de Software Sênior &amp; Tech Lead <span", to: "Senior Software Engineer &amp; Tech Lead <span" },
-  { from: "Engenheiro de Software Sênior <span class=\"text-slate-400 font-normal\">| Antlia", to: "Senior Software Engineer <span class=\"text-slate-400 font-normal\">| Antlia" },
+  { from: "Engenheiro de Software &amp; Tech Lead <span", to: "Software Engineer &amp; Tech Lead <span" },
+  { from: "Engenheiro de Software <span class=\"text-slate-400 font-normal\">| Antlia", to: "Software Engineer <span class=\"text-slate-400 font-normal\">| Antlia" },
   { from: "| Antlia / Banco BNP Paribas</span>", to: "| Antlia / BNP Paribas</span>" },
   { from: "Engenheiro de Software <span class=\"text-slate-400 font-normal\">| Banco Itaú", to: "Software Engineer <span class=\"text-slate-400 font-normal\">| Banco Itaú" },
   { from: "Engenheiro de Software Pleno <span", to: "Full Software Engineer <span" },
@@ -197,9 +197,9 @@ const TEXT: ReadonlyArray<Rule> = [
   },
   {
     from:
-      "<strong>Pretensão &amp; Contratação:</strong> CLT R$ 10.000 / PJ R$ 14.000. Apto a B2B/Contractor no Brasil, EUA e Europa.",
+      "<strong>Pretensão &amp; Contratação:</strong> CLT R$ 8.000 / PJ R$ 12.000. Apto a B2B/Contractor no Brasil, EUA e Europa.",
     to:
-      "<strong>Compensation &amp; engagement:</strong> R$ 10,000/month employee or R$ 14,000/month contractor. Open to B2B/contractor engagements in Brazil, the US and Europe.",
+      "<strong>Compensation &amp; engagement:</strong> R$ 8,000/month employee or R$ 12,000/month contractor. Open to B2B/contractor engagements in Brazil, the US and Europe.",
   },
   {
     from:
@@ -264,7 +264,7 @@ async function main(): Promise<void> {
 
   // Structure and comments are Portuguese on purpose; only reader-facing text changed.
   out = out
-    .replace(/<title>[\s\S]*?<\/title>/, "<title>Marcelino Sandroni - Senior Resume</title>")
+    .replace(/<title>[\s\S]*?<\/title>/, "<title>Marcelino Sandroni - Resume</title>")
     .replace(
       /Engenheiro de Software &amp; IA — Currículo v0\.16\.8 — Página (\d) de 2/g,
       "Software &amp; AI Engineer — Resume v0.16.8 — Page $1 of 2",
