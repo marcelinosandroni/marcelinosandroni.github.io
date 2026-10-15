@@ -32,6 +32,47 @@ type Variant = {
   /** The document title, which is also the first thing a recruiter reads. */
   readonly title: string;
   /**
+   * The line under the name.
+   *
+   * This is the one place a variant states what it is *for*, and it is the only
+   * sentence a recruiter is certain to read. The general résumé gets a broad
+   * description here because it has to answer for everything; a specialist gets
+   * its stack named, because a reader who is choosing between these documents is
+   * looking for exactly that and should not have to infer it.
+   */
+  readonly headline: string;
+  /**
+   * An optional section inserted after the experience, carrying the technical
+   * skill inventory.
+   *
+   * Inserted rather than swapped, because the general résumé has no such section
+   * and should not grow an empty heading to accommodate the variants that do. The
+   * general one was once 55mm longer for exactly this block, and it was cut on
+   * purpose: every role above already carries its own technology box, and a list
+   * that repeats them is the part of a résumé a recruiter stops reading.
+   *
+   * A specialist document is the case where the trade goes the other way - the
+   * reader arrived asking "does this person run Java in production", and an
+   * inventory answers that faster than any paragraph. So it is allowed here, and
+   * the page-count assertion decides whether it actually fits rather than anyone
+   * guessing in advance.
+   */
+  readonly skills?: string;
+  /**
+   * Which page the inventory lands on.
+   *
+   * Not cosmetic. The two pages are separate fixed-height boxes, so an overflow on
+   * one cannot borrow space from the other, and which side of the break a block
+   * falls on decides whether the document fits at all. Measured: the same content
+   * overflowed by 16mm with the inventory after the last role and fit with 47mm
+   * to spare one block earlier, with nothing removed.
+   *
+   * So this is the knob that decides whether the page-count assertion passes, and
+   * it is set per variant rather than globally because each one has a different
+   * experience shape.
+   */
+  readonly skillsAfter?: "experienceA" | "experienceB";
+  /**
    * The opening line of the summary. It leads with the specialisation because the
    * reader is here to find out whether this person fits one specific stack, and
    * the first sentence is what they read before deciding to read the rest.
@@ -59,17 +100,23 @@ const HEADINGS: ReadonlyArray<readonly [RegExp, SectionId]> = [
 ];
 
 /**
- * Phrases that identify the general résumé.
+ * Phrases that belong to the general résumé alone.
  *
- * Asserted absent from every variant. Not cosmetic: the summary and the
- * experience are where a leftover general phrase is least visible to the person
- * reading it and most visible to the recruiter - it is the one place where a
- * document can claim a specialisation it does not have.
+ * Asserted absent from every variant. What makes a phrase eligible to be on this
+ * list is that it is *prose*: a sentence that could only have come from the general
+ * document, never a value a specialist would also legitimately claim.
+ *
+ * That distinction is load-bearing. An earlier version of this list also carried
+ * metric values like "+R$ 500 Bi", and it fired the moment a variant used the same
+ * number on purpose - which is the whole point of a metric, that it is a fact about
+ * the career rather than a choice about the document. A metric that only the
+ * general résumé may state is not a specialisation guard, it is a fact guard, and
+ * the two have opposite failure modes: this one blocks the truth and misses the
+ * leftover.
  */
 const GENERAL_MARKERS: ReadonlyArray<string> = [
   "Engenheiro Full Stack de verdade",
-  "+R$ 500 Bi",
-  "100M+ msgs/dia",
+  "unindo visão estratégica e análise de negócio",
 ];
 
 async function main(): Promise<void> {
@@ -136,7 +183,73 @@ function render(shell: string, variant: Variant): string {
 
   out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${variant.title}</title>`);
 
+  /*
+    The headline under the name, matched by its classes rather than by its text.
+
+    The general document's headline is the one thing that must not survive into a
+    variant: a document that calls itself "Engenheiro de Software & IA" while
+    arguing for Java is making two claims at once, and the broader one is the one
+    that does not help the reader choose.
+  */
+  const headline = /<h2 class="[^"]*">[\s\S]*?<\/h2>/.exec(out);
+
+  if (headline === null || headline.index === undefined) {
+    throw new Error(`[${variant.slug}] headline not found`);
+  }
+
+  out =
+    out.slice(0, headline.index) +
+    `<h2 class="text-base font-bold text-slate-700 mt-1 mb-3">${variant.headline}</h2>` +
+    out.slice(headline.index + headline[0].length);
+
+  if (variant.skills !== undefined) {
+    out = insertSkills(out, variant.skills, variant.slug, variant.skillsAfter ?? "experienceB");
+  }
+
   return out;
+}
+
+/**
+ * Inserts the technical inventory after the chosen experience section.
+ *
+ * Anchored to the *end* of a section, so the inventory reads as a summary of the
+ * roles above it rather than interrupting them.
+ */
+function insertSkills(
+  html: string,
+  skills: string,
+  slug: string,
+  after: "experienceA" | "experienceB",
+): string {
+  const headings: Record<typeof after, RegExp> = {
+    experienceA: /<h3 class="section-title">Experiência Profissional<\/h3>/,
+    experienceB: /<h3 class="section-title mt-0">Experiência Profissional \(Continuação\)<\/h3>/,
+  };
+
+  const heading = headings[after].exec(html);
+
+  if (heading === null || heading.index === undefined) {
+    throw new Error(`[${slug}] ${after} anchor not found`);
+  }
+
+  const end = html.indexOf("</section>", heading.index);
+
+  if (end === -1) {
+    throw new Error(`[${slug}] ${after} section end not found`);
+  }
+
+  const at = end + "</section>".length;
+
+  return (
+    html.slice(0, at) +
+    `
+
+        <section class="mb-4 keep-together">
+            <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>
+${skills}
+        </section>` +
+    html.slice(at)
+  );
 }
 
 /**
@@ -189,6 +302,10 @@ function assertComplete(variant: Variant, out: string): void {
 
   if (out.includes("<title>") && !out.includes(variant.title)) {
     throw new Error(`[${variant.slug}] title was not applied`);
+  }
+
+  if (!out.includes(variant.headline)) {
+    throw new Error(`[${variant.slug}] headline was not applied`);
   }
 }
 

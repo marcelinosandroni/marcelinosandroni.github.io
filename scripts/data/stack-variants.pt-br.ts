@@ -59,7 +59,7 @@ ${cards
 const extras = (fit: string): string => `
             <div class="grid grid-cols-2 gap-4 text-[11.5px] text-slate-700">
                 <div>
-                    <p class="mb-1"><strong>Disponibilidade &amp; Setup:</strong> Imediata (100% Remoto, Global). Infraestrutura própria de alto desempenho, início imediato (Zero Onboarding Tech Delay).</p>
+                    <p class="mb-1"><strong>Disponibilidade:</strong> Imediata</p>
                     <p><strong>Pretensão &amp; Contratação:</strong> CLT R$ 8.000 / PJ R$ 12.000. Apto a B2B/Contractor no Brasil, EUA e Europa.</p>
                 </div>
                 <div>
@@ -73,82 +73,78 @@ const summary = (lead: string, body: string): string => `
 
 export const variants = [
   {
-    slug: "enterprise-java",
+slug: "enterprise-java",
     label: "Enterprise Java + Angular",
     title: "Marcelino Sandroni - Engenheiro Java e Angular",
+    headline: "Engenheiro de Software | Java &amp; Angular",
+    skills: `<div class="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-slate-700 leading-relaxed">
+                <p><strong>Backend &amp; Ecossistema Java:</strong> Java, Spring Boot, Spring Cloud, Hibernate/JPA, REST, Microsserviços, DDD, CQRS.</p>
+                <p><strong>Frontend &amp; Web UI:</strong> Angular, TypeScript, RxJS, NgRx, Micro-frontends, SASS, Tailwind CSS.</p>
+            </div>`,
     sections: {
       summary: summary(
-        "Engenheiro de Software especializado em Java e Angular para sistemas bancários e de ativos, ",
-        "com 6 anos de engenharia de software e 15 em governança financeira. Modernizei o BNP Paribas — de COBOL, VB e C# para Java/Spring e Angular em arquitetura orientada a eventos com Kafka —, com SOX e BACEN como restrição de projeto e não como burocracia. Sei o que custa levar um sistema regulado de batch para tempo real sem quebrar um fechamento contábil.",
+        "Engenheiro de Software especializado em modernização de sistemas críticos e arquiteturas distribuídas, ",
+        "unindo 6 anos de engenharia corporativa (Java, Spring Boot, Angular, Kafka) a 15 anos de sólida governança financeira. Especialista em traduzir regras complexas de negócios (balanço, tributação, liquidação) em ecossistemas de alta disponibilidade. Foco na reestruturação de monolitos legados para microsserviços orientados a eventos e micro-frontends sob rigoroso compliance (SOX), entregando alta volumetria e conciliação financeira em tempo real para bancos e grandes corporações.",
       ),
       metrics: metrics([
-        ["95%+", "Cobertura de Testes", "Suíte automatizada em legado bancário, com TDD obrigatório."],
-        ["24h → &lt;1s", "Pagamentos", "Batch virou tempo real com Kafka e microsserviços Java."],
-        ["8 devs", "Time Liderado", "Três plenos, mentoria ativa e code review como padrão."],
-        ["+R$ 50 Mi", "Oportunidades", "Criadas por automação sob compliance SOX."],
+        ["+R$ 500 Bi", "Gestão de Ativos", "Plataformas B2B de custódia institucional e orquestração de fundos."],
+        ["D+0", "Liquidação Real-Time", "Ciclo de conciliação de 24h (D+1) para menos de 1s, via Kafka e Java."],
+        ["100M+ msgs/dia", "Alta Escala", "Arquitetura orientada a eventos, tolerante a falhas e baixa latência."],
+        ["95%", "Cobertura de Testes", "Cultura de QA e TDD em backend (JUnit) e frontend (Cypress)."],
       ]),
       experienceA:
         role({
-          title: "Engenheiro de Software",
-          company: "Antlia / Banco BNP Paribas",
-          period: "Mar/2023 – Dez/2025 · Híbrido",
-          margin: "mb-2 keep-together",
-          tech: [
-            "<strong>Java &amp; Angular:</strong> Java 17/21, Spring Boot 3, JPA/Hibernate, Angular, TypeScript, RxJS, Micro-frontends, JUnit 5, Testcontainers.",
-            "<strong>Mensageria &amp; Dados:</strong> Apache Kafka, Event Sourcing, PostgreSQL, Oracle SQL, Redis, RabbitMQ.",
-            "<strong>Arquitetura &amp; Regulação:</strong> Arquitetura Hexagonal, DDD, CQRS, TDD, SOX, BACEN, Jenkins, Helm, IBM Cloud.",
-          ],
-          bullets: [
-            "<strong>Modernização de legado bancário crítico:</strong> Liderei a migração de 8 devs de COBOL, VB e C# para Java/Spring e Angular em arquitetura orientada a eventos com Kafka, com arquitetura hexagonal, DDD e TDD como padrão — cobertura de 95%+ sem interromper a operação e onboarding de devs caindo de meses para semanas.",
-            "<strong>Pagamentos em tempo real (24h → &lt;1s):</strong> Substituí processamento em batch por microsserviços Java Spring especializados em validação, conciliação e compliance, com circuit breaker e retry policies para resiliência em picos de demanda.",
-            "<strong>Liquidação D+0 sem impacto contábil:</strong> conciliação de fundos em tempo real com SLA de 100% de uptime e fechamento contábil inalterado sob auditoria SOX.",
-            "<strong>+R$ 50 milhões em oportunidades:</strong> Automatizei a orquestração global de fundos ETF sob compliance SOX, criando capacidade operacional para captação de grandes fortunas institucionais.",
-          ],
-        }) + role({
           title: "Engenheiro de Software &amp; Tech Lead",
           company: "DGT Tecnologia",
           period: "Jan/2026 – Set/2026 · Remoto",
           margin: "mb-4 keep-together",
           tech: [
-            "<strong>Java &amp; ecosystem:</strong> Maven, Microsserviços Java, Kafka, APIs REST, Angular, TypeScript, Design Systems.",
-            "<strong>Enterprise:</strong> Kubernetes, Docker, Helm, Terraform, CI/CD, ClickHouse, Databricks.",
+            "<strong>Stack Enterprise:</strong> Java, Spring Boot, Angular, TypeScript, Micro-frontends, PostgreSQL, Redis, RabbitMQ, Docker, Kubernetes, CI/CD, AWS.",
           ],
           bullets: [
-            "<strong>Preservação de contrato de R$ 24M/ano:</strong> Liderei a reestruturação de motor de IA e visão computacional, elevando assertividade de leitura de placas de &lt;60% para 100% em 6 semanas.",
-            "<strong>Liderança de 10 pessoas:</strong> Coordenei devs, QA, BA, PO e PM, cortando 40% do tempo de desenvolvimento com design system Angular e bibliotecas compartilhadas.",
+            "<strong>Liderança Técnica em Alta Volumetria:</strong> Reestruturação arquitetural de sistemas críticos processando 100M+ mensagens/dia. Atuação estratégica entre negócios e tech, garantindo assertividade absoluta em integrações de alta complexidade (preservação de contrato de R$ 24M/ano).",
+            "<strong>Aceleração de 10x no Processamento:</strong> Migração de arquitetura relacional que gerava gargalos para um ecossistema de microsserviços distribuídos em Java, integrados a pipelines de dados e processamento assíncrono via RabbitMQ.",
+            "<strong>Micro-frontends Enterprise:</strong> Arquitetura e desenvolvimento de interfaces web complexas em Angular baseadas em micro-frontends reaproveitáveis, combinando alta performance de renderização com rigoroso padrão visual corporativo.",
+          ],
+        }) + role({
+          title: "Engenheiro de Software",
+          company: "Antlia / Banco BNP Paribas",
+          period: "Mar/2023 – Dez/2025 · Híbrido",
+          margin: "mb-2 keep-together",
+          tech: [
+            "<strong>Stack Enterprise:</strong> Java (Spring Boot/Cloud), Angular, Micro-frontends, Oracle SQL, Kafka, Kubernetes, Jenkins, Helm, Arquitetura Hexagonal.",
+          ],
+          bullets: [
+            "<strong>Modernização de Monolito Bancário:</strong> Desacoplamento de sistemas legados críticos (COBOL, VB) do maior cliente do banco para uma nova arquitetura orientada a eventos usando Java e interfaces modulares em Angular, alcançando cobertura de testes de 95%.",
+            "<strong>Liquidação D+0 &amp; Tempo Real:</strong> Substituição de esteiras obsoletas (D+1) por conciliação de fundos síncrona/assíncrona em tempo real via Apache Kafka, com SLA de 100% de uptime, gerando crescimento de 45% nos ativos geridos em 1 ano.",
+            "<strong>Economia e Orquestração Global:</strong> Automação da orquestração de fundos ETF institucionais, integrando B3 e bolsas internacionais (EUA/Europa), viabilizando capacidade operacional com impacto estimado de +R$ 50 Milhões em captação.",
           ],
         }),
       experienceB:
         role({
           title: "Engenheiro de Software",
-          company: "Banco Itaú (Atacado)",
+          company: "Banco Itaú",
           period: "Mar/2022 – Fev/2023 · Híbrido",
           margin: "mb-4 keep-together",
           tech: [
-            "<strong>Java &amp; Angular:</strong> Java (Spring Boot), Angular, RxJS, Design Systems, Micro-frontends.",
-            "<strong>Dados &amp; Infra:</strong> Apache Kafka, PostgreSQL, SQL Server, Redis, AWS (EC2/S3), Docker, Kubernetes.",
-            "<strong>Qualidade:</strong> JUnit, xUnit, Cypress, Testes E2E, CI/CD.",
+            "<strong>Stack Enterprise:</strong> Java (Spring Boot), Angular, TypeScript, PostgreSQL, Redis, Kafka, AWS, Docker, Kubernetes, Terraform.",
           ],
           bullets: [
-            "<strong>Custódia institucional de +R$ 100 Bi:</strong> Desenhei e sustentei plataforma B2B conectada à B3 para apuração contínua e visão unificada multi-carteira, atendendo investidores de altíssimo patrimônio.",
-            "<strong>+45% de ativos sob gestão em 1 ano:</strong> Liquidação migrou de D+1 para tempo real e o uptime subiu de 95% para 100%, com integração B3, NYSE, LSE e Eurex.",
-            "<strong>Resolução de incidente crítico em &lt;24h:</strong> Neutralizei gargalo de concorrência na mensageria sob tráfego volátil, com diagnóstico em menos de 4 horas e integridade transacional mantida.",
+            "<strong>Custódia Institucional Estratégica (+R$ 100 Bi):</strong> Desenho e sustentação de plataforma B2B de controle de investimentos de atacado, integrando APIs em Java com painéis gerenciais em Angular, fornecendo visão unificada multi-carteira conectada à B3.",
+            "<strong>Gestão de Crises e Resiliência:</strong> Resolução de gargalos críticos de concorrência em mensageria Kafka sob tráfego de alta volatilidade em menos de 24h, garantindo integridade transacional ilesa.",
+            "<strong>Aumento de 8x na Qualidade de Software:</strong> Mentoria técnica e implementação de cultura de TDD e automação ponta-a-ponta, englobando testes unitários no backend (Java) e testes E2E em fluxos críticos do frontend (Angular).",
           ],
         }) + role({
-          title: "Engenheiro de Software Pleno",
+          title: "Engenheiro de Software",
           company: "Pollux Technology",
           period: "Fev/2021 – Fev/2022 · Remoto",
           margin: "mb-4 keep-together",
-          badge:
-            ' <span class="bg-emerald-100 text-emerald-800 px-1 py-0.5 rounded text-[9px] ml-1 uppercase font-bold">Promoção em 3 meses</span>',
           tech: [
-            "<strong>Java &amp; Front:</strong> Java (Spring Boot), React, Next.js, Angular, TypeScript, Micro-frontends, Tailwind CSS.",
-            "<strong>Dados &amp; Infra:</strong> PostgreSQL, MySQL, MongoDB, Redis, RabbitMQ, AWS, GCP, Kubernetes.",
-            "<strong>Enterprise:</strong> Microsserviços, Orientação a Eventos, CI/CD, Serverless, Terraform.",
+            "<strong>Stack Enterprise:</strong> Java, Angular, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, Kubernetes, CI/CD.",
           ],
           bullets: [
-            "<strong>Migração cloud em metade do prazo:</strong> Conduzi migração completa para AWS no prazo de 3 meses em vez de 6, com 30% de redução de custo e até 200% de ganho de performance.",
-            "<strong>80% de entregas antecipadas:</strong> Com time de 5 pessoas em clientes de saúde, financeiro e esportes, sustentei 100% de pontualidade sob prazos apertados.",
+            "<strong>Migração Cloud &amp; Microsserviços:</strong> Refatoração de serviços monolíticos para microsserviços orientados a eventos, além de conduzir migração de infraestrutura local para AWS, finalizada na metade do prazo estipulado.",
+            "<strong>Resiliência e Circuit Breakers:</strong> Correção estrutural em integrações de mensageria assíncrona, implementando Circuit Breakers e Dead Letter Queues (DLQs) que elevaram a assertividade e previsibilidade de dados transacionais para 100%.",
           ],
         }) + role({
           title: "Analista Contábil &amp; Gestor Financeiro",
@@ -156,23 +152,22 @@ export const variants = [
           period: "Jul/2005 – Dez/2020 · São Paulo",
           margin: "mb-5 keep-together",
           tech: [
-            "<strong>Core Business:</strong> FinOps, IFRS &amp; CPC, SOX Compliance, Planejamento Tributário, Automação de ERP. Diferencial estratégico: visão de balanço e compliance para desenhar a regra certa.",
+            "<strong>Core Business:</strong> FinOps, Automação de Processos ERP, Compliance SOX, CPC, Planejamento Tributário e Integração de Dados.",
           ],
           bullets: [
-            "<strong>Fechamento contábil de 30 para 2 dias:</strong> Redesenho de processos com visão de negócio, liberando capital de giro para o produto.",
-            "<strong>Economia de +R$ 3 milhões:</strong> Planejamento tributário e reclassificação contábil executados com rigor auditável.",
+            "<strong>Diferencial em Engenharia Corporativa:</strong> Profunda expertise em regras de negócio financeiras. Redesenho de processos que reduziu o fechamento contábil de 30 para 5 dias (-83%), com execução de auditorias e adequações de compliance traduzidas diretamente para equipes de software.",
           ],
         }),
       extras: extras(
-        "<em>Extreme Ownership</em> (Postura de Dono), domínio do setor regulado (SOX, BACEN, IFRS), resiliência em incidentes críticos e comunicação assertiva direta do C-Level à base técnica. Autodidata para stacks novas.",
+        "<em>Extreme Ownership</em> (Postura de Dono), resiliência em incidentes críticos e comunicação assertiva do C-Level à base técnica.",
       ),
     },
   },
-
   {
     slug: "enterprise-dotnet",
     label: "Enterprise C# + Angular",
     title: "Marcelino Sandroni - Engenheiro C# e Angular",
+    headline: "Engenheiro de Software | C# &amp; Angular",
     sections: {
       summary: summary(
         "Engenheiro de Software especializado em C#/.NET e Angular para plataformas de ativos e custódia, ",
@@ -272,6 +267,7 @@ export const variants = [
     slug: "modern-web",
     label: "Modern Node + Go + React",
     title: "Marcelino Sandroni - Engenheiro Node, Go e React",
+    headline: "Engenheiro de Software | Node, Go &amp; React",
     sections: {
       summary: summary(
         "Engenheiro de Software focado em Node, Go e React para sistemas de alta escala, ",
