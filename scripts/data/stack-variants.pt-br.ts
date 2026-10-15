@@ -22,7 +22,14 @@ const role = (opts: {
   readonly title: string;
   readonly company: string;
   readonly period: string;
-  readonly tech: ReadonlyArray<string>;
+  /**
+   * Omitted when the variant carries a full technical inventory instead.
+   *
+   * These two carry the same information, so a document with both is stating it
+   * twice and paying for the privilege. The general résumé keeps the per-role box
+   * because it has no inventory; the specialists that do have one drop the box.
+   */
+  readonly tech?: ReadonlyArray<string>;
   readonly bullets: ReadonlyArray<string>;
   readonly margin: string;
   readonly badge?: string;
@@ -31,10 +38,14 @@ const role = (opts: {
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">${opts.title} <span class="text-slate-400 font-normal">| ${opts.company}</span>${opts.badge ?? ""}</h4>
                     <span class="text-xs font-semibold text-slate-600">${opts.period}</span>
-                </div>
+                </div>${
+                  opts.tech === undefined
+                    ? ""
+                    : `
                 <div class="tech-box">
 ${opts.tech.map((line) => `                    ${line}<br>`).join("\n").replace(/<br>$/, "")}
-                </div>
+                </div>`
+                }
                 <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
 ${opts.bullets.map((b) => `                    <li>${b}</li>`).join("\n")}
                 </ul>
@@ -76,20 +87,23 @@ export const variants = [
 slug: "enterprise-java",
     label: "Enterprise Java + Angular",
     title: "Marcelino Sandroni - Engenheiro Java e Angular",
-    headline: "Engenheiro de Software | Java &amp; Angular",
+    headline: "Engenheiro de Software | Angular + Java",
     skills: `<div class="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-slate-700 leading-relaxed">
-                <p><strong>Backend &amp; Ecossistema Java:</strong> Java, Spring Boot, Spring Cloud, Hibernate/JPA, REST, Microsserviços, DDD, CQRS.</p>
-                <p><strong>Frontend &amp; Web UI:</strong> Angular, TypeScript, RxJS, NgRx, Micro-frontends, SASS, Tailwind CSS.</p>
+                <p><strong>Linguagens &amp; Frontend:</strong> Java (do 8 legado ao 25 LTS), TypeScript, JavaScript, HTML5, CSS3, SASS, Angular (do 8 ao 22), Micro-frontends (Module Federation), Estado/Reatividade (RxJS, NgRx), Prevenção de Memory Leaks, GraphQL.</p>
+                <p><strong>Backend &amp; Frameworks:</strong> Spring Boot, Spring Cloud, Spring Security, Hibernate/JPA (eliminação de N+1 queries), Tuning de JVM (ZGC/G1), Otimização de Pool HikariCP.</p>
+                <p><strong>Arquitetura &amp; Mensageria:</strong> Apache Kafka (partições, idempotência), RabbitMQ (topic exchanges, DLQ), Circuit Breakers, Clean Architecture, DDD, CQRS, SOLID.</p>
+                <p><strong>Bancos de Dados &amp; Analítico:</strong> Relacionais (Oracle, PostgreSQL, SQL Server), NoSQL/Grafos/Colunares (MongoDB, Redis, Cassandra, Neo4j, DynamoDB), Data Warehouse (Snowflake, Databricks).</p>
+                <p><strong>DevOps, Cloud &amp; Automação:</strong> Git, AWS, Docker, Kubernetes (Helm), Terraform, CI/CD (GitHub Actions, Jenkins), Observabilidade (OpenTelemetry, Datadog), Testes (JUnit, Cypress, Playwright, TDD).</p>
             </div>`,
     sections: {
       summary: summary(
         "Engenheiro de Software especializado em modernização de sistemas críticos e arquiteturas distribuídas, ",
-        "unindo 6 anos de engenharia corporativa (Java, Spring Boot, Angular, Kafka) a 15 anos de sólida governança financeira. Especialista em traduzir regras complexas de negócios (balanço, tributação, liquidação) em ecossistemas de alta disponibilidade. Foco na reestruturação de monolitos legados para microsserviços orientados a eventos e micro-frontends sob rigoroso compliance (SOX), entregando alta volumetria e conciliação financeira em tempo real para bancos e grandes corporações.",
+        "unindo 6 anos de engenharia (Java, Spring Boot, Angular, Kafka) a 15 anos de sólida governança corporativa financeira. Especialista em traduzir regras complexas de negócios (balanço, tributação, liquidação) em ecossistemas de alta disponibilidade. Foco na reestruturação de monolitos legados para microsserviços e micro-frontends sob rigoroso compliance (SOX), entregando alta volumetria e conciliação financeira em tempo real para bancos e grandes corporações.",
       ),
       metrics: metrics([
         ["+R$ 500 Bi", "Gestão de Ativos", "Plataformas B2B de custódia institucional e orquestração de fundos."],
-        ["D+0", "Liquidação Real-Time", "Ciclo de conciliação de 24h (D+1) para menos de 1s, via Kafka e Java."],
-        ["100M+ msgs/dia", "Alta Escala", "Arquitetura orientada a eventos, tolerante a falhas e baixa latência."],
+        ["D+0", "Liquidação Real-Time", "De 24h (D+1) para menos de 1s, via Kafka e Java, sem impacto contábil."],
+        ["100M+ msgs/dia", "Alta Escala", "Arquitetura orientada a eventos, tolerante a falhas e sem gargalos."],
         ["95%", "Cobertura de Testes", "Cultura de QA e TDD em backend (JUnit) e frontend (Cypress)."],
       ]),
       experienceA:
@@ -98,26 +112,29 @@ slug: "enterprise-java",
           company: "DGT Tecnologia",
           period: "Jan/2026 – Set/2026 · Remoto",
           margin: "mb-4 keep-together",
-          tech: [
-            "<strong>Stack Enterprise:</strong> Java, Spring Boot, Angular, TypeScript, Micro-frontends, PostgreSQL, Redis, RabbitMQ, Docker, Kubernetes, CI/CD, AWS.",
-          ],
           bullets: [
             "<strong>Liderança Técnica em Alta Volumetria:</strong> Reestruturação arquitetural de sistemas críticos processando 100M+ mensagens/dia. Atuação estratégica entre negócios e tech, garantindo assertividade absoluta em integrações de alta complexidade (preservação de contrato de R$ 24M/ano).",
-            "<strong>Aceleração de 10x no Processamento:</strong> Migração de arquitetura relacional que gerava gargalos para um ecossistema de microsserviços distribuídos em Java, integrados a pipelines de dados e processamento assíncrono via RabbitMQ.",
-            "<strong>Micro-frontends Enterprise:</strong> Arquitetura e desenvolvimento de interfaces web complexas em Angular baseadas em micro-frontends reaproveitáveis, combinando alta performance de renderização com rigoroso padrão visual corporativo.",
+            "<strong>Aceleração de 10x no Processamento:</strong> Migração de arquitetura relacional que gerava gargalos para um ecossistema de microsserviços distribuídos em Java, com tuning de JVM (ZGC/G1) e processamento assíncrono via RabbitMQ.",
+            "<strong>Micro-frontends Enterprise:</strong> Arquitetura e desenvolvimento de interfaces web complexas em Angular baseadas em micro-frontends reaproveitáveis, com RxJS avançados prevenindo vazamento de memória e assegurando UX fluida.",
           ],
         }) + role({
           title: "Engenheiro de Software",
           company: "Antlia / Banco BNP Paribas",
           period: "Mar/2023 – Dez/2025 · Híbrido",
           margin: "mb-2 keep-together",
-          tech: [
-            "<strong>Stack Enterprise:</strong> Java (Spring Boot/Cloud), Angular, Micro-frontends, Oracle SQL, Kafka, Kubernetes, Jenkins, Helm, Arquitetura Hexagonal.",
-          ],
           bullets: [
             "<strong>Modernização de Monolito Bancário:</strong> Desacoplamento de sistemas legados críticos (COBOL, VB) do maior cliente do banco para uma nova arquitetura orientada a eventos usando Java e interfaces modulares em Angular, alcançando cobertura de testes de 95%.",
-            "<strong>Liquidação D+0 &amp; Tempo Real:</strong> Substituição de esteiras obsoletas (D+1) por conciliação de fundos síncrona/assíncrona em tempo real via Apache Kafka, com SLA de 100% de uptime, gerando crescimento de 45% nos ativos geridos em 1 ano.",
+            "<strong>Liquidação D+0 &amp; Tempo Real:</strong> Substituição de esteiras obsoletas (D+1) por conciliação de fundos síncrona/assíncrona em tempo real via Apache Kafka e integração Oracle, gerando crescimento de 45% nos ativos geridos em 1 ano.",
             "<strong>Economia e Orquestração Global:</strong> Automação da orquestração de fundos ETF institucionais, integrando B3 e bolsas internacionais (EUA/Europa), viabilizando capacidade operacional com impacto estimado de +R$ 50 Milhões em captação.",
+          ],
+        }) + role({
+          title: "Engenheiro de Software",
+          company: "Pollux Technology",
+          period: "Fev/2021 – Fev/2022 · Remoto",
+          margin: "mb-2 keep-together",
+          bullets: [
+            "<strong>Migração Cloud &amp; Microsserviços:</strong> Refatoração de serviços monolíticos em Java para arquiteturas baseadas em eventos, conduzindo migração de infraestrutura local para AWS na metade do prazo estipulado.",
+            "<strong>Resiliência e Circuit Breakers:</strong> Correção estrutural em integrações de mensageria assíncrona com RabbitMQ, implementando Circuit Breakers e Dead Letter Queues (DLQs), elevando a assertividade de dados transacionais para 100%.",
           ],
         }),
       experienceB:
@@ -126,40 +143,22 @@ slug: "enterprise-java",
           company: "Banco Itaú",
           period: "Mar/2022 – Fev/2023 · Híbrido",
           margin: "mb-4 keep-together",
-          tech: [
-            "<strong>Stack Enterprise:</strong> Java (Spring Boot), Angular, TypeScript, PostgreSQL, Redis, Kafka, AWS, Docker, Kubernetes, Terraform.",
-          ],
           bullets: [
             "<strong>Custódia Institucional Estratégica (+R$ 100 Bi):</strong> Desenho e sustentação de plataforma B2B de controle de investimentos de atacado, integrando APIs em Java com painéis gerenciais em Angular, fornecendo visão unificada multi-carteira conectada à B3.",
-            "<strong>Gestão de Crises e Resiliência:</strong> Resolução de gargalos críticos de concorrência em mensageria Kafka sob tráfego de alta volatilidade em menos de 24h, garantindo integridade transacional ilesa.",
-            "<strong>Aumento de 8x na Qualidade de Software:</strong> Mentoria técnica e implementação de cultura de TDD e automação ponta-a-ponta, englobando testes unitários no backend (Java) e testes E2E em fluxos críticos do frontend (Angular).",
-          ],
-        }) + role({
-          title: "Engenheiro de Software",
-          company: "Pollux Technology",
-          period: "Fev/2021 – Fev/2022 · Remoto",
-          margin: "mb-4 keep-together",
-          tech: [
-            "<strong>Stack Enterprise:</strong> Java, Angular, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, Kubernetes, CI/CD.",
-          ],
-          bullets: [
-            "<strong>Migração Cloud &amp; Microsserviços:</strong> Refatoração de serviços monolíticos para microsserviços orientados a eventos, além de conduzir migração de infraestrutura local para AWS, finalizada na metade do prazo estipulado.",
-            "<strong>Resiliência e Circuit Breakers:</strong> Correção estrutural em integrações de mensageria assíncrona, implementando Circuit Breakers e Dead Letter Queues (DLQs) que elevaram a assertividade e previsibilidade de dados transacionais para 100%.",
+            "<strong>Gestão de Crises e Resiliência:</strong> Resolução de gargalos críticos de concorrência em mensageria Kafka sob tráfego de alta volatilidade em menos de 24h, aplicando políticas estritas de idempotência para manter a integridade transacional.",
+            "<strong>Aumento de 8x na Qualidade de Software:</strong> Mentoria técnica e implementação de esteiras (GitHub Actions/Jenkins) com testes unitários no backend e automação E2E (Cypress) no frontend.",
           ],
         }) + role({
           title: "Analista Contábil &amp; Gestor Financeiro",
           company: "Consultoria Corporativa (15 Anos)",
           period: "Jul/2005 – Dez/2020 · São Paulo",
           margin: "mb-5 keep-together",
-          tech: [
-            "<strong>Core Business:</strong> FinOps, Automação de Processos ERP, Compliance SOX, CPC, Planejamento Tributário e Integração de Dados.",
-          ],
           bullets: [
-            "<strong>Diferencial em Engenharia Corporativa:</strong> Profunda expertise em regras de negócio financeiras. Redesenho de processos que reduziu o fechamento contábil de 30 para 5 dias (-83%), com execução de auditorias e adequações de compliance traduzidas diretamente para equipes de software.",
+            "<strong>Diferencial em Engenharia Corporativa:</strong> Profunda expertise em regras de negócio financeiras. Redesenho de processos que reduziu o fechamento contábil de 30 para 5 dias (-83%), com execução de auditorias, adequações de compliance e fluxos financeiros traduzidos diretamente para equipes de software.",
           ],
         }),
       extras: extras(
-        "<em>Extreme Ownership</em> (Postura de Dono), resiliência em incidentes críticos e comunicação assertiva do C-Level à base técnica.",
+        "<em>Ownership</em> (Postura de Dono), resiliência comprovada sob pressão na gestão de incidentes bancários críticos (Downtime/SLA) e capacidade de traduzir regras de negócio complexas do C-Level (IFRS, SOX) para a base técnica.",
       ),
     },
   },
