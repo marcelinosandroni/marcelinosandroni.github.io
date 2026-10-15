@@ -191,9 +191,9 @@ const TEXT: ReadonlyArray<Rule> = [
   { from: "Informações Adicionais &amp; Perfil Profissional", to: "Additional Information &amp; Professional Profile" },
   {
     from:
-      "<strong>Disponibilidade &amp; Setup:</strong> Imediata (100% Remoto, Global). Infraestrutura própria de alto desempenho, início imediato (Zero Onboarding Tech Delay).",
+      "<strong>Disponibilidade:</strong> Imediata",
     to:
-      "<strong>Availability &amp; setup:</strong> Immediate (100% remote, global). Own high-performance infrastructure for an immediate start (zero onboarding delay).",
+      "<strong>Availability:</strong> Immediate",
   },
   {
     from:
