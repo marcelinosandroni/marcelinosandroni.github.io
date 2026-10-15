@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcelino Sandroni - Engenheiro C# e Angular</title>
+    <!--
+        A folha do Tailwind vem compilada e embutida abaixo, então este arquivo não
+        depende de CDN para o layout. A fonte continua vindo da Google Fonts: o
+        original apontava para uma cópia local (`./..._files/css2`) que não viaja
+        junto com o HTML, e sem a Inter carregando o navegador cai no fallback do
+        sistema - as métricas mudam e o layout inteiro desalinha.
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 20px auto;
+            padding: 15mm 15mm;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            position: relative;
+        }
+        .section-title {
+            border-left: 4px solid #1f2937;
+            padding-left: 8px;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            margin-top: 1rem;
+            background-color: #f3f4f6;
+            padding: 4px 8px;
+        }
+        .tech-box {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+        }
+        .tech-box strong {
+            color: #1f2937;
+        }
+        .link-hover {
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            text-decoration-color: #cbd5e1;
+            transition: all 0.2s;
+        }
+        .link-hover:hover {
+            color: #059669; /* Emerald 600 */
+            text-decoration-color: #059669;
+        }
+        /*
+         * Impressão.
+         *
+         * Nenhuma regra de tipografia aqui. A Inter, os tamanhos e as entrelinhas
+         * são exatamente os que o Tailwind define para a tela - este bloco só
+         * remove a moldura de visualização (sombra, margem de centralização) e
+         * neutraliza a quebra de página no último bloco, que geraria uma terceira
+         * folha em branco.
+         *
+         * Foi tentado o caminho de comprimir a entrelinha para o conteúdo caber em
+         * duas páginas, e foi medido que não é suficiente: com a tipografia
+         * intacta o documento tem 681mm de conteúdo contra 562mm de capacidade,
+         * ou 17,5% a mais do que duas folhas comportam. Estreitar as margens
+         * compra 20mm desse déficit. O que fecha são duas páginas com o
+         * espaçamento de tela, e o conteúdo foi enxugado para chegar lá.
+         */
+        @media print {
+            body { background-color: white; }
+
+            .a4-page {
+                margin: 0;
+                box-shadow: none;
+                padding: 10mm 14mm;
+                page-break-after: always;
+            }
+
+            .no-print { display: none !important; }
+            .keep-together { page-break-inside: avoid; }
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;height:auto}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:not([hidden=until-found]){display:none}.absolute{position:absolute}.bottom-4{bottom:1rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.ml-1{margin-left:0.25rem}.mt-0{margin-top:0px}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.mb-1\.5{margin-bottom:0.375rem}.flex{display:flex}.grid{display:grid}.w-\[calc\(100\%-30mm\)\]{width:calc(100% - 30mm)}.w-full{width:100%}.list-disc{list-style-type:disc}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-start{justify-content:flex-start}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-y-1\.5{row-gap:0.375rem}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.justify-self-center{justify-self:center}.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:0.25rem}.border{border-width:1px}.border-t{border-top-width:1px}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.p-2{padding:0.5rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.pl-4{padding-left:1rem}.pt-2{padding-top:0.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-justify{text-align:justify}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11\.5px\]{font-size:11.5px}.text-\[12\.5px\]{font-size:12.5px}.text-\[13px\]{font-size:13px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-\[16px\]{font-size:16px}.font-black{font-weight:900}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.leading-none{line-height:1}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}</style></head>
+<body class="antialiased text-sm">
+
+    <!-- PÁGINA 1 -->
+    <div class="a4-page">
+        <!-- HEADER -->
+        <header class="mb-4">
+            <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase">Marcelino Sandroni Dias</h1>
+            <h2 class="text-base font-bold text-slate-700 mt-1 mb-3">Engenheiro de Software &amp; IA</h2>
+
+            <div class="text-[11.5px] text-slate-700 bg-slate-50 p-2 rounded border border-slate-100">
+                <!-- GRID DE 3 COLUNAS ALINHADO E SEM QUEBRA DE LINHA -->
+                <div class="grid w-full items-center whitespace-nowrap" style="
+    grid-template-columns: 1.4fr 1fr 1fr;
+">
+
+                    <!-- Coluna 1: Esquerda -->
+                    <div class="flex flex-col gap-y-1.5 text-left">
+                        <div><strong>Localização:</strong> Fortaleza, CE (Atuação Remota)</div>
+                        <div><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/marcelinosandroni" target="_blank" class="link-hover font-medium">linkedin.com/in/marcelinosandroni</a></div>
+                    </div>
+
+                    <!-- Coluna 2: Centro (Centralizado no grid, mas alinhado à esquerda internamente) -->
+                    <div class="flex flex-col gap-y-1.5 justify-self-center text-left ai-style-change-1">
+                        <div><strong>Email:</strong> <a href="mailto:marcelino.sandroni@gmail.com" class="link-hover font-medium">marcelino.sandroni@gmail.com</a></div>
+                        <div><strong>Git:</strong> <a href="https://github.com/marcelinosandroni" target="_blank" class="link-hover font-medium">github.com/marcelinosandroni</a></div>
+                    </div>
+
+                    <!-- Coluna 3: Direita -->
+                    <div class="flex flex-col gap-y-1.5 text-right">
+                        <div><strong>WhatsApp:</strong> <a href="https://wa.me/5511914461993" target="_blank" class="link-hover font-medium">+55 11 91446-1993</a></div>
+                        <div><strong>Portfólio:</strong> <a href="https://marcelinosandroni.com/" target="_blank" class="link-hover font-medium">marcelinosandroni.com</a></div>
+                    </div>
+
+                </div>
+            </div>
+        </header>
+
+        <!-- RESUMO PROFISSIONAL -->
+        <section class="mb-4">
+            <h3 class="section-title">Resumo Profissional</h3>
+            <p class="text-[12.5px] leading-relaxed text-slate-700 text-justify">
+                <strong>Engenheiro de Software especializado em C#/.NET e Angular para plataformas de ativos e custódia, </strong>com 6 anos de engenharia de software e 15 anos em governança financeira. No Itaú desenhei a plataforma que sustenta +R$ 100 bilhões em custódia e liderei a adoção de testes automatizados em .NET, Angular e Flutter que elevou a qualidade em 8x. Antes disso, modernizei sistemas C# monolíticos que eu próprio já tinha herdado — sei exatamente o que dói em um codebase de .NET quando ele precisa virar outra coisa.</p></section>
+
+        <!-- MÉTRICAS DE IMPACTO -->
+        <section class="mb-4 keep-together">
+            <h3 class="section-title">Principais Métricas de Impacto em Produção</h3>
+            <div class="grid grid-cols-4 gap-3 text-center">
+
+                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">+R$ 100 Bi</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Custódia em Custódia</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight">Plataforma B2B integrada à B3 com visão multi-carteira.</div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">8x</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Qualidade</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight">Programa de testes em .NET, Angular e Flutter.</div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">80%+</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Cobertura</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight">xUnit, JUnit e Cypress com pipeline por commit.</div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">&lt;24h</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Resgate Crítico</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight">Lançamento com falha entregue no prazo.</div>
+                </div>
+            </div></section>
+
+        <!-- EXPERIÊNCIA PROFISSIONAL (PÁGINA 1) -->
+        <section>
+            <h3 class="section-title">Experiência Profissional</h3>
+            <div class="mb-4 keep-together keep-together">
+                <div class="flex justify-between items-end mb-1">
+                    <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT Tecnologia</span></h4>
+                    <span class="text-xs font-semibold text-slate-600">Jan/2026 – Set/2026 · Remoto</span>
+                </div>
+                <div class="tech-box">
+                    <strong>C# &amp; .NET:</strong> .NET Core, ASP.NET, NuGet, xUnit, Microsserviços .NET, Entity Framework.<br>
+                    <strong>Front/Mobile:</strong> Angular, TypeScript, Storybook, Design Systems, Micro-frontends.<br>
+                    <strong>Dados &amp; Infra:</strong> MySQL, ClickHouse, Databricks, Redis, RabbitMQ, Kubernetes, Terraform.
+                </div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
+                    <li><strong>10x de performance (100M+ eventos/dia):</strong> Decomponho monolito em .NET em 12 microsserviços — Go para processamento de vídeo, .NET Core para regras de negócio — com escalabilidade horizontal independente.</li>
+                    <li><strong>Consultas de 30s para &lt;200ms:</strong> Migrei MySQL para ClickHouse com pipeline ETL em Databricks, reduzindo em 70% a carga sobre o banco transacional.</li>
+                    <li><strong>R$ 24M/ano preservados:</strong> assertividade de leitura de placas elevada de &lt;60% para 100% em 6 semanas, com TDD e automação E2E com Playwright no lugar de validação manual de QA.</li>
+                    <li><strong>Cultura de reutilização em .NET:</strong> Bibliotecas NuGet e Maven privadas, design system Angular documentado em Storybook e portal de arquitetura com ADRs, onboarding de meses para semanas.</li>
+                </ul>
+            </div>
+            <div class="mb-2 keep-together keep-together">
+                <div class="flex justify-between items-end mb-1">
+                    <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software <span class="text-slate-400 font-normal">| Antlia / Banco BNP Paribas</span></h4>
+                    <span class="text-xs font-semibold text-slate-600">Mar/2023 – Dez/2025 · Híbrido</span>
+                </div>
+                <div class="tech-box">
+                    <strong>C# &amp; .NET:</strong> .NET Core, ASP.NET, NuGet, xUnit, Entity Framework.<br>
+                    <strong>Java &amp; Front:</strong> Java (Spring Boot), Angular, TypeScript, Micro-frontends, Design Systems.<br>
+                    <strong>Dados &amp; Regulação:</strong> Oracle SQL, PostgreSQL, Kafka, Redis, SOX, Helm, Kubernetes, IBM Cloud.
+                </div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
+                    <li><strong>Migração de legado C# e VB para arquitetura orientada a eventos:</strong> Desacoplei sistemas em COBOL, VB e C# com Kafka, quebrando monolitos em microsserviços e Angular, alcançando 95%+ de cobertura de testes.</li>
+                    <li><strong>Arquitetura hexagonal como padrão do banco:</strong> SOLID e Clean Code em todos os serviços, com code review sistemático e definição clara de DoR/DoD.</li>
+                </ul>
+            </div></section>
+
+        <!-- FOOTER PAGINA 1 -->
+        <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+            Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v0.16.8 — Página 1 de 2
+        </div>
+    </div>
+
+    <!-- PÁGINA 2 -->
+    <div class="a4-page">
+        <section>
+            <h3 class="section-title mt-0">Experiência Profissional (Continuação)</h3>
+            <div class="mb-4 keep-together keep-together">
+                <div class="flex justify-between items-end mb-1">
+                    <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software <span class="text-slate-400 font-normal">| Banco Itaú (Atacado)</span></h4>
+                    <span class="text-xs font-semibold text-slate-600">Mar/2022 – Fev/2023 · Híbrido</span>
+                </div>
+                <div class="tech-box">
+                    <strong>C# &amp; .NET:</strong> .NET Core, ASP.NET, Entity Framework, xUnit, Testes de integração com banco embutido.<br>
+                    <strong>Angular &amp; Mobile:</strong> Angular, TypeScript, RxJS, Cypress, Flutter, Micro-frontends.<br>
+                    <strong>Enterprise:</strong> AWS (EC2, S3, Lambda, SQS, RDS), Docker, Kubernetes, Terraform, CI/CD.
+                </div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
+                    <li><strong>Custódia institucional de +R$ 100 Bi:</strong> Desenhei e sustentei plataforma B2B conectada à B3 para apuração contínua e visão unificada multi-carteira atendendo investidores de altíssimo patrimônio.</li>
+                    <li><strong>Qualidade em 8x:</strong> Implementei e capacitei time de 9 pessoas em testes unitários .NET e Java (80%+ de cobertura), E2E com Cypress nos fluxos críticos de Angular e mobile com Flutter Test.</li>
+                    <li><strong>+45% de ativos sob gestão em 1 ano:</strong> Liquidação migrou de D+1 para tempo real e o uptime subiu de 95% para 100%, com lançamento de novos produtos em semanas em vez de meses.</li>
+                    <li><strong>Resgate de lançamento crítico em &lt;24h:</strong> Corrigi microsserviços de mensageria e integrações quebradas com observabilidade estruturada, entregando o lançamento no prazo.</li>
+                </ul>
+            </div>
+            <div class="mb-4 keep-together keep-together">
+                <div class="flex justify-between items-end mb-1">
+                    <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software Pleno <span class="text-slate-400 font-normal">| Pollux Technology</span> <span class="bg-emerald-100 text-emerald-800 px-1 py-0.5 rounded text-[9px] ml-1 uppercase font-bold">Promoção em 3 meses</span></h4>
+                    <span class="text-xs font-semibold text-slate-600">Fev/2021 – Fev/2022 · Remoto</span>
+                </div>
+                <div class="tech-box">
+                    <strong>C# &amp; Front:</strong> .NET, React, Next.js, Angular, TypeScript, Micro-frontends, Tailwind CSS, Design System.<br>
+                    <strong>Dados &amp; Infra:</strong> PostgreSQL, MySQL, MongoDB, Redis, RabbitMQ, AWS, GCP, Kubernetes, Terraform.<br>
+                    <strong>Enterprise:</strong> Serverless, CI/CD.
+                </div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
+                    <li><strong>Redução de 50% em custo de cloud:</strong> Políticas de auto-scaling e right-sizing na AWS, somando a migração concluída em metade do prazo.</li>
+                    <li><strong>80% de entregas antecipadas:</strong> Com time de 5 pessoas em clientes de saúde, financeiro e esportes, sustentei 100% de pontualidade sob prazos apertados.</li>
+                </ul>
+            </div>
+            <div class="mb-5 keep-together keep-together">
+                <div class="flex justify-between items-end mb-1">
+                    <h4 class="font-bold text-slate-900 text-[13px]">Analista Contábil &amp; Gestor Financeiro <span class="text-slate-400 font-normal">| Consultoria Corporativa (15 Anos)</span></h4>
+                    <span class="text-xs font-semibold text-slate-600">Jul/2005 – Dez/2020 · São Paulo</span>
+                </div>
+                <div class="tech-box">
+                    <strong>Core Business:</strong> FinOps, IFRS &amp; CPC, SOX Compliance, Planejamento Tributário, Automação de ERP. Diferencial estratégico: visão de balanço e compliance para desenhar a regra de negócio certa.
+                </div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
+                    <li><strong>Fechamento contábil de 30 para 2 dias:</strong> Redesenho de processos liberando 20+ pessoas para funções de maior valor agregado.</li>
+                    <li><strong>Economia de +R$ 3 milhões:</strong> Planejamento tributário e reclassificação contábil com rigor auditável.</li>
+                </ul>
+            </div></section>
+
+        <!-- FORMAÇÃO -->
+        <section class="mb-4 keep-together">
+            <h3 class="section-title">Formação Acadêmica &amp; Especializações</h3>
+            <div class="space-y-2 text-xs text-slate-700">
+                <div class="flex justify-between">
+                    <div><strong>Bacharelado em Engenharia de Computação</strong> — UNIVESP</div>
+                    <div class="text-slate-500 font-semibold">2021 – 2026</div>
+                </div>
+                <div class="flex justify-between">
+                    <div><strong>Bacharelado em Ciências Contábeis</strong> — Estácio (Governança e Análise Financeira)</div>
+                    <div class="text-slate-500 font-semibold">Concluído 2017</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- IDIOMAS -->
+        <section class="mb-4 keep-together">
+            <h3 class="section-title">Idiomas</h3>
+            <div class="text-xs text-slate-700 flex flex-col gap-1" style="
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    /* gap: 1rem; */
+">
+                <p><strong>Português:</strong> Nativo</p>
+<p><strong>Espanhol:</strong> Básico - Comunicação simples mas suficiente para trabalho no dia a dia</p>
+                <p><strong>Inglês:</strong> Profissional - 100% autônomo no workflow de SWE (Dailies, Code Reviews, Docs e negociação de requisitos).</p>
+            </div>
+        </section>
+
+        <!-- INFORMAÇÕES ADICIONAIS & FIT CULTURAL -->
+        <section class="keep-together">
+            <h3 class="section-title">Informações Adicionais &amp; Perfil Profissional</h3>
+            <div class="grid grid-cols-2 gap-4 text-[11.5px] text-slate-700">
+                <div>
+                    <p class="mb-1"><strong>Disponibilidade &amp; Setup:</strong> Imediata (100% Remoto, Global). Infraestrutura própria de alto desempenho, início imediato (Zero Onboarding Tech Delay).</p>
+                    <p><strong>Pretensão &amp; Contratação:</strong> CLT R$ 8.000 / PJ R$ 12.000. Apto a B2B/Contractor no Brasil, EUA e Europa.</p>
+                </div>
+                <div>
+                    <p><strong>Fit Cultural &amp; Soft Skills:</strong> <em>Extreme Ownership</em> (Postura de Dono), resiliência em incidentes críticos, comunicação assertiva do C-Level à base técnica e mentoria ativa de devs júnior e pleno.</p>
+                </div>
+            </div></section>
+
+        <!-- FOOTER PAGINA 2 -->
+        <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+            Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v0.16.8 — Página 2 de 2
+        </div>
+    </div>
+
+
+</body></html>

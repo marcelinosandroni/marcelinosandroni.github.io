@@ -111,25 +111,26 @@ describe("the fixed artifact", () => {
     return expect(availableResumeVariants("pt-BR", "no-such-root-for-tests")).resolves.toEqual([]);
   });
 
-  it("offers exactly what is on disk, so an unrendered variant is never offered", async () => {
+  it("offers every catalogue variant that has been rendered, in Portuguese", async () => {
     /*
-      The coupling that keeps the selector honest: it is built from availability, so
-      offering a variant and failing to serve it are the same event and cannot
-      drift apart.
+      The catalogue and the disk are pinned to each other.
 
-      Today only the general document is rendered. When the specialised ones are
-      produced this expectation starts failing until they exist, which is the point
-      - it fails on the day the selector would start lying, not after.
+      The selector is built from availability, so offering a variant and failing to
+      serve it cannot drift apart at runtime - but a slug added to `RESUME_VARIANTS`
+      without a rendered document still has to be caught somewhere. This is that
+      place: adding a variant to the catalogue means committing its artifact, and
+      this test fails in between rather than the endpoint quietly 404ing in
+      production.
+
+      Stated for the Portuguese set only, because that is the set that is finished.
+      The English specialised documents are still being produced, and the selector
+      already refuses to offer what is not there, so the gap is a missing feature
+      rather than a broken promise. This assertion widens to both locales when
+      those documents land.
     */
     const offered = await availableResumeVariants("pt-BR", process.cwd());
 
-    expect(offered.length).toBeLessThan(RESUME_VARIANTS.length);
-
-    for (const variant of offered) {
-      const artifact = await readFixedResumeArtifact("pt-BR", variant, process.cwd());
-
-      expect(artifact, `${variant} offered without a file`).not.toBeNull();
-    }
+    expect(offered).toEqual([...RESUME_VARIANTS]);
   });
 
   it("names the file the same way the download button does", () => {
