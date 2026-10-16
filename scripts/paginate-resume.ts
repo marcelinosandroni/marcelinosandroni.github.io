@@ -1,0 +1,247 @@
+import { chromium } from "playwright";
+
+/**
+ * Flows a document's blocks into as many sheets as it needs.
+ *
+ * ## Why this exists
+ *
+ * The pages used to be hardcoded: two `.a4-page` divs, two footers reading
+ * "Página 1 de 2", and a build that failed the moment a section outgrew its box.
+ * That made the page count a constraint the content had to be cut to meet, rather
+ * than a fact about the content.
+ *
+ * It inverts the relationship. A document is an ordered list of blocks and the
+ * page count is whatever falls out of packing them. Adding a section no longer
+ * means deciding what to delete.
+ *
+ * ## Why it runs twice
+ *
+ * Because measuring the blocks up front is not enough.
+ *
+ * The first pass measures every block inside one long sheet, sums the heights and
+ * packs. That sum is consistently a few millimetres short of what the regrouped
+ * document actually lays out - 10mm on a sheet with several blocks - so the
+ * document claims three pages and prints four, with "Página 3 de 3" sitting on
+ * sheet four where the reader can see it is wrong.
+ *
+ * The second pass measures the blocks again, but in the grouped document they
+ * were actually placed in, and packs from those numbers. Same blocks, real
+ * context, and the pack converges on what the renderer produces rather than on
+ * what was predicted for it.
+ *
+ * ## Why a block is never split
+ *
+ * A role that straddles a page break is read as two different jobs, and a skills
+ * inventory split across sheets reads as two lists that happen to continue. If a
+ * block does not fit in what is left of a sheet it moves whole.
+ */
+
+/** A4 is 297mm tall; the print stylesheet leaves 10mm above and below. */
+const SHEET_MM = 297;
+const PADDING_MM = 10;
+const USABLE_MM = SHEET_MM - PADDING_MM * 2;
+
+const MM_PER_PX = 25.4 / 96;
+
+type Measured = {
+  readonly id: string;
+  readonly html: string;
+  readonly spaceMm: number;
+  /** Page one carries the name, contact details and photo block. */
+  readonly pinnedToFirstPage: boolean;
+};
+
+type Shell = {
+  readonly beforeFirstPage: string;
+  readonly afterLastPage: string;
+};
+
+/**
+ * Rebuilds `html` with its blocks distributed across as many sheets as needed.
+ */
+export async function paginate(
+  html: string,
+  options: { readonly footer?: (page: number, total: number) => string } = {},
+): Promise<{ html: string; pages: number }> {
+  const shell = splitShell(html);
+  const footer = options.footer ?? defaultFooter;
+
+  let blocks = await measure(html);
+  let sheets = pack(blocks);
+
+  /*
+    Second pass, measured on the grouped document.
+
+    Blocks keep their identity across the regrouping - each still carries its
+    `data-block` name - so the second measurement lines up one-to-one with the
+    first and the second pack is a correction rather than a reshuffle.
+  */
+  blocks = await measure(render(shell, sheets, footer));
+  sheets = pack(blocks);
+
+  const out = render(shell, sheets, footer);
+
+  return { html: out, pages: sheets.length };
+}
+
+/** The parts of the document that are not content. */
+function splitShell(html: string): Shell {
+  const firstPage = html.indexOf('<div class="a4-page">');
+  const close = html.lastIndexOf("</body>");
+
+  if (firstPage === -1 || close === -1) {
+    throw new Error("no .a4-page to work from - is this a résumé document?");
+  }
+
+  return {
+    beforeFirstPage: html.slice(0, firstPage),
+    afterLastPage: html.slice(close),
+  };
+}
+
+/** Reads every block's occupied vertical space, in millimetres. */
+async function measure(html: string): Promise<ReadonlyArray<Measured>> {
+  const browser = await chromium.launch();
+
+  try {
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle" });
+    await page.emulateMedia({ media: "print" });
+    await page.evaluate(() => document.fonts.ready);
+
+    const measured = await page.evaluate(() => {
+      const all = Array.from(document.querySelectorAll<HTMLElement>("[data-block]"));
+
+      /*
+        Blocks must not nest.
+
+        A nested block already sits inside its parent's box, so measuring both
+        counts the same content twice: the parent whole, and the child as a slice
+        of it. The child then measures as roughly zero and the packing quietly
+        works from numbers that do not describe the page. Failing here turns that
+        into a build error instead of a document that runs long.
+      */
+      const nested = all.filter((node) => node.parentElement?.closest("[data-block]") !== null);
+
+      if (nested.length > 0) {
+        throw new Error(
+          `nested data-block elements: ${nested.map((n) => n.dataset.block).join(", ")}`,
+        );
+      }
+
+      /*
+        Measured as the gap between one block's bottom edge and the next one's,
+        not as each block's own height.
+
+        A block's height excludes its margins, and summing heights therefore drops
+        every margin between siblings - five roles with `mb-4` lose roughly 20mm
+        that the sheet really needs. Measuring bottom-to-bottom captures the
+        distance the renderer actually produced, including the margins and
+        including the collapsing between them.
+      */
+      const sheet = document.querySelector<HTMLElement>(".a4-page");
+      const sheetBox = sheet?.getBoundingClientRect();
+      const paddingTop = sheet === null ? 0 : parseFloat(getComputedStyle(sheet).paddingTop);
+
+      let cursor = sheetBox === undefined ? 0 : sheetBox.top + paddingTop;
+
+      return all.map((node) => {
+        const box = node.getBoundingClientRect();
+        const space = box.bottom - cursor;
+
+        // A sheet boundary resets the cursor to the next sheet's content top.
+        cursor = box.bottom;
+
+        return {
+          id: node.dataset.block ?? "",
+          pinned: node.dataset.pinned === "first",
+          space,
+          html: node.outerHTML,
+        };
+      });
+    });
+
+    await page.close();
+
+    if (measured.length === 0) {
+      throw new Error("no blocks marked with data-block - nothing to paginate");
+    }
+
+    return measured.map((block) => ({
+      id: block.id,
+      html: block.html,
+      spaceMm: block.space * MM_PER_PX,
+      pinnedToFirstPage: block.pinned,
+    }));
+  } finally {
+    await browser.close();
+  }
+}
+
+/** Greedy first-fit: a block goes on the current sheet if it fits, else the next. */
+function pack(blocks: ReadonlyArray<Measured>): ReadonlyArray<ReadonlyArray<Measured>> {
+  const sheets: Measured[][] = [];
+  let current: Measured[] = [];
+  let used = 0;
+
+  const closeSheet = (): void => {
+    sheets.push(current);
+    current = [];
+    used = 0;
+  };
+
+  for (const block of blocks) {
+    // The header belongs on the first sheet and is never pushed off it.
+    if (block.pinnedToFirstPage) {
+      if (sheets.length > 0) {
+        closeSheet();
+      }
+      current.push(block);
+      used += block.spaceMm;
+      continue;
+    }
+
+    // A sheet that already holds a role is closed rather than overrun.
+    if (used + block.spaceMm > USABLE_MM && current.some((b) => !b.pinnedToFirstPage)) {
+      closeSheet();
+    }
+
+    current.push(block);
+    used += block.spaceMm;
+  }
+
+  if (current.length > 0) {
+    closeSheet();
+  }
+
+  return sheets;
+}
+
+function render(
+  shell: Shell,
+  sheets: ReadonlyArray<ReadonlyArray<Measured>>,
+  footer: (page: number, total: number) => string,
+): string {
+  const total = sheets.length;
+
+  const pages = sheets
+    .map((blocks, index) => {
+      const body = blocks
+        .map((block) => block.html.replace(/^\s+/, ""))
+        .join("\n\n        ");
+
+      return `
+        <div class="a4-page">
+        ${body}
+            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                ${footer(index + 1, total)}
+            </div>
+        </div>`;
+    })
+    .join("\n");
+
+  return `${shell.beforeFirstPage}${pages}${shell.afterLastPage}`;
+}
+
+const defaultFooter = (page: number, total: number): string =>
+  `Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página ${page} de ${total}`;

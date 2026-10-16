@@ -17,35 +17,105 @@
  * box, and which metrics are given the four headline slots.
  */
 
+/**
+ * How long a role lasted, worked out from its own dates.
+ *
+ * Computed rather than typed, because a duration written next to the dates it
+ * describes is a second copy of the same fact - and the second copy is the one
+ * that goes stale. Someone moves the start date, the "2 anos" beside it keeps
+ * saying 2 anos, and nothing on the page contradicts the reader. It just quietly
+ * becomes wrong, which is the kind of error a résumé cannot afford.
+ *
+ * Read out of the period string, so editing a date corrects the duration on the
+ * next build with no second edit to remember.
+ */
+const MONTH_INDEX: Readonly<Record<string, number>> = {
+  jan: 1, fev: 2, mar: 3, abr: 4, mai: 5, jun: 6,
+  jul: 7, ago: 8, set: 9, out: 10, nov: 11, dez: 12,
+};
+
+const duration = (period: string): string => {
+  /*
+    Only the dates, never the whole period string.
+
+    The period carries the location too - "Out/2025 – Set/2026 · Remoto" - and
+    splitting that on "/" leaves "2026 · Remoto" as the year, which parses to NaN
+    and prints "NaN anos e NaN meses" on the document. A recruiter would read that
+    as a bug in the résumé, and rightly so.
+  */
+  const [from, to] = period
+    .split("·")[0]
+    .split("–")
+    .map((part) => part.trim());
+
+  if (from === undefined || to === undefined) {
+    throw new Error(`period is not a range: "${period}"`);
+  }
+
+  const [fromMonth, fromYear] = from.split("/");
+  const [toMonth, toYear] = to.split("/");
+
+  const startMonth = MONTH_INDEX[(fromMonth ?? "").toLowerCase()];
+  const endMonth = MONTH_INDEX[(toMonth ?? "").toLowerCase()];
+  const startYear = Number(fromYear);
+  const endYear = Number(toYear);
+
+  if (
+    startMonth === undefined ||
+    endMonth === undefined ||
+    Number.isNaN(startYear) ||
+    Number.isNaN(endYear)
+  ) {
+    throw new Error(`cannot read a range out of period: "${period}"`);
+  }
+
+  /*
+    Inclusive: both the first month and the last one are counted.
+
+    A job held from October to September was worked in twelve months, not eleven,
+    and everyone describing a tenure counts it that way - "I was there a year"
+    is the truth of the calendar, and the month you joined is a month you worked.
+    Strict subtraction reads a one-year contract as eleven months, which is a
+    rounding that happens to be wrong about the candidate's only job.
+  */
+  const total = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+
+  if (total < 1) {
+    throw new Error(`period ends before it starts: "${period}"`);
+  }
+
+  const years = Math.floor(total / 12);
+  const months = total % 12;
+
+  if (years === 0) {
+    return `${months} ${months === 1 ? "mês" : "meses"}`;
+  }
+
+  if (months === 0) {
+    return `${years} ${years === 1 ? "ano" : "anos"}`;
+  }
+
+  return `${years} ${years === 1 ? "ano" : "anos"} e ${months} ${months === 1 ? "mês" : "meses"}`;
+};
+
 /** The wrapper the role block uses in the shell, repeated per role. */
 const role = (opts: {
   readonly title: string;
   readonly company: string;
   readonly period: string;
-  /**
-   * Omitted when the variant carries a full technical inventory instead.
-   *
-   * These two carry the same information, so a document with both is stating it
-   * twice and paying for the privilege. The general résumé keeps the per-role box
-   * because it has no inventory; the specialists that do have one drop the box.
-   */
-  readonly tech?: ReadonlyArray<string>;
+  readonly tech: ReadonlyArray<string>;
   readonly bullets: ReadonlyArray<string>;
   readonly margin: string;
   readonly badge?: string;
 }): string => `
-            <div class="${opts.margin} keep-together">
+            <div class="${opts.margin} keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">${opts.title} <span class="text-slate-400 font-normal">| ${opts.company}</span>${opts.badge ?? ""}</h4>
-                    <span class="text-xs font-semibold text-slate-600">${opts.period}</span>
-                </div>${
-                  opts.tech === undefined
-                    ? ""
-                    : `
+                    <span class="text-xs font-semibold text-slate-600">${duration(opts.period)} (${opts.period.split("·")[0].trim()}) · ${opts.period.split("·")[1]?.trim() ?? ""}</span>
+                </div>
                 <div class="tech-box">
 ${opts.tech.map((line) => `                    ${line}<br>`).join("\n").replace(/<br>$/, "")}
-                </div>`
-                }
+                </div>
                 <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
 ${opts.bullets.map((b) => `                    <li>${b}</li>`).join("\n")}
                 </ul>
@@ -66,33 +136,13 @@ ${cards
   .join("\n")}
             </div>`;
 
-/**
- * Availability, compensation and the closing block.
- *
- * Single column, at the same size as the experience bullets.
- *
- * Both of those are deliberate and both came from reading the rendered document
- * rather than the markup. Two columns put the compensation next to a paragraph of
- * soft skills, so the one number a recruiter reads first shares a line with the
- * least concrete thing on the page. And the skills inventory sat a half-point
- * smaller than everything around it, which on a document read in four minutes
- * reads as an appendix even though it is the part answering "is this the person".
- *
- * The trailing lines are per-variant so a specialist document can say what it
- * offers - engagement models, leadership scope - without the general one
- * claiming things that are only true of a particular stack.
- */
-const extras = (
-  lines: ReadonlyArray<string>,
-  engagement?: string,
-): string => `
-            <div class="text-[11.5px] text-slate-700">
-                <p class="mb-1"><strong>Disponibilidade:</strong> Imediata</p>
-                <p class="mb-1"><strong>Pretensão &amp; Contratação:</strong> ${
-                  engagement ?? "CLT R$ 8.000 / PJ R$ 12.000. Apto a B2B/Contractor no Brasil, EUA e Europa."
-                }</p>
-${lines.map((line) => `                <p class="mb-1">${line}</p>`).join("\n")}
-            </div>`;
+/* The closing block is not defined here.
+
+   Availability, engagement, communication, leadership and governance are the same
+   words in all four documents, so they live in the shell and every variant
+   inherits them. Defining them per-variant would have meant four copies of the
+   same paragraph and a fourth place to forget to update - which is how "identical
+   across all versions" quietly stops being true. */
 
 const summary = (lead: string, body: string): string => `
             <p class="text-[12.5px] leading-relaxed text-slate-700 text-justify">
@@ -123,12 +173,15 @@ slug: "enterprise-java",
         ["100M+ msgs/dia", "Alta Escala", "Arquitetura orientada a eventos, tolerante a falhas, orquestrada via AWS."],
         ["95%", "Cobertura de Testes", "Cultura de QA e TDD em backend (JUnit) e frontend (Cypress)."],
       ]),
-      experienceA:
-        role({
+    },
+    experience: [        role({
           title: "Engenheiro de Software &amp; Tech Lead",
           company: "DGT Tecnologia",
           period: "Out/2025 – Set/2026 · Remoto",
           margin: "mb-4 keep-together",
+          tech: [
+            "<strong>Stack Enterprise:</strong> Java, Spring Boot, Spring AI, Angular, TypeScript, Micro-frontends, PostgreSQL (pgvector), Redis, RabbitMQ, gRPC, Kubernetes, AWS.",
+          ],
           bullets: [
             "<strong>Liderança Técnica &amp; Integração IA:</strong> Liderança de squad multidisciplinar de 8 pessoas (Back, Front, QA e Dados) na reestruturação de sistemas críticos processando 100M+ mensagens/dia. IA Corporativa conectando o backend via Spring AI e Amazon Bedrock para fluxos agênticos em tempo real, com assertividade absoluta (contrato de R$ 24M/ano preservado).",
             "<strong>Aceleração de 10x no Processamento:</strong> Migração de arquitetura relacional gargalo para um ecossistema de microsserviços distribuídos em Java, otimizado com tuning de JVM (ZGC) e comunicação de baixa latência via gRPC e RabbitMQ.",
@@ -139,6 +192,9 @@ slug: "enterprise-java",
           company: "Banco BNP Paribas (via Antlia)",
           period: "Dez/2022 – Set/2025 · Híbrido",
           margin: "mb-2 keep-together",
+          tech: [
+            "<strong>Stack Enterprise:</strong> Java (Spring Boot/Cloud/Batch), Angular, Micro-frontends, Oracle SQL, Kafka, OAuth2, Kubernetes, Jenkins, Helm, Arquitetura Hexagonal.",
+          ],
           bullets: [
             "<strong>Modernização de Monolito Bancário:</strong> Pilar técnico de uma tribo de 12 desenvolvedores no desacoplamento de sistemas legados críticos (COBOL, VB) do maior cliente do banco para arquitetura orientada a eventos com Java e interfaces modulares em Angular, alcançando 95% de cobertura em testes.",
             "<strong>Liquidação D+0 &amp; Tempo Real:</strong> Substituição de esteiras obsoletas (D+1) por conciliação de fundos em tempo real via Apache Kafka e rotinas massivas com Spring Batch, gerando +45% nos ativos geridos em 1 ano com SLA de 100% uptime.",
@@ -149,17 +205,22 @@ slug: "enterprise-java",
           company: "Zup Innovation",
           period: "Mar/2019 – Jun/2020 · Remoto",
           margin: "mb-4 keep-together",
+          tech: [
+            "<strong>Stack Enterprise:</strong> Java, Angular, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, Kubernetes, CI/CD.",
+          ],
           bullets: [
             "<strong>Evolução de Carreira e Migração Cloud:</strong> Contratado inicialmente como Júnior e promovido a Pleno em 1 ano pelo impacto em entregas críticas. Time ágil de 6 desenvolvedores refatorando serviços monolíticos em Java para arquiteturas baseadas em eventos, migrando para AWS na metade do prazo.",
             "<strong>Resiliência e Circuit Breakers:</strong> Correção estrutural em integrações de mensageria assíncrona com RabbitMQ, implementando Circuit Breakers e Dead Letter Queues (DLQs), elevando a assertividade de dados transacionais para 100%.",
           ],
         }),
-      experienceB:
-        role({
+      ].flat().concat([        role({
           title: "Engenheiro de Software",
           company: "Banco Itaú",
           period: "Jul/2020 – Nov/2022 · Híbrido",
           margin: "mb-4 keep-together",
+          tech: [
+            "<strong>Stack Enterprise:</strong> Java (Spring Boot/WebFlux), Angular, TypeScript, PostgreSQL, Redis, Kafka, AWS, Docker, Kubernetes, Terraform.",
+          ],
           bullets: [
             "<strong>Custódia Institucional Estratégica (+R$ 100 Bi):</strong> Orquestração conjunta em esquadrão de 15 engenheiros e especialistas desenhando e sustentando plataforma B2B conectada à B3, com arquitetura cloud-native na AWS (EKS, RDS, SQS), APIs reativas em Java e painéis Angular.",
             "<strong>Gestão de Crises e Resiliência:</strong> Resolução de gargalos críticos de concorrência em mensageria Kafka sob tráfego de alta volatilidade em menos de 24h, aplicando políticas estritas de idempotência para manter a integridade transacional.",
@@ -170,37 +231,40 @@ slug: "enterprise-java",
           company: "Consultoria Corporativa",
           period: "Jul/2003 – Dez/2018 · São Paulo",
           margin: "mb-5 keep-together",
+          tech: [
+            "<strong>Core Business:</strong> FinOps, Automação de Processos ERP, Compliance SOX, IFRS/CPC, Planejamento Tributário e Integração de Dados.",
+          ],
           bullets: [
             "<strong>Diferencial em Engenharia Corporativa:</strong> Liderança de equipes e redesenho de processos que reduziu o fechamento contábil de 30 para 5 dias (-83%), com 15 anos em FinOps, ERP, SOX e planejamento tributário e expertise em regras financeiras traduzidas para equipes de software (DDD).",
           ],
         }),
-      extras: extras(
-        [
-          "<strong>Liderança:</strong> Orquestração de esquadrões ágeis e transição fluida entre o alinhamento estratégico com C-Levels (Negócios) e a execução com times técnicos, com mentoria ativa em devs Júnior/Pleno.",
-          "<strong>Governança:</strong> <em>Extreme Ownership</em> e resiliência comprovada na gestão de incidentes críticos. Traduzo regras complexas do mercado financeiro (IFRS, SOX) para as bases de engenharia (DDD, Clean Architecture).",
-        ],
-        "CLT R$ 8.000 / PJ R$ 12.000. Ampla flexibilidade: Full-time, Part-time ou Consultoria sob demanda (projetos de modernização de escopo fechado) no Brasil, EUA e Europa.",
-      ),
-    },
+      ]),
   },
+
   {
     slug: "enterprise-dotnet",
     label: "Enterprise C# + Angular",
     title: "Marcelino Sandroni - Engenheiro C# e Angular",
     headline: "Engenheiro de Software | C# &amp; Angular",
+    skills: `<div class="text-[11.5px] text-slate-700">
+                <p class="mb-1"><strong>Frontend &amp; UI Architecture:</strong> Angular, TypeScript, RxJS, NgRx, Micro-frontends (Module Federation), SSR, Design Systems, Tailwind CSS, Angular Material, Cypress, Flutter.</p>
+                <p class="mb-1"><strong>Backend &amp; Frameworks:</strong> C# (.NET Core 6/8), ASP.NET Core, Entity Framework Core, xUnit, REST, gRPC, Clean Architecture, DDD, CQRS, SOLID.</p>
+                <p class="mb-1"><strong>Cloud, DevOps &amp; Mensageria:</strong> AWS (EKS, ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, Secrets Manager, KMS), Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Apache Kafka, RabbitMQ, OpenTelemetry, Prometheus.</p>
+                <p class="mb-1"><strong>Dados &amp; Analítico:</strong> SQL Server, PostgreSQL, MySQL, Oracle, Redis, MongoDB, ClickHouse, Databricks, RAG, LangChain.</p>
+            </div>`,
     sections: {
       summary: summary(
         "Engenheiro de Software especializado em C#/.NET e Angular para plataformas de ativos e custódia, ",
-        "com 6 anos de engenharia de software e 15 anos em governança financeira. No Itaú desenhei a plataforma que sustenta +R$ 100 bilhões em custódia e liderei a adoção de testes automatizados em .NET, Angular e Flutter que elevou a qualidade em 8x. Antes disso, modernizei sistemas C# monolíticos que eu próprio já tinha herdado — sei exatamente o que dói em um codebase de .NET quando ele precisa virar outra coisa.",
+        "com 6 anos de engenharia de software e 15 em governança financeira. No Itaú desenhei a plataforma que sustenta +R$ 100 bilhões em custódia e liderei a adoção de testes automatizados em .NET, Angular e Flutter que elevou a qualidade em 8x.",
       ),
       metrics: metrics([
-        ["+R$ 100 Bi", "Custódia em Custódia", "Plataforma B2B integrada à B3 com visão multi-carteira."],
+        ["+R$ 100 Bi", "Custódia", "Plataforma B2B integrada à B3 com visão multi-carteira."],
         ["8x", "Qualidade", "Programa de testes em .NET, Angular e Flutter."],
         ["80%+", "Cobertura", "xUnit, JUnit e Cypress com pipeline por commit."],
         ["&lt;24h", "Resgate Crítico", "Lançamento com falha entregue no prazo."],
       ]),
-      experienceA:
-        role({
+    },
+    experience: [        role({
           title: "Engenheiro de Software &amp; Tech Lead",
           company: "DGT Tecnologia",
           period: "Jan/2026 – Set/2026 · Remoto",
@@ -231,8 +295,7 @@ slug: "enterprise-java",
             "<strong>Arquitetura hexagonal como padrão do banco:</strong> SOLID e Clean Code em todos os serviços, com code review sistemático e definição clara de DoR/DoD.",
           ],
         }),
-      experienceB:
-        role({
+      ].flat().concat([        role({
           title: "Engenheiro de Software",
           company: "Banco Itaú (Atacado)",
           period: "Mar/2022 – Fev/2023 · Híbrido",
@@ -277,10 +340,7 @@ slug: "enterprise-java",
             "<strong>Economia de +R$ 3 milhões:</strong> Planejamento tributário e reclassificação contábil com rigor auditável.",
           ],
         }),
-      extras: extras([
-        "<strong>Fit Cultural &amp; Soft Skills:</strong> <em>Extreme Ownership</em> (Postura de Dono), resiliência em incidentes críticos, comunicação assertiva do C-Level à base técnica e mentoria ativa de devs júnior e pleno.",
       ]),
-    },
   },
 
   {
@@ -288,6 +348,13 @@ slug: "enterprise-java",
     label: "Modern Node + Go + React",
     title: "Marcelino Sandroni - Engenheiro Node, Go e React",
     headline: "Engenheiro de Software | Node, Go &amp; React",
+    skills: `<div class="text-[11.5px] text-slate-700">
+                <p class="mb-1"><strong>Frontend &amp; UI:</strong> React, Next.js (RSC, SSR), Angular, Vue.js, React Native, TypeScript, Micro-frontends (Module Federation), Storybook, Tailwind CSS, Design Systems.</p>
+                <p class="mb-1"><strong>Backend &amp; Distribuídos:</strong> Node.js, NestJS, Go, Java (Spring Boot), .NET Core, Python, REST, gRPC, WebSockets, Circuit Breakers, RabbitMQ (DLQ), Apache Kafka, Serverless.</p>
+                <p class="mb-1"><strong>Dados &amp; Analítico:</strong> PostgreSQL, MySQL, MongoDB, Redis, ClickHouse, Databricks, ETL, Pipelines de Dados.</p>
+                <p class="mb-1"><strong>Cloud, DevOps &amp; SRE:</strong> AWS (EKS, ECS, Lambda, S3, RDS, DynamoDB, SQS, EventBridge, API Gateway), GCP, Azure, Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Prometheus, Grafana, Jaeger, OpenTelemetry.</p>
+                <p class="mb-1"><strong>IA &amp; Dados Aplicacionais:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, Agentes LLM, Visão Computacional, SDD (Spec Driven Development).</p>
+            </div>`,
     sections: {
       summary: summary(
         "Engenheiro de Software focado em Node, Go e React para sistemas de alta escala, ",
@@ -299,8 +366,8 @@ slug: "enterprise-java",
         ["4h → 15min", "Deploy", "Pipeline declarativo em Kubernetes."],
         ["-50%", "Custo Cloud", "Auto-scaling e right-sizing na AWS."],
       ]),
-      experienceA:
-        role({
+    },
+    experience: [        role({
           title: "Engenheiro de Software &amp; Tech Lead",
           company: "DGT Tecnologia",
           period: "Jan/2026 – Set/2026 · Remoto",
@@ -332,8 +399,7 @@ slug: "enterprise-java",
             "<strong>+R$ 50 milhões em oportunidades:</strong> Automatizei a orquestração global de fundos ETF sob compliance SOX.",
           ],
         }),
-      experienceB:
-        role({
+      ].flat().concat([        role({
           title: "Engenheiro de Software Pleno",
           company: "Pollux Technology",
           period: "Fev/2021 – Fev/2022 · Remoto",
@@ -376,9 +442,6 @@ slug: "enterprise-java",
             "<strong>Economia de +R$ 3 milhões:</strong> Planejamento tributário e alocação precisa de capital de giro.",
           ],
         }),
-      extras: extras([
-        "<strong>Fit Cultural &amp; Soft Skills:</strong> <em>Extreme Ownership</em> (Postura de Dono), performance como requisito e não como curiosidade, resiliência em incidentes críticos, comunicação assertiva do C-Level à base técnica e autodidatismo para stacks novas.",
       ]),
-    },
   },
 ] as const;

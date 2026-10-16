@@ -99,9 +99,9 @@
 <body class="antialiased text-sm">
 
     <!-- PÁGINA 1 -->
-    <div class="a4-page">
-        <!-- HEADER -->
-        <header class="mb-4">
+    
+        <div class="a4-page">
+        <header class="mb-4" data-block="header" data-pinned="first">
             <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase">Marcelino Sandroni Dias</h1>
             <h2 class="text-base font-bold text-slate-700 mt-1 mb-3">Engenheiro de Software | C# &amp; Angular</h2>
 
@@ -133,20 +133,18 @@
             </div>
         </header>
 
-        <!-- RESUMO PROFISSIONAL -->
-        <section class="mb-4">
+        <section class="mb-4" data-block="resumo">
             <h3 class="section-title">Resumo Profissional</h3>
             <p class="text-[12.5px] leading-relaxed text-slate-700 text-justify">
-                <strong>Engenheiro de Software especializado em C#/.NET e Angular para plataformas de ativos e custódia, </strong>com 6 anos de engenharia de software e 15 anos em governança financeira. No Itaú desenhei a plataforma que sustenta +R$ 100 bilhões em custódia e liderei a adoção de testes automatizados em .NET, Angular e Flutter que elevou a qualidade em 8x. Antes disso, modernizei sistemas C# monolíticos que eu próprio já tinha herdado — sei exatamente o que dói em um codebase de .NET quando ele precisa virar outra coisa.</p></section>
+                <strong>Engenheiro de Software especializado em C#/.NET e Angular para plataformas de ativos e custódia, </strong>com 6 anos de engenharia de software e 15 em governança financeira. No Itaú desenhei a plataforma que sustenta +R$ 100 bilhões em custódia e liderei a adoção de testes automatizados em .NET, Angular e Flutter que elevou a qualidade em 8x.</p></section>
 
-        <!-- MÉTRICAS DE IMPACTO -->
-        <section class="mb-4 keep-together">
+        <section class="mb-4 keep-together" data-block="metricas">
             <h3 class="section-title">Principais Métricas de Impacto em Produção</h3>
             <div class="grid grid-cols-4 gap-3 text-center">
 
                 <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
                     <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">+R$ 100 Bi</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Custódia em Custódia</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Custódia</div>
                     <div class="text-[9px] text-slate-500 font-medium leading-tight">Plataforma B2B integrada à B3 com visão multi-carteira.</div>
                 </div>
 
@@ -169,13 +167,21 @@
                 </div>
             </div></section>
 
-        <!-- EXPERIÊNCIA PROFISSIONAL (PÁGINA 1) -->
-        <section>
-            <h3 class="section-title">Experiência Profissional</h3>
-            <div class="mb-4 keep-together keep-together">
+        <section class="mb-4 keep-together" data-block="habilidades">
+            <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>
+<div class="text-[11.5px] text-slate-700">
+                <p class="mb-1"><strong>Frontend &amp; UI Architecture:</strong> Angular, TypeScript, RxJS, NgRx, Micro-frontends (Module Federation), SSR, Design Systems, Tailwind CSS, Angular Material, Cypress, Flutter.</p>
+                <p class="mb-1"><strong>Backend &amp; Frameworks:</strong> C# (.NET Core 6/8), ASP.NET Core, Entity Framework Core, xUnit, REST, gRPC, Clean Architecture, DDD, CQRS, SOLID.</p>
+                <p class="mb-1"><strong>Cloud, DevOps &amp; Mensageria:</strong> AWS (EKS, ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, Secrets Manager, KMS), Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Apache Kafka, RabbitMQ, OpenTelemetry, Prometheus.</p>
+                <p class="mb-1"><strong>Dados &amp; Analítico:</strong> SQL Server, PostgreSQL, MySQL, Oracle, Redis, MongoDB, ClickHouse, Databricks, RAG, LangChain.</p>
+            </div>
+        </section>
+
+        <div class="mb-4 keep-together keep-together" data-block="cargo">
+                <h3 class="section-title">Experiência Profissional</h3>
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT Tecnologia</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">Jan/2026 – Set/2026 · Remoto</span>
+                    <span class="text-xs font-semibold text-slate-600">9 meses (Jan/2026 – Set/2026) · Remoto</span>
                 </div>
                 <div class="tech-box">
                     <strong>C# &amp; .NET:</strong> .NET Core, ASP.NET, NuGet, xUnit, Microsserviços .NET, Entity Framework.<br>
@@ -189,10 +195,16 @@
                     <li><strong>Cultura de reutilização em .NET:</strong> Bibliotecas NuGet e Maven privadas, design system Angular documentado em Storybook e portal de arquitetura com ADRs, onboarding de meses para semanas.</li>
                 </ul>
             </div>
-            <div class="mb-2 keep-together keep-together">
+            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 1 de 3
+            </div>
+        </div>
+
+        <div class="a4-page">
+        <div class="mb-2 keep-together keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software <span class="text-slate-400 font-normal">| Antlia / Banco BNP Paribas</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">Mar/2023 – Dez/2025 · Híbrido</span>
+                    <span class="text-xs font-semibold text-slate-600">2 anos e 10 meses (Mar/2023 – Dez/2025) · Híbrido</span>
                 </div>
                 <div class="tech-box">
                     <strong>C# &amp; .NET:</strong> .NET Core, ASP.NET, NuGet, xUnit, Entity Framework.<br>
@@ -203,22 +215,12 @@
                     <li><strong>Migração de legado C# e VB para arquitetura orientada a eventos:</strong> Desacoplei sistemas em COBOL, VB e C# com Kafka, quebrando monolitos em microsserviços e Angular, alcançando 95%+ de cobertura de testes.</li>
                     <li><strong>Arquitetura hexagonal como padrão do banco:</strong> SOLID e Clean Code em todos os serviços, com code review sistemático e definição clara de DoR/DoD.</li>
                 </ul>
-            </div></section>
+            </div>
 
-        <!-- FOOTER PAGINA 1 -->
-        <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-            Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v0.16.8 — Página 1 de 2
-        </div>
-    </div>
-
-    <!-- PÁGINA 2 -->
-    <div class="a4-page">
-        <section>
-            <h3 class="section-title mt-0">Experiência Profissional (Continuação)</h3>
-            <div class="mb-4 keep-together keep-together">
+        <div class="mb-4 keep-together keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software <span class="text-slate-400 font-normal">| Banco Itaú (Atacado)</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">Mar/2022 – Fev/2023 · Híbrido</span>
+                    <span class="text-xs font-semibold text-slate-600">1 ano (Mar/2022 – Fev/2023) · Híbrido</span>
                 </div>
                 <div class="tech-box">
                     <strong>C# &amp; .NET:</strong> .NET Core, ASP.NET, Entity Framework, xUnit, Testes de integração com banco embutido.<br>
@@ -232,10 +234,11 @@
                     <li><strong>Resgate de lançamento crítico em &lt;24h:</strong> Corrigi microsserviços de mensageria e integrações quebradas com observabilidade estruturada, entregando o lançamento no prazo.</li>
                 </ul>
             </div>
-            <div class="mb-4 keep-together keep-together">
+
+        <div class="mb-4 keep-together keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software Pleno <span class="text-slate-400 font-normal">| Pollux Technology</span> <span class="bg-emerald-100 text-emerald-800 px-1 py-0.5 rounded text-[9px] ml-1 uppercase font-bold">Promoção em 3 meses</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">Fev/2021 – Fev/2022 · Remoto</span>
+                    <span class="text-xs font-semibold text-slate-600">1 ano e 1 mês (Fev/2021 – Fev/2022) · Remoto</span>
                 </div>
                 <div class="tech-box">
                     <strong>C# &amp; Front:</strong> .NET, React, Next.js, Angular, TypeScript, Micro-frontends, Tailwind CSS, Design System.<br>
@@ -247,10 +250,16 @@
                     <li><strong>80% de entregas antecipadas:</strong> Com time de 5 pessoas em clientes de saúde, financeiro e esportes, sustentei 100% de pontualidade sob prazos apertados.</li>
                 </ul>
             </div>
-            <div class="mb-5 keep-together keep-together">
+            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 2 de 3
+            </div>
+        </div>
+
+        <div class="a4-page">
+        <div class="mb-5 keep-together keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Analista Contábil &amp; Gestor Financeiro <span class="text-slate-400 font-normal">| Consultoria Corporativa (15 Anos)</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">Jul/2005 – Dez/2020 · São Paulo</span>
+                    <span class="text-xs font-semibold text-slate-600">15 anos e 6 meses (Jul/2005 – Dez/2020) · São Paulo</span>
                 </div>
                 <div class="tech-box">
                     <strong>Core Business:</strong> FinOps, IFRS &amp; CPC, SOX Compliance, Planejamento Tributário, Automação de ERP. Diferencial estratégico: visão de balanço e compliance para desenhar a regra de negócio certa.
@@ -259,10 +268,9 @@
                     <li><strong>Fechamento contábil de 30 para 2 dias:</strong> Redesenho de processos liberando 20+ pessoas para funções de maior valor agregado.</li>
                     <li><strong>Economia de +R$ 3 milhões:</strong> Planejamento tributário e reclassificação contábil com rigor auditável.</li>
                 </ul>
-            </div></section>
+            </div>
 
-        <!-- FORMAÇÃO -->
-        <section class="mb-4 keep-together">
+        <section class="mb-4 keep-together" data-block="formacao">
             <h3 class="section-title">Formação Acadêmica &amp; Especializações</h3>
             <div class="space-y-2 text-xs text-slate-700">
                 <div class="flex justify-between">
@@ -276,8 +284,7 @@
             </div>
         </section>
 
-        <!-- IDIOMAS -->
-        <section class="mb-4 keep-together">
+        <section class="mb-4 keep-together" data-block="idiomas">
             <h3 class="section-title">Idiomas</h3>
             <div class="text-xs text-slate-700 flex flex-col gap-1" style="
     display: flex;
@@ -287,26 +294,22 @@
     align-items: center;
     /* gap: 1rem; */
 ">
-                <p><strong>Português:</strong> Nativo</p>
-<p><strong>Espanhol:</strong> Básico - Comunicação simples mas suficiente para trabalho no dia a dia</p>
-                <p><strong>Inglês:</strong> Profissional - 100% autônomo no workflow de SWE (Dailies, Code Reviews, Docs e negociação de requisitos).</p>
+                <p><strong>Português:</strong> Nativo. &nbsp; <strong>Espanhol:</strong> Básico (Apto para leitura técnica e comunicação assíncrona).</p>
+                <p><strong>Inglês Profissional:</strong> Fluente para dinâmica de trabalho corporativo, condução de reuniões de negócio, negociações com clientes, discussões de arquitetura, dailies e Code Reviews.</p>
             </div>
         </section>
 
-        <!-- INFORMAÇÕES ADICIONAIS & FIT CULTURAL -->
-        <section class="keep-together">
+        <section class="keep-together" data-block="informacoes">
             <h3 class="section-title">Informações Adicionais &amp; Perfil Profissional</h3>
             <div class="text-[11.5px] text-slate-700">
-                <p class="mb-1"><strong>Disponibilidade:</strong> Imediata</p>
-                <p class="mb-1"><strong>Pretensão &amp; Contratação:</strong> CLT R$ 8.000 / PJ R$ 12.000. Apto a B2B/Contractor no Brasil, EUA e Europa.</p>
-                <p class="mb-1"><strong>Fit Cultural &amp; Soft Skills:</strong> <em>Extreme Ownership</em> (Postura de Dono), resiliência em incidentes críticos, comunicação assertiva do C-Level à base técnica e mentoria ativa de devs júnior e pleno.</p>
-            </div></section>
-
-        <!-- FOOTER PAGINA 2 -->
-        <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-            Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v0.16.8 — Página 2 de 2
-        </div>
-    </div>
-
-
-</body></html>
+                <p class="mb-1"><strong>Disponibilidade:</strong> Imediata para atuação 100% Remota (Global).</p>
+                <p class="mb-1"><strong>Contratação:</strong> Ampla flexibilidade. Apto para atuar em modelos Full-time (CLT ou B2B/PJ), Part-time, ou Consultoria sob demanda (Projetos de modernização de escopo fechado) para Brasil, EUA e Europa.</p>
+                <p class="mb-1"><strong>Comunicação:</strong> Assertiva e transparente. Habilidade comprovada em negociar requisitos, alinhar expectativas de prazos e blindar o time técnico contra ruídos, garantindo clareza absoluta durante reportes executivos e gestão de incidentes críticos em produção.</p>
+                <p class="mb-1"><strong>Liderança:</strong> Orquestração de esquadrões ágeis e transição fluida entre o alinhamento estratégico com C-Levels (Negócios) e a execução com times técnicos. Mentoria ativa focada em elevar a régua de desenvolvedores Júnior/Pleno.</p>
+                <p><strong>Governança:</strong> Postura de dono absoluta e resiliência comprovada na gestão de crises. Especialista em traduzir regras complexas de negócios e regulamentações do mercado financeiro diretamente para a criação de sistemas de software seguros, escaláveis e de alta confiabilidade.</p>
+            </div>
+        </section>
+            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 3 de 3
+            </div>
+        </div></body></html>
