@@ -158,7 +158,7 @@ slug: "enterprise-java",
                 <p class="mb-1"><strong>Frontend &amp; UI Architecture:</strong> Angular (v8 à v22), TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends (Module Federation), Estado/Reatividade (RxJS, NgRx), SSR, Tailwind CSS, Angular Material, shadcn, Design Systems.</p>
                 <p class="mb-1"><strong>Backend &amp; Frameworks:</strong> Java (do 8 ao 25 LTS), Spring Boot 3.x (AOT/GraalVM), Spring Cloud, Spring WebFlux (Project Reactor), Spring Batch, Spring Security (OAuth2, OIDC, JWT, mTLS), Hibernate/JPA (N+1), Tuning de JVM (ZGC/G1GC).</p>
                 <p class="mb-1"><strong>Inteligência Artificial &amp; Dados:</strong> LLMs corporativos via Spring AI e LangChain4j, Amazon Bedrock (Claude/Titan), RAG, Agentic Workflows (Function Calling), Vector Databases (pgvector, Milvus).</p>
-                <p class="mb-1"><strong>Cloud (AWS), DevOps &amp; SRE:</strong> Ecossistema AWS (EKS/ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, CloudWatch), Docker, Kubernetes (Helm), Terraform, CI/CD (GitHub Actions, Bitbucket Pipelines, Jenkins), Observabilidade (OpenTelemetry, Datadog).</p>
+                <p class="mb-1"><strong>Cloud (AWS), DevOps &amp; SRE:</strong> AWS (EKS/ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, CloudWatch), Docker, Kubernetes (Helm), Terraform, CI/CD (GitHub Actions, Bitbucket Pipelines, Jenkins), Observabilidade (OpenTelemetry, Datadog).</p>
                 <p class="mb-1"><strong>Arquitetura, APIs &amp; Mensageria:</strong> RESTful Nível 3, gRPC, GraphQL, WebSockets/SSE, Apache Kafka (partições, idempotência), RabbitMQ (topic exchanges, DLQ), Circuit Breakers, Clean Architecture, DDD, CQRS, SOLID.</p>
                 <p class="mb-1"><strong>Ecossistema Analítico &amp; Bancos:</strong> Oracle, PostgreSQL, SQL Server, MongoDB, Redis, Cassandra, Neo4j, DynamoDB, DocumentDB, Snowflake, Databricks.</p>
             </div>`,
@@ -168,9 +168,9 @@ slug: "enterprise-java",
         "unindo 7+ anos de engenharia (Java, Spring Boot, Angular, Kafka) a 15 anos de sólida governança corporativa financeira. Traduzo regras complexas de negócios (balanço, tributação, liquidação) em ecossistemas de alta disponibilidade, reestruturando monolitos legados em microsserviços e micro-frontends sob compliance SOX.",
       ),
       metrics: metrics([
-        ["+R$ 500 Bi", "Gestão de Ativos", "Plataformas B2B de custódia institucional e orquestração de fundos."],
+        ["+R$ 500 Bi", "Gestão de Ativos", "Plataformas B2B de custódia e orquestração de fundos."],
         ["D+0", "Liquidação Real-Time", "De 24h (D+1) para menos de 1s, via Kafka e microsserviços Java."],
-        ["100M+ msgs/dia", "Alta Escala", "Arquitetura orientada a eventos, tolerante a falhas, orquestrada via AWS."],
+        ["100M+ msgs/dia", "Alta Escala", "Orientada a eventos, tolerante a falhas."],
         ["95%", "Cobertura de Testes", "Cultura de QA e TDD em backend (JUnit) e frontend (Cypress)."],
       ]),
     },

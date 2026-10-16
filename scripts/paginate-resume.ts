@@ -73,7 +73,11 @@ type Shell = {
  */
 export async function paginate(
   html: string,
-  options: { readonly footer?: (page: number, total: number) => string } = {},
+  options: {
+    readonly footer?: (page: number, total: number) => string;
+    /** Named only so an order failure says which document broke it. */
+    readonly slug?: string;
+  } = {},
 ): Promise<{ html: string; pages: number }> {
   const shell = splitShell(html);
   const footer = options.footer ?? defaultFooter;
@@ -90,6 +94,8 @@ export async function paginate(
   */
   blocks = await measure(render(shell, sheets, footer));
   sheets = pack(blocks);
+
+  assertOrder(sheets.flat(), options.slug ?? "document");
 
   const out = render(shell, sheets, footer);
 
@@ -151,17 +157,35 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
         distance the renderer actually produced, including the margins and
         including the collapsing between them.
       */
-      const sheet = document.querySelector<HTMLElement>(".a4-page");
-      const sheetBox = sheet?.getBoundingClientRect();
-      const paddingTop = sheet === null ? 0 : parseFloat(getComputedStyle(sheet).paddingTop);
+      /*
+        The cursor restarts at the top of each sheet's content box.
 
-      let cursor = sheetBox === undefined ? 0 : sheetBox.top + paddingTop;
+        Without that reset the first block of every sheet after the first measures
+        as the distance from the previous sheet's last block - which includes the
+        whole gap between them. Sheets came out holding 105mm of 277mm, because
+        every block after a page break looked far taller than it is and the packer
+        kept starting a new sheet.
+
+        Written inline rather than as a helper: esbuild's name-keeping wraps any
+        function declared inside `evaluate` with a `__name` helper that does not
+        exist in the browser, and the whole evaluation dies on a ReferenceError
+        that names no line of this file.
+      */
+      let cursor = 0;
+      let sheet: Element | null = null;
 
       return all.map((node) => {
+        const owner = node.closest<HTMLElement>(".a4-page");
+
+        if (owner !== null && owner !== sheet) {
+          sheet = owner;
+          cursor =
+            owner.getBoundingClientRect().top + parseFloat(getComputedStyle(owner).paddingTop);
+        }
+
         const box = node.getBoundingClientRect();
         const space = box.bottom - cursor;
 
-        // A sheet boundary resets the cursor to the next sheet's content top.
         cursor = box.bottom;
 
         const own = getComputedStyle(node);
@@ -256,7 +280,23 @@ function settle(sheets: Measured[][]): Measured[][] {
     }
 
     const sheet = sheets[overflowing];
-    const movable = sheet.findIndex((block) => !block.pinnedToFirstPage);
+
+    /*
+      The *last* movable block, never the first.
+
+      Moving the first one jumps it over everything else on the sheet and drops it
+      on the next, which reorders the document: a résumé came out with its summary
+      stranded near the end and a role after the closing details. Order is the
+      whole point of this layout, so an overflowing sheet gives up its tail.
+    */
+    let movable = -1;
+
+    for (let i = sheet.length - 1; i >= 0; i--) {
+      if (!sheet[i].pinnedToFirstPage) {
+        movable = i;
+        break;
+      }
+    }
 
     /*
       A sheet holding nothing but the header cannot be made to fit by moving a
@@ -282,14 +322,16 @@ function settle(sheets: Measured[][]): Measured[][] {
     sheet.splice(movable, 1);
 
     /*
-      The overflowing sheet is usually the last one, so the sheet after it does not
-      exist yet. Appending to an array that is not there is the difference between
-      producing one more page and throwing - and this is the ordinary case, not an
-      edge one.
+      Prepended, not appended.
+
+      The block came off the *end* of this sheet, so it belongs immediately before
+      everything already on the next one. Appending it would put it after that
+      sheet's own content - which is how a role ended up below the closing details,
+      at the very end of the résumé.
     */
     const next = sheets[overflowing + 1] ?? [];
 
-    sheets[overflowing + 1] = [...next, moved];
+    sheets[overflowing + 1] = [moved, ...next];
   }
 
   return sheets;
@@ -304,6 +346,54 @@ function sheetHeight(sheet: ReadonlyArray<Measured>): number {
   }
 
   return sheet.reduce((total, block) => total + block.spaceMm, 0) + last.marginBottomMm;
+}
+
+/**
+ * The reading order every document has to keep.
+ *
+ * A résumé is read top to bottom in about four minutes, and the order is the
+ * argument: what he is, what that produced, what he can do, where he did it, what
+ * else he knows. A page break can move a section to another sheet; it cannot
+ * reorder them.
+ *
+ * Enforced here rather than trusted, because the failure is invisible in a
+ * screenshot and obvious to a recruiter: a summary stranded at the bottom, a role
+ * below the closing details. Three separate bugs produced exactly that, and each
+ * one looked like a layout problem until the blocks were listed in order.
+ */
+const REQUIRED_ORDER: ReadonlyArray<string> = [
+  "header",
+  "resumo",
+  "metricas",
+  "habilidades",
+  "cargo",
+  "cargo",
+  "cargo",
+  "cargo",
+  "cargo",
+  "formacao",
+  "idiomas",
+  "informacoes",
+];
+
+function assertOrder(blocks: ReadonlyArray<Measured>, slug: string): void {
+  const actual = blocks.map((block) => block.id);
+
+  if (actual.length !== REQUIRED_ORDER.length) {
+    throw new Error(
+      `[${slug}] expected ${REQUIRED_ORDER.length} blocks, got ${actual.length}: ${actual.join(", ")}`,
+    );
+  }
+
+  for (let i = 0; i < REQUIRED_ORDER.length; i++) {
+    if (actual[i] !== REQUIRED_ORDER[i]) {
+      throw new Error(
+        `[${slug}] section order broken at position ${i + 1}: ` +
+          `expected "${REQUIRED_ORDER[i]}", got "${actual[i]}".\n  ` +
+          `  full order: ${actual.join(" > ")}`,
+      );
+    }
+  }
 }
 
 function render(
