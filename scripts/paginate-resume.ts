@@ -339,10 +339,33 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
           const holder = node.parentElement;
           const holderClass = holder === null ? "" : holder.className;
 
+          /*
+            The section's own bottom margin rides on its *last* item.
+
+            `mb-4` on the section is the gap between this section and the next one -
+            four millimetres of separation that mean nothing once the section is a
+            list. With the heading emitted as its own unit, that margin ended up
+            between the title and the first entry instead, which the original markup
+            never had: it cost 2mm on every split section, and 2mm was the margin
+            that pushed the first role off page one.
+
+            It also has to land somewhere. Moved to the last item, the gap to the
+            next section survives exactly as it was - and when that item is the last
+            thing on a sheet, the print stylesheet drops it, which is the one place
+            it was never real.
+          */
+          const sectionClass = (section?.className ?? "")
+            .split(/\s+/)
+            .filter((token) => token !== "" && token !== "keep-together")
+            .join(" ");
+
+          const siblings = section === null ? [] : Array.from(section.querySelectorAll("[data-item]"));
+          const isLast = siblings.length > 0 && siblings[siblings.length - 1] === node;
+
           units.push({
             node,
             id: owner,
-            html: `<div data-block="${owner}" class="${holderClass}">${inner}</div>`,
+            html: `<div data-block="${owner}" class="${isLast ? `${holderClass} ${sectionClass}`.trim() : holderClass}">${inner}</div>`,
           });
 
           continue;
@@ -399,6 +422,10 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
           next, nesting every following block inside it. The second pass then saw
           twelve blocks nested and refused to paginate. A page break cannot be
           allowed to emit malformed markup.
+
+          And it carries `keep-together` but not the section's `mb-4`: the heading is
+          no longer the end of a section, content follows it on the same sheet. The
+          margin moved to the last item, where it means what it always meant.
         */
         units.push({
           node,
@@ -406,7 +433,7 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
           html:
             heading === null
               ? node.outerHTML
-              : `<div data-block="${id}" class="${node.className}">${heading.outerHTML}</div>`,
+              : `<div data-block="${id}" class="keep-together">${heading.outerHTML}</div>`,
         });
       }
 
