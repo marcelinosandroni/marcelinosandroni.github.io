@@ -177,8 +177,8 @@ slug: "enterprise-java",
             </div>`,
     sections: {
       summary: summary(
-        "Engenheiro de Software especializado em modernização de sistemas críticos e arquiteturas distribuídas, ",
-        "unindo 7+ anos de engenharia (Java, Spring Boot, Angular, Kafka) a 15 anos de sólida governança corporativa financeira. Traduzo regras complexas de negócios (balanço, tributação, liquidação) em ecossistemas de alta disponibilidade, reestruturando monolitos legados em microsserviços e micro-frontends sob compliance SOX.",
+        "Engenheiro de Software unindo 6+ anos em arquiteturas distribuídas (Java, Spring, Angular, Kafka) a 15 anos de background corporativo e financeiro. ",
+        "Atuo da concepção de ecossistemas cloud-native do zero ao desacoplamento de sistemas críticos. Foco na construção de microsserviços, micro-frontends e IA corporativa (Agentes/RAG), garantindo alta performance, escalabilidade e resiliência para sistemas de missão crítica, sob extrema cultura de testes e observabilidade.",
       ),
       metrics: metrics([
         ["+R$ 500 Bi", "Gestão de Ativos", "Plataformas B2B de custódia e orquestração de fundos."],
