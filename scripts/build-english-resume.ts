@@ -1,4 +1,5 @@
 import { promises as fs } from "node:fs";
+import { paginate } from "./paginate-resume";
 import { resolve } from "node:path";
 
 /**
@@ -59,8 +60,9 @@ const TEXT: ReadonlyArray<Rule> = [
   { from: ">Promoção em 3 meses<", to: ">Promoted in 3 months<" },
   { from: "Analista Contábil &amp; Gestor Financeiro <span", to: "Accounting Analyst &amp; Finance Manager <span" },
   { from: "| Consultoria Corporativa (15 Anos)</span>", to: "| Corporate Consulting (15 Years)</span>" },
-  { from: "· Remoto<", to: "· Remote<" },
-  { from: "· Híbrido<", to: "· Hybrid<" },
+  { from: "· Remoto</span>", to: " · Remote</span>" },
+  { from: "· Híbrido</span>", to: " · Hybrid</span>" },
+  { from: "· São Paulo</span>", to: " · Sao Paulo</span>" },
 
   // Tech box labels
   { from: "<strong>Front/Mobile:</strong>", to: "<strong>Front/Mobile:</strong>" },
@@ -174,38 +176,71 @@ const TEXT: ReadonlyArray<Rule> = [
 
   // Languages
   { from: ">Idiomas<", to: ">Languages<" },
-  { from: "<strong>Português:</strong> Nativo", to: "<strong>Portuguese:</strong> Native" },
   {
-    from:
-      "<strong>Espanhol:</strong> Básico - Comunicação simples mas suficiente para trabalho no dia a dia",
-    to: "<strong>Spanish:</strong> Basic - simple communication, enough for day-to-day work",
+    from: "<strong>Português:</strong> Nativo. &nbsp; <strong>Espanhol:</strong> Básico (Apto para leitura técnica e comunicação assíncrona).",
+    to: "<strong>Portuguese:</strong> Native. &nbsp; <strong>Spanish:</strong> Basic (able to read technical material and handle written communication).",
   },
   {
-    from:
-      "<strong>Inglês:</strong> Profissional - 100% autônomo no workflow de SWE (Dailies, Code Reviews, Docs e negociação de requisitos).",
+    from: "<strong>Inglês Profissional:</strong> Fluente para dinâmica de trabalho corporativo, condução de reuniões de negócio, negociações com clientes, discussões de arquitetura, dailies e Code Reviews.",
     to:
-      "<strong>English:</strong> Professional - 100% autonomous in the SWE workflow (stand-ups, code reviews, docs and requirements negotiation).",
+      "<strong>Professional English:</strong> Fluent across corporate work, business meetings, client negotiation, architecture discussions, stand-ups and code reviews.",
+  },
+
+  // Skills inventory
+  {
+    from: "Habilidades Técnicas &amp; Arquitetura de Software",
+    to: "Technical Skills &amp; Software Architecture",
+  },
+  {
+    from: "<strong>Frontend &amp; UI Architecture:</strong>",
+    to: "<strong>Frontend &amp; UI Architecture:</strong>",
+  },
+  {
+    from: "<strong>Dados &amp; Mensageria:</strong>",
+    to: "<strong>Data &amp; Messaging:</strong>",
+  },
+  {
+    from: "<strong>Backend &amp; Frameworks:</strong>",
+    to: "<strong>Backend &amp; Frameworks:</strong>",
+  },
+  {
+    from: "<strong>Cloud, DevOps &amp; SRE:</strong>",
+    to: "<strong>Cloud, DevOps &amp; SRE:</strong>",
+  },
+  {
+    from: "<strong>IA &amp; Governança:</strong>",
+    to: "<strong>AI &amp; Governance:</strong>",
   },
 
   // Additional information
   { from: "Informações Adicionais &amp; Perfil Profissional", to: "Additional Information &amp; Professional Profile" },
   {
-    from:
-      "<strong>Disponibilidade:</strong> Imediata",
-    to:
-      "<strong>Availability:</strong> Immediate",
+    from: "<strong>Disponibilidade:</strong> Imediata para atuação 100% Remota (Global).",
+    to: "<strong>Availability:</strong> Immediate, available for fully remote work (global).",
   },
   {
     from:
-      "<strong>Pretensão &amp; Contratação:</strong> CLT R$ 8.000 / PJ R$ 12.000. Apto a B2B/Contractor no Brasil, EUA e Europa.",
+      "<strong>Contratação:</strong> Ampla flexibilidade. Apto para atuar em modelos Full-time (CLT ou B2B/PJ), Part-time, ou Consultoria sob demanda (Projetos de modernização de escopo fechado) para Brasil, EUA e Europa.",
     to:
-      "<strong>Compensation &amp; engagement:</strong> R$ 8,000/month employee or R$ 12,000/month contractor. Open to B2B/contractor engagements in Brazil, the US and Europe.",
+      "<strong>Engagement:</strong> Wide flexibility. Available for full-time (employee or contractor), part-time, or on-demand consulting (fixed-scope modernisation projects) in Brazil, the US and Europe.",
   },
   {
     from:
-      "<strong>Fit Cultural &amp; Soft Skills:</strong> <em>Extreme Ownership</em> (Postura de Dono), resiliência na gestão de incidentes críticos, comunicação assertiva direta (do C-Level à base técnica), gestão ágil e autodidatismo para rápida absorção de novas stacks.",
+      "<strong>Comunicação:</strong> Assertiva e transparente. Habilidade comprovada em negociar requisitos, alinhar expectativas de prazos e blindar o time técnico contra ruídos, garantindo clareza absoluta durante reportes executivos e gestão de incidentes críticos em produção.",
     to:
-      "<strong>Cultural fit &amp; soft skills:</strong> <em>Extreme ownership</em>, resilience through critical incidents, direct and assertive communication (from C-level to the engineering floor), agile delivery and self-teaching ability to adopt new stacks fast.",
+      "<strong>Communication:</strong> Assertive and transparent. Proven ability to negotiate requirements, align on delivery expectations and shield the engineering team from noise, keeping executive reporting and critical production incidents unambiguous.",
+  },
+  {
+    from:
+      "<strong>Liderança:</strong> Orquestração de esquadrões ágeis e transição fluida entre o alinhamento estratégico com C-Levels (Negócios) e a execução com times técnicos. Mentoria ativa focada em elevar a régua de desenvolvedores Júnior/Pleno.",
+    to:
+      "<strong>Leadership:</strong> Orchestrating agile squads and moving fluidly between strategic alignment with C-levels and execution with engineering teams. Active mentoring focused on raising the bar for junior and mid-level developers.",
+  },
+  {
+    from:
+      "<strong>Governança:</strong> Postura de dono absoluta e resiliência comprovada na gestão de crises. Especialista em traduzir regras complexas de negócios e regulamentações do mercado financeiro diretamente para a criação de sistemas de software seguros, escaláveis e de alta confiabilidade.",
+    to:
+      "<strong>Governance:</strong> Absolute ownership and proven resilience through crisis. Specialist at translating complex business rules and financial-market regulation directly into software systems that are secure, scalable and highly reliable.",
   },
 ];
 
@@ -225,8 +260,7 @@ const LEFTOVERS: ReadonlyArray<string> = [
   "Idiomas",
   "Nativo",
   "Bacharelado",
-  "Pretensão",
-  "Contratação",
+    "Contratação",
   "Disponibilidade",
   "Currículo",
   "Página",
@@ -241,7 +275,7 @@ const LEFTOVERS: ReadonlyArray<string> = [
 ];
 
 async function main(): Promise<void> {
-  const source = await fs.readFile(resolve("resume-recruiter-pt-br.html"), "utf8");
+  const source = await fs.readFile(resolve("resume-shell.html"), "utf8");
   let out = source;
 
   const missing: string[] = [];
@@ -266,8 +300,8 @@ async function main(): Promise<void> {
   out = out
     .replace(/<title>[\s\S]*?<\/title>/, "<title>Marcelino Sandroni - Resume</title>")
     .replace(
-      /Engenheiro de Software &amp; IA — Currículo v0\.16\.8 — Página (\d) de 2/g,
-      "Software &amp; AI Engineer — Resume v0.16.8 — Page $1 of 2",
+      /Engenheiro de Software &amp; IA — Currículo v1 — Página (\d+) de (\d+)/g,
+      "Software &amp; AI Engineer — Resume v1 — Page $1 of $2",
     );
 
   const found = LEFTOVERS.filter((word) => {
@@ -288,9 +322,25 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  await fs.writeFile(resolve("resume-recruiter-en-us.html"), out, "utf8");
+  /*
+    The same pagination the Portuguese documents get.
 
-  console.log(`wrote resume-recruiter-en-us.html (${out.length} chars, ${TEXT.length} replacements)`);
+    The translation is not a different document with a different length - the same
+    blocks, in English, which runs slightly longer per line and so can land on a
+    different sheet. Letting each language paginate on its own is the only way the
+    footers can be right; forcing both to two pages would mean cutting content
+    because of a translation.
+  */
+  const { html, pages } = await paginate(out, {
+    footer: (page, total) =>
+      `Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v1 — Page ${page} of ${total}`,
+  });
+
+  await fs.writeFile(resolve("resume-recruiter-en-us.html"), html, "utf8");
+
+  console.log(
+    `wrote resume-recruiter-en-us.html (${html.length} chars, ${TEXT.length} replacements, ${pages} pages)`,
+  );
 }
 
 main();

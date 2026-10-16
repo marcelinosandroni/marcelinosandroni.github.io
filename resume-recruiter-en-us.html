@@ -99,9 +99,9 @@
 <body class="antialiased text-sm">
 
     <!-- PÁGINA 1 -->
-    <div class="a4-page">
-        <!-- HEADER -->
-        <header class="mb-4">
+    
+        <div class="a4-page">
+        <header class="mb-4" data-block="header" data-pinned="first">
             <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase">Marcelino Sandroni Dias</h1>
             <h2 class="text-base font-bold text-slate-700 mt-1 mb-3">Software &amp; AI Engineer</h2>
 
@@ -133,15 +133,13 @@
             </div>
         </header>
 
-        <!-- RESUMO PROFISSIONAL -->
-        <section class="mb-4">
+        <section class="mb-4" data-block="resumo">
             <h3 class="section-title">Professional Summary</h3>
             <p class="text-[12.5px] leading-relaxed text-slate-700 text-justify">
                 <strong>A genuine full-stack engineer, </strong>pairing strategic vision and business analysis with end-to-end delivery across UI/UX, mobile, frontend, backend, DevOps, data engineering and AI. Six years in software engineering and fifteen in financial governance, building scalable solutions and critical systems that move billions of reais.</p>
         </section>
 
-        <!-- MÉTRICAS DE IMPACTO -->
-        <section class="mb-4 keep-together">
+        <section class="mb-4 keep-together" data-block="metricas">
             <h3 class="section-title">Key Production Impact Metrics</h3>
             <div class="grid grid-cols-4 gap-3 text-center">
                 <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
@@ -170,15 +168,22 @@
             </div>
         </section>
 
-        <!-- EXPERIÊNCIA PROFISSIONAL (PÁGINA 1) -->
-        <section>
-            <h3 class="section-title">Professional Experience</h3>
+        <section class="mb-4 keep-together" data-block="habilidades">
+            <h3 class="section-title">Technical Skills &amp; Software Architecture</h3>
+            <div class="text-[11.5px] text-slate-700">
+                <p class="mb-1"><strong>Frontend &amp; UI Architecture:</strong> React, Next.js, Angular, Vue.js, React Native, TypeScript, JavaScript, Micro-frontends (Module Federation), RxJS, NgRx, SSR, Storybook, Tailwind CSS, Design Systems, Flutter.</p>
+                <p class="mb-1"><strong>Backend &amp; Frameworks:</strong> Java (Spring Boot), C# (.NET Core), Node.js (NestJS), Go, Python, RESTful APIs, gRPC, Clean Architecture, DDD, CQRS, SOLID, WebSockets.</p>
+                <p class="mb-1"><strong>Data &amp; Messaging:</strong> Oracle, PostgreSQL, SQL Server, MySQL, MongoDB, Redis, ClickHouse, Databricks, Apache Kafka, RabbitMQ, Event Sourcing, Circuit Breakers.</p>
+                <p class="mb-1"><strong>Cloud, DevOps &amp; SRE:</strong> AWS, GCP, Azure, Oracle Cloud, IBM Cloud, Docker, Kubernetes (Helm/HPA), Terraform, CI/CD, OpenTelemetry, Prometheus, Grafana, Jaeger, FinOps.</p>
+                <p class="mb-1"><strong>AI &amp; Governance:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, RAG, Agentes LLM, Visão Computacional, TDD, BDD, Testes E2E, SonarQube, SOX, IFRS/CPC.</p>
+            </div>
+        </section>
 
-            <!-- DGT -->
-            <div class="mb-4 keep-together">
+        <div class="mb-4 keep-together" data-block="cargo">
+            <h3 class="section-title">Professional Experience</h3>
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Software Engineer &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT Tecnologia</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">Jan/2026 – Set/2026 · Remote</span>
+                    <span class="text-xs font-semibold text-slate-600">9 meses (Jan/2026 – Set/2026)  · Remote</span>
                 </div>
                 <div class="tech-box">
                     <strong>Front/Mobile:</strong> React, Next.js, Angular, React Native, JavaScript/TypeScript, Micro-frontends, TailwindCSS.<br>
@@ -192,12 +197,16 @@
                     <li><strong>CI/CD automation &amp; LLM agents:</strong> Shipped declarative pipelines on Kubernetes with E2E tests (Playwright) and AI-generated code review, holding coverage above 90%.</li>
                 </ul>
             </div>
+            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v1 — Page 1 of 3
+            </div>
+        </div>
 
-            <!-- ANTLIA -->
-            <div class="mb-2 keep-together">
+        <div class="a4-page">
+        <div class="mb-2 keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Software Engineer <span class="text-slate-400 font-normal">| Antlia / BNP Paribas</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">Mar/2023 – Dez/2025 · Hybrid</span>
+                    <span class="text-xs font-semibold text-slate-600">2 anos e 10 meses (Mar/2023 – Dez/2025)  · Hybrid</span>
                 </div>
                 <div class="tech-box">
                     <strong>Front/Mobile:</strong> Angular, React, Next.js, JavaScript/TypeScript, Tailwind CSS, Design Systems, Micro-frontends.<br>
@@ -210,24 +219,11 @@
                     <li><strong>Cost and scale (+R$ 50M/year):</strong> Automated global ETF orchestration under SOX compliance, creating the operating capacity to attract large institutional fortunes.</li>
                 </ul>
             </div>
-        </section>
 
-        <!-- FOOTER PAGINA 1 -->
-        <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-            Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v0.16.8 — Page 1 of 2
-        </div>
-    </div>
-
-    <!-- PÁGINA 2 -->
-    <div class="a4-page">
-        <section>
-            <h3 class="section-title mt-0">Professional Experience (Continued)</h3>
-
-            <!-- ITAÚ -->
-            <div class="mb-4 keep-together">
+        <div class="mb-4 keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Software Engineer <span class="text-slate-400 font-normal">| Banco Itaú</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">Mar/2022 – Fev/2023 · Hybrid</span>
+                    <span class="text-xs font-semibold text-slate-600">1 ano (Mar/2022 – Fev/2023)  · Hybrid</span>
                 </div>
                 <div class="tech-box">
                     <strong>Front/Mobile:</strong> JavaScript/TypeScript, Angular, React, Flutter, Micro-frontends, Tailwind CSS, Design Systems.<br>
@@ -241,11 +237,10 @@
                 </ul>
             </div>
 
-            <!-- POLLUX -->
-            <div class="mb-4 keep-together">
+        <div class="mb-4 keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Full Software Engineer <span class="bg-emerald-100 text-emerald-800 px-1 py-0.5 rounded text-[9px] ml-1 uppercase font-bold">Promoted in 3 months</span> <span class="text-slate-400 font-normal">| Pollux Technology</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">Fev/2021 – Fev/2022 · Remote</span>
+                    <span class="text-xs font-semibold text-slate-600">1 ano e 1 mês (Fev/2021 – Fev/2022)  · Remote</span>
                 </div>
                 <div class="tech-box">
                     <strong>Front/Mobile:</strong> React, Next.js, Angular, JavaScript/TypeScript, Micro-frontends, Tailwind CSS, Design System.<br>
@@ -258,11 +253,10 @@
                 </ul>
             </div>
 
-            <!-- CONTABILIDADE / GOVERNANÇA -->
-            <div class="mb-5 keep-together">
+        <div class="mb-5 keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Accounting Analyst &amp; Finance Manager <span class="text-slate-400 font-normal">| Corporate Consulting (15 Years)</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">Jul/2005 – Dez/2020 · São Paulo</span>
+                    <span class="text-xs font-semibold text-slate-600">15 anos e 6 meses (Jul/2005 – Dez/2020)  · Sao Paulo</span>
                 </div>
                 <div class="tech-box">
                     <strong>Core Business:</strong> FinOps, Automação de Processos ERP, IFRS &amp; CPC, SOX Compliance, Tax Planning. Strategic edge: business insight, financial reporting and compliance applied to tech development.
@@ -272,10 +266,13 @@
                     <li><strong>Cost and profitability (+R$ 3M):</strong> Executed a rigorous tax plan that generated seven-figure savings and precise working-capital allocation.</li>
                 </ul>
             </div>
-        </section>
+            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v1 — Page 2 of 3
+            </div>
+        </div>
 
-        <!-- FORMAÇÃO -->
-        <section class="mb-4 keep-together">
+        <div class="a4-page">
+        <section class="mb-4 keep-together" data-block="formacao">
             <h3 class="section-title">Academic Education &amp; Specializations</h3>
             <div class="space-y-2 text-xs text-slate-700">
                 <div class="flex justify-between">
@@ -289,8 +286,7 @@
             </div>
         </section>
 
-        <!-- IDIOMAS -->
-        <section class="mb-4 keep-together">
+        <section class="mb-4 keep-together" data-block="idiomas">
             <h3 class="section-title">Languages</h3>
             <div class="text-xs text-slate-700 flex flex-col gap-1" style="
     display: flex;
@@ -300,31 +296,22 @@
     align-items: center;
     /* gap: 1rem; */
 ">
-                <p><strong>Portuguese:</strong> Native</p>
-<p><strong>Spanish:</strong> Basic - simple communication, enough for day-to-day work</p>
-                <p><strong>English:</strong> Professional - 100% autonomous in the SWE workflow (stand-ups, code reviews, docs and requirements negotiation).</p>
+                <p><strong>Portuguese:</strong> Native. &nbsp; <strong>Spanish:</strong> Basic (able to read technical material and handle written communication).</p>
+                <p><strong>Professional English:</strong> Fluent across corporate work, business meetings, client negotiation, architecture discussions, stand-ups and code reviews.</p>
             </div>
         </section>
 
-        <!-- INFORMAÇÕES ADICIONAIS & FIT CULTURAL -->
-        <section class="keep-together">
+        <section class="keep-together" data-block="informacoes">
             <h3 class="section-title">Additional Information &amp; Professional Profile</h3>
-            <div class="grid grid-cols-2 gap-4 text-[11.5px] text-slate-700">
-                <div>
-                    <p class="mb-1"><strong>Availability:</strong> Immediate</p>
-                    <p><strong>Compensation &amp; engagement:</strong> R$ 8,000/month employee or R$ 12,000/month contractor. Open to B2B/contractor engagements in Brazil, the US and Europe.</p>
-                </div>
-                <div>
-                    <p><strong>Cultural fit &amp; soft skills:</strong> <em>Extreme ownership</em>, resilience through critical incidents, direct and assertive communication (from C-level to the engineering floor), agile delivery and self-teaching ability to adopt new stacks fast.</p>
-                </div>
+            <div class="text-[11.5px] text-slate-700">
+                <p class="mb-1"><strong>Availability:</strong> Immediate, available for fully remote work (global).</p>
+                <p class="mb-1"><strong>Engagement:</strong> Wide flexibility. Available for full-time (employee or contractor), part-time, or on-demand consulting (fixed-scope modernisation projects) in Brazil, the US and Europe.</p>
+                <p class="mb-1"><strong>Communication:</strong> Assertive and transparent. Proven ability to negotiate requirements, align on delivery expectations and shield the engineering team from noise, keeping executive reporting and critical production incidents unambiguous.</p>
+                <p class="mb-1"><strong>Leadership:</strong> Orchestrating agile squads and moving fluidly between strategic alignment with C-levels and execution with engineering teams. Active mentoring focused on raising the bar for junior and mid-level developers.</p>
+                <p><strong>Governance:</strong> Absolute ownership and proven resilience through crisis. Specialist at translating complex business rules and financial-market regulation directly into software systems that are secure, scalable and highly reliable.</p>
             </div>
         </section>
-
-        <!-- FOOTER PAGINA 2 -->
-        <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-            Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v0.16.8 — Page 2 of 2
-        </div>
-    </div>
-
-
-</body></html>
+            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v1 — Page 3 of 3
+            </div>
+        </div></body></html>

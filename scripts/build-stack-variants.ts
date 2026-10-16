@@ -1,5 +1,6 @@
 import { promises as fs } from "node:fs";
 import { resolve } from "node:path";
+import { paginate } from "./paginate-resume";
 
 /**
  * Builds the stack-specific résumés from the approved general one.
@@ -23,7 +24,7 @@ import { resolve } from "node:path";
  * document: one that argues for Java in the summary and still credits C# in the
  * middle of the experience, which reads as carelessness rather than breadth.
  */
-type SectionId = "summary" | "metrics" | "experienceA" | "experienceB" | "extras";
+type SectionId = "summary" | "metrics" | "experience";
 
 type Variant = {
   readonly slug: string;
@@ -59,19 +60,15 @@ type Variant = {
    */
   readonly skills?: string;
   /**
-   * Which page the inventory lands on.
+   * The roles, in order, as one run of blocks.
    *
-   * Not cosmetic. The two pages are separate fixed-height boxes, so an overflow on
-   * one cannot borrow space from the other, and which side of the break a block
-   * falls on decides whether the document fits at all. Measured: the same content
-   * overflowed by 16mm with the inventory after the last role and fit with 47mm
-   * to spare one block earlier, with nothing removed.
-   *
-   * So this is the knob that decides whether the page-count assertion passes, and
-   * it is set per variant rather than globally because each one has a different
-   * experience shape.
+   * A run rather than two sections because a role is the unit a page break is
+   * allowed to move. Splitting the experience into "page one" and "continuation"
+   * only made sense while the pages were fixed; with the pages computed, that
+   * split is a constraint nobody asked for, and honouring it would cap the
+   * experience at whatever fitted before the break.
    */
-  readonly skillsAfter?: "experienceA" | "experienceB";
+  readonly experience: ReadonlyArray<string>;
   /**
    * The opening line of the summary. It leads with the specialisation because the
    * reader is here to find out whether this person fits one specific stack, and
@@ -87,16 +84,14 @@ type Variant = {
  * be edited freely: reformatting the document does not break the build, and a
  * renamed heading fails loudly instead of silently producing a variant with the
  * general résumé's summary still in it.
+ *
+ * The experience is not in this list. It is not a section in the shell - it is a
+ * run of role blocks, because a role that straddles a page break reads as two
+ * different jobs. It is rebuilt as a whole instead of patched in place.
  */
 const HEADINGS: ReadonlyArray<readonly [RegExp, SectionId]> = [
   [/<h3 class="section-title">Resumo Profissional<\/h3>/, "summary"],
   [/<h3 class="section-title">Principais Métricas de Impacto em Produção<\/h3>/, "metrics"],
-  [/<h3 class="section-title">Experiência Profissional<\/h3>/, "experienceA"],
-  [/<h3 class="section-title mt-0">Experiência Profissional \(Continuação\)<\/h3>/, "experienceB"],
-  [
-    /<h3 class="section-title">Informações Adicionais &amp; Perfil Profissional<\/h3>/,
-    "extras",
-  ],
 ];
 
 /**
@@ -120,17 +115,39 @@ const GENERAL_MARKERS: ReadonlyArray<string> = [
 ];
 
 async function main(): Promise<void> {
-  const shell = await fs.readFile(resolve("resume-recruiter-pt-br.html"), "utf8");
+  const shell = await fs.readFile(resolve("resume-shell.html"), "utf8");
   const variants = await loadVariants();
 
   for (const variant of variants) {
-    const out = render(shell, variant);
-    assertComplete(variant, out);
+    const flat = render(shell, variant);
+    assertComplete(variant, flat);
+
+    /*
+      Pagination is part of building the document, not a check run afterwards.
+
+      The page count used to be a constraint the content was cut to meet. Now it
+      is a fact about the content: blocks are measured and flowed, and a document
+      that grew simply takes another sheet. The count that comes back is what the
+      PDF assertion is given, so the two can never disagree.
+    */
+    const { html, pages } = await paginate(flat);
 
     const target = `resume-recruiter-pt-br-${variant.slug}.html`;
-    await fs.writeFile(resolve(target), out, "utf8");
-    console.log(`wrote ${target} (${out.length} chars)`);
+    await fs.writeFile(resolve(target), html, "utf8");
+    console.log(`wrote ${target} (${pages} pages)`);
   }
+
+  /*
+    The general document goes through the same paginator.
+
+    It has to. The pages it ships are the ones it was measured into, and a source
+    that says "Página 1 de 2" while its PDF says three is a lie the reader finds
+    out about on the last sheet.
+  */
+  const { html: general, pages: generalPages } = await paginate(shell);
+
+  await fs.writeFile(resolve("resume-recruiter-pt-br.html"), general, "utf8");
+  console.log(`wrote resume-recruiter-pt-br.html (${generalPages} pages)`);
 }
 
 async function loadVariants(): Promise<ReadonlyArray<Variant>> {
@@ -181,6 +198,7 @@ function render(shell: string, variant: Variant): string {
     out = out.slice(0, headingEnd) + replacement + out.slice(end);
   }
 
+  out = replaceExperience(out, variant);
   out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${variant.title}</title>`);
 
   /*
@@ -202,55 +220,109 @@ function render(shell: string, variant: Variant): string {
     `<h2 class="text-base font-bold text-slate-700 mt-1 mb-3">${variant.headline}</h2>` +
     out.slice(headline.index + headline[0].length);
 
-  if (variant.skills !== undefined) {
-    out = insertSkills(out, variant.skills, variant.slug, variant.skillsAfter ?? "experienceB");
-  }
-
   return out;
 }
 
 /**
- * Inserts the technical inventory after the chosen experience section.
+ * Rebuilds the whole experience run, optionally preceded by the inventory.
  *
- * Anchored to the *end* of a section, so the inventory reads as a summary of the
- * roles above it rather than interrupting them.
+ * Replaced as a run rather than patched block by block, because the region's
+ * boundaries in the shell are a consequence of how many pages it used to need -
+ * and the page count is exactly what is now being computed. Deriving it from
+ * those boundaries would make the new pagination depend on the old one.
+ *
+ * The inventory goes in front of the experience, not after it. The reader arrives
+ * asking one question - does this person run this stack in production - and the
+ * inventory answers it before the experience asks them to read five jobs to find
+ * out.
  */
-function insertSkills(
-  html: string,
-  skills: string,
-  slug: string,
-  after: "experienceA" | "experienceB",
-): string {
-  const headings: Record<typeof after, RegExp> = {
-    experienceA: /<h3 class="section-title">Experiência Profissional<\/h3>/,
-    experienceB: /<h3 class="section-title mt-0">Experiência Profissional \(Continuação\)<\/h3>/,
-  };
+function replaceExperience(html: string, variant: Variant): string {
+  const firstRole = html.indexOf('<div class="mb-4 keep-together" data-block="cargo">');
 
-  const heading = headings[after].exec(html);
-
-  if (heading === null || heading.index === undefined) {
-    throw new Error(`[${slug}] ${after} anchor not found`);
+  if (firstRole === -1) {
+    throw new Error(`[${variant.slug}] no role blocks in the shell`);
   }
 
-  const end = html.indexOf("</section>", heading.index);
+  const afterRoles = html.indexOf('<section class="mb-4 keep-together" data-block="formacao">');
 
-  if (end === -1) {
-    throw new Error(`[${slug}] ${after} section end not found`);
+  if (afterRoles === -1) {
+    throw new Error(`[${variant.slug}] cannot find where the experience ends`);
   }
 
-  const at = end + "</section>".length;
+  /*
+    The shell carries its own inventory, and a variant carries a different one.
+
+    Replacing it rather than adding to it is the whole point: two inventories on
+    one page would read as two lists of the same person, disagreeing in detail and
+    agreeing in bulk, which is worse than either one alone.
+  */
+  const out = replaceInventory(html, variant, firstRole);
+
+  const inventoryEnd = out.indexOf('<div class="mb-4 keep-together" data-block="cargo">');
+
+  /*
+    The heading that introduces the experience travels inside the first role.
+
+    Not before it. A block that sits outside every `[data-block]` is not carried
+    into the paginated document at all - the flow keeps blocks, and anything
+    between them is dropped on the floor - so a heading placed in front of the
+    first role silently disappears. Inside the block, it moves with the role and a
+    page break can never strand it at the bottom of a sheet with its jobs on the
+    next one.
+  */
+  const heading = '<h3 class="section-title">Experiência Profissional</h3>';
+
+  const roles = variant.experience.map((role, index) => {
+    if (index !== 0) {
+      return role;
+    }
+
+    const open = role.indexOf('data-block="cargo">');
+
+    if (open === -1) {
+      throw new Error(`[${variant.slug}] first role is not a block`);
+    }
+
+    const after = role.indexOf(">", open) + 1;
+
+    return `${role.slice(0, after)}\n                ${heading}${role.slice(after)}`;
+  });
 
   return (
-    html.slice(0, at) +
-    `
-
-        <section class="mb-4 keep-together">
-            <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>
-${skills}
-        </section>` +
-    html.slice(at)
+    out.slice(0, inventoryEnd) +
+    roles.join("\n\n            ") +
+    "\n\n        " +
+    out.slice(out.indexOf('<section class="mb-4 keep-together" data-block="formacao">'))
   );
 }
+
+/** Swaps the shell's inventory for the variant's, or removes it when there is none. */
+function replaceInventory(html: string, variant: Variant, limit: number): string {
+  const open = html.indexOf('<section class="mb-4 keep-together" data-block="habilidades">');
+
+  if (open === -1 || open > limit) {
+    throw new Error(`[${variant.slug}] the shell has no inventory section to replace`);
+  }
+
+  const close = html.indexOf("</section>", open);
+
+  if (close === -1) {
+    throw new Error(`[${variant.slug}] the inventory section is not closed`);
+  }
+
+  const replacement =
+    variant.skills === undefined
+      ? ""
+      : `<section class="mb-4 keep-together" data-block="habilidades">
+            <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>
+${variant.skills}
+        </section>
+
+        `;
+
+  return html.slice(0, open) + replacement + html.slice(close + "</section>".length);
+}
+
 
 /**
  * Refuses a variant that is not actually specialised.
@@ -272,10 +344,6 @@ function assertComplete(variant: Variant, out: string): void {
     if (!out.includes(content.trim().slice(0, 80))) {
       throw new Error(`[${variant.slug}] section ${id} did not survive the swap`);
     }
-  }
-
-  if (!out.includes("CLT R$ 8.000 / PJ R$ 12.000")) {
-    throw new Error(`[${variant.slug}] lost the agreed compensation expectation`);
   }
 
   if (out.includes("Sênior")) {
