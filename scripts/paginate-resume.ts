@@ -43,24 +43,29 @@ const USABLE_MM = SHEET_MM - PADDING_MM * 2;
 
 const MM_PER_PX = 25.4 / 96;
 
+/**
+ * How many times the paginator will re-measure before giving up.
+ *
+ * A cap rather than a `while`: a packing that keeps disagreeing with itself is a
+ * build failure with a number attached, not something to spin on until someone
+ * notices the process is not finishing.
+ */
+const MAX_PASSES = 5;
+
 type Measured = {
   readonly id: string;
   readonly html: string;
   readonly spaceMm: number;
-  /**
-   * This block's own bottom margin.
-   *
-   * Kept apart from `spaceMm` because the gap to the next block already contains
-   * it - adjacent margins collapse, and the measured gap is that collapsed value.
-   * The one place it does not appear is after the *last* block on a sheet, where
-   * there is no next block to absorb it.
-   *
-   * That omission is 4mm of invisible height, and 4mm past 297 is how a document
-   * claims three sheets and prints four.
-   */
-  readonly marginBottomMm: number;
   /** Page one carries the name, contact details and photo block. */
   readonly pinnedToFirstPage: boolean;
+  /**
+   * Which sheet this block was measured on, counted from zero.
+   *
+   * Present because a measurement taken on a document that is not the one being
+   * built is only evidence. Reading the sheet number off the finished document is
+   * what turns "the packer believed it fit" into "it fits".
+   */
+  readonly sheetIndex: number;
 };
 
 type Shell = {
@@ -81,25 +86,123 @@ export async function paginate(
 ): Promise<{ html: string; pages: number }> {
   const shell = splitShell(html);
   const footer = options.footer ?? defaultFooter;
-
-  let blocks = await measure(html);
-  let sheets = pack(blocks);
+  const slug = options.slug ?? "document";
 
   /*
-    Second pass, measured on the grouped document.
+    Pack, then keep correcting against the real document until it fits.
 
-    Blocks keep their identity across the regrouping - each still carries its
-    `data-block` name - so the second measurement lines up one-to-one with the
-    first and the second pack is a correction rather than a reshuffle.
+    Not "pack, re-pack until two packings agree". A packing is decided from
+    measurements taken on a *different* arrangement - the one it is correcting -
+    and those heights do not simply add up on the new sheet. So agreement between
+    passes proves only that the packer is sure of itself, not that the page holds.
+    One variant came four millimetres over while the packer that placed it believed
+    it was under, and printed a fourth page.
+
+    Instead the loop measures what it is about to ship and acts on that: the first
+    sheet found over budget gives up its last movable block to the next sheet, and
+    the document is measured again. Each round moves a block strictly later, so the
+    loop cannot cycle - it runs out of blocks to move or out of pages, and the cap
+    catches the rest rather than hanging the build.
   */
-  blocks = await measure(render(shell, sheets, footer));
-  sheets = pack(blocks);
+  let sheets = pack(await measure(html));
 
-  assertOrder(sheets.flat(), options.slug ?? "document");
+  for (let pass = 0; pass < MAX_PASSES; pass++) {
+    const overflow = overflowingSheets(await measure(render(shell, sheets, footer)));
+
+    if (overflow.length === 0) {
+      break;
+    }
+
+    sheets = pushOff(sheets, overflow[0].index);
+  }
+
+  assertOrder(sheets.flat(), slug);
 
   const out = render(shell, sheets, footer);
 
+  await assertFits(out, slug);
+
   return { html: out, pages: sheets.length };
+}
+
+/** The sheets of a finished document that are over budget, in reading order. */
+function overflowingSheets(
+  measured: ReadonlyArray<Measured>,
+): ReadonlyArray<{ readonly index: number; readonly height: number }> {
+  const bySheet = new Map<number, number>();
+
+  for (const block of measured) {
+    bySheet.set(block.sheetIndex, (bySheet.get(block.sheetIndex) ?? 0) + block.spaceMm);
+  }
+
+  return [...bySheet.entries()]
+    .filter(([, height]) => height > USABLE_MM)
+    .sort(([a], [b]) => a - b)
+    .map(([index, height]) => ({ index, height }));
+}
+
+/**
+ * Pushes the last movable block of one sheet onto the sheet after it.
+ *
+ * The *last* one, for the reason every other move here has the same reason: moving
+ * an earlier block would jump it over the rest of its own sheet and reorder the
+ * document. And prepended to the next sheet, because it came off the end of this
+ * one - appending would put it below that sheet's content.
+ *
+ * Returns the input untouched when the sheet has nothing to give, which is the
+ * case for a sheet holding only the pinned header. There is no rearrangement that
+ * makes that page fit; the document is simply longer than the space available.
+ */
+function pushOff(
+  sheets: ReadonlyArray<ReadonlyArray<Measured>>,
+  index: number,
+): ReadonlyArray<ReadonlyArray<Measured>> {
+  const sheet = sheets[index];
+  let movable = -1;
+
+  for (let i = sheet.length - 1; i >= 0; i--) {
+    if (!sheet[i].pinnedToFirstPage) {
+      movable = i;
+      break;
+    }
+  }
+
+  if (movable === -1) {
+    return sheets;
+  }
+
+  const next = sheets.map((entry) => [...entry]);
+  const moved = next[index][movable];
+
+  next[index].splice(movable, 1);
+  next[index + 1] = [moved, ...(next[index + 1] ?? [])];
+
+  return next;
+}
+
+/**
+ * Every sheet of the finished document has to fit the page it prints on.
+ *
+ * The packer decides from measurements of a document that is not the one it emits:
+ * two passes agreeing is evidence, not proof. This is the proof. The finished HTML
+ * is measured the way it will print, the blocks are grouped by the sheet they
+ * actually landed on, and a sheet over budget is named here with its height - rather
+ * than arriving at a recruiter as an extra page of white with nothing in this
+ * repository saying why.
+ */
+async function assertFits(html: string, slug: string): Promise<void> {
+  const over = overflowingSheets(await measure(html));
+
+  if (over.length > 0) {
+    throw new Error(
+      `[${slug}] the packed document does not fit A4 - ` +
+        over
+          .map((sheet) => `page ${sheet.index + 1} at ${sheet.height.toFixed(1)}mm of ${USABLE_MM}mm`)
+          .join(", ") +
+        `. Nothing was dropped to make room, so the block that has to give is the one ` +
+        `following the overflow on each of those pages.`,
+    );
+  }
 }
 
 /** The parts of the document that are not content. */
@@ -128,18 +231,18 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
     await page.evaluate(() => document.fonts.ready);
 
     const measured = await page.evaluate(() => {
-      const all = Array.from(document.querySelectorAll<HTMLElement>("[data-block]"));
-
       /*
-        Blocks must not nest.
+        Only `[data-block]` is checked for nesting.
 
-        A nested block already sits inside its parent's box, so measuring both
-        counts the same content twice: the parent whole, and the child as a slice
-        of it. The child then measures as roughly zero and the packing quietly
-        works from numbers that do not describe the page. Failing here turns that
-        into a build error instead of a document that runs long.
+        A `[data-item]` is *meant* to sit inside its section - that is the whole
+        mechanism. What must never nest is a block inside a block, because the
+        inner one measures as roughly zero and the packing then works from numbers
+        that do not describe the page.
       */
-      const nested = all.filter((node) => node.parentElement?.closest("[data-block]") !== null);
+      const blocksOnly = Array.from(document.querySelectorAll<HTMLElement>("[data-block]"));
+      const nested = blocksOnly.filter(
+        (node) => node.parentElement?.closest("[data-block]") !== null,
+      );
 
       if (nested.length > 0) {
         throw new Error(
@@ -174,11 +277,147 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
       let cursor = 0;
       let sheet: Element | null = null;
 
-      return all.map((node) => {
+      /*
+        Splittable sections are measured one item at a time.
+
+        The rule that decides where a page may break: never *inside* a sub-item.
+        A job is a sub-item, so a role moves whole. An entry in the inventory is a
+        sub-item, so the inventory flows between sheets - and its heading travels
+        with its first entry, where it cannot be stranded at the foot of a sheet
+        with its list overleaf.
+
+        Without this, a section that fits comfortably in half a sheet still had to
+        move whole, and its neighbour could not start behind it. That is where the
+        white space came from: 632mm of content laid out across 831mm of sheets,
+        with the slack sitting in gaps no block was allowed to fill.
+      */
+      /*
+        One flat query over both kinds of thing.
+
+        A `[data-block]` with no items is a whole unit. A `[data-item]` is a unit
+        of its own, carrying the id of the section it belongs to. A section that
+        has items contributes only its heading, which then travels with the first
+        item so a title cannot be stranded at the foot of a sheet with its list
+        overleaf.
+
+        Querying both kinds in one pass is what keeps the count honest. Walking
+        the blocks and then descending into their items nested the two, and a
+        section came out counted once too many - which then failed the document's
+        own order check for a reason nobody could see.
+      */
+      const every = Array.from(document.querySelectorAll<HTMLElement>("[data-block], [data-item]"));
+      const units: Array<{ node: HTMLElement; id: string; html: string }> = [];
+
+      for (const node of every) {
+        if (node.dataset.item !== undefined) {
+          const section = node.closest<HTMLElement>("[data-block]");
+          const owner = section?.dataset.block ?? "";
+
+          /*
+            The marker is consumed here.
+
+            An emitted item keeps its own wrapper, which is what makes it findable
+            by the second pass - so leaving `data-item` on the paragraph inside means
+            the next pass sees both the wrapper and the paragraph, and splits every
+            item a second time. The count doubles per pass and the document fails
+            its own order check. A split is a one-time act, not a property the
+            markup carries forward.
+          */
+          const inner = node.outerHTML.replace(/ data-item(?:="")?/g, "");
+
+          /*
+            The wrapper wears the class of the container the item already lived in,
+            not the class of the section around it.
+
+            The section carries `mb-4 keep-together` - four millimetres of margin per
+            unit, and it only exists to space the *section*. Paying it once per item
+            instead of once per section added 30mm to a document that was already
+            116mm too tall for the page count it was aiming at. The item's own
+            typography comes from the container it is taken out of, so that is the
+            class it keeps.
+          */
+          const holder = node.parentElement;
+          const holderClass = holder === null ? "" : holder.className;
+
+          units.push({
+            node,
+            id: owner,
+            html: `<div data-block="${owner}" class="${holderClass}">${inner}</div>`,
+          });
+
+          continue;
+        }
+
+        const id = node.dataset.block ?? "";
+
+        if (node.querySelectorAll("[data-item]").length === 0) {
+          units.push({ node, id, html: node.outerHTML });
+          continue;
+        }
+
+        const heading = node.querySelector<HTMLElement>("h3.section-title");
+
+        /*
+          Nothing in a splittable section may go unmarked.
+
+          Splitting a section emits its heading and its items - and only those. A
+          paragraph without the marker is not emitted by either, so it leaves the
+          document without a word of warning: the page still paginates, the order
+          check still passes, and a line of the candidate's history is simply gone.
+          Cheap to catch here and impossible to catch in a screenshot.
+
+          The marker has to be on the element that is *meant* to be a unit, too.
+          Marking the container around five paragraphs makes one indivisible unit
+          and splits nothing.
+        */
+        const entries = Array.from(node.querySelectorAll<HTMLElement>("p, li"));
+        const unmarked = entries.filter((entry) => entry.dataset.item === undefined);
+        const markedContainers = Array.from(node.querySelectorAll<HTMLElement>("[data-item]")).filter(
+          (marked) => marked.querySelectorAll("p, li").length > 0,
+        );
+
+        if (unmarked.length > 0 || markedContainers.length > 0) {
+          throw new Error(
+            `section "${id}" is marked as splittable but its entries are not:` +
+              (unmarked.length > 0
+                ? `\n  unmarked entries: ${unmarked.map((entry) => entry.tagName.toLowerCase()).join(", ")}`
+                : "") +
+              (markedContainers.length > 0
+                ? `\n  marker is on a container, not on each entry: ${markedContainers
+                    .map((entry) => entry.tagName.toLowerCase())
+                    .join(", ")}`
+                : ""),
+          );
+        }
+
+        /*
+          A closed element, not the section's opening tag with the heading cut off
+          after it.
+
+          That fragment is an unclosed `<section>`, and the units are concatenated
+          into a document - so the browser closed it around everything that came
+          next, nesting every following block inside it. The second pass then saw
+          twelve blocks nested and refused to paginate. A page break cannot be
+          allowed to emit malformed markup.
+        */
+        units.push({
+          node,
+          id,
+          html:
+            heading === null
+              ? node.outerHTML
+              : `<div data-block="${id}" class="${node.className}">${heading.outerHTML}</div>`,
+        });
+      }
+
+      let sheetIndex = -1;
+
+      return units.map(({ node, id, html }) => {
         const owner = node.closest<HTMLElement>(".a4-page");
 
         if (owner !== null && owner !== sheet) {
           sheet = owner;
+          sheetIndex += 1;
           cursor =
             owner.getBoundingClientRect().top + parseFloat(getComputedStyle(owner).paddingTop);
         }
@@ -188,14 +427,12 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
 
         cursor = box.bottom;
 
-        const own = getComputedStyle(node);
-
         return {
-          id: node.dataset.block ?? "",
+          id,
           pinned: node.dataset.pinned === "first",
+          sheet: sheetIndex,
           space,
-          marginBottom: own.marginBottom === "auto" ? 0 : parseFloat(own.marginBottom),
-          html: node.outerHTML,
+          html,
         };
       });
     });
@@ -210,8 +447,8 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
       id: block.id,
       html: block.html,
       spaceMm: block.space * MM_PER_PX,
-      marginBottomMm: (Number.isNaN(block.marginBottom) ? 0 : block.marginBottom) * MM_PER_PX,
       pinnedToFirstPage: block.pinned,
+      sheetIndex: block.sheet,
     }));
   } finally {
     await browser.close();
@@ -337,15 +574,18 @@ function settle(sheets: Measured[][]): Measured[][] {
   return sheets;
 }
 
-/** What a sheet actually occupies: its blocks, plus the margin under the last. */
+/**
+ * What a sheet actually occupies: the distance from its content top to the bottom
+ * of its last block.
+ *
+ * The margin under that last block is not counted, because the print stylesheet
+ * removes it - see the `last-child` rule in `resume-shell.html`. That rule is what
+ * makes the arithmetic true rather than merely optimistic, so the two change
+ * together: reserving here a margin that nothing renders pushes a role off a sheet
+ * for four millimetres of space that no longer exists.
+ */
 function sheetHeight(sheet: ReadonlyArray<Measured>): number {
-  const last = sheet[sheet.length - 1];
-
-  if (last === undefined) {
-    return 0;
-  }
-
-  return sheet.reduce((total, block) => total + block.spaceMm, 0) + last.marginBottomMm;
+  return sheet.reduce((total, block) => total + block.spaceMm, 0);
 }
 
 /**
@@ -360,6 +600,18 @@ function sheetHeight(sheet: ReadonlyArray<Measured>): number {
  * screenshot and obvious to a recruiter: a summary stranded at the bottom, a role
  * below the closing details. Three separate bugs produced exactly that, and each
  * one looked like a layout problem until the blocks were listed in order.
+ */
+/**
+ * The reading order every document has to keep.
+ *
+ * A résumé is read top to bottom in about four minutes, and the order is the
+ * argument: what he is, what that produced, what he can do, where he did it, what
+ * else he knows. A page break can move a section to another sheet; it cannot
+ * reorder them.
+ *
+ * Counted per section rather than by name, because a section that may break
+ * between its items - the inventory, the profile block - arrives here as several
+ * consecutive units and the count is what stays fixed.
  */
 const REQUIRED_ORDER: ReadonlyArray<string> = [
   "header",
@@ -379,20 +631,46 @@ const REQUIRED_ORDER: ReadonlyArray<string> = [
 function assertOrder(blocks: ReadonlyArray<Measured>, slug: string): void {
   const actual = blocks.map((block) => block.id);
 
-  if (actual.length !== REQUIRED_ORDER.length) {
-    throw new Error(
-      `[${slug}] expected ${REQUIRED_ORDER.length} blocks, got ${actual.length}: ${actual.join(", ")}`,
-    );
-  }
+  /*
+    Both sides collapsed.
 
-  for (let i = 0; i < REQUIRED_ORDER.length; i++) {
-    if (actual[i] !== REQUIRED_ORDER[i]) {
-      throw new Error(
-        `[${slug}] section order broken at position ${i + 1}: ` +
-          `expected "${REQUIRED_ORDER[i]}", got "${actual[i]}".\n  ` +
-          `  full order: ${actual.join(" > ")}`,
-      );
-    }
+    A section that broke across a sheet arrives here as several consecutive units,
+    so the document legitimately reads `habilidades, habilidades, ...` where the
+    specification reads `habilidades` once. Comparing a collapsed document against
+    an uncollapsed specification fails every time the packing does its job: the
+    assertion is about the sequence of sections, not about how many units each one
+    was split into.
+  */
+  const collapsed = actual.filter((id, i) => id !== actual[i - 1]);
+  const expected = REQUIRED_ORDER.filter((id, i) => id !== REQUIRED_ORDER[i - 1]);
+
+  /*
+    The roles are counted separately.
+
+    The sequence above cannot tell a document with five roles from one with a
+    single role: collapsed, both read `... > cargo > formacao`. The count is a fact
+    about the CV rather than about the layout, and a lost role is the one failure a
+    reader would never notice and a recruiter would.
+  */
+  const roles = actual.filter((id) => id === "cargo").length;
+  const rolesExpected = REQUIRED_ORDER.filter((id) => id === "cargo").length;
+
+  const orderBroken =
+    collapsed.length !== expected.length || collapsed.some((id, i) => id !== expected[i]);
+  const rolesLost = roles !== rolesExpected;
+
+  if (orderBroken || rolesLost) {
+    const problems = [
+      orderBroken
+        ? `order differs. expected: ${expected.join(" > ")} | got: ${collapsed.join(" > ")}`
+        : null,
+      rolesLost ? `roles: expected ${rolesExpected}, got ${roles}` : null,
+    ].filter((line) => line !== null);
+
+    throw new Error(
+      `[${slug}] document structure broken - ${problems.join("; ")}` +
+        `\n  full order: ${actual.join(", ")}`,
+    );
   }
 }
 
@@ -409,12 +687,22 @@ function render(
         .map((block) => block.html.replace(/^\s+/, ""))
         .join("\n\n        ");
 
+      /*
+        The footer leads the sheet.
+
+        It is absolutely positioned, so it takes no room either way - but the print
+        stylesheet needs it *before* the content to name the last block of a sheet
+        and strip its trailing margin. Written after the content, the only element
+        that is both the last child and not the footer does not exist, so the rule
+        that recovers those four millimetres matches nothing and every sheet carries
+        them.
+      */
       return `
         <div class="a4-page">
-        ${body}
-            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
                 ${footer(index + 1, total)}
             </div>
+        ${body}
         </div>`;
     })
     .join("\n");
