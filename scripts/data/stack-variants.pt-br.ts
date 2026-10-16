@@ -66,16 +66,32 @@ ${cards
   .join("\n")}
             </div>`;
 
-/** Availability, compensation and the closing block. */
-const extras = (fit: string): string => `
-            <div class="grid grid-cols-2 gap-4 text-[11.5px] text-slate-700">
-                <div>
-                    <p class="mb-1"><strong>Disponibilidade:</strong> Imediata</p>
-                    <p><strong>Pretensão &amp; Contratação:</strong> CLT R$ 8.000 / PJ R$ 12.000. Apto a B2B/Contractor no Brasil, EUA e Europa.</p>
-                </div>
-                <div>
-                    <p><strong>Fit Cultural &amp; Soft Skills:</strong> ${fit}</p>
-                </div>
+/**
+ * Availability, compensation and the closing block.
+ *
+ * Single column, at the same size as the experience bullets.
+ *
+ * Both of those are deliberate and both came from reading the rendered document
+ * rather than the markup. Two columns put the compensation next to a paragraph of
+ * soft skills, so the one number a recruiter reads first shares a line with the
+ * least concrete thing on the page. And the skills inventory sat a half-point
+ * smaller than everything around it, which on a document read in four minutes
+ * reads as an appendix even though it is the part answering "is this the person".
+ *
+ * The trailing lines are per-variant so a specialist document can say what it
+ * offers - engagement models, leadership scope - without the general one
+ * claiming things that are only true of a particular stack.
+ */
+const extras = (
+  lines: ReadonlyArray<string>,
+  engagement?: string,
+): string => `
+            <div class="text-[11.5px] text-slate-700">
+                <p class="mb-1"><strong>Disponibilidade:</strong> Imediata</p>
+                <p class="mb-1"><strong>Pretensão &amp; Contratação:</strong> ${
+                  engagement ?? "CLT R$ 8.000 / PJ R$ 12.000. Apto a B2B/Contractor no Brasil, EUA e Europa."
+                }</p>
+${lines.map((line) => `                <p class="mb-1">${line}</p>`).join("\n")}
             </div>`;
 
 const summary = (lead: string, body: string): string => `
@@ -88,17 +104,18 @@ slug: "enterprise-java",
     label: "Enterprise Java + Angular",
     title: "Marcelino Sandroni - Engenheiro Java e Angular",
     headline: "Engenheiro de Software | Angular + Java",
-    skills: `<div class="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-slate-700 leading-relaxed">
-                <p><strong>Frontend &amp; UI:</strong> Angular (v8 à v22), TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends (Module Federation), RxJS, NgRx, SSR, Tailwind CSS, Angular Material.</p>
-                <p><strong>Backend &amp; Frameworks:</strong> Java (do 8 ao 25 LTS), Spring Boot 3.x (AOT/GraalVM), Spring Cloud, WebFlux, Batch, Spring Security (OAuth2, OIDC, JWT, mTLS), Hibernate/JPA (N+1), Tuning de JVM (ZGC/G1GC).</p>
-                <p><strong>IA &amp; Dados:</strong> Spring AI, LangChain4j, Amazon Bedrock (Claude/Titan), RAG, Agentic Workflows, pgvector, Oracle, PostgreSQL, MongoDB, Redis, Databricks.</p>
-                <p><strong>Cloud, DevOps &amp; SRE:</strong> AWS (EKS/ECS, S3, RDS, SQS, SNS, Lambda, API Gateway), Docker, Kubernetes, Helm, Terraform, CI/CD, OpenTelemetry, Datadog.</p>
-                <p><strong>Arquitetura, APIs &amp; Mensageria:</strong> RESTful Nível 3, gRPC, GraphQL, WebSockets/SSE, Apache Kafka, RabbitMQ, Circuit Breakers, Clean Architecture, DDD, CQRS, SOLID.</p>
+    skills: `<div class="text-[11.5px] text-slate-700">
+                <p class="mb-1"><strong>Frontend &amp; UI Architecture:</strong> Angular (v8 à v22), TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends (Module Federation), Estado/Reatividade (RxJS, NgRx), SSR, Tailwind CSS, Angular Material, shadcn, Design Systems.</p>
+                <p class="mb-1"><strong>Backend &amp; Frameworks:</strong> Java (do 8 ao 25 LTS), Spring Boot 3.x (AOT/GraalVM), Spring Cloud, Spring WebFlux (Project Reactor), Spring Batch, Spring Security (OAuth2, OIDC, JWT, mTLS), Hibernate/JPA (N+1), Tuning de JVM (ZGC/G1GC).</p>
+                <p class="mb-1"><strong>Inteligência Artificial &amp; Dados:</strong> LLMs corporativos via Spring AI e LangChain4j, Amazon Bedrock (Claude/Titan), RAG, Agentic Workflows (Function Calling), Vector Databases (pgvector, Milvus).</p>
+                <p class="mb-1"><strong>Cloud (AWS), DevOps &amp; SRE:</strong> Ecossistema AWS (EKS/ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, CloudWatch), Docker, Kubernetes (Helm), Terraform, CI/CD (GitHub Actions, Bitbucket Pipelines, Jenkins), Observabilidade (OpenTelemetry, Datadog).</p>
+                <p class="mb-1"><strong>Arquitetura, APIs &amp; Mensageria:</strong> RESTful Nível 3, gRPC, GraphQL, WebSockets/SSE, Apache Kafka (partições, idempotência), RabbitMQ (topic exchanges, DLQ), Circuit Breakers, Clean Architecture, DDD, CQRS, SOLID.</p>
+                <p class="mb-1"><strong>Ecossistema Analítico &amp; Bancos:</strong> Oracle, PostgreSQL, SQL Server, MongoDB, Redis, Cassandra, Neo4j, DynamoDB, DocumentDB, Snowflake, Databricks.</p>
             </div>`,
     sections: {
       summary: summary(
         "Engenheiro de Software especializado em modernização de sistemas críticos e arquiteturas distribuídas, ",
-        "unindo 7+ anos de engenharia (Java, Spring Boot, Angular, Kafka) a 15 anos de governança corporativa financeira. Traduzo regras complexas de negócio (balanço, tributação, liquidação) em ecossistemas de alta disponibilidade, reestruturando monolitos legados em microsserviços e micro-frontends sob compliance SOX.",
+        "unindo 7+ anos de engenharia (Java, Spring Boot, Angular, Kafka) a 15 anos de sólida governança corporativa financeira. Traduzo regras complexas de negócios (balanço, tributação, liquidação) em ecossistemas de alta disponibilidade, reestruturando monolitos legados em microsserviços e micro-frontends sob compliance SOX.",
       ),
       metrics: metrics([
         ["+R$ 500 Bi", "Gestão de Ativos", "Plataformas B2B de custódia institucional e orquestração de fundos."],
@@ -158,7 +175,11 @@ slug: "enterprise-java",
           ],
         }),
       extras: extras(
-        "<strong>Liderança:</strong> Orquestração de esquadrões ágeis e transição entre alinhamento com C-Levels e execução com times técnicos, com mentoria ativa em devs Júnior/Pleno.<br><strong>Governança:</strong> <em>Extreme Ownership</em> e resiliência em incidentes críticos; traduzo regras do mercado financeiro (IFRS, SOX) para a engenharia (DDD, Clean Architecture).",
+        [
+          "<strong>Liderança:</strong> Orquestração de esquadrões ágeis e transição fluida entre o alinhamento estratégico com C-Levels (Negócios) e a execução com times técnicos, com mentoria ativa em devs Júnior/Pleno.",
+          "<strong>Governança:</strong> <em>Extreme Ownership</em> e resiliência comprovada na gestão de incidentes críticos. Traduzo regras complexas do mercado financeiro (IFRS, SOX) para as bases de engenharia (DDD, Clean Architecture).",
+        ],
+        "CLT R$ 8.000 / PJ R$ 12.000. Ampla flexibilidade: Full-time, Part-time ou Consultoria sob demanda (projetos de modernização de escopo fechado) no Brasil, EUA e Europa.",
       ),
     },
   },
@@ -256,9 +277,9 @@ slug: "enterprise-java",
             "<strong>Economia de +R$ 3 milhões:</strong> Planejamento tributário e reclassificação contábil com rigor auditável.",
           ],
         }),
-      extras: extras(
-        "<em>Extreme Ownership</em> (Postura de Dono), resiliência em incidentes críticos, comunicação assertiva do C-Level à base técnica e mentoria ativa de devs júnior e pleno.",
-      ),
+      extras: extras([
+        "<strong>Fit Cultural &amp; Soft Skills:</strong> <em>Extreme Ownership</em> (Postura de Dono), resiliência em incidentes críticos, comunicação assertiva do C-Level à base técnica e mentoria ativa de devs júnior e pleno.",
+      ]),
     },
   },
 
@@ -355,9 +376,9 @@ slug: "enterprise-java",
             "<strong>Economia de +R$ 3 milhões:</strong> Planejamento tributário e alocação precisa de capital de giro.",
           ],
         }),
-      extras: extras(
-        "<em>Extreme Ownership</em> (Postura de Dono), performance como requisito e não como curiosidade, resiliência em incidentes críticos, comunicação assertiva direta do C-Level à base técnica e autodidatismo para stacks novas.",
-      ),
+      extras: extras([
+        "<strong>Fit Cultural &amp; Soft Skills:</strong> <em>Extreme Ownership</em> (Postura de Dono), performance como requisito e não como curiosidade, resiliência em incidentes críticos, comunicação assertiva do C-Level à base técnica e autodidatismo para stacks novas.",
+      ]),
     },
   },
 ] as const;
