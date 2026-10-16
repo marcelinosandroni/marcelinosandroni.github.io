@@ -47,6 +47,18 @@ type Measured = {
   readonly id: string;
   readonly html: string;
   readonly spaceMm: number;
+  /**
+   * This block's own bottom margin.
+   *
+   * Kept apart from `spaceMm` because the gap to the next block already contains
+   * it - adjacent margins collapse, and the measured gap is that collapsed value.
+   * The one place it does not appear is after the *last* block on a sheet, where
+   * there is no next block to absorb it.
+   *
+   * That omission is 4mm of invisible height, and 4mm past 297 is how a document
+   * claims three sheets and prints four.
+   */
+  readonly marginBottomMm: number;
   /** Page one carries the name, contact details and photo block. */
   readonly pinnedToFirstPage: boolean;
 };
@@ -152,10 +164,13 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
         // A sheet boundary resets the cursor to the next sheet's content top.
         cursor = box.bottom;
 
+        const own = getComputedStyle(node);
+
         return {
           id: node.dataset.block ?? "",
           pinned: node.dataset.pinned === "first",
           space,
+          marginBottom: own.marginBottom === "auto" ? 0 : parseFloat(own.marginBottom),
           html: node.outerHTML,
         };
       });
@@ -171,6 +186,7 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
       id: block.id,
       html: block.html,
       spaceMm: block.space * MM_PER_PX,
+      marginBottomMm: (Number.isNaN(block.marginBottom) ? 0 : block.marginBottom) * MM_PER_PX,
       pinnedToFirstPage: block.pinned,
     }));
   } finally {
@@ -214,7 +230,80 @@ function pack(blocks: ReadonlyArray<Measured>): ReadonlyArray<ReadonlyArray<Meas
     closeSheet();
   }
 
+  return settle(sheets);
+}
+
+/**
+ * Moves trailing blocks until no sheet is over budget.
+ *
+ * The packing above decides with the heights alone, which leaves out the margin
+ * hanging under the last block on each sheet - there is no next block to collapse
+ * it against, and it is real height the sheet has to hold. A sheet can therefore
+ * pass the fit check and still be a millimetre over A4, which prints as an extra
+ * blank page the footers do not account for.
+ *
+ * Rather than guess the margin into the fit check and over-reserve it for every
+ * interior block - where it would be double counted, since the gap to the next
+ * block already contains it - the overflow is corrected after the fact, and only
+ * where it actually occurs.
+ */
+function settle(sheets: Measured[][]): Measured[][] {
+  for (let guard = 0; guard < 100; guard++) {
+    const overflowing = sheets.findIndex((sheet) => sheetHeight(sheet) > USABLE_MM);
+
+    if (overflowing === -1) {
+      return sheets;
+    }
+
+    const sheet = sheets[overflowing];
+    const movable = sheet.findIndex((block) => !block.pinnedToFirstPage);
+
+    /*
+      A sheet holding nothing but the header cannot be made to fit by moving a
+      block, because there is none to move. Breaking here rather than looping keeps
+      a genuinely too-tall block from cycling forever - it surfaces as a document
+      that prints long, which is the reader's problem to see, not a hang.
+    */
+    if (movable === -1) {
+      return sheets;
+    }
+
+    /*
+      Taken before the removal, not after.
+
+      After `splice` the element that was at `movable` is at `movable - 1`, so
+      reading it afterwards picks up the block *below* the one just removed. That
+      silently duplicates one block and drops another, and it shows up as a
+      document whose metrics section appears twice and whose summary has vanished -
+      neither of which any reader could explain.
+    */
+    const moved = sheet[movable];
+
+    sheet.splice(movable, 1);
+
+    /*
+      The overflowing sheet is usually the last one, so the sheet after it does not
+      exist yet. Appending to an array that is not there is the difference between
+      producing one more page and throwing - and this is the ordinary case, not an
+      edge one.
+    */
+    const next = sheets[overflowing + 1] ?? [];
+
+    sheets[overflowing + 1] = [...next, moved];
+  }
+
   return sheets;
+}
+
+/** What a sheet actually occupies: its blocks, plus the margin under the last. */
+function sheetHeight(sheet: ReadonlyArray<Measured>): number {
+  const last = sheet[sheet.length - 1];
+
+  if (last === undefined) {
+    return 0;
+  }
+
+  return sheet.reduce((total, block) => total + block.spaceMm, 0) + last.marginBottomMm;
 }
 
 function render(
