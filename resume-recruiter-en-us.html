@@ -91,6 +91,26 @@
                 page-break-after: always;
             }
 
+            /*
+              The last block on a sheet drops its bottom margin.
+
+              That margin exists to space a block from the one after it, and at the
+              foot of a sheet there is no one after it - it is four millimetres of
+              dead height. Four millimetres is also the difference between a sheet
+              that fits and one that does not: `.a4-page` is `min-height: 297mm`, so
+              content that overruns the content box grows the box and prints as an
+              extra page the footers never counted. A role was pushed off page one
+              by two tenths of a millimetre and left eighty-six millimetres of white
+              space behind.
+
+              The footer leads the sheet so this selector can name the block before it.
+              `> *:last-child:not(.resume-footer)` looks equivalent and matches nothing at
+              all - the footer is the last child, so the one element that is both
+              last and not the footer does not exist. The rule then never fires and every
+              sheet carries four dead millimetres.
+            */
+            .a4-page > .resume-footer ~ *:last-child { margin-bottom: 0 !important; }
+
             .no-print { display: none !important; }
             .keep-together { page-break-inside: avoid; }
         }
@@ -101,6 +121,9 @@
     <!-- PÁGINA 1 -->
     
         <div class="a4-page">
+            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v1 — Page 1 of 3
+            </div>
         <header class="mb-4" data-block="header" data-pinned="first">
             <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase">Marcelino Sandroni Dias</h1>
             <h2 class="text-base font-bold text-slate-700 mt-1 mb-3">Software &amp; AI Engineer</h2>
@@ -168,22 +191,23 @@
             </div>
         </section>
 
-        <section class="mb-4 keep-together" data-block="habilidades">
-            <h3 class="section-title">Technical Skills &amp; Software Architecture</h3>
-            <div class="text-[11.5px] text-slate-700">
-                <p class="mb-1"><strong>Frontend &amp; UI Architecture:</strong> React, Next.js, Angular, Vue.js, React Native, TypeScript, JavaScript, Micro-frontends (Module Federation), RxJS, NgRx, SSR, Storybook, Tailwind CSS, Design Systems, Flutter.</p>
-                <p class="mb-1"><strong>Backend &amp; Frameworks:</strong> Java (Spring Boot), C# (.NET Core), Node.js (NestJS), Go, Python, RESTful APIs, gRPC, Clean Architecture, DDD, CQRS, SOLID, WebSockets.</p>
-                <p class="mb-1"><strong>Data &amp; Messaging:</strong> Oracle, PostgreSQL, SQL Server, MySQL, MongoDB, Redis, ClickHouse, Databricks, Apache Kafka, RabbitMQ, Event Sourcing, Circuit Breakers.</p>
-                <p class="mb-1"><strong>Cloud, DevOps &amp; SRE:</strong> AWS, GCP, Azure, Oracle Cloud, IBM Cloud, Docker, Kubernetes (Helm/HPA), Terraform, CI/CD, OpenTelemetry, Prometheus, Grafana, Jaeger, FinOps.</p>
-                <p class="mb-1"><strong>AI &amp; Governance:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, RAG, Agentes LLM, Visão Computacional, TDD, BDD, Testes E2E, SonarQube, SOX, IFRS/CPC.</p>
-            </div>
-        </section>
+        <div data-block="habilidades" class="mb-4 keep-together"><h3 class="section-title">Technical Skills &amp; Software Architecture</h3></div>
+
+        <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Frontend &amp; UI Architecture:</strong> React, Next.js, Angular, Vue.js, React Native, TypeScript, JavaScript, Micro-frontends (Module Federation), RxJS, NgRx, SSR, Storybook, Tailwind CSS, Design Systems, Flutter.</p></div>
+
+        <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Backend &amp; Frameworks:</strong> Java (Spring Boot), C# (.NET Core), Node.js (NestJS), Go, Python, RESTful APIs, gRPC, Clean Architecture, DDD, CQRS, SOLID, WebSockets.</p></div>
+
+        <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Data &amp; Messaging:</strong> Oracle, PostgreSQL, SQL Server, MySQL, MongoDB, Redis, ClickHouse, Databricks, Apache Kafka, RabbitMQ, Event Sourcing, Circuit Breakers.</p></div>
+
+        <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Cloud, DevOps &amp; SRE:</strong> AWS, GCP, Azure, Oracle Cloud, IBM Cloud, Docker, Kubernetes (Helm/HPA), Terraform, CI/CD, OpenTelemetry, Prometheus, Grafana, Jaeger, FinOps.</p></div>
+
+        <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>AI &amp; Governance:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, RAG, Agentes LLM, Visão Computacional, TDD, BDD, Testes E2E, SonarQube, SOX, IFRS/CPC.</p></div>
 
         <div class="mb-4 keep-together" data-block="cargo">
             <h3 class="section-title">Professional Experience</h3>
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Software Engineer &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT Tecnologia</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">9 meses (Jan/2026 – Set/2026)  · Remote</span>
+                    <span class="text-xs font-semibold text-slate-600">9 months (Jan/2026 – Sep/2026)  · Remote</span>
                 </div>
                 <div class="tech-box">
                     <strong>Front/Mobile:</strong> React, Next.js, Angular, React Native, JavaScript/TypeScript, Micro-frontends, TailwindCSS.<br>
@@ -197,16 +221,16 @@
                     <li><strong>CI/CD automation &amp; LLM agents:</strong> Shipped declarative pipelines on Kubernetes with E2E tests (Playwright) and AI-generated code review, holding coverage above 90%.</li>
                 </ul>
             </div>
-            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v1 — Page 1 of 3
-            </div>
         </div>
 
         <div class="a4-page">
+            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v1 — Page 2 of 3
+            </div>
         <div class="mb-2 keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Software Engineer <span class="text-slate-400 font-normal">| Antlia / BNP Paribas</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">2 anos e 10 meses (Mar/2023 – Dez/2025)  · Hybrid</span>
+                    <span class="text-xs font-semibold text-slate-600">2 years and 10 months (Mar/2023 – Dec/2025)  · Hybrid</span>
                 </div>
                 <div class="tech-box">
                     <strong>Front/Mobile:</strong> Angular, React, Next.js, JavaScript/TypeScript, Tailwind CSS, Design Systems, Micro-frontends.<br>
@@ -223,7 +247,7 @@
         <div class="mb-4 keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Software Engineer <span class="text-slate-400 font-normal">| Banco Itaú</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">1 ano (Mar/2022 – Fev/2023)  · Hybrid</span>
+                    <span class="text-xs font-semibold text-slate-600">1 year (Mar/2022 – Feb/2023)  · Hybrid</span>
                 </div>
                 <div class="tech-box">
                     <strong>Front/Mobile:</strong> JavaScript/TypeScript, Angular, React, Flutter, Micro-frontends, Tailwind CSS, Design Systems.<br>
@@ -240,7 +264,7 @@
         <div class="mb-4 keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Full Software Engineer <span class="bg-emerald-100 text-emerald-800 px-1 py-0.5 rounded text-[9px] ml-1 uppercase font-bold">Promoted in 3 months</span> <span class="text-slate-400 font-normal">| Pollux Technology</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">1 ano e 1 mês (Fev/2021 – Fev/2022)  · Remote</span>
+                    <span class="text-xs font-semibold text-slate-600">1 year and 1 month (Feb/2021 – Feb/2022)  · Remote</span>
                 </div>
                 <div class="tech-box">
                     <strong>Front/Mobile:</strong> React, Next.js, Angular, JavaScript/TypeScript, Micro-frontends, Tailwind CSS, Design System.<br>
@@ -256,7 +280,7 @@
         <div class="mb-5 keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Accounting Analyst &amp; Finance Manager <span class="text-slate-400 font-normal">| Corporate Consulting (15 Years)</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">15 anos e 6 meses (Jul/2005 – Dez/2020)  · Sao Paulo</span>
+                    <span class="text-xs font-semibold text-slate-600">15 years (Jul/2005 – Dec/2020)  · Onsite</span>
                 </div>
                 <div class="tech-box">
                     <strong>Core Business:</strong> FinOps, Automação de Processos ERP, IFRS &amp; CPC, SOX Compliance, Tax Planning. Strategic edge: business insight, financial reporting and compliance applied to tech development.
@@ -280,12 +304,12 @@
                 </div>
             </div>
         </section>
-            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v1 — Page 2 of 3
-            </div>
         </div>
 
         <div class="a4-page">
+            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v1 — Page 3 of 3
+            </div>
         <section class="mb-4 keep-together" data-block="idiomas">
             <h3 class="section-title">Languages</h3>
             <div class="text-xs text-slate-700 flex flex-col gap-1" style="
@@ -301,17 +325,15 @@
             </div>
         </section>
 
-        <section class="keep-together" data-block="informacoes">
-            <h3 class="section-title">Additional Information &amp; Professional Profile</h3>
-            <div class="text-[11.5px] text-slate-700">
-                <p class="mb-1"><strong>Availability:</strong> Immediate, available for fully remote work (global).</p>
-                <p class="mb-1"><strong>Engagement:</strong> Wide flexibility. Available for full-time (employee or contractor), part-time, or on-demand consulting (fixed-scope modernisation projects) in Brazil, the US and Europe.</p>
-                <p class="mb-1"><strong>Communication:</strong> Assertive and transparent. Proven ability to negotiate requirements, align on delivery expectations and shield the engineering team from noise, keeping executive reporting and critical production incidents unambiguous.</p>
-                <p class="mb-1"><strong>Leadership:</strong> Orchestrating agile squads and moving fluidly between strategic alignment with C-levels and execution with engineering teams. Active mentoring focused on raising the bar for junior and mid-level developers.</p>
-                <p><strong>Governance:</strong> Absolute ownership and proven resilience through crisis. Specialist at translating complex business rules and financial-market regulation directly into software systems that are secure, scalable and highly reliable.</p>
-            </div>
-        </section>
-            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v1 — Page 3 of 3
-            </div>
+        <div data-block="informacoes" class="keep-together"><h3 class="section-title">Additional Information &amp; Professional Profile</h3></div>
+
+        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Availability:</strong> Immediate, available for fully remote work (global).</p></div>
+
+        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Engagement:</strong> Wide flexibility. Available for full-time (employee or contractor), part-time, or on-demand consulting (fixed-scope modernisation projects) in Brazil, the US and Europe.</p></div>
+
+        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Communication:</strong> Assertive and transparent. Proven ability to negotiate requirements, align on delivery expectations and shield the engineering team from noise, keeping executive reporting and critical production incidents unambiguous.</p></div>
+
+        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Leadership:</strong> Orchestrating agile squads and moving fluidly between strategic alignment with C-levels and execution with engineering teams. Active mentoring focused on raising the bar for junior and mid-level developers.</p></div>
+
+        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p><strong>Governance:</strong> Absolute ownership and proven resilience through crisis. Specialist at translating complex business rules and financial-market regulation directly into software systems that are secure, scalable and highly reliable.</p></div>
         </div></body></html>

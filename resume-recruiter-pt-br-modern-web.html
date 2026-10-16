@@ -91,6 +91,26 @@
                 page-break-after: always;
             }
 
+            /*
+              The last block on a sheet drops its bottom margin.
+
+              That margin exists to space a block from the one after it, and at the
+              foot of a sheet there is no one after it - it is four millimetres of
+              dead height. Four millimetres is also the difference between a sheet
+              that fits and one that does not: `.a4-page` is `min-height: 297mm`, so
+              content that overruns the content box grows the box and prints as an
+              extra page the footers never counted. A role was pushed off page one
+              by two tenths of a millimetre and left eighty-six millimetres of white
+              space behind.
+
+              The footer leads the sheet so this selector can name the block before it.
+              `> *:last-child:not(.resume-footer)` looks equivalent and matches nothing at
+              all - the footer is the last child, so the one element that is both
+              last and not the footer does not exist. The rule then never fires and every
+              sheet carries four dead millimetres.
+            */
+            .a4-page > .resume-footer ~ *:last-child { margin-bottom: 0 !important; }
+
             .no-print { display: none !important; }
             .keep-together { page-break-inside: avoid; }
         }
@@ -101,6 +121,9 @@
     <!-- PÁGINA 1 -->
     
         <div class="a4-page">
+            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 1 de 3
+            </div>
         <header class="mb-4" data-block="header" data-pinned="first">
             <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase">Marcelino Sandroni Dias</h1>
             <h2 class="text-base font-bold text-slate-700 mt-1 mb-3">Engenheiro de Software | Node, Go &amp; React</h2>
@@ -167,22 +190,23 @@
                 </div>
             </div></section>
 
-        <section class="mb-4 keep-together" data-block="habilidades">
-            <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>
-<div class="text-[11.5px] text-slate-700">
-                <p class="mb-1"><strong>Frontend &amp; UI:</strong> React, Next.js (RSC, SSR), Angular, Vue.js, React Native, TypeScript, Micro-frontends (Module Federation), Storybook, Tailwind CSS, Design Systems.</p>
-                <p class="mb-1"><strong>Backend &amp; Distribuídos:</strong> Node.js, NestJS, Go, Java (Spring Boot), .NET Core, Python, REST, gRPC, WebSockets, Circuit Breakers, RabbitMQ (DLQ), Apache Kafka, Serverless.</p>
-                <p class="mb-1"><strong>Dados &amp; Analítico:</strong> PostgreSQL, MySQL, MongoDB, Redis, ClickHouse, Databricks, ETL, Pipelines de Dados.</p>
-                <p class="mb-1"><strong>Cloud, DevOps &amp; SRE:</strong> AWS (EKS, ECS, Lambda, S3, RDS, DynamoDB, SQS, EventBridge, API Gateway), GCP, Azure, Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Prometheus, Grafana, Jaeger, OpenTelemetry.</p>
-                <p class="mb-1"><strong>IA &amp; Dados Aplicacionais:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, Agentes LLM, Visão Computacional, SDD (Spec Driven Development).</p>
-            </div>
-        </section>
-            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 1 de 3
-            </div>
+        <div data-block="habilidades" class="mb-4 keep-together"><h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3></div>
+
+        <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Frontend &amp; UI:</strong> React, Next.js (RSC, SSR), Angular, Vue.js, React Native, TypeScript, Micro-frontends (Module Federation), Storybook, Tailwind CSS, Design Systems.</p></div>
+
+        <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Backend &amp; Distribuídos:</strong> Node.js, NestJS, Go, Java (Spring Boot), .NET Core, Python, REST, gRPC, WebSockets, Circuit Breakers, RabbitMQ (DLQ), Apache Kafka, Serverless.</p></div>
+
+        <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Dados &amp; Analítico:</strong> PostgreSQL, MySQL, MongoDB, Redis, ClickHouse, Databricks, ETL, Pipelines de Dados.</p></div>
+
+        <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Cloud, DevOps &amp; SRE:</strong> AWS (EKS, ECS, Lambda, S3, RDS, DynamoDB, SQS, EventBridge, API Gateway), GCP, Azure, Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Prometheus, Grafana, Jaeger, OpenTelemetry.</p></div>
+
+        <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>IA &amp; Dados Aplicacionais:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, Agentes LLM, Visão Computacional, SDD (Spec Driven Development).</p></div>
         </div>
 
         <div class="a4-page">
+            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 2 de 3
+            </div>
         <div class="mb-4 keep-together keep-together" data-block="cargo">
                 <h3 class="section-title">Experiência Profissional</h3>
                 <div class="flex justify-between items-end mb-1">
@@ -234,12 +258,12 @@
                     <li><strong>80% de entregas antecipadas:</strong> Com time de 5 pessoas em clientes de saúde, financeiro e esportes, sustentei 100% de pontualidade sob prazos apertados.</li>
                 </ul>
             </div>
-            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 2 de 3
-            </div>
         </div>
 
         <div class="a4-page">
+            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 3 de 3
+            </div>
         <div class="mb-4 keep-together keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software <span class="text-slate-400 font-normal">| Banco Itaú (Atacado)</span></h4>
@@ -259,7 +283,7 @@
         <div class="mb-5 keep-together keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Analista Contábil &amp; Gestor Financeiro <span class="text-slate-400 font-normal">| Consultoria Corporativa (15 Anos)</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">15 anos e 6 meses (Jul/2005 – Dez/2020) · São Paulo</span>
+                    <span class="text-xs font-semibold text-slate-600">15 anos (Jul/2005 – Dez/2020) · Presencial</span>
                 </div>
                 <div class="tech-box">
                     <strong>Core Business:</strong> FinOps, IFRS &amp; CPC, SOX Compliance, Planejamento Tributário, Automação de ERP. Diferencial estratégico: visão de negócios e compliance para desenvolvimento tech.
@@ -299,17 +323,15 @@
             </div>
         </section>
 
-        <section class="keep-together" data-block="informacoes">
-            <h3 class="section-title">Informações Adicionais &amp; Perfil Profissional</h3>
-            <div class="text-[11.5px] text-slate-700">
-                <p class="mb-1"><strong>Disponibilidade:</strong> Imediata para atuação 100% Remota (Global).</p>
-                <p class="mb-1"><strong>Contratação:</strong> Ampla flexibilidade. Apto para atuar em modelos Full-time (CLT ou B2B/PJ), Part-time, ou Consultoria sob demanda (Projetos de modernização de escopo fechado) para Brasil, EUA e Europa.</p>
-                <p class="mb-1"><strong>Comunicação:</strong> Assertiva e transparente. Habilidade comprovada em negociar requisitos, alinhar expectativas de prazos e blindar o time técnico contra ruídos, garantindo clareza absoluta durante reportes executivos e gestão de incidentes críticos em produção.</p>
-                <p class="mb-1"><strong>Liderança:</strong> Orquestração de esquadrões ágeis e transição fluida entre o alinhamento estratégico com C-Levels (Negócios) e a execução com times técnicos. Mentoria ativa focada em elevar a régua de desenvolvedores Júnior/Pleno.</p>
-                <p><strong>Governança:</strong> Postura de dono absoluta e resiliência comprovada na gestão de crises. Especialista em traduzir regras complexas de negócios e regulamentações do mercado financeiro diretamente para a criação de sistemas de software seguros, escaláveis e de alta confiabilidade.</p>
-            </div>
-        </section>
-            <div class="text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 3 de 3
-            </div>
+        <div data-block="informacoes" class="keep-together"><h3 class="section-title">Informações Adicionais &amp; Perfil Profissional</h3></div>
+
+        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Disponibilidade:</strong> Imediata para atuação 100% Remota (Global).</p></div>
+
+        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Contratação:</strong> Ampla flexibilidade. Apto para atuar em modelos Full-time (CLT ou B2B/PJ), Part-time, ou Consultoria sob demanda (Projetos de modernização de escopo fechado) para Brasil, EUA e Europa.</p></div>
+
+        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Comunicação:</strong> Assertiva e transparente. Habilidade comprovada em negociar requisitos, alinhar expectativas de prazos e blindar o time técnico contra ruídos, garantindo clareza absoluta durante reportes executivos e gestão de incidentes críticos em produção.</p></div>
+
+        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Liderança:</strong> Orquestração de esquadrões ágeis e transição fluida entre o alinhamento estratégico com C-Levels (Negócios) e a execução com times técnicos. Mentoria ativa focada em elevar a régua de desenvolvedores Júnior/Pleno.</p></div>
+
+        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p><strong>Governança:</strong> Postura de dono absoluta e resiliência comprovada na gestão de crises. Especialista em traduzir regras complexas de negócios e regulamentações do mercado financeiro diretamente para a criação de sistemas de software seguros, escaláveis e de alta confiabilidade.</p></div>
         </div></body></html>

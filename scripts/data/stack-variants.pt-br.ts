@@ -95,6 +95,19 @@ const duration = (period: string): string => {
     return `${years} ${years === 1 ? "ano" : "anos"}`;
   }
 
+  /*
+    Long tenures drop the months.
+
+    Past a decade the remainder is noise: "15 anos e 6 meses" and "15 anos" are
+    the same statement to a reader, and the first one is long enough to wrap the
+    period onto a second line in a header that already carries the dates and the
+    location. Under ten years the months still carry information - "2 anos e 10
+    meses" tells a recruiter the role ran long enough to matter - so they stay.
+  */
+  if (years >= 10) {
+    return `${years} anos`;
+  }
+
   return `${years} ${years === 1 ? "ano" : "anos"} e ${months} ${months === 1 ? "mês" : "meses"}`;
 };
 
@@ -155,12 +168,12 @@ slug: "enterprise-java",
     title: "Marcelino Sandroni - Engenheiro Java e Angular",
     headline: "Engenheiro de Software | Angular + Java",
     skills: `<div class="text-[11.5px] text-slate-700">
-                <p class="mb-1"><strong>Frontend &amp; UI Architecture:</strong> Angular (v8 à v22), TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends (Module Federation), Estado/Reatividade (RxJS, NgRx), SSR, Tailwind CSS, Angular Material, shadcn, Design Systems.</p>
-                <p class="mb-1"><strong>Backend &amp; Frameworks:</strong> Java (do 8 ao 25 LTS), Spring Boot 3.x (AOT/GraalVM), Spring Cloud, Spring WebFlux (Project Reactor), Spring Batch, Spring Security (OAuth2, OIDC, JWT, mTLS), Hibernate/JPA (N+1), Tuning de JVM (ZGC/G1GC).</p>
-                <p class="mb-1"><strong>Inteligência Artificial &amp; Dados:</strong> LLMs corporativos via Spring AI e LangChain4j, Amazon Bedrock (Claude/Titan), RAG, Agentic Workflows (Function Calling), Vector Databases (pgvector, Milvus).</p>
-                <p class="mb-1"><strong>Cloud (AWS), DevOps &amp; SRE:</strong> AWS (EKS/ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, CloudWatch), Docker, Kubernetes (Helm), Terraform, CI/CD (GitHub Actions, Bitbucket Pipelines, Jenkins), Observabilidade (OpenTelemetry, Datadog).</p>
-                <p class="mb-1"><strong>Arquitetura, APIs &amp; Mensageria:</strong> RESTful Nível 3, gRPC, GraphQL, WebSockets/SSE, Apache Kafka (partições, idempotência), RabbitMQ (topic exchanges, DLQ), Circuit Breakers, Clean Architecture, DDD, CQRS, SOLID.</p>
-                <p class="mb-1"><strong>Ecossistema Analítico &amp; Bancos:</strong> Oracle, PostgreSQL, SQL Server, MongoDB, Redis, Cassandra, Neo4j, DynamoDB, DocumentDB, Snowflake, Databricks.</p>
+                <p class="mb-1" data-item><strong>Frontend &amp; UI Architecture:</strong> Angular (v8 à v22), TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends (Module Federation), Estado/Reatividade (RxJS, NgRx), SSR, Tailwind CSS, Angular Material, shadcn, Design Systems.</p>
+                <p class="mb-1" data-item><strong>Backend &amp; Frameworks:</strong> Java (do 8 ao 25 LTS), Spring Boot 3.x (AOT/GraalVM), Spring Cloud, Spring WebFlux (Project Reactor), Spring Batch, Spring Security (OAuth2, OIDC, JWT, mTLS), Hibernate/JPA (N+1), Tuning de JVM (ZGC/G1GC).</p>
+                <p class="mb-1" data-item><strong>Inteligência Artificial &amp; Dados:</strong> LLMs corporativos via Spring AI e LangChain4j, Amazon Bedrock (Claude/Titan), RAG, Agentic Workflows (Function Calling), Vector Databases (pgvector, Milvus).</p>
+                <p class="mb-1" data-item><strong>Cloud (AWS), DevOps &amp; SRE:</strong> AWS (EKS/ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, CloudWatch), Docker, Kubernetes (Helm), Terraform, CI/CD (GitHub Actions, Bitbucket Pipelines, Jenkins), Observabilidade (OpenTelemetry, Datadog).</p>
+                <p class="mb-1" data-item><strong>Arquitetura, APIs &amp; Mensageria:</strong> RESTful Nível 3, gRPC, GraphQL, WebSockets/SSE, Apache Kafka (partições, idempotência), RabbitMQ (topic exchanges, DLQ), Circuit Breakers, Clean Architecture, DDD, CQRS, SOLID.</p>
+                <p class="mb-1" data-item><strong>Ecossistema Analítico &amp; Bancos:</strong> Oracle, PostgreSQL, SQL Server, MongoDB, Redis, Cassandra, Neo4j, DynamoDB, DocumentDB, Snowflake, Databricks.</p>
             </div>`,
     sections: {
       summary: summary(
@@ -229,7 +242,7 @@ slug: "enterprise-java",
         }) + role({
           title: "Analista Contábil &amp; Gestor Financeiro",
           company: "Consultoria Corporativa",
-          period: "Jul/2003 – Dez/2018 · São Paulo",
+          period: "Jul/2003 – Dez/2018 · Presencial",
           margin: "mb-5 keep-together",
           tech: [
             "<strong>Core Business:</strong> FinOps, Automação de Processos ERP, Compliance SOX, IFRS/CPC, Planejamento Tributário e Integração de Dados.",
@@ -247,10 +260,10 @@ slug: "enterprise-java",
     title: "Marcelino Sandroni - Engenheiro C# e Angular",
     headline: "Engenheiro de Software | C# &amp; Angular",
     skills: `<div class="text-[11.5px] text-slate-700">
-                <p class="mb-1"><strong>Frontend &amp; UI Architecture:</strong> Angular, TypeScript, RxJS, NgRx, Micro-frontends (Module Federation), SSR, Design Systems, Tailwind CSS, Angular Material, Cypress, Flutter.</p>
-                <p class="mb-1"><strong>Backend &amp; Frameworks:</strong> C# (.NET Core 6/8), ASP.NET Core, Entity Framework Core, xUnit, REST, gRPC, Clean Architecture, DDD, CQRS, SOLID.</p>
-                <p class="mb-1"><strong>Cloud, DevOps &amp; Mensageria:</strong> AWS (EKS, ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, Secrets Manager, KMS), Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Apache Kafka, RabbitMQ, OpenTelemetry, Prometheus.</p>
-                <p class="mb-1"><strong>Dados &amp; Analítico:</strong> SQL Server, PostgreSQL, MySQL, Oracle, Redis, MongoDB, ClickHouse, Databricks, RAG, LangChain.</p>
+                <p class="mb-1" data-item><strong>Frontend &amp; UI Architecture:</strong> Angular, TypeScript, RxJS, NgRx, Micro-frontends (Module Federation), SSR, Design Systems, Tailwind CSS, Angular Material, Cypress, Flutter.</p>
+                <p class="mb-1" data-item><strong>Backend &amp; Frameworks:</strong> C# (.NET Core 6/8), ASP.NET Core, Entity Framework Core, xUnit, REST, gRPC, Clean Architecture, DDD, CQRS, SOLID.</p>
+                <p class="mb-1" data-item><strong>Cloud, DevOps &amp; Mensageria:</strong> AWS (EKS, ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, Secrets Manager, KMS), Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Apache Kafka, RabbitMQ, OpenTelemetry, Prometheus.</p>
+                <p class="mb-1" data-item><strong>Dados &amp; Analítico:</strong> SQL Server, PostgreSQL, MySQL, Oracle, Redis, MongoDB, ClickHouse, Databricks, RAG, LangChain.</p>
             </div>`,
     sections: {
       summary: summary(
@@ -330,7 +343,7 @@ slug: "enterprise-java",
         }) + role({
           title: "Analista Contábil &amp; Gestor Financeiro",
           company: "Consultoria Corporativa (15 Anos)",
-          period: "Jul/2005 – Dez/2020 · São Paulo",
+          period: "Jul/2005 – Dez/2020 · Presencial",
           margin: "mb-5 keep-together",
           tech: [
             "<strong>Core Business:</strong> FinOps, IFRS &amp; CPC, SOX Compliance, Planejamento Tributário, Automação de ERP. Diferencial estratégico: visão de balanço e compliance para desenhar a regra de negócio certa.",
@@ -349,11 +362,11 @@ slug: "enterprise-java",
     title: "Marcelino Sandroni - Engenheiro Node, Go e React",
     headline: "Engenheiro de Software | Node, Go &amp; React",
     skills: `<div class="text-[11.5px] text-slate-700">
-                <p class="mb-1"><strong>Frontend &amp; UI:</strong> React, Next.js (RSC, SSR), Angular, Vue.js, React Native, TypeScript, Micro-frontends (Module Federation), Storybook, Tailwind CSS, Design Systems.</p>
-                <p class="mb-1"><strong>Backend &amp; Distribuídos:</strong> Node.js, NestJS, Go, Java (Spring Boot), .NET Core, Python, REST, gRPC, WebSockets, Circuit Breakers, RabbitMQ (DLQ), Apache Kafka, Serverless.</p>
-                <p class="mb-1"><strong>Dados &amp; Analítico:</strong> PostgreSQL, MySQL, MongoDB, Redis, ClickHouse, Databricks, ETL, Pipelines de Dados.</p>
-                <p class="mb-1"><strong>Cloud, DevOps &amp; SRE:</strong> AWS (EKS, ECS, Lambda, S3, RDS, DynamoDB, SQS, EventBridge, API Gateway), GCP, Azure, Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Prometheus, Grafana, Jaeger, OpenTelemetry.</p>
-                <p class="mb-1"><strong>IA &amp; Dados Aplicacionais:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, Agentes LLM, Visão Computacional, SDD (Spec Driven Development).</p>
+                <p class="mb-1" data-item><strong>Frontend &amp; UI:</strong> React, Next.js (RSC, SSR), Angular, Vue.js, React Native, TypeScript, Micro-frontends (Module Federation), Storybook, Tailwind CSS, Design Systems.</p>
+                <p class="mb-1" data-item><strong>Backend &amp; Distribuídos:</strong> Node.js, NestJS, Go, Java (Spring Boot), .NET Core, Python, REST, gRPC, WebSockets, Circuit Breakers, RabbitMQ (DLQ), Apache Kafka, Serverless.</p>
+                <p class="mb-1" data-item><strong>Dados &amp; Analítico:</strong> PostgreSQL, MySQL, MongoDB, Redis, ClickHouse, Databricks, ETL, Pipelines de Dados.</p>
+                <p class="mb-1" data-item><strong>Cloud, DevOps &amp; SRE:</strong> AWS (EKS, ECS, Lambda, S3, RDS, DynamoDB, SQS, EventBridge, API Gateway), GCP, Azure, Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Prometheus, Grafana, Jaeger, OpenTelemetry.</p>
+                <p class="mb-1" data-item><strong>IA &amp; Dados Aplicacionais:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, Agentes LLM, Visão Computacional, SDD (Spec Driven Development).</p>
             </div>`,
     sections: {
       summary: summary(
@@ -432,7 +445,7 @@ slug: "enterprise-java",
         }) + role({
           title: "Analista Contábil &amp; Gestor Financeiro",
           company: "Consultoria Corporativa (15 Anos)",
-          period: "Jul/2005 – Dez/2020 · São Paulo",
+          period: "Jul/2005 – Dez/2020 · Presencial",
           margin: "mb-5 keep-together",
           tech: [
             "<strong>Core Business:</strong> FinOps, IFRS &amp; CPC, SOX Compliance, Planejamento Tributário, Automação de ERP. Diferencial estratégico: visão de negócios e compliance para desenvolvimento tech.",

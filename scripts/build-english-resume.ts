@@ -62,7 +62,7 @@ const TEXT: ReadonlyArray<Rule> = [
   { from: "| Consultoria Corporativa (15 Anos)</span>", to: "| Corporate Consulting (15 Years)</span>" },
   { from: "· Remoto</span>", to: " · Remote</span>" },
   { from: "· Híbrido</span>", to: " · Hybrid</span>" },
-  { from: "· São Paulo</span>", to: " · Sao Paulo</span>" },
+  { from: "· Presencial</span>", to: " · Onsite</span>" },
 
   // Tech box labels
   { from: "<strong>Front/Mobile:</strong>", to: "<strong>Front/Mobile:</strong>" },
@@ -272,6 +272,22 @@ const LEFTOVERS: ReadonlyArray<string> = [
   "Fechamento",
   "Custódia",
   "Gestão de Crise",
+  /*
+    Tenure and date vocabulary, covered by the pattern pass rather than by `TEXT`.
+    Listed here so a change to the shell that introduces a sixth month abbreviation
+    or a new duration shape fails the build instead of printing in Portuguese.
+  */
+  " anos",
+  " ano",
+  " meses",
+  " mês",
+  "Fev/",
+  "Abr/",
+  "Mai/",
+  "Ago/",
+  "Set/",
+  "Out/",
+  "Dez/",
 ];
 
 async function main(): Promise<void> {
@@ -302,6 +318,69 @@ async function main(): Promise<void> {
     .replace(
       /Engenheiro de Software &amp; IA — Currículo v1 — Página (\d+) de (\d+)/g,
       "Software &amp; AI Engineer — Resume v1 — Page $1 of $2",
+    );
+
+  /*
+    Tenures and dates, which no phrase rule ever covered.
+
+    Both live in the role header as `2 anos e 10 meses (Mar/2023 – Dez/2025)`, and
+    both are reader-facing - so the English document had been shipping
+    "9 meses (Jan/2026 – Set/2026)" under a line that says "Software Engineer". A
+    recruiter does not need to know Portuguese to notice.
+
+    Written as patterns rather than as entries in `TEXT` because the durations are
+    computed from the dates in the shell: they change when the dates change, and a
+    hand-written rule would go stale the next time a role moves and quietly stop
+    matching. `TEXT` requires every phrase to be found, which would have turned that
+    staleness into a build failure - so these run after the leftover check instead,
+    and the leftover list below is what keeps them honest.
+
+    Only `y`/`yy`/`yyyy` counts as a date, so `Jan` inside a word cannot match, and
+    the pattern only runs inside the parentheses that hold the range.
+  */
+  const MONTHS: ReadonlyArray<readonly [RegExp, string]> = [
+    [/Fev/g, "Feb"],
+    [/Abr/g, "Apr"],
+    [/Mai/g, "May"],
+    [/Ago/g, "Aug"],
+    [/Set/g, "Sep"],
+    [/Out/g, "Oct"],
+    [/Dez/g, "Dec"],
+  ];
+
+  out = out.replace(/\(([^)]*\d{4}[^)]*)\)/g, (range: string): string => {
+    let translated = range;
+
+    for (const [pattern, english] of MONTHS) {
+      translated = translated.replace(pattern, english);
+    }
+
+    return translated;
+  });
+
+  /*
+    Tenures, across the whole document.
+
+    `2 anos e 10 meses` sits *outside* the parentheses that hold the dates, so it
+    cannot be translated in the same pass - a first attempt translated the months
+    and left the tenure in Portuguese, which is worse than either being wrong,
+    because it looks done.
+  */
+  out = out
+    .replace(
+      /\b(\d+)\s+anos?\s+e\s+(\d+)\s+m[eê]s(?:es)?\b/g,
+      (_tenure: string, years: string, months: string): string => {
+        const yearPart = years === "1" ? "1 year" : `${years} years`;
+        const monthPart = months === "1" ? "1 month" : `${months} months`;
+
+        return `${yearPart} and ${monthPart}`;
+      },
+    )
+    .replace(/\b(\d+)\s+anos?\b/g, (_tenure: string, years: string): string =>
+      years === "1" ? "1 year" : `${years} years`,
+    )
+    .replace(/\b(\d+)\s+m[eê]s(?:es)?\b/g, (_tenure: string, months: string): string =>
+      months === "1" ? "1 month" : `${months} months`,
     );
 
   const found = LEFTOVERS.filter((word) => {
