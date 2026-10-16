@@ -201,6 +201,7 @@ export async function ResumeDocument({
               locale={locale}
               profiles={profiles}
               selected={selectedProfile}
+              showAllLink={!profiles.some((profile) => profile.slug === "all")}
               labels={{
                 all: t.resume.stackAll,
                 choose: t.resume.stackChoose,
@@ -220,7 +221,19 @@ export async function ResumeDocument({
           without it, an unfinished tagging pass looks exactly like a deliberate
           short résumé.
         */}
-        {selectedProfile === null ? null : (
+        {/*
+          Only when something was actually removed.
+
+          This notice exists to explain a shortened résumé, so on the fixed source -
+          where a stack picks the PDF the download button fetches and leaves the
+          page itself untouched - it was rendering "0 cargo(s) ... foram omitidos"
+          under a heading saying "Esta versão foi filtrada". Nothing was filtered,
+          and the sentence told the reader their document had been cut when it had
+          not, which is worse than saying nothing.
+
+          Zero of both is therefore silence: there is no narrowing to account for.
+        */}
+        {selectedProfile === null || (narrowedRoles === 0 && untaggedDropped === 0) ? null : (
           <p
             role="status"
             className="mb-space-md border border-border-subtle bg-surface-raised p-space-sm text-body-sm text-text-secondary"
