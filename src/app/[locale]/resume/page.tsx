@@ -11,10 +11,10 @@ import {
 import { readResume, readResolvedProfiles } from "@/infrastructure/repositories";
 import { resolveResumePdfSource } from "@/domain/publication/resume-pdf-source";
 import {
-  RESUME_VARIANT_LABELS,
   availableResumeVariants,
   type ResumeVariant,
 } from "@/infrastructure/pdf/fixed-resume-artifact";
+import { resumeVariantLabel } from "@/domain/publication/resume-variant";
 import { applyFocus, narrowDocument, type FocusExpansion } from "@/domain/resume/focus";
 import { getDictionary } from "@/i18n";
 
@@ -123,9 +123,29 @@ export default async function Page({
     readonly focus?: FocusExpansion;
   };
 
+  const t = await getDictionary(locale);
+
+  /*
+    Every variant is labelled with the same thing its file is named after.
+
+    Backend plus frontend, in the reader's language, from the one table in
+    `resume-variant.ts`. The label used to be a seniority-led string written out
+    here — "Enterprise Java + Angular", "Modern Node + Go + React" — which made two
+    of the three look like they were for more senior work than the third. That is
+    not what separates them, and it is not what anyone choosing between them is
+    comparing.
+
+    A label and a filename that disagree is also how the same stack ends up written
+    two ways on one page: the button says one thing and the file it produces is
+    called something else.
+  */
   const profiles: ReadonlyArray<{ profile: PageProfile }> = focusable
     ? (await availableResumeVariants(locale)).map((slug: ResumeVariant) => ({
-        profile: { slug, label: RESUME_VARIANT_LABELS[slug], description: "" },
+        profile: {
+          slug,
+          label: resumeVariantLabel(locale, slug, t.resume.stackComplete),
+          description: "",
+        },
       }))
     : (await readResolvedProfiles(locale)).map((entry) => ({ profile: entry.profile }));
 

@@ -1,6 +1,10 @@
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 import type { Locale } from "@/domain/i18n";
+import {
+  RESUME_VARIANTS,
+  type ResumeVariant,
+} from "@/domain/publication/resume-variant";
 
 /**
  * The pre-rendered recruiter PDF.
@@ -19,7 +23,21 @@ import type { Locale } from "@/domain/i18n";
  * Because the artifact is content, not a template. `pt-BR` and `en-US` are
  * different documents, and serving the Portuguese one to an English reader is
  * worse than serving nothing: it looks correct and reads wrong.
+ *
+ * ## Why these filenames are not the download name
+ *
+ * Because these name a build artifact and the other names the deliverable.
+ * `resume-fixed-pt-BR-enterprise-java.pdf` is what the build writes and what the
+ * tests assert on; `Marcelino Sandroni - Engenheiro de Software - Java e Angular.pdf`
+ * is what the recruiter sees. They are deliberately different, and
+ * `resumePdfFilename` in the domain is the only thing that builds the second one.
  */
+
+/** Re-exported so callers of this module keep one import for the variant set. */
+export { RESUME_VARIANTS };
+export type { ResumeVariant };
+export { resolveResumeVariant } from "@/domain/publication/resume-variant";
+
 const ARTIFACT_DIRECTORY = join("public", "artifacts", "fixed");
 
 /**
@@ -48,49 +66,6 @@ const FILENAMES: Record<Locale, Record<ResumeVariant, string>> = {
   },
 };
 
-/** Every stack the fixed documents cover. `all` is the default. */
-export const RESUME_VARIANTS = [
-  "all",
-  "enterprise-java",
-  "enterprise-dotnet",
-  "modern-web",
-] as const;
-
-export type ResumeVariant = (typeof RESUME_VARIANTS)[number];
-
-/**
- * What the selector calls each document.
- *
- * Named after the stack rather than the seniority, because that is what a
- * recruiter is choosing between: the same person, argued for a different stack.
- */
-export const RESUME_VARIANT_LABELS: Record<ResumeVariant, string> = {
-  all: "Completo",
-  "enterprise-java": "Enterprise Java + Angular",
-  "enterprise-dotnet": "Enterprise C# + Angular",
-  "modern-web": "Modern Node + Go + React",
-};
-
-/**
- * The variant a slug names, or `null` when it names none.
- *
- * `null` rather than a default: an unrecognised slug must not quietly become the
- * general résumé, because the reader asked for a specialised one and would get a
- * document that never mentions their stack. The route turns `null` into a 400
- * with the list of what there is.
- */
-export function resolveResumeVariant(raw: string | null): ResumeVariant | null {
-  if (raw === null || raw.trim() === "") {
-    return "all";
-  }
-
-  const slug = raw.trim().toLowerCase();
-
-  return (RESUME_VARIANTS as ReadonlyArray<string>).includes(slug)
-    ? (slug as ResumeVariant)
-    : null;
-}
-
 /**
  * The variants that actually have a rendered document in a locale.
  *
@@ -116,22 +91,6 @@ export async function availableResumeVariants(
   }
 
   return found;
-}
-
-/**
- * The name the recruiter's file arrives under.
- *
- * Deliberately the same shape the download button builds client-side, and the
- * reason is that the button's name is the one that survives: it fetches the PDF
- * as a blob and saves it under a name it composes, so a `Content-Disposition`
- * here is only used by someone hitting the URL directly. Two different
- * conventions for the same file is the kind of thing that looks like a bug to
- * whoever finds it next, so they are the same string.
- */
-export function fixedResumeFilename(locale: Locale, variant: ResumeVariant): string {
-  const stack = variant === "all" ? "" : `-${variant}`;
-
-  return `resume-marcelino-sandroni-${locale}${stack}-CLEAN.pdf`;
 }
 
 /**

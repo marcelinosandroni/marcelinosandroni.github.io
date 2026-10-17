@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import type { Locale } from "@/domain/i18n";
+import { resumePdfFilenameForSlug } from "@/domain/publication/resume-pdf-filename";
 
 export interface PdfButtonMessages {
   download: string;
@@ -91,10 +92,17 @@ export function DownloadPDFButton({
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download =
-        `resume-marcelino-sandroni-${locale}` +
-        (stack === null || stack === "" ? "" : `-${stack}`) +
-        ".pdf";
+      /*
+        The name comes from the domain, not from here.
+
+        This is the attribute that decides it: the PDF arrives as a blob, and the
+        browser saves it under whatever the `download` attribute says, so the
+        server's `Content-Disposition` is only consulted by someone hitting the URL
+        directly. Composing the name in the component is how the two drifted apart
+        in the first place — and a name in a downloads folder is what a reader sees
+        for the rest of their life.
+      */
+      link.download = resumePdfFilenameForSlug(locale, stack);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

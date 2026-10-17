@@ -176,6 +176,15 @@ export const enUS = {
     galleryNext: "Next",
     galleryClose: "Close",
     stackAll: "All",
+  /*
+    The label of the general document, not of the "all" link.
+
+    `stackAll` serves the link that undoes a filter - "All" answers "which?".
+    The general document answers a different one: "which is the complete one?".
+    Two texts, and using one for both is why the button came to say "All" while
+    pointing at a single document.
+  */
+  stackComplete: "Full",
     stackChoose: "View the résumé by stack",
     stackFocusedOn: "Focused on {stack}",
     stackNarrowed: "This version leads with the selected stacks",
