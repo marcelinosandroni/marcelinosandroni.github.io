@@ -75,9 +75,6 @@ const TEXT: ReadonlyArray<Rule> = [
       not already assume.
     */
     { from: "<strong>Stack:</strong>", to: "<strong>Stack:</strong>" },
-  { from: "&middot; Remoto", to: "&middot; Remote" },
-  { from: "&middot; Híbrido", to: "&middot; Hybrid" },
-  { from: "&middot; Presencial", to: "&middot; Onsite" },
     /*
       The role bodies.
       Eleven sentences, written rather than derived. The previous list translated the
@@ -162,19 +159,12 @@ const TEXT: ReadonlyArray<Rule> = [
     // Education
     { from: "Formação Acadêmica &amp; Especializações", to: "Academic Education &amp; Specializations" },
     { from: "<strong>Bacharelado em Engenharia de Computação</strong>", to: "<strong>BSc in Computer Engineering</strong>" },
-    { from: "<strong>Bacharelado em Ciências Contábeis</strong> — Estácio (Governança e Análise Financeira)", to: "<strong>BSc in Accounting</strong> — Estácio (Governance and Financial Analysis)" },
-    { from: ">Concluído 2017<", to: ">Completed 2017<" },
+    { from: "<strong>Bacharelado em Ciências Contábeis</strong> — Estácio, concluído 2017", to: "<strong>BSc in Accounting</strong> — Estácio, completed 2017" },
     // Languages
     { from: ">Idiomas<", to: ">Languages<" },
-    {
-      from: "<strong>Português:</strong> Nativo. &nbsp; <strong>Espanhol:</strong> Básico (Apto para leitura técnica e comunicação assíncrona).",
-      to: "<strong>Portuguese:</strong> Native. &nbsp; <strong>Spanish:</strong> Basic (able to read technical material and handle written communication).",
-    },
-    {
-      from: "<strong>Inglês Profissional:</strong> Fluente para dinâmica de trabalho corporativo, condução de reuniões de negócio, negociações com clientes, discussões de arquitetura, dailies e Code Reviews.",
-      to:
-        "<strong>Professional English:</strong> Fluent across corporate work, business meetings, client negotiation, architecture discussions, stand-ups and code reviews.",
-    },
+    { from: ">Espanhol:<", to: ">Spanish:<" },
+    { from: "leitura técnica e comunicação assíncrona.", to: "reading technical material and written communication." },
+    { from: "<strong>Inglês Profissional:</strong> Fluente — reuniões, negociações, arquitetura, dailies e code review.", to: "<strong>Professional English:</strong> Fluent — meetings, negotiation, architecture, stand-ups and code review." },
     // Skills inventory
     {
       from: "Habilidades Técnicas &amp; Arquitetura de Software",
@@ -220,8 +210,6 @@ const LEFTOVERS: ReadonlyArray<string> = [
   "Bacharelado",
     "Contratação",
   "Disponibilidade",
-  "Currículo",
-  "Página",
   "Continuação",
   "Promoção",
   "Diferencial",
@@ -414,10 +402,7 @@ async function main(): Promise<void> {
   */
   out = out.replace("</style>", `${TIMELINE_CSS}\n        </style>`);
 
-  const { html, pages } = await paginate(out, {
-    footer: (page, total) =>
-      `Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v1 — Page ${page} of ${total}`,
-  });
+  const { html, pages } = await paginate(out);
 
   await fs.writeFile(resolve("resume-recruiter-en-us.html"), html, "utf8");
 
