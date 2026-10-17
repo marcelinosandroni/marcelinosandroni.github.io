@@ -138,13 +138,16 @@ export async function GET(
         Two different situations share this branch, and they get different answers
         because they are different problems.
 
-        When the *locale* has nothing rendered, the typed catalog is the documented
-        second source and a real answer - the site still serves a PDF. When the
-        locale does have documents but not this one, falling through would hand the
-        reader the general résumé under a URL that promised a specialised one. That
-        document is complete and correct, which is what makes it the worst possible
-        answer: it looks like a successful download and silently drops the
-        specialisation that was asked for. So that case is refused.
+        When the *locale* has nothing rendered, there used to be a fallback: log a
+        line and carry on into the database path below. That is how a download from
+        this route produced a 39KB LaTeX document when the request had asked for a
+        345KB one - the reader got a real, complete, professionally typeset résumé
+        that was not the one on the site, and nothing in the download said so.
+
+        Falling back is exactly the failure the branch above exists to prevent, one
+        level up. If the artifacts are missing, the build has not run: the answer is
+        a refusal naming the command, not a different document. Setting
+        `RESUME_PDF_SOURCE=database` still gets the database path on purpose.
       */
       const offered = await availableResumeVariants(normalizedLocale);
 
@@ -154,8 +157,14 @@ export async function GET(
         );
       }
 
-      console.warn(
-        `[resume-pdf] fixed source has no artifacts at all for ${normalizedLocale}; using the database path`,
+      return createErrorResponse(
+        new ResumeVariantNotRenderedError(
+          variant,
+          normalizedLocale,
+          [],
+          "no fixed artefact has been built for this locale. Run `npm run pdf:fixed:build`, " +
+            "or set RESUME_PDF_SOURCE=database to serve the database document instead.",
+        ),
       );
     }
 
