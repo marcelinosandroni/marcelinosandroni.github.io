@@ -200,37 +200,6 @@ const TEXT: ReadonlyArray<Rule> = [
       from: "<strong>IA &amp; Governança:</strong>",
       to: "<strong>AI &amp; Governance:</strong>",
     },
-    // Additional information
-    { from: "Informações Adicionais &amp; Perfil Profissional", to: "Additional Information &amp; Professional Profile" },
-    {
-      from: "<strong>Disponibilidade:</strong> Imediata para atuação 100% Remota (Global).",
-      to: "<strong>Availability:</strong> Immediate, available for fully remote work (global).",
-    },
-    {
-      from:
-        "<strong>Contratação:</strong> Ampla flexibilidade. Apto para atuar em modelos Full-time (CLT ou B2B/PJ), Part-time, ou Consultoria sob demanda (Projetos de modernização de escopo fechado) para Brasil, EUA e Europa.",
-      to:
-        "<strong>Engagement:</strong> Wide flexibility. Available for full-time (employee or contractor), part-time, or on-demand consulting (fixed-scope modernisation projects) in Brazil, the US and Europe.",
-    },
-    {
-      from:
-        "<strong>Comunicação:</strong> Assertiva e transparente. Habilidade comprovada em negociar requisitos, alinhar expectativas de prazos e blindar o time técnico contra ruídos, garantindo clareza absoluta durante reportes executivos e gestão de incidentes críticos em produção.",
-      to:
-        "<strong>Communication:</strong> Assertive and transparent. Proven ability to negotiate requirements, align on delivery expectations and shield the engineering team from noise, keeping executive reporting and critical production incidents unambiguous.",
-    },
-    {
-      from:
-        "<strong>Liderança:</strong> Orquestração de esquadrões ágeis e transição fluida entre o alinhamento estratégico com C-Levels (Negócios) e a execução com times técnicos. Mentoria ativa focada em elevar a régua de desenvolvedores Júnior/Pleno.",
-      to:
-        "<strong>Leadership:</strong> Orchestrating agile squads and moving fluidly between strategic alignment with C-levels and execution with engineering teams. Active mentoring focused on raising the bar for junior and mid-level developers.",
-    },
-    {
-      from:
-        "<strong>Governança:</strong> Postura de dono absoluta e resiliência comprovada na gestão de crises. Especialista em traduzir regras complexas de negócios e regulamentações do mercado financeiro diretamente para a criação de sistemas de software seguros, escaláveis e de alta confiabilidade.",
-      to:
-        "<strong>Governance:</strong> Absolute ownership and proven resilience through crisis. Specialist at translating complex business rules and financial-market regulation directly into software systems that are secure, scalable and highly reliable.",
-    },
-
 ];
 
 /** Portuguese words that would betray an untranslated leftover in the output. */

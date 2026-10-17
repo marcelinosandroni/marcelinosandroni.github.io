@@ -330,7 +330,7 @@ function yearAxis(roles: ReadonlyArray<TimelineRole>): string {
  */
 export const TIMELINE_CSS = `
             /* The career timeline. One block, never split across a page break. */
-            .tl { display: flex; flex-direction: column; gap: 0.9mm; padding-top: 0.5mm; }
+            .tl { display: flex; flex-direction: column; gap: 0.6mm; padding-top: 0.4mm; }
             .tl-row { display: flex; align-items: stretch; gap: 0.7mm; }
             .tl-slot { display: flex; min-width: 0; }
             .tl-inner {
@@ -373,7 +373,7 @@ export const TIMELINE_CSS = `
                 font-size: 8.5px; font-weight: 500; line-height: 1.2; color: #64748b;
                 text-align: center; letter-spacing: 0.01em; min-width: 0; max-width: 100%;
             }
-            .tl-bar { width: 100%; height: 4.4mm; border-radius: 0.9mm; }
+            .tl-bar { width: 100%; height: 3.9mm; border-radius: 0.9mm; }
             .tl-bar--future {
                 background: transparent;
                 border: 0.5mm dashed #94a3b8;
@@ -395,7 +395,7 @@ export const TIMELINE_CSS = `
               and the ruler reads as broken.
             */
             .tl-axis {
-                position: relative; height: 4.6mm; margin-top: 0.2mm;
+                position: relative; height: 3.4mm; margin-top: 0.2mm;
                 border-top: 1px solid #e2e8f0;
             }
             .tl-year {

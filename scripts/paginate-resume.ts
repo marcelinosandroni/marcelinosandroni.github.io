@@ -39,7 +39,21 @@ import { chromium } from "playwright";
 /** A4 is 297mm tall; the print stylesheet leaves 10mm above and below. */
 const SHEET_MM = 297;
 const PADDING_MM = 10;
-const USABLE_MM = SHEET_MM - PADDING_MM * 2;
+
+/**
+ * How much of the content box the footer takes back.
+ *
+ * The footer is absolutely positioned inside the bottom padding, which means it
+ * hangs about four millimetres up into the content box. Packing to the full 277mm
+ * is therefore not "tight" - it is a last line of text sitting on the footer rule,
+ * and it looks like a mistake on a page a recruiter is reading closely.
+ *
+ * The document was at exactly 277mm of 277mm and printing two pages, which is the
+ * worst of both readings: it passed every check and looked broken.
+ */
+const FOOTER_RESERVE_MM = 5;
+
+const USABLE_MM = SHEET_MM - PADDING_MM * 2 - FOOTER_RESERVE_MM;
 
 const MM_PER_PX = 25.4 / 96;
 
@@ -662,14 +676,13 @@ const REQUIRED_ORDER: ReadonlyArray<string> = [
   "metricas",
   "carreira",
   "habilidades",
-  "cargo",
-  "cargo",
-  "cargo",
-  "cargo",
-  "cargo",
   "formacao",
   "idiomas",
-  "informacoes",
+  "cargo",
+  "cargo",
+  "cargo",
+  "cargo",
+  "cargo",
 ];
 
 function assertOrder(blocks: ReadonlyArray<Measured>, slug: string): void {
