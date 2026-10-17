@@ -177,6 +177,73 @@ npm run resume:measure -- resume-recruiter-pt-br-enterprise-java.html
 
 ---
 
+---
+
+## A escala de espaçamento
+
+Três passos, em milímetros, e **toda distância na página é um deles**. A razão é
+1 : 2 : 4, numa base de milímetro — porque a página édiagramada em milímetros e o
+encaixe é medido em milímetros, então nenhum valor tem que sobreviver a uma
+conversão.
+
+| Passo | Onde |
+|---:|---|
+| **1mm** | Entre irmãos de uma **lista**: grupos de habilidade, cursos, idiomas, linhas de contacto, as três partes de um cartão de métrica, as linhas da barra do tempo. Apertado de propósito — uma lista de itens de uma ou duas linhas deve ler como um bloco. |
+| **2mm** | Entre **parágrafos** (os bullets de uma vaga), e do **título de uma seção ao seu conteúdo**. Também entre as partes de uma vaga: título → stack. |
+| **4mm** | Entre **blocos**. Um valor só, em toda parte. É o que faz a página parecer um documento e não cinco seções empilhadas. |
+
+### O que existia antes
+
+Oito valores para quatro tipos de distância: **1px, 2px, 4px, 0,2mm, 0,5mm,
+0,6mm, 8px e 16px**. Cada um foi adicionado quando alguma coisa não cabia, e nada
+registrou que o valor adicionado era um valor novo. Medido, o resultado era:
+
+| Onde | Antes |
+|---|---|
+| Entre seções (a maioria) | 4,23mm |
+| Entre `métricas` e `linha do tempo` | **2,12mm** |
+| Entre grupos de habilidade | **0,21mm** |
+| Entre cursos | **0,29mm** |
+| Título da vaga → stack | **0,26mm** |
+| Entre dois bullets de 3 linhas | **0,53mm** |
+
+Uma página sem ritmo vertical lê como montada em vez de composta, e ninguém
+consegue dizer o que está errado — dá para ver no papel e não aparece em diff.
+
+### Onde a escala mora
+
+`resume-shell.html`, no `:root`, como `--space-1`, `--space-2` e `--space-3`. **As
+classes de margem saíram do markup** (`mb-4`, `mb-2`, `mb-5`): o snapshot compilado
+do Tailwind vem *depois* dessa folha de estilo, então uma classe utilitária e um
+seletor de atributo com a mesma especificidade são decididos pela ordem do
+arquivo — e o snapshot venceria. Espaçamento que mora no markup é espaçamento que
+pode ser mudado um bloco por vez, que é exatamente como surgiram os oito valores.
+
+O bloco de impressão **não decide nenhuma distância**. Ele já decidia três — a
+margem de topo do título, o entrelinhamento do inventário e a margem de baixo dos
+cursos — e cada uma valia para uma parte da página. Um documento cujo espaçamento
+difere entre a página em que é impresso e a página em que é lido, e difere entre
+seções da mesma página, não tem ritmo nenhum.
+
+### A lista quebrada precisa dizer o que é
+
+O paginador parte uma seção quebrável — inventário, cursos, idiomas — em uma
+unidade por entrada, e cada unidade carrega o id da seção. Sem mais nada, cada uma
+seria indistinguível de uma seção inteira e levaria 4mm: **sete entradas, sete
+gaps de 4mm, 28mm de ar** onde caberiam 6.
+
+Por isso o paginador emite `data-gap="item"` ou `data-gap="section"`. A última
+entrada de uma seção é dona do espaço até o que vem depois; toda as outras são
+entradas de uma lista.
+
+### O que a escala custou
+
+Page one subiu ~12mm no documento Java, que é o mais cheio: de 15mm de folga para
+**3mm**. É o preço honesto de um ritmo que se veja, e o build reporta a folha
+exata se ela estourar. Os outros quatro documentos têm de 25mm a 37mm.
+
+---
+
 ## O que é fixo e o que é editável
 
 Vale deixar explícito, porque é a linha que separa "não mexe" de "pode mudar":

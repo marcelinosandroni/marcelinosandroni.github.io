@@ -351,7 +351,8 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
           const holderClass = holder === null ? "" : holder.className;
 
           /*
-            The section's own bottom margin rides on its *last* item.
+            The section's own bottom margin rides on its *last* item - and it is
+            written as an attribute rather than as a margin class.
 
             `mb-4` on the section is the gap between this section and the next one -
             four millimetres of separation that mean nothing once the section is a
@@ -364,6 +365,13 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
             next section survives exactly as it was - and when that item is the last
             thing on a sheet, the print stylesheet drops it, which is the one place
             it was never real.
+
+            An attribute rather than a utility class, because a class here cannot be
+            told apart from the margin the *section* used to carry: both end up on
+            the same wrapper, both are `margin-bottom`, and which one wins comes
+            down to source order in a stylesheet that is a compiled snapshot.
+            `data-gap` says which gap it is, and the spacing scale in
+            `resume-shell.html` decides what that gap is worth.
           */
           const sectionClass = (section?.className ?? "")
             .split(/\s+/)
@@ -376,7 +384,7 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
           units.push({
             node,
             id: owner,
-            html: `<div data-block="${owner}" class="${isLast ? `${holderClass} ${sectionClass}`.trim() : holderClass}">${inner}</div>`,
+            html: `<div data-block="${owner}" data-gap="${isLast ? "section" : "item"}" class="${isLast ? `${holderClass} ${sectionClass}`.trim() : holderClass}">${inner}</div>`,
           });
 
           continue;
@@ -444,7 +452,7 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
           html:
             heading === null
               ? node.outerHTML
-              : `<div data-block="${id}" class="keep-together">${heading.outerHTML}</div>`,
+              : `<div data-block="${id}" data-gap="item" class="keep-together">${heading.outerHTML}</div>`,
         });
       }
 

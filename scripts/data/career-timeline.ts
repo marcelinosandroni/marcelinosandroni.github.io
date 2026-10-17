@@ -329,9 +329,16 @@ function yearAxis(roles: ReadonlyArray<TimelineRole>): string {
  * proportion and a label end up disagreeing without either file looking wrong.
  */
 export const TIMELINE_CSS = `
-            /* The career timeline. One block, never split across a page break. */
-            .tl { display: flex; flex-direction: column; gap: 0.4mm; padding-top: 0; }
-            .tl-row { display: flex; align-items: stretch; gap: 0.7mm; }
+            /*
+  The career timeline. One block, never split across a page break.
+
+  Every gap in here is a step of the document's own spacing scale, declared in
+  resume-shell.html. It was 0.2mm, 0.4mm and 0.7mm - three values for one kind of
+  distance, none of them on the scale, and the gap between a company's name and its
+  bar was a different distance from the gap between the bar and its level.
+*/
+            .tl { display: flex; flex-direction: column; gap: var(--space-1); padding-top: 0; }
+            .tl-row { display: flex; align-items: stretch; gap: var(--space-1); }
             .tl-slot { display: flex; min-width: 0; }
             .tl-inner {
                 display: flex; flex: 1 1 auto; min-width: 0;
@@ -407,7 +414,7 @@ export const TIMELINE_CSS = `
               and the ruler reads as broken.
             */
             .tl-axis {
-                position: relative; height: 4.5mm; margin-top: 0.2mm;
+                position: relative; height: 4.5mm; margin-top: var(--space-1);
                 border-top: 1px solid #e2e8f0;
             }
             .tl-year {
