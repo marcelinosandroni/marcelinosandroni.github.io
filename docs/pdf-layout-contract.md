@@ -38,7 +38,7 @@ saber que se está em 185 de 215 sem rodar nada, e continua dentro.
 | Nome | 1 | 40 | 30px (display) | 23 |
 | Cargo (headline) | 1 | 80 | 16px (display) | 51 |
 | Tagline | 1 | 120 | 12.5px | 77 |
-| Contacto (cada linha) | 1 | 100 | 11px ⚠ | 99 |
+| Contacto (cada linha) | 1 | 110 | 11px ⚠ | 110 |
 | Resumo Profissional | 5 | 500 | 12.5px | 468 |
 | Métrica — valor | 1 | 24 | 16px (display) | 16 |
 | Métrica — destaque | 1 | 26 | 9px ⚠ | 23 |
@@ -112,6 +112,34 @@ perto, e um passo abaixo tira o olho do nome e do resumo. Continua legível, e o
 limite de 1 linha é o que garante isso: uma linha que não cabe transborda e o
 build recusa, em vez de encolher para caber.
 
+**Os campos são fixos.** Não se edita por limite. São sempre estes, nesta ordem,
+iguais em todos os cinco documentos:
+
+```
+Linha 1   Localização: Fortaleza, CE (Atuação Remota) · Email: · WhatsApp:
+Linha 2   LinkedIn: · Git: · Portfólio:
+```
+
+O que o orçamento de 110 caracteres cobre é **a linha, não a redação**. Seis URLs
+em duas linhas a 11px precisam de mais do que a coluna de texto tem: a primeira
+medição disse 46 pixels, e a correção saiu da **caixa**, não do tipo —
+
+- **sem padding horizontal e sem fundo**. Uma caixa que empurra o próprio texto
+  gasta milímetros em decoração. Sobrou um fio na borda esquerda, que agrupa as
+  duas linhas sem custar um milímetro da medida.
+- **quebra a coluna de texto dos dois lados, pelo mesmo valor**, e também se
+  acota igual dos dois lados. O texto começa e termina à mesma distância da borda
+  do papel, então lê como uma faixa um pouco mais larga que a prosa de cima — que
+  é como material de referência deve parecer — e não como algo que escorregou
+  para fora.
+- **os separadores mantêm o espaçamento.** A primeira tentativa deARRumar espaço
+  tirou-o deles e deixou `(Atuação Remota)·Email:` — uma linha que cabe e não se
+  lê. O espaço em volta do separador é o que faz três fatos virarem texto corrido;
+  os milímetros vieram da quebra, onde não custam nada ao documento.
+
+Sobram 3,2mm de folga na linha mais cheia, e o orçamento de 110 caracteres trava o
+conteúdo, então ela não cresce.
+
 ### Legenda das métricas — 9px
 
 Isto é aritmética, não gosto. O cartão tem 43mm de largura. A 12.5px, uma legenda
@@ -124,9 +152,6 @@ duas, ou uma legenda no tamanho para o qual a caixa foi desenhada. Ela está no
 tamanho certo, e **o limite de duas linhas é verificado acima dela** — o que
 significa que uma legenda não pode mais ser encurtada ficando menor. Era
 justamente essa a propriedade que valia a pena ter.
-
-Git não está no PDF: seis URLs não cabem em duas linhas a 11px, e o link de
-portfólio já leva ao GitHub Pages.
 
 ---
 
@@ -149,6 +174,25 @@ E para ver o que cabe em cada folha:
 ```bash
 npm run resume:measure -- resume-recruiter-pt-br-enterprise-java.html
 ```
+
+---
+
+## O que é fixo e o que é editável
+
+Vale deixar explícito, porque é a linha que separa "não mexe" de "pode mudar":
+
+| | |
+|---|---|
+| **Tipografia** | **Fixa.** Não responde a comprimento. |
+| **Campos de contato** | **Fixos.** Seis campos, esta ordem, todos os cinco documentos. |
+| **Estrutura da experiência** | **Fixa.** 3 / 3 / 3 / 2 / 1 bullets, do mais recente ao mais antigo. |
+| **Títulos de cargo** | **Fixos.** Cargo + nível, nível obrigatório em toda engenharia. |
+| **Datas e tenures** | **Fixas.** A tenure é calculada das datas; não se escreve à mão. |
+| Resumo, métricas, skills, bullets, stack | **Editáveis**, dentro do orçamento acima. |
+| Nomes de seção | **Fixos.** O build casa com eles e falha se mudarem. |
+
+Tudo que está na coluna "fixo" já falhou o build uma vez ao ser mudado por engano,
+ou teria falhado se não fosse verificado.
 
 ---
 

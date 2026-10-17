@@ -96,19 +96,44 @@
               One line per row, full width, no wrapping - so that a row which is
               too long fails the build instead of spilling off the page. It used to
               be a three-column grid, which read as three facts about three people:
-              a recruiter looking for a phone number had to work out which column
-              was theirs.
+              a reader looking for a phone number had to work out which column was
+              theirs.
+
+              ## The three things that make it fit, and why each is here
+
+              The fields are fixed - six of them, three per row - and at 11px they
+              need more than the text column has. The first measurement said so by
+              forty-six pixels, and the correction is in the box, not in the type,
+              because the type is the one thing in this document that does not move.
+
+              **No horizontal padding, and no background.** A box that pads its text
+              spends millimetres on decoration. This one lost both: what is left is a
+              hairline down the left edge, which groups the two rows without costing
+              a single millimetre across the measure.
+
+              **It breaks out of the text column, and pads itself, by the same
+              distance on both sides.** The remaining seventeen pixels were about
+              four and a half millimetres. Symmetric - the text starts and ends the
+              same distance from the page edge - so it reads as a band set slightly
+              wider than the prose above it, which is what reference material should
+              look like, and not as something that slipped off the right-hand side.
+
+              **The separators keep their spacing.** The first attempt to find the
+              room took it out of them and left `(Atuação Remota)·Email:` - a row
+              that fits and cannot be read. Spacing around a separator is what makes
+              three facts legible instead of one run-on; the millimetres came from
+              the breakout instead, where they cost the document nothing.
             */
             .contact-block {
                 font-size: var(--contact); line-height: 1.4; color: #334155;
-                background-color: #f8fafc;
-                border: 1px solid #e2e8f0; border-radius: 4px;
-                padding: 2mm 3mm; margin-bottom: 2mm;
+                border-left: 1.5px solid #cbd5e1;
+                padding: 0.4mm 0.8mm;
+                margin: 0 -4mm 2mm;
             }
             .contact-block p { white-space: nowrap; }
             .contact-block p + p { margin-top: 0.6mm; }
             .contact-block strong { color: #1f2937; font-weight: 600; }
-            .contact-sep { color: #94a3b8; margin: 0 1mm; }
+            .contact-sep { color: #94a3b8; margin: 0 0.8mm; }
 
             /* The role header: title on the left, dates on the right, one line. */
             .role-head {
@@ -401,28 +426,27 @@
             <p class="header-tagline" data-rule="tagline">Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.</p>
 
             <!--
-                Contacto: two rows, one line each, no wrapping.
+                Contacto: dois campos fixos, sempre estes, sempre nesta ordem.
 
-                `data-rule="contato"` is what the layout contract measures, and the
-                `nowrap` in the print block is what turns an over-long row into an
-                overflow the build refuses rather than a second line that pushes the
-                document down.
+                `data-rule="contato"` é o que o contrato de layout mede, e o
+                `nowrap` no bloco de impressão é o que faz uma linha longa
+                transbordar e reprovar o build em vez de quebrar e empurrar o
+                documento para baixo.
 
-                This was a three-column grid. It read as three facts about three
-                different people: a recruiter looking for a phone number had to work
-                out which column was theirs, and a parser reading column by column got
-                three unrelated fields per row.
+                Isto já foi uma grade de três colunas. Lia como três fatos sobre três
+                pessoas diferentes: quem procurava um telefone tinha que adivinhar
+                qual coluna era a dele, e um leitor coluna por coluna recebia três
+                campos sem relação entre si.
 
-                Git is not here. Six URLs do not fit in two rows at 11px, and the
-                portfolio link already points at the GitHub Pages site - so Git is a
-                second address for somewhere the reader is already sent. That was the
-                cheapest field to lose, and losing it was measured rather than
-                assumed: with it, the second row spilled thirty-one pixels off the
-                page.
+                Os campos são fixos e não se edita por limite. Seis URLs em duas
+                linhas a 11px não cabem na largura da página com qualquer respiro
+                lateral, e o bloco não tem respiro lateral nenhum: o `padding` dele é
+                só o da borda esquerda. Foi por medir que se descobriu - e o que
+                sobra não é gigante, mas é o que existe sem mexer na tipografia.
             -->
             <div class="contact-block text-slate-700">
-                <p data-rule="contato"><strong>Location:</strong> Fortaleza, CE (Remote)<span class="contact-sep">·</span><strong>Email:</strong> <a href="mailto:marcelino.sandroni@gmail.com" class="link-hover font-medium">marcelino.sandroni@gmail.com</a><span class="contact-sep">·</span><strong>WhatsApp:</strong> <a href="https://wa.me/5511914461993" target="_blank" class="link-hover font-medium">+55 11 91446-1993</a></p>
-                <p data-rule="contato"><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/marcelinosandroni" target="_blank" class="link-hover font-medium">linkedin.com/in/marcelinosandroni</a><span class="contact-sep">·</span><strong>Portfolio:</strong> <a href="https://marcelinosandroni.com/" target="_blank" class="link-hover font-medium">marcelinosandroni.com</a></p>
+                <p data-rule="contato"><strong>Location:</strong> Fortaleza, CE (Fully Remote)<span class="contact-sep">·</span><strong>Email:</strong> <a href="mailto:marcelino.sandroni@gmail.com" class="link-hover font-medium">marcelino.sandroni@gmail.com</a><span class="contact-sep">·</span><strong>WhatsApp:</strong> <a href="https://wa.me/5511914461993" target="_blank" class="link-hover font-medium">+55 11 91446-1993</a></p>
+                <p data-rule="contato"><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/marcelinosandroni" target="_blank" class="link-hover font-medium">linkedin.com/in/marcelinosandroni</a><span class="contact-sep">·</span><strong>Git:</strong> <a href="https://github.com/marcelinosandroni" target="_blank" class="link-hover font-medium">github.com/marcelinosandroni</a><span class="contact-sep">·</span><strong>Portfolio:</strong> <a href="https://marcelinosandroni.com/" target="_blank" class="link-hover font-medium">marcelinosandroni.com</a></p>
             </div>
         </header>
         <section class="mb-4" data-block="resumo">
