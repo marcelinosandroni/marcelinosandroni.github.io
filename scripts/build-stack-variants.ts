@@ -7,7 +7,7 @@ import {
   buildTimeline,
   type TimelineRole,
 } from "./data/career-timeline";
-import { GENERAL_TIMELINE } from "./data/stack-variants.pt-br";
+import { TIMELINE } from "./data/stack-variants.pt-br";
 
 /**
  * Builds the stack-specific résumés from the approved general one.
@@ -75,7 +75,6 @@ type Variant = {
    * split is a constraint nobody asked for, and honouring it would cap the
    * experience at whatever fitted before the break.
    */
-  readonly experience: ReadonlyArray<string>;
   /**
    * The opening line of the summary. It leads with the specialisation because the
    * reader is here to find out whether this person fits one specific stack, and
@@ -161,7 +160,7 @@ async function main(): Promise<void> {
   */
   assertRoles("document", shell);
 
-  const withTimeline = injectTimeline(shell, GENERAL_TIMELINE, "document");
+  const withTimeline = injectTimeline(shell, TIMELINE, "document");
 
   const { html: general, pages: generalPages } = await paginate(withTimeline);
 
@@ -217,8 +216,8 @@ function render(shell: string, variant: Variant): string {
     out = out.slice(0, headingEnd) + replacement + out.slice(end);
   }
 
-  out = replaceExperience(out, variant);
-  out = injectTimeline(out, variant.timeline, variant.slug);
+  out = replaceInventory(out, variant);
+  out = injectTimeline(out, TIMELINE, variant.slug);
   out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${variant.title}</title>`);
 
   /*
@@ -256,71 +255,10 @@ function render(shell: string, variant: Variant): string {
  * inventory answers it before the experience asks them to read five jobs to find
  * out.
  */
-function replaceExperience(html: string, variant: Variant): string {
-  const firstRole = html.indexOf('<div class="mb-4 keep-together" data-block="cargo">');
-
-  if (firstRole === -1) {
-    throw new Error(`[${variant.slug}] no role blocks in the shell`);
-  }
-
-  const afterRoles = html.indexOf('<section class="mb-4 keep-together" data-block="formacao">');
-
-  if (afterRoles === -1) {
-    throw new Error(`[${variant.slug}] cannot find where the experience ends`);
-  }
-
-  /*
-    The shell carries its own inventory, and a variant carries a different one.
-
-    Replacing it rather than adding to it is the whole point: two inventories on
-    one page would read as two lists of the same person, disagreeing in detail and
-    agreeing in bulk, which is worse than either one alone.
-  */
-  const out = replaceInventory(html, variant, firstRole);
-
-  const inventoryEnd = out.indexOf('<div class="mb-4 keep-together" data-block="cargo">');
-
-  /*
-    The heading that introduces the experience travels inside the first role.
-
-    Not before it. A block that sits outside every `[data-block]` is not carried
-    into the paginated document at all - the flow keeps blocks, and anything
-    between them is dropped on the floor - so a heading placed in front of the
-    first role silently disappears. Inside the block, it moves with the role and a
-    page break can never strand it at the bottom of a sheet with its jobs on the
-    next one.
-  */
-  const heading = '<h3 class="section-title">Experiência Profissional</h3>';
-
-  const roles = variant.experience.map((role, index) => {
-    if (index !== 0) {
-      return role;
-    }
-
-    const open = role.indexOf('data-block="cargo">');
-
-    if (open === -1) {
-      throw new Error(`[${variant.slug}] first role is not a block`);
-    }
-
-    const after = role.indexOf(">", open) + 1;
-
-    return `${role.slice(0, after)}\n                ${heading}${role.slice(after)}`;
-  });
-
-  return (
-    out.slice(0, inventoryEnd) +
-    roles.join("\n\n            ") +
-    "\n\n        " +
-    out.slice(out.indexOf('<section class="mb-4 keep-together" data-block="formacao">'))
-  );
-}
-
-/** Swaps the shell's inventory for the variant's, or removes it when there is none. */
-function replaceInventory(html: string, variant: Variant, limit: number): string {
+function replaceInventory(html: string, variant: Variant): string {
   const open = html.indexOf('<section class="mb-4 keep-together" data-block="habilidades">');
 
-  if (open === -1 || open > limit) {
+  if (open === -1) {
     throw new Error(`[${variant.slug}] the shell has no inventory section to replace`);
   }
 
@@ -353,60 +291,53 @@ ${variant.skills}
  * document too - not only the variants, which is where they were first written.
  */
 function assertRoles(slug: string, html: string): void {
-  /*
-    No seniority in the role titles.
-
-    The level is the reader's decision to make, and a document that names it on
-    the title line asks to be filtered by it. The guard used to be one word for
-    "Sênior" and let "Pleno" through - which is how a role came out reading
-    "Engenheiro de Software Pleno" in three of the five documents while every
-    other pass agreed the level was out.
-
-    Scoped to the titles, and that scoping is the point. Matching the whole
-    document flags the mentoring line - "elevar a régua de desenvolvedores
-    Júnior/Pleno" - which is a claim about the people he has taught, not about the
-    level he is asking to be hired at. Removing that would cost a real selling
-    point to satisfy a word list. `Sênior` is still checked everywhere: there is
-    no reading of it in this document that is about anyone else.
-  */
-  const titled = [...html.matchAll(/<h4[^>]*>([\s\S]*?)<\/h4>/g)]
-    .map((match) => match[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim())
-    .join(" | ");
-
-  const seniority = /\b(?:S(?:ê|e)nior|Pleno|Plen[oa]|J(?:ú|u)nior)\b/i.exec(titled);
-
-  if (seniority !== null) {
-    throw new Error(
-      `[${slug}] a role title carries a seniority level: "${titled}". ` +
-        `The level belongs to whoever is hiring.`,
-    );
-  }
 
   /*
-    The timeline is the one place a level is named, and it is a deliberate
-    exception rather than an oversight.
+    Every engineering role names its level.
 
-    A bar that shows the shape of a career has to label the shape, and the shape
-    here is the progression - Júnior to Pleno to Sênior to Tech Lead. That is a
-    claim about the last seven years, which is different from a title line asking
-    to be hired at one level: nobody reads a timeline and concludes the candidate
-    will only accept one. It is `aria-hidden` decoration restating the experience
-    section, and it is the only block exempt from the check below.
+    This used to be the other way round. The titles were stripped of their level
+    so the document could be hired at any seniority, and the guard below existed to
+    keep them stripped. Then the same levels came back on purpose - in the title,
+    in the headline under the name and on the timeline - because a progression
+    ("Júnior to Pleno to Sênior to Tech Lead") reads as a career, while a single
+    title with no level reads as a document that has not decided.
 
-    If that reading ever stops being the right one, the exemption is the single
-    place to remove - the levels become the role titles and the bar reads the same.
+    So the check flipped rather than disappeared: a level is now required on every
+    engineering title, and a title that quietly loses it fails the build. A guard
+    pointed the wrong way is worse than no guard, because it stops the work.
+
+    The accounting role is exempt. "Analista Contábil & Gestor Financeiro" is a
+    profession, not a level - there is no senior version of it to write down.
   */
-  const withoutTimeline = html.replace(
-    /<section[^>]*data-block="carreira"[\s\S]*?<\/section>/,
-    "",
+  const titles = [...html.matchAll(/<h4[^>]*>([\s\S]*?)<\/h4>/g)].map((match) =>
+    match[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim(),
   );
 
-  if (/S(?:ê|e)nior/.test(withoutTimeline)) {
-    throw new Error(`[${slug}] reintroduced "Sênior" somewhere in the document`);
+  const unlevelled = titles.filter(
+    (title) => !/(?:Analista|Cont[aá]bil)/i.test(title) && !LEVEL.test(title),
+  );
+
+  if (titles.length === 0) {
+    throw new Error(`[${slug}] no role titles found - nothing was checked`);
+  }
+
+  if (unlevelled.length > 0) {
+    throw new Error(
+      `[${slug}] a role title lost its seniority level: ${unlevelled.join(" / ")}. ` +
+        `Every engineering role names the level it was held at.`,
+    );
   }
 
   assertChronological(slug, html);
 }
+/**
+ * The levels a role title may carry.
+ *
+ * Every engineering title names one. The accounting title is a profession and has
+ * no senior form, so it is matched separately where it is used.
+ */
+const LEVEL = /\b(?:S(?:ê|e)nior|Pleno|Plen[oa]|J(?:ú|u)nior|Tech\s?Lead)\b/i;
+
 /**
  * The roles run newest first.
  *
@@ -439,7 +370,7 @@ function assertChronological(slug: string, html: string): void {
     a role that *starts* before the one above it, not one that overlaps.
   */
   const roles = [
-    ...html.matchAll(/text-xs font-semibold text-slate-600">[^<]*?([A-Za-zç]{3})\/(\d{4})/g),
+    ...html.matchAll(/class="role-meta">[^<]*?([A-Za-zç]{3})\/(\d{4})/g),
   ].map((match) => {
     const month = MONTHS[match[1].toLowerCase()];
 
