@@ -106,6 +106,32 @@
         @media print {
             body { background-color: white; }
 
+            /*
+              The profile page runs a half step tighter.
+
+              Everything on page one has to fit on page one: with the closing block
+              gone, that page carries the header, the summary, the metrics, the
+              career bar, the inventory, the degrees and the languages. A variant
+              whose inventory runs a line longer - the Java document carries six
+              groups where the others carry five - came out eleven millimetres over,
+              which pushed the languages onto a second sheet and the experience onto
+              a third.
+
+              Only the space between blocks moves. No type size, no line height, no
+              measure: the profile still reads at the size the experience does.
+            */
+            .section-title { margin-top: 0.35rem; }
+
+            /*
+              The inventory's leading.
+
+              Six groups in the Java document, five in the others, and the extra one
+              plus its gap was the last few millimetres the profile page was
+              missing. The paragraphs themselves are untouched; only the space
+              between them closes.
+            */
+            [data-block="habilidades"] p { margin-bottom: 0.5mm; }
+
             .a4-page {
                 margin: 0;
                 box-shadow: none;
@@ -149,7 +175,7 @@
             <h2 class="text-base font-bold text-slate-700 mt-1 mb-1">Engenheiro de Software Sênior &amp; IA</h2>
             <p class="text-[11.5px] text-slate-600 mb-3 leading-snug">Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.</p>
 
-            <div class="text-[11.5px] text-slate-700 bg-slate-50 p-2 rounded border border-slate-100">
+            <div class="text-[11.5px] text-slate-700 bg-slate-50 p-1.5 rounded border border-slate-100">
                 <!-- GRID DE 3 COLUNAS ALINHADO E SEM QUEBRA DE LINHA -->
                 <div class="grid w-full items-center whitespace-nowrap" style="
     grid-template-columns: 1.4fr 1fr 1fr;
@@ -185,30 +211,30 @@
         </section>
 
         <!-- MÉTRICAS DE IMPACTO -->
-        <section class="mb-4 keep-together" data-block="metricas">
+        <section class="mb-3 keep-together" data-block="metricas">
             <h3 class="section-title">Principais Métricas de Impacto em Produção</h3>
             <div class="grid grid-cols-4 gap-3 text-center">
-                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
-                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">+R$ 500 Bi</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Gestão de Ativos</div>
+                <div class="bg-white border border-slate-200 rounded p-1.5 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1">+R$ 500 Bi</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5">Gestão de Ativos</div>
                     <div class="text-[9px] text-slate-500 font-medium leading-tight">Criação e manutenção de aplicações críticas para custódia de fundos.</div>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
-                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">D+0 (Real-Time)</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Liquidação Síncrona</div>
+                <div class="bg-white border border-slate-200 rounded p-1.5 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1">D+0 (Real-Time)</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5">Liquidação Síncrona</div>
                     <div class="text-[9px] text-slate-500 font-medium leading-tight">Engenharia de sistema de processamento de pagamentos em realtime.</div>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
-                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">100M+ msgs/dia</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Alta Escala</div>
+                <div class="bg-white border border-slate-200 rounded p-1.5 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1">100M+ msgs/dia</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5">Alta Escala</div>
                     <div class="text-[9px] text-slate-500 font-medium leading-tight">Arquitetura de processamento assíncrono de eventos.</div>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
-                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5">R$ 24M/ano (ROI)</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1">Inteligência Artificial</div>
+                <div class="bg-white border border-slate-200 rounded p-1.5 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1">R$ 24M/ano (ROI)</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5">Inteligência Artificial</div>
                     <div class="text-[9px] text-slate-500 font-medium leading-tight">Contrato salvo com implementação e melhorias em IA de ponta.</div>
                 </div>
             </div>
@@ -237,7 +263,7 @@
             <h3 class="section-title">Linha do Tempo de Carreira</h3>
             <div id="carreira-timeline"></div>
         </section>
-        <section class="mb-4 keep-together" data-block="habilidades">
+        <section class="mb-3 keep-together" data-block="habilidades">
             <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>
             <div class="text-[11.5px] text-slate-700">
                 <p class="mb-1" data-item><strong>Frontend &amp; UI Architecture:</strong> React, Next.js, Angular, Vue.js, React Native, TypeScript, JavaScript, Micro-frontends (Module Federation), RxJS, NgRx, SSR, Storybook, Tailwind CSS, Design Systems, Flutter.</p>
@@ -245,6 +271,35 @@
                 <p class="mb-1" data-item><strong>Dados &amp; Mensageria:</strong> Oracle, PostgreSQL, SQL Server, MySQL, MongoDB, Redis, ClickHouse, Databricks, Apache Kafka, RabbitMQ, Event Sourcing, Circuit Breakers.</p>
                 <p class="mb-1" data-item><strong>Cloud, DevOps &amp; SRE:</strong> AWS, GCP, Azure, Oracle Cloud, IBM Cloud, Docker, Kubernetes (Helm/HPA), Terraform, CI/CD, OpenTelemetry, Prometheus, Grafana, Jaeger, FinOps.</p>
                 <p class="mb-1" data-item><strong>IA &amp; Governança:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, RAG, Agentes LLM, Visão Computacional, TDD, BDD, Testes E2E, SonarQube, SOX, IFRS/CPC.</p>
+            </div>
+        </section>
+
+        <section class="mb-3 keep-together" data-block="formacao">
+            <h3 class="section-title">Formação Acadêmica &amp; Especializações</h3>
+            <div class="space-y-1 text-xs text-slate-700">
+                <div class="flex justify-between">
+                    <div><strong>Bacharelado em Engenharia de Computação</strong> — UNIVESP</div>
+                    <div class="text-slate-500 font-semibold">2021 – 2026</div>
+                </div>
+                <div class="flex justify-between">
+                    <div><strong>Bacharelado em Ciências Contábeis</strong> — Estácio (Governança e Análise Financeira)</div>
+                    <div class="text-slate-500 font-semibold">Concluído 2017</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-3 keep-together" data-block="idiomas">
+            <h3 class="section-title">Idiomas</h3>
+            <div class="text-xs text-slate-700 flex flex-col" style="
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    /* gap: 1rem; */
+">
+                <p><strong>Português:</strong> Nativo. &nbsp; <strong>Espanhol:</strong> Básico (Apto para leitura técnica e comunicação assíncrona).</p>
+                <p><strong>Inglês Profissional:</strong> Fluente para dinâmica de trabalho corporativo, condução de reuniões de negócio, negociações com clientes, discussões de arquitetura, dailies e Code Reviews.</p>
             </div>
         </section>
 
@@ -302,46 +357,9 @@
         </div>
 
         <!-- FORMAÇÃO -->
-        <section class="mb-4 keep-together" data-block="formacao">
-            <h3 class="section-title">Formação Acadêmica &amp; Especializações</h3>
-            <div class="space-y-2 text-xs text-slate-700">
-                <div class="flex justify-between">
-                    <div><strong>Bacharelado em Engenharia de Computação</strong> — UNIVESP</div>
-                    <div class="text-slate-500 font-semibold">2021 – 2026</div>
-                </div>
-                <div class="flex justify-between">
-                    <div><strong>Bacharelado em Ciências Contábeis</strong> — Estácio (Governança e Análise Financeira)</div>
-                    <div class="text-slate-500 font-semibold">Concluído 2017</div>
-                </div>
-            </div>
-        </section>
+        
 
         <!-- IDIOMAS -->
-        <section class="mb-4 keep-together" data-block="idiomas">
-            <h3 class="section-title">Idiomas</h3>
-            <div class="text-xs text-slate-700 flex flex-col gap-1" style="
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    /* gap: 1rem; */
-">
-                <p><strong>Português:</strong> Nativo. &nbsp; <strong>Espanhol:</strong> Básico (Apto para leitura técnica e comunicação assíncrona).</p>
-                <p><strong>Inglês Profissional:</strong> Fluente para dinâmica de trabalho corporativo, condução de reuniões de negócio, negociações com clientes, discussões de arquitetura, dailies e Code Reviews.</p>
-            </div>
-        </section>
+        
 
-        <!-- INFORMAÇÕES ADICIONAIS & FIT CULTURAL -->
-        <section class="keep-together" data-block="informacoes">
-            <h3 class="section-title">Informações Adicionais &amp; Perfil Profissional</h3>
-            <div class="text-[11.5px] text-slate-700">
-                <p class="mb-1" data-item><strong>Disponibilidade:</strong> Imediata para atuação 100% Remota (Global).</p>
-                <p class="mb-1" data-item><strong>Contratação:</strong> Ampla flexibilidade. Apto para atuar em modelos Full-time (CLT ou B2B/PJ), Part-time, ou Consultoria sob demanda (Projetos de modernização de escopo fechado) para Brasil, EUA e Europa.</p>
-                <p class="mb-1" data-item><strong>Comunicação:</strong> Assertiva e transparente. Habilidade comprovada em negociar requisitos, alinhar expectativas de prazos e blindar o time técnico contra ruídos, garantindo clareza absoluta durante reportes executivos e gestão de incidentes críticos em produção.</p>
-                <p class="mb-1" data-item><strong>Liderança:</strong> Orquestração de esquadrões ágeis e transição fluida entre o alinhamento estratégico com C-Levels (Negócios) e a execução com times técnicos. Mentoria ativa focada em elevar a régua de desenvolvedores Júnior/Pleno.</p>
-                <p data-item><strong>Governança:</strong> Postura de dono absoluta e resiliência comprovada na gestão de crises. Especialista em traduzir regras complexas de negócios e regulamentações do mercado financeiro diretamente para a criação de sistemas de software seguros, escaláveis e de alta confiabilidade.</p>
-            </div>
-        </section>
-
-</body></html>
+        </body></html>

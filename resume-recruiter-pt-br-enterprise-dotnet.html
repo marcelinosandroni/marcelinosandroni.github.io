@@ -106,6 +106,32 @@
         @media print {
             body { background-color: white; }
 
+            /*
+              The profile page runs a half step tighter.
+
+              Everything on page one has to fit on page one: with the closing block
+              gone, that page carries the header, the summary, the metrics, the
+              career bar, the inventory, the degrees and the languages. A variant
+              whose inventory runs a line longer - the Java document carries six
+              groups where the others carry five - came out eleven millimetres over,
+              which pushed the languages onto a second sheet and the experience onto
+              a third.
+
+              Only the space between blocks moves. No type size, no line height, no
+              measure: the profile still reads at the size the experience does.
+            */
+            .section-title { margin-top: 0.35rem; }
+
+            /*
+              The inventory's leading.
+
+              Six groups in the Java document, five in the others, and the extra one
+              plus its gap was the last few millimetres the profile page was
+              missing. The paragraphs themselves are untouched; only the space
+              between them closes.
+            */
+            [data-block="habilidades"] p { margin-bottom: 0.5mm; }
+
             .a4-page {
                 margin: 0;
                 box-shadow: none;
@@ -138,7 +164,7 @@
         }
     
             /* The career timeline. One block, never split across a page break. */
-            .tl { display: flex; flex-direction: column; gap: 0.9mm; padding-top: 0.5mm; }
+            .tl { display: flex; flex-direction: column; gap: 0.6mm; padding-top: 0.4mm; }
             .tl-row { display: flex; align-items: stretch; gap: 0.7mm; }
             .tl-slot { display: flex; min-width: 0; }
             .tl-inner {
@@ -181,7 +207,7 @@
                 font-size: 8.5px; font-weight: 500; line-height: 1.2; color: #64748b;
                 text-align: center; letter-spacing: 0.01em; min-width: 0; max-width: 100%;
             }
-            .tl-bar { width: 100%; height: 4.4mm; border-radius: 0.9mm; }
+            .tl-bar { width: 100%; height: 3.9mm; border-radius: 0.9mm; }
             .tl-bar--future {
                 background: transparent;
                 border: 0.5mm dashed #94a3b8;
@@ -203,7 +229,7 @@
               and the ruler reads as broken.
             */
             .tl-axis {
-                position: relative; height: 4.6mm; margin-top: 0.2mm;
+                position: relative; height: 3.4mm; margin-top: 0.2mm;
                 border-top: 1px solid #e2e8f0;
             }
             .tl-year {
@@ -221,14 +247,14 @@
     
         <div class="a4-page">
             <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software Sênior &amp; IA — Currículo v1 — Página 1 de 3
+                Marcelino Sandroni Dias — Engenheiro de Software Sênior &amp; IA — Currículo v1 — Página 1 de 2
             </div>
         <header class="mb-4" data-block="header" data-pinned="first">
             <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase">Marcelino Sandroni Dias</h1>
             <h2 class="text-base font-bold text-slate-700 mt-1 mb-3">Engenheiro de Software Sênior | C# &amp; Angular</h2>
             <p class="text-[11.5px] text-slate-600 mb-3 leading-snug">Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.</p>
 
-            <div class="text-[11.5px] text-slate-700 bg-slate-50 p-2 rounded border border-slate-100">
+            <div class="text-[11.5px] text-slate-700 bg-slate-50 p-1.5 rounded border border-slate-100">
                 <!-- GRID DE 3 COLUNAS ALINHADO E SEM QUEBRA DE LINHA -->
                 <div class="grid w-full items-center whitespace-nowrap" style="
     grid-template-columns: 1.4fr 1fr 1fr;
@@ -261,7 +287,7 @@
             <p class="text-[12.5px] leading-relaxed text-slate-700 text-justify">
                 <strong>Engenheiro de Software especializado em C#/.NET e Angular para plataformas de ativos e custódia, </strong>com 6 anos de engenharia de software e 15 em governança financeira. No Itaú desenhei a plataforma que sustenta +R$ 100 bilhões em custódia e liderei a adoção de testes automatizados em .NET, Angular e Flutter que elevou a qualidade em 8x.</p></section>
 
-        <section class="mb-4 keep-together" data-block="metricas">
+        <section class="mb-3 keep-together" data-block="metricas">
             <h3 class="section-title">Principais Métricas de Impacto em Produção</h3>
             <div class="grid grid-cols-4 gap-3 text-center">
 
@@ -308,12 +334,41 @@
 
         <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Cloud, DevOps &amp; Mensageria:</strong> AWS (EKS, ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, Secrets Manager, KMS), Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Apache Kafka, RabbitMQ, OpenTelemetry, Prometheus.</p></div>
 
-        <div data-block="habilidades" class="text-[11.5px] text-slate-700 mb-4"><p class="mb-1"><strong>Dados &amp; Analítico:</strong> SQL Server, PostgreSQL, MySQL, Oracle, Redis, MongoDB, ClickHouse, Databricks, RAG, LangChain.</p></div>
+        <div data-block="habilidades" class="text-[11.5px] text-slate-700 mb-3"><p class="mb-1"><strong>Dados &amp; Analítico:</strong> SQL Server, PostgreSQL, MySQL, Oracle, Redis, MongoDB, ClickHouse, Databricks, RAG, LangChain.</p></div>
+
+        <section class="mb-3 keep-together" data-block="formacao">
+            <h3 class="section-title">Formação Acadêmica &amp; Especializações</h3>
+            <div class="space-y-1 text-xs text-slate-700">
+                <div class="flex justify-between">
+                    <div><strong>Bacharelado em Engenharia de Computação</strong> — UNIVESP</div>
+                    <div class="text-slate-500 font-semibold">2021 – 2026</div>
+                </div>
+                <div class="flex justify-between">
+                    <div><strong>Bacharelado em Ciências Contábeis</strong> — Estácio (Governança e Análise Financeira)</div>
+                    <div class="text-slate-500 font-semibold">Concluído 2017</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-3 keep-together" data-block="idiomas">
+            <h3 class="section-title">Idiomas</h3>
+            <div class="text-xs text-slate-700 flex flex-col" style="
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    /* gap: 1rem; */
+">
+                <p><strong>Português:</strong> Nativo. &nbsp; <strong>Espanhol:</strong> Básico (Apto para leitura técnica e comunicação assíncrona).</p>
+                <p><strong>Inglês Profissional:</strong> Fluente para dinâmica de trabalho corporativo, condução de reuniões de negócio, negociações com clientes, discussões de arquitetura, dailies e Code Reviews.</p>
+            </div>
+        </section>
         </div>
 
         <div class="a4-page">
             <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software Sênior &amp; IA — Currículo v1 — Página 2 de 3
+                Marcelino Sandroni Dias — Engenheiro de Software Sênior &amp; IA — Currículo v1 — Página 2 de 2
             </div>
         <div class="mb-4 keep-together" data-block="cargo" data-breaks-page="true">
             <h3 class="section-title">Experiência Profissional</h3>
@@ -366,50 +421,4 @@
                     <li><strong>Diferencial em Engenharia Corporativa:</strong> Liderança de equipes e redesenho de processos que reduziu o fechamento contábil em 83%. Profunda expertise em finanças e regras tributárias traduzidas diretamente para equipes de software.</li>
                 </ul>
         </div>
-        </div>
-
-        <div class="a4-page">
-            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software Sênior &amp; IA — Currículo v1 — Página 3 de 3
-            </div>
-        <section class="mb-4 keep-together" data-block="formacao">
-            <h3 class="section-title">Formação Acadêmica &amp; Especializações</h3>
-            <div class="space-y-2 text-xs text-slate-700">
-                <div class="flex justify-between">
-                    <div><strong>Bacharelado em Engenharia de Computação</strong> — UNIVESP</div>
-                    <div class="text-slate-500 font-semibold">2021 – 2026</div>
-                </div>
-                <div class="flex justify-between">
-                    <div><strong>Bacharelado em Ciências Contábeis</strong> — Estácio (Governança e Análise Financeira)</div>
-                    <div class="text-slate-500 font-semibold">Concluído 2017</div>
-                </div>
-            </div>
-        </section>
-
-        <section class="mb-4 keep-together" data-block="idiomas">
-            <h3 class="section-title">Idiomas</h3>
-            <div class="text-xs text-slate-700 flex flex-col gap-1" style="
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    /* gap: 1rem; */
-">
-                <p><strong>Português:</strong> Nativo. &nbsp; <strong>Espanhol:</strong> Básico (Apto para leitura técnica e comunicação assíncrona).</p>
-                <p><strong>Inglês Profissional:</strong> Fluente para dinâmica de trabalho corporativo, condução de reuniões de negócio, negociações com clientes, discussões de arquitetura, dailies e Code Reviews.</p>
-            </div>
-        </section>
-
-        <div data-block="informacoes" class="keep-together"><h3 class="section-title">Informações Adicionais &amp; Perfil Profissional</h3></div>
-
-        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Disponibilidade:</strong> Imediata para atuação 100% Remota (Global).</p></div>
-
-        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Contratação:</strong> Ampla flexibilidade. Apto para atuar em modelos Full-time (CLT ou B2B/PJ), Part-time, ou Consultoria sob demanda (Projetos de modernização de escopo fechado) para Brasil, EUA e Europa.</p></div>
-
-        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Comunicação:</strong> Assertiva e transparente. Habilidade comprovada em negociar requisitos, alinhar expectativas de prazos e blindar o time técnico contra ruídos, garantindo clareza absoluta durante reportes executivos e gestão de incidentes críticos em produção.</p></div>
-
-        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Liderança:</strong> Orquestração de esquadrões ágeis e transição fluida entre o alinhamento estratégico com C-Levels (Negócios) e a execução com times técnicos. Mentoria ativa focada em elevar a régua de desenvolvedores Júnior/Pleno.</p></div>
-
-        <div data-block="informacoes" class="text-[11.5px] text-slate-700"><p><strong>Governança:</strong> Postura de dono absoluta e resiliência comprovada na gestão de crises. Especialista em traduzir regras complexas de negócios e regulamentações do mercado financeiro diretamente para a criação de sistemas de software seguros, escaláveis e de alta confiabilidade.</p></div>
         </div></body></html>

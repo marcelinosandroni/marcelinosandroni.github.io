@@ -256,7 +256,7 @@ function render(shell: string, variant: Variant): string {
  * out.
  */
 function replaceInventory(html: string, variant: Variant): string {
-  const open = html.indexOf('<section class="mb-4 keep-together" data-block="habilidades">');
+  const open = html.search(/<section[^>]*data-block="habilidades"/);
 
   if (open === -1) {
     throw new Error(`[${variant.slug}] the shell has no inventory section to replace`);
@@ -271,7 +271,7 @@ function replaceInventory(html: string, variant: Variant): string {
   const replacement =
     variant.skills === undefined
       ? ""
-      : `<section class="mb-4 keep-together" data-block="habilidades">
+      : `<section class="mb-3 keep-together" data-block="habilidades">
             <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>
 ${variant.skills}
         </section>
