@@ -213,18 +213,6 @@ slug: "enterprise-java",
             "<strong>Liquidação D+0 &amp; Tempo Real:</strong> Substituição de esteiras obsoletas (D+1) por conciliação de fundos em tempo real via Apache Kafka e rotinas massivas com Spring Batch, gerando +45% nos ativos geridos em 1 ano com SLA de 100% uptime.",
             "<strong>Economia e Orquestração Global:</strong> Automação da orquestração de fundos ETF institucionais, integrando B3 e bolsas internacionais (EUA/Europa), com impacto estimado de +R$ 50 Milhões em captação.",
           ],
-        }) + role({
-          title: "Engenheiro de Software Pleno",
-          company: "Zup Innovation",
-          period: "Mar/2019 – Jun/2020 · Remoto",
-          margin: "mb-4 keep-together",
-          tech: [
-            "<strong>Stack Enterprise:</strong> Java, Angular, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, Kubernetes, CI/CD.",
-          ],
-          bullets: [
-            "<strong>Evolução de Carreira e Migração Cloud:</strong> Contratado inicialmente como Júnior e promovido a Pleno em 1 ano pelo impacto em entregas críticas. Time ágil de 6 desenvolvedores refatorando serviços monolíticos em Java para arquiteturas baseadas em eventos, migrando para AWS na metade do prazo.",
-            "<strong>Resiliência e Circuit Breakers:</strong> Correção estrutural em integrações de mensageria assíncrona com RabbitMQ, implementando Circuit Breakers e Dead Letter Queues (DLQs), elevando a assertividade de dados transacionais para 100%.",
-          ],
         }),
       ].flat().concat([        role({
           title: "Engenheiro de Software",
@@ -237,7 +225,19 @@ slug: "enterprise-java",
           bullets: [
             "<strong>Custódia Institucional Estratégica (+R$ 100 Bi):</strong> Orquestração conjunta em esquadrão de 15 engenheiros e especialistas desenhando e sustentando plataforma B2B conectada à B3, com arquitetura cloud-native na AWS (EKS, RDS, SQS), APIs reativas em Java e painéis Angular.",
             "<strong>Gestão de Crises e Resiliência:</strong> Resolução de gargalos críticos de concorrência em mensageria Kafka sob tráfego de alta volatilidade em menos de 24h, aplicando políticas estritas de idempotência para manter a integridade transacional.",
-            "<strong>Aumento de 8x na Qualidade de Software:</strong> Mentoria técnica para desenvolvedores júnior/pleno e implementação de esteiras CI/CD com automação E2E, blindando o ecossistema contra regressões críticas.",
+            "<strong>Aumento de 8x na Qualidade de Software:</strong> Mentoria técnica para desenvolvedores juniores e implementação de esteiras CI/CD com automação E2E, blindando o ecossistema contra regressões críticas.",
+          ],
+        }) + role({
+          title: "Engenheiro de Software",
+          company: "Zup Innovation",
+          period: "Mar/2019 – Jun/2020 · Remoto",
+          margin: "mb-4 keep-together",
+          tech: [
+            "<strong>Stack Enterprise:</strong> Java, Angular, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, Kubernetes, CI/CD.",
+          ],
+          bullets: [
+            "<strong>Evolução de Carreira e Migração Cloud:</strong> Contratado no início da carreira técnica e promovido em 1 ano pelo impacto em entregas críticas. Time ágil de 6 desenvolvedores refatorando serviços monolíticos em Java para arquiteturas baseadas em eventos, migrando para AWS na metade do prazo.",
+            "<strong>Resiliência e Circuit Breakers:</strong> Correção estrutural em integrações de mensageria assíncrona com RabbitMQ, implementando Circuit Breakers e Dead Letter Queues (DLQs), elevando a assertividade de dados transacionais para 100%.",
           ],
         }) + role({
           title: "Analista Contábil &amp; Gestor Financeiro",
@@ -325,7 +325,7 @@ slug: "enterprise-java",
             "<strong>Resgate de lançamento crítico em &lt;24h:</strong> Corrigi microsserviços de mensageria e integrações quebradas com observabilidade estruturada, entregando o lançamento no prazo.",
           ],
         }) + role({
-          title: "Engenheiro de Software Pleno",
+          title: "Engenheiro de Software",
           company: "Pollux Technology",
           period: "Fev/2021 – Fev/2022 · Remoto",
           margin: "mb-4 keep-together",
@@ -413,7 +413,21 @@ slug: "enterprise-java",
           ],
         }),
       ].flat().concat([        role({
-          title: "Engenheiro de Software Pleno",
+          title: "Engenheiro de Software",
+          company: "Banco Itaú (Atacado)",
+          period: "Mar/2022 – Fev/2023 · Híbrido",
+          margin: "mb-4 keep-together",
+          tech: [
+            "<strong>Front &amp; Mobile:</strong> Angular, React, Flutter, TypeScript, Micro-frontends, Design Systems, Cypress.",
+            "<strong>Back/Data:</strong> Node.js, C# (.NET), Java (Spring), PostgreSQL, Redis, Kafka, RabbitMQ.",
+            "<strong>Cloud:</strong> AWS (EC2, S3, Lambda, SQS, SNS, RDS, API Gateway), Docker, Kubernetes, Terraform, CI/CD.",
+          ],
+          bullets: [
+            "<strong>Custódia institucional de +R$ 100 Bi:</strong> Desenhei e sustentei plataforma B2B conectada à B3 com visão unificada multi-carteira em tempo real para investidores de altíssimo patrimônio.",
+            "<strong>+45% de ativos sob gestão em 1 ano:</strong> Liquidação migrou de D+1 para tempo real e o uptime subiu de 95% para 100%.",
+          ],
+        }) + role({
+          title: "Engenheiro de Software",
           company: "Pollux Technology",
           period: "Fev/2021 – Fev/2022 · Remoto",
           margin: "mb-4 keep-together",
@@ -427,20 +441,6 @@ slug: "enterprise-java",
           bullets: [
             "<strong>Migração cloud na metade do prazo:</strong> Conduzi migração completa para AWS em 3 meses em vez de 6, com redução de 50% em custo e até 200% de ganho de performance.",
             "<strong>80% de entregas antecipadas:</strong> Com time de 5 pessoas em clientes de saúde, financeiro e esportes, sustentei 100% de pontualidade sob prazos apertados.",
-          ],
-        }) + role({
-          title: "Engenheiro de Software",
-          company: "Banco Itaú (Atacado)",
-          period: "Mar/2022 – Fev/2023 · Híbrido",
-          margin: "mb-4 keep-together",
-          tech: [
-            "<strong>Front &amp; Mobile:</strong> Angular, React, Flutter, TypeScript, Micro-frontends, Design Systems, Cypress.",
-            "<strong>Back/Data:</strong> Node.js, C# (.NET), Java (Spring), PostgreSQL, Redis, Kafka, RabbitMQ.",
-            "<strong>Cloud:</strong> AWS (EC2, S3, Lambda, SQS, SNS, RDS, API Gateway), Docker, Kubernetes, Terraform, CI/CD.",
-          ],
-          bullets: [
-            "<strong>Custódia institucional de +R$ 100 Bi:</strong> Desenhei e sustentei plataforma B2B conectada à B3 com visão unificada multi-carteira em tempo real para investidores de altíssimo patrimônio.",
-            "<strong>+45% de ativos sob gestão em 1 ano:</strong> Liquidação migrou de D+1 para tempo real e o uptime subiu de 95% para 100%.",
           ],
         }) + role({
           title: "Analista Contábil &amp; Gestor Financeiro",
