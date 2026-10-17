@@ -41,19 +41,15 @@ const SHEET_MM = 297;
 const PADDING_MM = 10;
 
 /**
- * How much of the content box the footer takes back.
+ * The whole content box, because nothing sits in it now.
  *
- * The footer is absolutely positioned inside the bottom padding, which means it
- * hangs about four millimetres up into the content box. Packing to the full 277mm
- * is therefore not "tight" - it is a last line of text sitting on the footer rule,
- * and it looks like a mistake on a page a recruiter is reading closely.
- *
- * The document was at exactly 277mm of 277mm and printing two pages, which is the
- * worst of both readings: it passed every check and looked broken.
+ * For a while this was five millimetres less: the footer is absolutely positioned
+ * inside the bottom padding, so it hangs up into the box, and a page packed to
+ * 277mm of 277mm printed two pages and passed every check with its last line of
+ * text lying on the footer rule. The footer is gone, so the whole box is usable
+ * again - which is the five millimetres it was worth.
  */
-const FOOTER_RESERVE_MM = 5;
-
-const USABLE_MM = SHEET_MM - PADDING_MM * 2 - FOOTER_RESERVE_MM;
+const USABLE_MM = SHEET_MM - PADDING_MM * 2;
 
 const MM_PER_PX = 25.4 / 96;
 
@@ -101,7 +97,6 @@ export async function paginate(
   } = {},
 ): Promise<{ html: string; pages: number }> {
   const shell = splitShell(html);
-  const footer = options.footer ?? defaultFooter;
   const slug = options.slug ?? "document";
 
   /*
@@ -123,7 +118,7 @@ export async function paginate(
   let sheets = pack(await measure(html));
 
   for (let pass = 0; pass < MAX_PASSES; pass++) {
-    const overflow = overflowingSheets(await measure(render(shell, sheets, footer)));
+    const overflow = overflowingSheets(await measure(render(shell, sheets)));
 
     if (overflow.length === 0) {
       break;
@@ -134,7 +129,7 @@ export async function paginate(
 
   assertOrder(sheets.flat(), slug);
 
-  const out = render(shell, sheets, footer);
+  const out = render(shell, sheets);
 
   await assertFits(out, slug);
 
@@ -677,7 +672,6 @@ const REQUIRED_ORDER: ReadonlyArray<string> = [
   "carreira",
   "habilidades",
   "formacao",
-  "idiomas",
   "cargo",
   "cargo",
   "cargo",
@@ -734,38 +728,15 @@ function assertOrder(blocks: ReadonlyArray<Measured>, slug: string): void {
 function render(
   shell: Shell,
   sheets: ReadonlyArray<ReadonlyArray<Measured>>,
-  footer: (page: number, total: number) => string,
 ): string {
-  const total = sheets.length;
-
   const pages = sheets
-    .map((blocks, index) => {
-      const body = blocks
-        .map((block) => block.html.replace(/^\s+/, ""))
-        .join("\n\n        ");
-
-      /*
-        The footer leads the sheet.
-
-        It is absolutely positioned, so it takes no room either way - but the print
-        stylesheet needs it *before* the content to name the last block of a sheet
-        and strip its trailing margin. Written after the content, the only element
-        that is both the last child and not the footer does not exist, so the rule
-        that recovers those four millimetres matches nothing and every sheet carries
-        them.
-      */
-      return `
+    .map((blocks) =>
+      `
         <div class="a4-page">
-            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                ${footer(index + 1, total)}
-            </div>
-        ${body}
-        </div>`;
-    })
+        ${blocks.map((block) => block.html.replace(/^\s+/, "")).join("\n        ")}
+        </div>`,
+    )
     .join("\n");
 
   return `${shell.beforeFirstPage}${pages}${shell.afterLastPage}`;
 }
-
-const defaultFooter = (page: number, total: number): string =>
-  `Marcelino Sandroni Dias — Engenheiro de Software Sênior &amp; IA — Currículo v1 — Página ${page} de ${total}`;

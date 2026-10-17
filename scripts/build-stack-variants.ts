@@ -271,7 +271,7 @@ function replaceInventory(html: string, variant: Variant): string {
   const replacement =
     variant.skills === undefined
       ? ""
-      : `<section class="mb-3 keep-together" data-block="habilidades">
+      : `<section class="mb-2 keep-together" data-block="habilidades">
             <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>
 ${variant.skills}
         </section>
@@ -370,7 +370,7 @@ function assertChronological(slug: string, html: string): void {
     a role that *starts* before the one above it, not one that overlaps.
   */
   const roles = [
-    ...html.matchAll(/class="role-meta">[^<]*?([A-Za-zç]{3})\/(\d{4})/g),
+    ...html.matchAll(/class="role-when">[^<]*?([A-Za-zç]{3})\/(\d{4})/g),
   ].map((match) => {
     const month = MONTHS[match[1].toLowerCase()];
 

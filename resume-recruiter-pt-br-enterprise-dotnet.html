@@ -43,9 +43,53 @@
             background-color: #f3f4f6;
             padding: 4px 8px;
         }
-            /* Metadados do cargo: duracao, datas e modelo de trabalho, em uma linha. */
+            /*
+              One size for the body of the document.
+
+              Everything a reader actually reads is set at 12.5px, which is the
+              summary. The roles used to be a step below it, and so were the
+              inventory, the degrees and the languages - so a document whose
+              argument is spread over three pages told the reader, in type, that
+              the parts carrying the numbers were the parts worth less.
+
+              Headings stay headings and labels stay labels. What changes is that
+              nothing in the body is smaller than anything else in the body.
+            */
+            :root {
+                --body: 12.5px;
+            }
+            [data-block="resumo"] p,
+            [data-block="habilidades"] p,
+            [data-block="formacao"] div,
+            [data-block="idiomas"] p,
+            .role-bullets,
+            .stack-line,
+            header p { font-size: var(--body); }
+
+            /* The role header: title on the left, dates on the right, one line. */
+            .role-head {
+                display: flex; justify-content: space-between; align-items: baseline;
+                gap: 3mm; margin-bottom: 1px;
+            }
+            .role-head h4 {
+                font-size: 13px; font-weight: 700; color: #0f172a; line-height: 1.3;
+            }
+            .role-when {
+                font-size: var(--body); font-weight: 600; color: #64748b;
+                white-space: nowrap; flex: none;
+            }
+            .role-bullets {
+                list-style: disc; padding-left: 16px; color: #334155;
+                margin-top: 2px;
+            }
+            .contact-block, .header-tagline { font-size: var(--body); line-height: 1.35; }
+            .header-tagline { color: #475569; margin-bottom: 3mm; }
+            .role-bullets li { text-align: justify; }
+            .role-bullets li + li { margin-top: 2px; }
+
+            /* Metadados do cargo, quando aparecerem fora da linha do titulo. */
             .role-meta {
-                font-size: 10px; font-weight: 600; color: #64748b;
+                font-size: var(--body); font-weight: 600; color: #64748b;
                 margin-top: 1px; margin-bottom: 3px;
             }
 
@@ -58,13 +102,19 @@
               para a largura ele estoura em vez de quebrar, e a medicao de pagina
               denuncia a folha que passou da conta.
             */
+            /*
+              The size lives in the unified rule above. It was declared here, at
+              10px - and because this rule comes after that one it won: the stack
+              line was the one thing on the page still set a step below everything
+              else, in a document built to have a single size.
+            */
             .stack-line {
-                font-size: 10px; color: #4b5563; white-space: nowrap;
+                color: #4b5563; white-space: nowrap;
                 background-color: #f9fafb; border: 1px solid #e5e7eb;
-                border-radius: 4px; padding: 3px 8px; margin-bottom: 4px;
+                border-radius: 4px; padding: 2px 8px; margin-bottom: 4px;
+            }
             }
             .stack-line strong { color: #111827; font-weight: 700; }
-
         .tech-box {
             background-color: #f9fafb;
             border: 1px solid #e5e7eb;
@@ -130,7 +180,40 @@
               missing. The paragraphs themselves are untouched; only the space
               between them closes.
             */
-            [data-block="habilidades"] p { margin-bottom: 0.5mm; }
+            [data-block="habilidades"] p { margin-bottom: 0.2mm; }
+
+            /*
+              The last few millimetres, written here rather than as Tailwind
+              classes.
+
+              The stylesheet in this file is a compiled snapshot: it carries the
+              utilities that existed when it was generated and nothing else. Four
+              class names were edited here that it has never heard of -
+              `p-1`, `p-0.5`, `mb-0.5`, `leading-normal` - and every one of them
+              silently did nothing, which is why three rounds of "savings" moved
+              the page by a millimetre. Anything added from now on goes in this
+              block, where it is real.
+            */
+            [data-block="metricas"] > div > div { padding: 0.8mm; }
+            [data-block="metricas"] .mb-1 { margin-bottom: 0.5mm; }
+            [data-block="resumo"] p { line-height: 1.5; }
+            header p, [data-block="idiomas"] p, [data-block="formacao"] div { line-height: 1.35; }
+
+            /*
+              Formação and Idiomas, side by side.
+
+              Four lines of fact under two headings, stacked: 43mm of a page that is
+              already full, and the Java document came out five millimetres over and
+              went back to three sheets. Side by side they are as tall as the taller
+              one and the profile page has room again.
+
+              Three to two, not an even split. The degrees need the room - an
+              institution and a year on one line - and the languages do not, so an
+              even split would hand the degrees twice what they can use and still
+              wrap the second column.
+            */
+            .two-col { display: grid; grid-template-columns: 3fr 2fr; gap: 7mm; }
+            .fact-list { font-size: var(--body); color: #334155; line-height: 1.35; }
 
             .a4-page {
                 margin: 0;
@@ -164,7 +247,7 @@
         }
     
             /* The career timeline. One block, never split across a page break. */
-            .tl { display: flex; flex-direction: column; gap: 0.6mm; padding-top: 0.4mm; }
+            .tl { display: flex; flex-direction: column; gap: 0.4mm; padding-top: 0; }
             .tl-row { display: flex; align-items: stretch; gap: 0.7mm; }
             .tl-slot { display: flex; min-width: 0; }
             .tl-inner {
@@ -207,7 +290,7 @@
                 font-size: 8.5px; font-weight: 500; line-height: 1.2; color: #64748b;
                 text-align: center; letter-spacing: 0.01em; min-width: 0; max-width: 100%;
             }
-            .tl-bar { width: 100%; height: 3.9mm; border-radius: 0.9mm; }
+            .tl-bar { width: 100%; height: 3.6mm; border-radius: 0.9mm; }
             .tl-bar--future {
                 background: transparent;
                 border: 0.5mm dashed #94a3b8;
@@ -229,7 +312,7 @@
               and the ruler reads as broken.
             */
             .tl-axis {
-                position: relative; height: 3.4mm; margin-top: 0.2mm;
+                position: relative; height: 3mm; margin-top: 0.2mm;
                 border-top: 1px solid #e2e8f0;
             }
             .tl-year {
@@ -246,15 +329,12 @@
     <!-- PÁGINA 1 -->
     
         <div class="a4-page">
-            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software Sênior &amp; IA — Currículo v1 — Página 1 de 2
-            </div>
         <header class="mb-4" data-block="header" data-pinned="first">
             <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase">Marcelino Sandroni Dias</h1>
             <h2 class="text-base font-bold text-slate-700 mt-1 mb-3">Engenheiro de Software Sênior | C# &amp; Angular</h2>
-            <p class="text-[11.5px] text-slate-600 mb-3 leading-snug">Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.</p>
+            <p class="header-tagline">Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.</p>
 
-            <div class="text-[11.5px] text-slate-700 bg-slate-50 p-1.5 rounded border border-slate-100">
+            <div class="contact-block text-slate-700 bg-slate-50 p-2 rounded border border-slate-100">
                 <!-- GRID DE 3 COLUNAS ALINHADO E SEM QUEBRA DE LINHA -->
                 <div class="grid w-full items-center whitespace-nowrap" style="
     grid-template-columns: 1.4fr 1fr 1fr;
@@ -281,13 +361,11 @@
                 </div>
             </div>
         </header>
-
         <section class="mb-4" data-block="resumo">
             <h3 class="section-title">Resumo Profissional</h3>
             <p class="text-[12.5px] leading-relaxed text-slate-700 text-justify">
                 <strong>Engenheiro de Software especializado em C#/.NET e Angular para plataformas de ativos e custódia, </strong>com 6 anos de engenharia de software e 15 em governança financeira. No Itaú desenhei a plataforma que sustenta +R$ 100 bilhões em custódia e liderei a adoção de testes automatizados em .NET, Angular e Flutter que elevou a qualidade em 8x.</p></section>
-
-        <section class="mb-3 keep-together" data-block="metricas">
+        <section class="mb-2 keep-together" data-block="metricas">
             <h3 class="section-title">Principais Métricas de Impacto em Produção</h3>
             <div class="grid grid-cols-4 gap-3 text-center">
 
@@ -315,7 +393,6 @@
                     <div class="text-[9px] text-slate-500 font-medium leading-tight">Lançamento com falha entregue no prazo.</div>
                 </div>
             </div></section>
-
         <section class="mb-4 keep-together" data-block="carreira" aria-hidden="true" role="presentation">
             <h3 class="section-title">Linha do Tempo de Carreira</h3>
             <div class="tl">
@@ -325,99 +402,86 @@
             <div class="tl-axis" aria-hidden="true"><span class="tl-year tl-year--first" style="left:0;">2019</span><span class="tl-year" style="left:9.34%;">2020</span><span class="tl-year" style="left:20.55%;">2021</span><span class="tl-year" style="left:31.76%;">2022</span><span class="tl-year" style="left:42.97%;">2023</span><span class="tl-year" style="left:54.18%;">2024</span><span class="tl-year" style="left:65.38%;">2025</span><span class="tl-year tl-year--last" style="left:76.59%;transform:translateX(-100%);">2026</span></div>
             </div>
         </section>
-
         <div data-block="habilidades" class="keep-together"><h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3></div>
-
         <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Frontend &amp; UI Architecture:</strong> Angular, TypeScript, RxJS, NgRx, Micro-frontends (Module Federation), SSR, Design Systems, Tailwind CSS, Angular Material, Cypress, Flutter.</p></div>
-
         <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Backend &amp; Frameworks:</strong> C# (.NET Core 6/8), ASP.NET Core, Entity Framework Core, xUnit, REST, gRPC, Clean Architecture, DDD, CQRS, SOLID.</p></div>
-
         <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Cloud, DevOps &amp; Mensageria:</strong> AWS (EKS, ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, Secrets Manager, KMS), Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Apache Kafka, RabbitMQ, OpenTelemetry, Prometheus.</p></div>
-
-        <div data-block="habilidades" class="text-[11.5px] text-slate-700 mb-3"><p class="mb-1"><strong>Dados &amp; Analítico:</strong> SQL Server, PostgreSQL, MySQL, Oracle, Redis, MongoDB, ClickHouse, Databricks, RAG, LangChain.</p></div>
-
-        <section class="mb-3 keep-together" data-block="formacao">
-            <h3 class="section-title">Formação Acadêmica &amp; Especializações</h3>
-            <div class="space-y-1 text-xs text-slate-700">
-                <div class="flex justify-between">
-                    <div><strong>Bacharelado em Engenharia de Computação</strong> — UNIVESP</div>
-                    <div class="text-slate-500 font-semibold">2021 – 2026</div>
+        <div data-block="habilidades" class="text-[11.5px] text-slate-700 mb-2"><p class="mb-1"><strong>Dados &amp; Analítico:</strong> SQL Server, PostgreSQL, MySQL, Oracle, Redis, MongoDB, ClickHouse, Databricks, RAG, LangChain.</p></div>
+        <section class="mb-2 keep-together" data-block="formacao">
+            <div class="two-col">
+                <div>
+                    <h3 class="section-title">Formação Acadêmica &amp; Especializações</h3>
+                    <div class="fact-list">
+                        <p><strong>Bacharelado em Engenharia de Computação</strong> — UNIVESP, 2021 – 2026</p>
+                        <p><strong>Bacharelado em Ciências Contábeis</strong> — Estácio, concluído 2017</p>
+                    </div>
                 </div>
-                <div class="flex justify-between">
-                    <div><strong>Bacharelado em Ciências Contábeis</strong> — Estácio (Governança e Análise Financeira)</div>
-                    <div class="text-slate-500 font-semibold">Concluído 2017</div>
+                <div>
+                    <h3 class="section-title">Idiomas</h3>
+                    <div class="fact-list">
+                        <p><strong>Espanhol:</strong> Básico — leitura técnica e comunicação assíncrona.</p>
+                        <p><strong>Inglês Profissional:</strong> Fluente — reuniões, negociações, arquitetura, dailies e code review.</p>
+                    </div>
                 </div>
-            </div>
-        </section>
-
-        <section class="mb-3 keep-together" data-block="idiomas">
-            <h3 class="section-title">Idiomas</h3>
-            <div class="text-xs text-slate-700 flex flex-col" style="
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    /* gap: 1rem; */
-">
-                <p><strong>Português:</strong> Nativo. &nbsp; <strong>Espanhol:</strong> Básico (Apto para leitura técnica e comunicação assíncrona).</p>
-                <p><strong>Inglês Profissional:</strong> Fluente para dinâmica de trabalho corporativo, condução de reuniões de negócio, negociações com clientes, discussões de arquitetura, dailies e Code Reviews.</p>
             </div>
         </section>
         </div>
 
         <div class="a4-page">
-            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software Sênior &amp; IA — Currículo v1 — Página 2 de 2
-            </div>
         <div class="mb-4 keep-together" data-block="cargo" data-breaks-page="true">
             <h3 class="section-title">Experiência Profissional</h3>
-            <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software Sênior &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT</span></h4>
-            <div class="role-meta">(1 ano) · Out/2025 – Set/2026 · Remoto</div>
+            <div class="role-head">
+                <h4>Engenheiro de Software Sênior &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT</span></h4>
+                <span class="role-when">(1 ano) · Out/2025 – Set/2026</span>
+            </div>
                 <div class="stack-line"><strong>Stack:</strong> Java, Spring Boot, Spring AI, Angular, TypeScript, Micro-frontends, PostgreSQL, Redis, RabbitMQ, gRPC, K8s, AWS.</div>
-                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-1.5 text-justify">
+                <ul class="role-bullets">
                     <li><strong>Liderança Técnica &amp; Integração IA:</strong> Liderança de squad (8 pessoas) na reestruturação de sistemas críticos processando 100M+ mensagens/dia. IA Corporativa conectando o backend via Spring AI para fluxos agênticos em tempo real, preservando contrato de R$ 24M/ano.</li>
                     <li><strong>Aceleração de 10x no Processamento:</strong> Migração de arquitetura relacional gargalo para microsserviços em Java, com tuning de JVM (ZGC) e baixa latência via gRPC e RabbitMQ.</li>
                     <li><strong>Micro-frontends Enterprise:</strong> Interfaces web complexas em Angular, com gerenciamento reativo (RxJS/NgRx), assegurando UX fluida sob alta carga.</li>
                 </ul>
         </div>
-
         <div class="mb-4 keep-together" data-block="cargo">
-            <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software Sênior <span class="text-slate-400 font-normal">| BNP Paribas</span></h4>
-            <div class="role-meta">(2 anos e 10 meses) · Dez/2022 – Set/2025 · Híbrido</div>
+            <div class="role-head">
+                <h4>Engenheiro de Software Sênior <span class="text-slate-400 font-normal">| BNP Paribas</span></h4>
+                <span class="role-when">(2 anos e 10 meses) · Dez/2022 – Set/2025</span>
+            </div>
                 <div class="stack-line"><strong>Stack:</strong> Java (Spring Boot/Batch), Angular, Micro-frontends, Oracle SQL, Kafka, OAuth2, Kubernetes, Jenkins, Helm.</div>
-                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-1.5 text-justify">
+                <ul class="role-bullets">
                     <li><strong>Modernização de Monolito Bancário:</strong> Pilar técnico de tribo (12 devs) no desacoplamento de sistemas legados (COBOL, VB) para arquitetura orientada a eventos em Java e interfaces modulares em Angular (95% de testes).</li>
                     <li><strong>Liquidação D+0 &amp; Tempo Real:</strong> Substituição de esteiras D+1 por conciliação de fundos em tempo real via Apache Kafka e Spring Batch, gerando +45% nos ativos geridos com SLA de 100% uptime.</li>
                     <li><strong>Economia e Orquestração Global:</strong> Automação de fundos ETF institucionais, integrando B3 e bolsas internacionais, com impacto estimado de +R$ 50 Milhões em captação.</li>
                 </ul>
         </div>
-
         <div class="mb-4 keep-together" data-block="cargo">
-            <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software Sênior <span class="text-slate-400 font-normal">| ITAÚ</span></h4>
-            <div class="role-meta">(2 anos e 5 meses) · Jul/2020 – Nov/2022 · Híbrido</div>
+            <div class="role-head">
+                <h4>Engenheiro de Software Sênior <span class="text-slate-400 font-normal">| ITAÚ</span></h4>
+                <span class="role-when">(2 anos e 5 meses) · Jul/2020 – Nov/2022</span>
+            </div>
                 <div class="stack-line"><strong>Stack:</strong> Java (Spring WebFlux), Angular, TypeScript, PostgreSQL, Redis, Kafka, AWS, Docker, Kubernetes, Terraform.</div>
-                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-1.5 text-justify">
+                <ul class="role-bullets">
                     <li><strong>Custódia Institucional Estratégica (+R$ 100 Bi):</strong> Orquestração conjunta (squad de 15 engenheiros) desenhando e sustentando plataforma B2B conectada à B3, com arquitetura cloud-native (AWS), APIs reativas em Java e painéis Angular.</li>
                     <li><strong>Gestão de Crises e Resiliência:</strong> Resolução de gargalos de concorrência no Kafka sob alta volatilidade em menos de 24h, aplicando estrita idempotência transacional.</li>
                     <li><strong>Aumento de 8x na Qualidade:</strong> Mentoria técnica e automação E2E (CI/CD), blindando o ecossistema contra regressões críticas.</li>
                 </ul>
         </div>
-
         <div class="mb-4 keep-together" data-block="cargo">
-            <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software Pleno <span class="text-slate-400 font-normal">| ZUP</span></h4>
-            <div class="role-meta">(1 ano e 4 meses) · Mar/2019 – Jun/2020 · Remoto</div>
+            <div class="role-head">
+                <h4>Engenheiro de Software Pleno <span class="text-slate-400 font-normal">| ZUP</span></h4>
+                <span class="role-when">(1 ano e 4 meses) · Mar/2019 – Jun/2020</span>
+            </div>
                 <div class="stack-line"><strong>Stack:</strong> Java, Angular, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, Kubernetes, CI/CD.</div>
-                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-1.5 text-justify">
+                <ul class="role-bullets">
                     <li><strong>Evolução Rápida e Cloud:</strong> Promovido de Júnior a Pleno em 1 ano. Time ágil de 6 devs refatorando monolitos Java para eventos e migração AWS na metade do prazo estipulado.</li>
                     <li><strong>Resiliência Transacional:</strong> Correção estrutural em mensageria assíncrona (RabbitMQ) via Circuit Breakers e DLQs, garantindo 100% de assertividade.</li>
                 </ul>
         </div>
-
         <div class="mb-5 keep-together" data-block="cargo">
-            <h4 class="font-bold text-slate-900 text-[13px]">Analista Contábil &amp; Gestor Financeiro <span class="text-slate-400 font-normal">| Consultoria Corporativa</span></h4>
-            <div class="role-meta">(15 anos e 6 meses) · Jul/2003 – Dez/2018 · Presencial</div>
-                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-1.5 text-justify">
+            <div class="role-head">
+                <h4>Analista Contábil &amp; Gestor Financeiro <span class="text-slate-400 font-normal">| Consultoria Corporativa</span></h4>
+                <span class="role-when">(15 anos e 6 meses) · Jul/2003 – Dez/2018</span>
+            </div>
+                <ul class="role-bullets">
                     <li><strong>Diferencial em Engenharia Corporativa:</strong> Liderança de equipes e redesenho de processos que reduziu o fechamento contábil em 83%. Profunda expertise em finanças e regras tributárias traduzidas diretamente para equipes de software.</li>
                 </ul>
         </div>
