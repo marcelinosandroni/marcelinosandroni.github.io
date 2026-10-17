@@ -139,11 +139,11 @@ export const LAYOUT_RULES: ReadonlyArray<LayoutRule> = [
   },
   {
     id: "contato",
-    label: "Contacto (cada linha)",
+    label: "Contacto (as duas linhas)",
     hook: "contato",
-    maxLines: 1,
-    maxChars: 110,
-    why: "Two rows of three fixed fields: Localização, Email and WhatsApp; LinkedIn, Git and Portfólio. These are not edited to fit a limit - they are facts, and they are the same in every document. What the budget covers is the line, not the wording: the block has no horizontal padding at all, because six fields at 11px need every millimetre of the measure, and the six millimetres that were missing came out of the box rather than out of the type.",
+    maxLines: 2,
+    maxChars: 230,
+    why: "Six fixed fields in two rows of three, on one six-column grid so the labels align with the labels and the values with the values. These are not edited to fit a limit - they are facts, and they are the same in every document. Two lines, and no horizontal overflow: a field that grew would push the grid past the text measure and fail the build, which is the correct place for that to fail.",
   },
   {
     id: "resumo",
