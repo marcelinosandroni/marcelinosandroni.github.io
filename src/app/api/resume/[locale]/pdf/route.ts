@@ -15,6 +15,8 @@ import { applyFocus, narrowDocument } from "@/domain/resume/focus";
 import { getDictionary } from "@/i18n";
 import { getPdfSectionLabels } from "@/infrastructure/pdf/pdf-section-labels";
 import {
+  DEFAULT_RESUME_TEMPLATE,
+  DOWNLOADABLE_RESUME_TEMPLATE_IDS,
   resolveResumeTemplateId,
   type ResumeTemplateId,
 } from "@/infrastructure/pdf/resume-template-registry";
@@ -119,6 +121,28 @@ export async function GET(
       mentions the stack the reader asked about.
     */
     if (resolveResumePdfSource() === "fixed") {
+      /*
+        The template a fixed download may be asked for.
+
+        The document served here was built and committed in this repository and has
+        one form, so a template has nothing to choose between. The parameter used to
+        be accepted and ignored, which was the worst of the three possible answers:
+        `?template=DETAILED` returned the default document under a name promising
+        something else, and the reader had no way to tell from the file.
+
+        Refused rather than ignored, so a link from before the template menu was
+        removed fails with a sentence that says what happened. `CLEAN` and no
+        parameter at all both resolve to the default and keep working, so the only
+        links that break are the ones that were already lying.
+      */
+      if (!DOWNLOADABLE_RESUME_TEMPLATE_IDS.includes(templateId)) {
+        throw new InvalidTemplateError(
+          `Invalid template: ${requestedTemplate}. A download of the fixed résumé ` +
+            `is the default document or one written for a stack, chosen with ?stack=.`,
+          { providedTemplate: requestedTemplate },
+        );
+      }
+
       const requestedStack = request.nextUrl.searchParams.get("stack");
       const variant = resolveResumeVariant(requestedStack);
 

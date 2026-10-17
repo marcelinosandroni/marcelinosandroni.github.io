@@ -199,95 +199,63 @@ test.describe("Localized routing and PDF download", () => {
     await expect(page.getByRole("navigation", { name: /main navigation/i })).toBeVisible();
   });
 
-  test("downloads the selected alternate template from the arrow menu", async ({ page }) => {
+  test("offers one download and no template menu", async ({ page }) => {
+    /*
+     * Five tests used to live here, all about a menu offering a template per
+     * download: that it opened, that it closed on an outside click, on Escape, on
+     * its own toggle, and that it stayed inside the viewport. Each was a real
+     * behaviour of a control that no longer exists.
+     *
+     * The menu is gone because the download serves a document built and committed
+     * in this repository, which has one form — so both of its entries fetched the
+     * same PDF and the reader was offered a distinction that did not exist. The
+     * choice that remains, the stack, is made by the selector on the same page, as
+     * a URL, so it can be bookmarked and sent to somebody.
+     *
+     * What replaces them is the claim that matters now: one control, and nothing
+     * on the page asking which template to download.
+     */
     await page.goto("/en-us/resume");
 
-    await page.getByRole("button", { name: /choose pdf template/i }).click();
+    await expect(page.getByRole("button", { name: /download pdf/i })).toHaveCount(1);
+    await expect(page.getByRole("menu")).toHaveCount(0);
+    await expect(page.getByRole("menuitem")).toHaveCount(0);
+  });
 
-    await expect(page.getByRole("menu")).toBeVisible();
-    await expect(page.getByRole("menuitem", { name: /reference/i })).toBeVisible();
+  test("asks for the stack it is showing, and never for a template", async ({ page }) => {
+    /*
+     * The `template` parameter used to ride along on every download and be ignored
+     * by the route, so `?template=DETAILED` returned the default document under a
+     * name promising something else. The parameter is refused now, which means
+     * the button has to stop sending it — and a button that started again would
+     * break every download on the site rather than one of them.
+     */
+    const requested: string[] = [];
+
+    page.on("request", (request) => {
+      if (request.url().includes("/api/resume/")) {
+        requested.push(request.url());
+      }
+    });
+
+    await page.goto("/pt-br/resume?stack=enterprise-java");
 
     const downloadPromise = page.waitForEvent("download");
-    await page.getByRole("menuitem", { name: /reference/i }).click();
+    await page.getByRole("button", { name: /baixar pdf/i }).click();
 
-    expect((await downloadPromise).suggestedFilename()).toContain("DETAILED");
-  });
+    const download = await downloadPromise;
 
-  test("closes the template menu when the reader clicks somewhere else", async ({ page }) => {
+    expect(download.suggestedFilename()).toContain("enterprise-java");
+
     /*
-      A menu that only closes by clicking its own toggle is a panel that stays
-      open, which is worse than not having one: the reader clicks the page
-      expecting the page to respond and the only thing that changes is that
-      nothing happens at all.
+      Named in the failure, because a bare `false` against an array of URLs says
+      which request failed to nothing at all.
     */
-    await page.goto("/en-us/resume");
+    const withTemplate = requested.filter((url) => new URL(url).searchParams.has("template"));
 
-    const toggle = page.getByRole("button", { name: /choose pdf template/i });
-
-    await toggle.click();
-    await expect(page.getByRole("menu")).toBeVisible();
-
-    await page.locator("h1").click();
-
-    await expect(page.getByRole("menu")).toBeHidden();
-  });
-
-  test("closes the template menu on Escape", async ({ page }) => {
-    await page.goto("/en-us/resume");
-
-    const toggle = page.getByRole("button", { name: /choose pdf template/i });
-
-    await toggle.click();
-    await expect(page.getByRole("menu")).toBeVisible();
-
-    await page.keyboard.press("Escape");
-
-    await expect(page.getByRole("menu")).toBeHidden();
-  });
-
-  test("closes the template menu when the reader clicks the toggle again", async ({ page }) => {
-    /*
-      The document listener also sees this click, because the toggle is inside
-      the container the listener treats as "not outside". If both reacted, the
-      second one would reopen the menu on the gesture that closed it — the
-      button would appear not to work at all.
-    */
-    await page.goto("/en-us/resume");
-
-    const toggle = page.getByRole("button", { name: /choose pdf template/i });
-
-    await toggle.click();
-    await expect(page.getByRole("menu")).toBeVisible();
-
-    await toggle.click();
-
-    await expect(page.getByRole("menu")).toBeHidden();
-  });
-
-  test("opens the template menu inside the viewport, not off its left edge", async ({ page }) => {
-    /*
-      This is the desktop bug as reported: the menu was anchored to the button's
-      *right* edge, and the button sits at the left of the résumé's action row, so
-      a 288px panel extended to the left of x=0 and the first option was
-      unreadable.
-
-      Asserted on geometry rather than on a class name so a regression that
-      reintroduces the anchoring — by any means — fails here.
-    */
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/en-us/resume");
-
-    await page.getByRole("button", { name: /choose pdf template/i }).click();
-
-    const menu = page.getByRole("menu");
-
-    await expect(menu).toBeVisible();
-
-    const box = await menu.boundingBox();
-
-    expect(box).not.toBeNull();
-    expect(box?.x ?? -1).toBeGreaterThanOrEqual(0);
-    expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(1440);
+    expect(`requests carrying a template: ${withTemplate.join(", ") || "none"}`).toBe(
+      "requests carrying a template: none",
+    );
   });
 
   test("ships no resume content in the browser JavaScript bundle", async ({ page }) => {

@@ -7,7 +7,8 @@ import {
   buildTimeline,
   type TimelineRole,
 } from "./data/career-timeline";
-import { TIMELINE } from "./data/stack-variants.pt-br";
+import { TIMELINE, type Variant } from "./data/stack-variants.pt-br";
+import { checkLayout, type LayoutDocument } from "./check-layout";
 
 /**
  * Builds the stack-specific résumés from the approved general one.
@@ -30,80 +31,18 @@ import { TIMELINE } from "./data/stack-variants.pt-br";
  * this was being written. A silent partial rewrite produces the worst possible
  * document: one that argues for Java in the summary and still credits C# in the
  * middle of the experience, which reads as carelessness rather than breadth.
- */
-type SectionId = "summary" | "metrics" | "experience";
-
-type Variant = {
-  readonly slug: string;
-  /** The reader-facing label the selector shows. */
-  readonly label: string;
-  /** The document title, which is also the first thing a recruiter reads. */
-  readonly title: string;
-  /**
-   * The line under the name.
-   *
-   * This is the one place a variant states what it is *for*, and it is the only
-   * sentence a recruiter is certain to read. The general résumé gets a broad
-   * description here because it has to answer for everything; a specialist gets
-   * its stack named, because a reader who is choosing between these documents is
-   * looking for exactly that and should not have to infer it.
-   */
-  readonly headline: string;
-  /**
-   * An optional section inserted after the experience, carrying the technical
-   * skill inventory.
-   *
-   * Inserted rather than swapped, because the general résumé has no such section
-   * and should not grow an empty heading to accommodate the variants that do. The
-   * general one was once 55mm longer for exactly this block, and it was cut on
-   * purpose: every role above already carries its own technology box, and a list
-   * that repeats them is the part of a résumé a recruiter stops reading.
-   *
-   * A specialist document is the case where the trade goes the other way - the
-   * reader arrived asking "does this person run Java in production", and an
-   * inventory answers that faster than any paragraph. So it is allowed here, and
-   * the page-count assertion decides whether it actually fits rather than anyone
-   * guessing in advance.
-   */
-  readonly skills?: string;
-  /**
-   * The roles, in order, as one run of blocks.
-   *
-   * A run rather than two sections because a role is the unit a page break is
-   * allowed to move. Splitting the experience into "page one" and "continuation"
-   * only made sense while the pages were fixed; with the pages computed, that
-   * split is a constraint nobody asked for, and honouring it would cap the
-   * experience at whatever fitted before the break.
-   */
-  /**
-   * The opening line of the summary. It leads with the specialisation because the
-   * reader is here to find out whether this person fits one specific stack, and
-   * the first sentence is what they read before deciding to read the rest.
-   */
-  readonly sections: Partial<Record<SectionId, string>>;
-  /**
-   * The roles the career timeline shows, oldest first.
-   *
-   * Required rather than optional: a variant that left it out would ship a
-   * document whose bar still showed the general document's history, which is the
-   * kind of quiet wrongness that survives review and reaches a recruiter.
-   */
-  readonly timeline: ReadonlyArray<TimelineRole>;
-};
-
-/**
- * Section headings, mapped to the id a variant fills.
  *
- * Matching on the heading text rather than on line numbers is what lets the shell
- * be edited freely: reformatting the document does not break the build, and a
- * renamed heading fails loudly instead of silently producing a variant with the
- * general résumé's summary still in it.
+ * ## Why the layout contract runs on the flat document
  *
- * The experience is not in this list. It is not a section in the shell - it is a
- * run of role blocks, because a role that straddles a page break reads as two
- * different jobs. It is rebuilt as a whole instead of patched in place.
+ * Before pagination, not after. The line count of a paragraph is a property of the
+ * text and the measure - the width of the column - and pagination changes neither:
+ * a sheet is the same 182mm whether it holds the summary or the last role. Checking
+ * afterwards would mean measuring the same thing five times and learning nothing,
+ * and a failure would name a page rather than the sentence that caused it.
  */
-const HEADINGS: ReadonlyArray<readonly [RegExp, SectionId]> = [
+
+/** Section headings, mapped to the id a variant fills. */
+const HEADINGS: ReadonlyArray<readonly [RegExp, string]> = [
   [/<h3 class="section-title">Resumo Profissional<\/h3>/, "summary"],
   [/<h3 class="section-title">Principais Métricas de Impacto em Produção<\/h3>/, "metrics"],
 ];
@@ -132,9 +71,21 @@ async function main(): Promise<void> {
   const shell = await fs.readFile(resolve("resume-shell.html"), "utf8");
   const variants = await loadVariants();
 
+  /*
+    Measured before anything is written.
+
+    The contract is a statement about content, and content is what this build
+    produces. Checking after the files were on disk would mean a build that wrote
+    four documents and then failed, leaving four documents that look finished and
+    are not inside their own limits.
+  */
+  const documents: LayoutDocument[] = [];
+
   for (const variant of variants) {
     const flat = render(shell, variant);
     assertComplete(variant, flat);
+
+    documents.push({ slug: variant.slug, html: flat });
 
     /*
       Pagination is part of building the document, not a check run afterwards.
@@ -144,7 +95,7 @@ async function main(): Promise<void> {
       that grew simply takes another sheet. The count that comes back is what the
       PDF assertion is given, so the two can never disagree.
     */
-    const { html, pages } = await paginate(flat);
+    const { html, pages } = await paginate(flat, { slug: variant.slug });
 
     const target = `resume-recruiter-pt-br-${variant.slug}.html`;
     await fs.writeFile(resolve(target), html, "utf8");
@@ -152,20 +103,28 @@ async function main(): Promise<void> {
   }
 
   /*
-    The general document goes through the same paginator.
+    The general document goes through the same paginator and the same contract.
 
     It has to. The pages it ships are the ones it was measured into, and a source
     that says "Página 1 de 2" while its PDF says three is a lie the reader finds
-    out about on the last sheet.
+    out about on the last sheet. And the contract has to apply to it because the
+    general document is the one every other document is compared against - a rule
+    that only the variants obey is a rule the set does not share.
   */
   assertRoles("document", shell);
 
   const withTimeline = injectTimeline(shell, TIMELINE, "document");
 
-  const { html: general, pages: generalPages } = await paginate(withTimeline);
+  documents.push({ slug: "document", html: withTimeline });
+
+  const { html: general, pages: generalPages } = await paginate(withTimeline, {
+    slug: "document",
+  });
 
   await fs.writeFile(resolve("resume-recruiter-pt-br.html"), general, "utf8");
   console.log(`wrote resume-recruiter-pt-br.html (${generalPages} pages)`);
+
+  await checkLayout(documents);
 }
 
 async function loadVariants(): Promise<ReadonlyArray<Variant>> {
@@ -187,7 +146,7 @@ function render(shell: string, variant: Variant): string {
   let out = shell;
 
   for (const [heading, id] of HEADINGS) {
-    const replacement = variant.sections[id];
+    const replacement = variant.sections[id as "summary" | "metrics"];
 
     if (replacement === undefined) {
       continue;
@@ -217,43 +176,55 @@ function render(shell: string, variant: Variant): string {
   }
 
   out = replaceInventory(out, variant);
-  out = injectTimeline(out, TIMELINE, variant.slug);
+  out = injectTimeline(out, variant.timeline, variant.slug);
   out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${variant.title}</title>`);
 
   /*
-    The headline under the name, matched by its classes rather than by its text.
+    The headline under the name, matched by the layout hook rather than by its text
+    or its class.
 
     The general document's headline is the one thing that must not survive into a
     variant: a document that calls itself "Engenheiro de Software & IA" while
     arguing for Java is making two claims at once, and the broader one is the one
     that does not help the reader choose.
+
+    Matched on `data-rule="cargo"` because that is the attribute the layout contract
+    measures it by, so the rule and the replacement cannot drift apart - a variant
+    whose headline stopped carrying the hook would fail the contract for a missing
+    rule, which is a better failure than one the contract could not see.
   */
-  const headline = /<h2 class="[^"]*">[\s\S]*?<\/h2>/.exec(out);
+  const headline = /<h2[^>]*data-rule="cargo"[^>]*>[\s\S]*?<\/h2>/.exec(out);
 
   if (headline === null || headline.index === undefined) {
-    throw new Error(`[${variant.slug}] headline not found`);
+    throw new Error(
+      `[${variant.slug}] headline not found - the shell's h2 has to carry data-rule="cargo"`,
+    );
   }
 
   out =
     out.slice(0, headline.index) +
-    `<h2 class="text-base font-bold text-slate-700 mt-1 mb-3">${variant.headline}</h2>` +
+    `<h2 class="text-base font-bold text-slate-700 mt-1 mb-3" data-rule="cargo">${variant.headline}</h2>` +
     out.slice(headline.index + headline[0].length);
 
   return out;
 }
 
 /**
- * Rebuilds the whole experience run, optionally preceded by the inventory.
+ * Replaces the technical inventory with the one written for this stack.
  *
- * Replaced as a run rather than patched block by block, because the region's
- * boundaries in the shell are a consequence of how many pages it used to need -
- * and the page count is exactly what is now being computed. Deriving it from
- * those boundaries would make the new pagination depend on the old one.
+ * Swapped rather than appended, because the general inventory is a list of
+ * everything and the specialist's is a list of what this reader came for. Two
+ * inventories on one page would be the general one with the specialist's as a
+ * subset, which is exactly the redundancy that makes a reader stop.
  *
- * The inventory goes in front of the experience, not after it. The reader arrives
- * asking one question - does this person run this stack in production - and the
- * inventory answers it before the experience asks them to read five jobs to find
- * out.
+ * The section is removed outright when a variant declares no inventory, so it
+ * cannot leave an empty heading behind.
+ *
+ * The markup is built here rather than carried as a string in the data module,
+ * because the `data-item` and `data-rule` hooks are what pagination and the layout
+ * contract both find elements by. A variant that wrote its own markup would be a
+ * document the contract silently stopped checking - and a rule that matches nothing
+ * passes, which is the failure that has to be designed out.
  */
 function replaceInventory(html: string, variant: Variant): string {
   const open = html.search(/<section[^>]*data-block="habilidades"/);
@@ -269,16 +240,30 @@ function replaceInventory(html: string, variant: Variant): string {
   }
 
   const replacement =
-    variant.skills === undefined
+    variant.inventory === undefined
       ? ""
       : `<section class="mb-2 keep-together" data-block="habilidades">
-            <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>
-${variant.skills}
+            <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>${renderInventory(variant.inventory)}
         </section>
 
         `;
 
   return html.slice(0, open) + replacement + html.slice(close + "</section>".length);
+}
+
+/** The inventory's paragraphs, one group per entry. */
+function renderInventory(groups: ReadonlyArray<readonly [string, string]>): string {
+  const paragraphs = groups
+    .map(
+      ([label, items]) =>
+        `                <p class="mb-1" data-item data-rule="habilidade"><strong>${label}:</strong> ${items}</p>`,
+    )
+    .join("\n");
+
+  return `
+            <div class="text-slate-700">
+${paragraphs}
+            </div>`;
 }
 
 

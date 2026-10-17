@@ -1,5 +1,6 @@
 import { promises as fs } from "node:fs";
 import { paginate } from "./paginate-resume";
+import { checkLayout } from "./check-layout";
 import {
   TONES,
   TIMELINE_CSS,
@@ -31,7 +32,7 @@ const TEXT: ReadonlyArray<Rule> = [
     { from: "Marcelino Sandroni - Curriculo", to: "Marcelino Sandroni - Resume" },
     { from: "Engenheiro de Software Sênior &amp; IA<", to: "Senior Software &amp; AI Engineer<" },
     // Contact block
-    { from: "<strong>Localização:</strong> Fortaleza, CE (Atuação Remota)", to: "<strong>Location:</strong> Fortaleza, CE (Fully Remote)" },
+    { from: "<strong>Localização:</strong> Fortaleza, CE (Remoto)", to: "<strong>Location:</strong> Fortaleza, CE (Remote)" },
     { from: "<strong>Portfólio:</strong>", to: "<strong>Portfolio:</strong>" },
     // Summary
     { from: "Resumo Profissional", to: "Professional Summary" },
@@ -45,9 +46,9 @@ const TEXT: ReadonlyArray<Rule> = [
     { from: "Principais Métricas de Impacto em Produção", to: "Key Production Impact Metrics" },
     { from: "+R$ 500 Bi<", to: "+R$ 500Bn<" },
     { from: ">Gestão de Ativos<", to: ">Asset Management<" },
-    { from: "Criação e manutenção de aplicações críticas para custódia de fundos.", to: "Building and maintaining critical applications for fund custody." },
+    { from: "Aplicações críticas de custódia de fundos.", to: "Critical applications for fund custody." },
     { from: ">Liquidação Síncrona<", to: ">Synchronous Settlement<" },
-    { from: "Engenharia de sistema de processamento de pagamentos em realtime.", to: "Engineering a real-time payment processing system." },
+    { from: "Sistema de processamento de pagamentos em tempo real.", to: "Real-time payment processing system." },
     { from: ">Alta Escala<", to: ">High Scale<" },
     { from: "Arquitetura de processamento assíncrono de eventos.", to: "Architecture for asynchronous event processing." },
     { from: ">Inteligência Artificial<", to: ">Artificial Intelligence<" },
@@ -164,15 +165,15 @@ const TEXT: ReadonlyArray<Rule> = [
     { from: ">Idiomas<", to: ">Languages<" },
     { from: ">Espanhol:<", to: ">Spanish:<" },
     { from: "leitura técnica e comunicação assíncrona.", to: "reading technical material and written communication." },
-    { from: "<strong>Inglês Profissional:</strong> Fluente — reuniões, negociações, arquitetura, dailies e code review.", to: "<strong>Professional English:</strong> Fluent — meetings, negotiation, architecture, stand-ups and code review." },
+    { from: "<strong>Inglês Profissional:</strong> Fluente — reuniões, negociações, arquitetura e code review.", to: "<strong>Professional English:</strong> Fluent — meetings, negotiation, architecture and code review." },
     // Skills inventory
     {
       from: "Habilidades Técnicas &amp; Arquitetura de Software",
       to: "Technical Skills &amp; Software Architecture",
     },
     {
-      from: "<strong>Frontend &amp; UI Architecture:</strong>",
-      to: "<strong>Frontend &amp; UI Architecture:</strong>",
+      from: "<strong>Frontend &amp; UI:</strong>",
+      to: "<strong>Frontend &amp; UI:</strong>",
     },
     {
       from: "<strong>Dados &amp; Mensageria:</strong>",
@@ -249,7 +250,7 @@ const LEFTOVERS: ReadonlyArray<string> = [
 */
 const TIMELINE_EN: ReadonlyArray<TimelineRole> = [
   { label: "ZUP", period: "Mar/2019 – Jun/2020 · Remoto", level: "Junior → Full", tone: TONES.lightest },
-  { label: "ITAÚ", period: "Jul/2020 – Nov/2022 · Híbrido", level: "Senior", tone: TONES.light },
+  { label: "ITAÚ", period: "Jul/2020 – Nov/2022 · Híbrido", level: "Full", tone: TONES.light },
   { label: "BNP Paribas", period: "Dez/2022 – Set/2025 · Híbrido", level: "Senior", tone: TONES.mid },
   { label: "DGT", period: "Out/2025 – Set/2026 · Remoto", level: "Tech Lead", tone: TONES.dark },
 ];
@@ -392,17 +393,27 @@ async function main(): Promise<void> {
   }
 
   /*
-    The same pagination the Portuguese documents get.
+    The same pagination the Portuguese documents get, and the same layout contract.
 
     The translation is not a different document with a different length - the same
     blocks, in English, which runs slightly longer per line and so can land on a
     different sheet. Letting each language paginate on its own is the only way the
     footers can be right; forcing both to two pages would mean cutting content
     because of a translation.
+
+    English gets its own measurement because English sets wider. The contract is
+    about lines, and a line of English holds fewer characters than a line of
+    Portuguese at the same size, so a document that fits in pt-BR can go over in
+    en-US without anything being wrong in either - and the character budgets in the
+    contract were set from the Portuguese line, which is the wider of the two.
+    Which means the en-US check is the one that will fail first, and that is
+    correct: the same limits, honestly measured.
   */
   out = out.replace("</style>", `${TIMELINE_CSS}\n        </style>`);
 
-  const { html, pages } = await paginate(out);
+  const { html, pages } = await paginate(out, { slug: "en-US" });
+
+  await checkLayout([{ slug: "en-US", html: out }]);
 
   await fs.writeFile(resolve("resume-recruiter-en-us.html"), html, "utf8");
 

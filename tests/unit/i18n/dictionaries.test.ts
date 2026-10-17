@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { DEFAULT_LOCALE, type Locale } from "@/domain/i18n";
 import { articlesPtBR } from "@/infrastructure/content/blog";
-import { RESUME_TEMPLATE_IDS } from "@/infrastructure/pdf/resume-template-registry";
+import {
+  DEFAULT_RESUME_TEMPLATE,
+  DOWNLOADABLE_RESUME_TEMPLATE_IDS,
+} from "@/infrastructure/pdf/resume-template-registry";
 import { formatMessage } from "@/i18n/format-message";
 import { enUS } from "@/i18n/dictionaries/en-US";
 import { ptBR } from "@/i18n/dictionaries/pt-BR";
@@ -111,40 +114,50 @@ describe("message catalog parity", () => {
     }
   });
 
-  it("aligns structured data and template coverage across locales", () => {
-    // Unlike SEO keywords, these two feed machine-readable output, so the
-    // entries must correspond one-to-one between locales.
-    for (const path of ["metadata.knowsAbout"] as const) {
-      const expected = leafValues(reference).get(path) as string[];
+  it("gives every locale the same set of PDF strings", () => {
+    /*
+     * This replaced two tests that asserted every locale named every PDF template.
 
-      for (const [locale, catalog] of Object.entries(catalogsByLocale)) {
-        const translated = leafValues(catalog).get(path) as string[];
+     * Those were there for the download menu: a menu with an untranslated entry
+     * shows a reader the raw id. The menu is gone - the download offers one
+     * document per stack, chosen by a selector that is already on the page as a
+     * URL - so the template names are no longer user-facing and asserting them
+     * would have guarded strings nothing reads.
 
-        expect(`${locale}:${path}:${translated.length}`).toBe(`${locale}:${path}:${expected.length}`);
-      }
-    }
+     * What replaces it is the invariant that actually bit: the two catalogs have
+     * to carry the same keys. A key added to one and not the other is a string
+     * that silently has no translation, which is the same failure the old tests
+     * were reaching for by a longer route.
+     */
+    const referencePaths = collectLeafPaths(
+      (reference as Tree).pdf as Tree,
+      "pdf",
+    );
+
+    expect(referencePaths.length).toBeGreaterThan(0);
 
     for (const [locale, catalog] of Object.entries(catalogsByLocale)) {
-      const templateIds = (catalog as typeof enUS).pdf.templates;
-
-      for (const templateId of RESUME_TEMPLATE_IDS) {
-        expect(`${locale}:${templateId}:${templateId in templateIds}`).toBe(`${locale}:${templateId}:true`);
-      }
+      expect(`${locale}:${collectLeafPaths((catalog as Tree).pdf as Tree, "pdf").join(",")}`).toBe(
+        `${locale}:${referencePaths.join(",")}`,
+      );
     }
   });
 
-  it("names every PDF template in every locale", () => {
+  it("keeps nothing user-facing for a template the download does not offer", () => {
+    /*
+     * A label for a document that is not downloadable is a promise the site cannot
+     * keep. If `pdf.templates` comes back - a merge, a revert, someone restoring a
+     * menu - it has to fail here rather than sit in the catalog looking available.
+     */
     for (const [locale, catalog] of Object.entries(catalogsByLocale)) {
-      const templates = (catalog as typeof enUS).pdf.templates;
+      const pdf = (catalog as Tree).pdf as Tree;
 
-      for (const templateId of RESUME_TEMPLATE_IDS) {
-        const entry = templates[templateId];
-
-        expect(`${locale}:${templateId}:${entry.label.length > 0 && entry.description.length > 0}`).toBe(
-          `${locale}:${templateId}:true`,
-        );
-      }
+      expect(`${locale}:templates in catalog:${"templates" in pdf}`).toBe(
+        `${locale}:templates in catalog:false`,
+      );
     }
+
+    expect(DOWNLOADABLE_RESUME_TEMPLATE_IDS).toEqual([DEFAULT_RESUME_TEMPLATE]);
   });
 
   it("exposes metadata for the SEO surface of every locale", () => {

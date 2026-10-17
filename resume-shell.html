@@ -54,17 +54,61 @@
 
               Headings stay headings and labels stay labels. What changes is that
               nothing in the body is smaller than anything else in the body.
+
+              The career bar was the last holdout, at 9.5px and 8.5px, and it is
+              now on this rule too: it restates the experience section, so it being
+              set below the section it restates told the reader it carried less than
+              the prose next to it.
+
+              Two elements sit deliberately below this, and both are declared in
+              `scripts/data/resume-layout-rules.ts` next to the limits that hold
+              them: the contact block, because six reference fields are not prose,
+              and the metric captions, because a 43mm card cannot hold a two-line
+              caption at this size. Both are the *only* two, both are enforced by
+              the same build as everything else, and neither can be made smaller
+              to fit a longer caption - the caption would simply fail its limit.
             */
             :root {
                 --body: 12.5px;
+                --contact: 11px;
             }
             [data-block="resumo"] p,
             [data-block="habilidades"] p,
-            [data-block="formacao"] div,
+            [data-block="formacao"] p,
             [data-block="idiomas"] p,
             .role-bullets,
             .stack-line,
             header p { font-size: var(--body); }
+
+            /*
+              Justified, like the bullets and the summary.
+
+              The inventory is the one block that was left ragged while everything
+              around it was justified. Ragged right on a list of technologies gives
+              every group a different right edge, and a column of ragged edges is
+              what makes a six-item list read as a paragraph instead of a list.
+            */
+            [data-block="habilidades"] p { text-align: justify; }
+
+            /*
+              The contact block, at its own size.
+
+              One line per row, full width, no wrapping - so that a row which is
+              too long fails the build instead of spilling off the page. It used to
+              be a three-column grid, which read as three facts about three people:
+              a recruiter looking for a phone number had to work out which column
+              was theirs.
+            */
+            .contact-block {
+                font-size: var(--contact); line-height: 1.4; color: #334155;
+                background-color: #f8fafc;
+                border: 1px solid #e2e8f0; border-radius: 4px;
+                padding: 2mm 3mm; margin-bottom: 2mm;
+            }
+            .contact-block p { white-space: nowrap; }
+            .contact-block p + p { margin-top: 0.6mm; }
+            .contact-block strong { color: #1f2937; font-weight: 600; }
+            .contact-sep { color: #94a3b8; margin: 0 1mm; }
 
             /* The role header: title on the left, dates on the right, one line. */
             .role-head {
@@ -82,7 +126,15 @@
                 list-style: disc; padding-left: 16px; color: #334155;
                 margin-top: 2px;
             }
-            .contact-block, .header-tagline { font-size: var(--body); line-height: 1.35; }
+            /*
+              The tagline runs at the body size.
+
+              It was written into a shared rule with the contact block, and the
+              contact block has since moved to its own smaller size - so leaving it
+              here would have quietly put the tagline back a step down with a rule
+              that reads as though it belonged to both.
+            */
+            .header-tagline { font-size: var(--body); line-height: 1.35; }
             .header-tagline { color: #475569; margin-bottom: 3mm; }
             .role-bullets li { text-align: justify; }
             .role-bullets li + li { margin-top: 2px; }
@@ -101,18 +153,16 @@
               pior lugar. nowrap mantem a linha inteira; se o texto for longo demais
               para a largura ele estoura em vez de quebrar, e a medicao de pagina
               denuncia a folha que passou da conta.
-            */
-            /*
-              The size lives in the unified rule above. It was declared here, at
-              10px - and because this rule comes after that one it won: the stack
-              line was the one thing on the page still set a step below everything
-              else, in a document built to have a single size.
+
+              O tamanho vive na regra unificada acima. Ele era declarado aqui, a
+              10px - e como esta regra vem depois daquela, vencia: a linha de stack
+              era a unica coisa da pagina ainda um passo abaixo de todo o resto, em
+              um documento construido para ter um unico tamanho.
             */
             .stack-line {
                 color: #4b5563; white-space: nowrap;
                 background-color: #f9fafb; border: 1px solid #e5e7eb;
                 border-radius: 4px; padding: 2px 8px; margin-bottom: 4px;
-            }
             }
             .stack-line strong { color: #111827; font-weight: 700; }
         .tech-box {
@@ -197,23 +247,27 @@
             [data-block="metricas"] > div > div { padding: 0.8mm; }
             [data-block="metricas"] .mb-1 { margin-bottom: 0.5mm; }
             [data-block="resumo"] p { line-height: 1.5; }
-            header p, [data-block="idiomas"] p, [data-block="formacao"] div { line-height: 1.35; }
+            header p, [data-block="idiomas"] p, [data-block="formacao"] p { line-height: 1.35; }
 
             /*
-              Formação and Idiomas, side by side.
+              Formação and Idiomas, one column, never two.
 
-              Four lines of fact under two headings, stacked: 43mm of a page that is
-              already full, and the Java document came out five millimetres over and
-              went back to three sheets. Side by side they are as tall as the taller
-              one and the profile page has room again.
+              These were side by side to save 43mm, and that saving was the wrong
+              kind: a document parsed column by column reads the degrees, then the
+              languages, and a parser that reads them in visual order - which is
+              what a human eye does and what plenty of filters do - reads both
+              degrees and then both languages. The document becomes harder to read
+              for a machine to save millimetres for a person, and the person is not
+              the one being parsed.
 
-              Three to two, not an even split. The degrees need the room - an
-              institution and a year on one line - and the languages do not, so an
-              even split would hand the degrees twice what they can use and still
-              wrap the second column.
+              So they are stacked, and the millimetres are found somewhere that
+              costs nothing: the layout contract in `scripts/data/resume-layout-rules.ts`
+              caps every line on this page, so the content is what gives, not the
+              arrangement. That is the trade this document now makes everywhere.
             */
-            .two-col { display: grid; grid-template-columns: 3fr 2fr; gap: 7mm; }
             .fact-list { font-size: var(--body); color: #334155; line-height: 1.35; }
+            [data-block="formacao"] p, [data-block="idiomas"] p { white-space: nowrap; }
+            [data-block="formacao"] p, [data-block="idiomas"] p { margin-bottom: 0.3mm; }
 
             .a4-page {
                 margin: 0;
@@ -254,71 +308,80 @@
 
         <!-- HEADER -->
         <header class="mb-4" data-block="header" data-pinned="first">
-            <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase">Marcelino Sandroni Dias</h1>
-            <h2 class="text-base font-bold text-slate-700 mt-1 mb-1">Engenheiro de Software Sênior &amp; IA</h2>
-            <p class="header-tagline">Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.</p>
+            <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase" data-rule="nome">Marcelino Sandroni Dias</h1>
+            <h2 class="text-base font-bold text-slate-700 mt-1 mb-1" data-rule="cargo">Engenheiro de Software Sênior &amp; IA</h2>
+            <p class="header-tagline" data-rule="tagline">Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.</p>
 
-            <div class="contact-block text-slate-700 bg-slate-50 p-2 rounded border border-slate-100">
-                <!-- GRID DE 3 COLUNAS ALINHADO E SEM QUEBRA DE LINHA -->
-                <div class="grid w-full items-center whitespace-nowrap" style="
-    grid-template-columns: 1.4fr 1fr 1fr;
-">
+            <!--
+                Contacto: two rows, one line each, no wrapping.
 
-                    <!-- Coluna 1: Esquerda -->
-                    <div class="flex flex-col gap-y-1.5 text-left">
-                        <div><strong>Localização:</strong> Fortaleza, CE (Atuação Remota)</div>
-                        <div><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/marcelinosandroni" target="_blank" class="link-hover font-medium">linkedin.com/in/marcelinosandroni</a></div>
-                    </div>
+                `data-rule="contato"` is what the layout contract measures, and the
+                `nowrap` in the print block is what turns an over-long row into an
+                overflow the build refuses rather than a second line that pushes the
+                document down.
 
-                    <!-- Coluna 2: Centro (Centralizado no grid, mas alinhado à esquerda internamente) -->
-                    <div class="flex flex-col gap-y-1.5 justify-self-center text-left ai-style-change-1">
-                        <div><strong>Email:</strong> <a href="mailto:marcelino.sandroni@gmail.com" class="link-hover font-medium">marcelino.sandroni@gmail.com</a></div>
-                        <div><strong>Git:</strong> <a href="https://github.com/marcelinosandroni" target="_blank" class="link-hover font-medium">github.com/marcelinosandroni</a></div>
-                    </div>
+                This was a three-column grid. It read as three facts about three
+                different people: a recruiter looking for a phone number had to work
+                out which column was theirs, and a parser reading column by column got
+                three unrelated fields per row.
 
-                    <!-- Coluna 3: Direita -->
-                    <div class="flex flex-col gap-y-1.5 text-right">
-                        <div><strong>WhatsApp:</strong> <a href="https://wa.me/5511914461993" target="_blank" class="link-hover font-medium">+55 11 91446-1993</a></div>
-                        <div><strong>Portfólio:</strong> <a href="https://marcelinosandroni.com/" target="_blank" class="link-hover font-medium">marcelinosandroni.com</a></div>
-                    </div>
-
-                </div>
+                Git is not here. Six URLs do not fit in two rows at 11px, and the
+                portfolio link already points at the GitHub Pages site - so Git is a
+                second address for somewhere the reader is already sent. That was the
+                cheapest field to lose, and losing it was measured rather than
+                assumed: with it, the second row spilled thirty-one pixels off the
+                page.
+            -->
+            <div class="contact-block text-slate-700">
+                <p data-rule="contato"><strong>Localização:</strong> Fortaleza, CE (Remoto)<span class="contact-sep">·</span><strong>Email:</strong> <a href="mailto:marcelino.sandroni@gmail.com" class="link-hover font-medium">marcelino.sandroni@gmail.com</a><span class="contact-sep">·</span><strong>WhatsApp:</strong> <a href="https://wa.me/5511914461993" target="_blank" class="link-hover font-medium">+55 11 91446-1993</a></p>
+                <p data-rule="contato"><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/marcelinosandroni" target="_blank" class="link-hover font-medium">linkedin.com/in/marcelinosandroni</a><span class="contact-sep">·</span><strong>Portfólio:</strong> <a href="https://marcelinosandroni.com/" target="_blank" class="link-hover font-medium">marcelinosandroni.com</a></p>
             </div>
         </header>
 
         <!-- RESUMO PROFISSIONAL -->
         <section class="mb-4" data-block="resumo">
             <h3 class="section-title">Resumo Profissional</h3>
-            <p class="text-[12.5px] text-slate-700 text-justify">
+            <p class="text-[12.5px] text-slate-700 text-justify" data-rule="resumo">
                 <strong>Engenheiro Full Stack de verdade, </strong>unindo visão estratégica e análise de negócio à execução end-to-end em UI/UX, mobile, frontend, backend, DevOps, engenharia de dados e IA, com 6 anos em engenharia de software e 15 em governança financeira, criando soluções escaláveis e sistemas críticos que movimentam bilhões de reais.</p>
         </section>
 
-        <!-- MÉTRICAS DE IMPACTO -->
+        <!-- MÉTRICAS DE IMPACTO
+             Four cards, four lines each: the value, the green name of the
+             achievement, and two lines of what it actually was.
+
+             The caption is the one element on this page set below the body size,
+             and the reason is arithmetic rather than taste. A card in a four-column
+             row is 43mm wide; at 12.5px that holds about fifty characters across two
+             lines, and the captions say what they say. So the captions are set at
+             the size the card was built for and the two-line limit is enforced above
+             them - which means a caption can no longer be made to fit by being made
+             smaller. `scripts/data/resume-layout-rules.ts` records the size and the
+             limit together so the two cannot drift apart. -->
         <section class="mb-2 keep-together" data-block="metricas">
             <h3 class="section-title">Principais Métricas de Impacto em Produção</h3>
             <div class="grid grid-cols-4 gap-3 text-center">
                 <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
-                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1">+R$ 500 Bi</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5">Gestão de Ativos</div>
-                    <div class="text-[9px] text-slate-500 font-medium leading-tight">Criação e manutenção de aplicações críticas para custódia de fundos.</div>
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1" data-rule="metrica-valor">+R$ 500 Bi</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5" data-rule="metrica-destaque">Gestão de Ativos</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight" data-rule="metrica-descricao">Aplicações críticas de custódia de fundos.</div>
                 </div>
 
                 <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
-                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1">D+0 (Real-Time)</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5">Liquidação Síncrona</div>
-                    <div class="text-[9px] text-slate-500 font-medium leading-tight">Engenharia de sistema de processamento de pagamentos em realtime.</div>
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1" data-rule="metrica-valor">D+0 (Real-Time)</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5" data-rule="metrica-destaque">Liquidação Síncrona</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight" data-rule="metrica-descricao">Sistema de processamento de pagamentos em tempo real.</div>
                 </div>
 
                 <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
-                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1">100M+ msgs/dia</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5">Alta Escala</div>
-                    <div class="text-[9px] text-slate-500 font-medium leading-tight">Arquitetura de processamento assíncrono de eventos.</div>
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1" data-rule="metrica-valor">100M+ msgs/dia</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5" data-rule="metrica-destaque">Alta Escala</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight" data-rule="metrica-descricao">Arquitetura de processamento assíncrono de eventos.</div>
                 </div>
 
                 <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
-                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1">R$ 24M/ano (ROI)</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5">Inteligência Artificial</div>
-                    <div class="text-[9px] text-slate-500 font-medium leading-tight">Contrato salvo com implementação e melhorias em IA de ponta.</div>
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1" data-rule="metrica-valor">R$ 24M/ano (ROI)</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5" data-rule="metrica-destaque">Inteligência Artificial</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight" data-rule="metrica-descricao">Contrato salvo com implementação e melhorias em IA de ponta.</div>
                 </div>
             </div>
         </section>
@@ -347,32 +410,48 @@
             <div id="carreira-timeline"></div>
         </section>
         <section class="mb-2 keep-together" data-block="habilidades">
+            <!--
+                The general inventory. A stack variant replaces this whole section
+                with one written for its stack - see `replaceInventory` in
+                `build-stack-variants.ts`. Five groups here, two lines each, which
+                is the budget the layout contract enforces on every group of every
+                document in the set.
+            -->
             <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>
-            <div class="text-[11.5px] text-slate-700">
-                <p class="mb-1" data-item><strong>Frontend &amp; UI Architecture:</strong> React, Next.js, Angular, Vue.js, React Native, TypeScript, JavaScript, Micro-frontends (Module Federation), RxJS, NgRx, SSR, Storybook, Tailwind CSS, Design Systems, Flutter.</p>
-                <p class="mb-1" data-item><strong>Backend &amp; Frameworks:</strong> Java (Spring Boot), C# (.NET Core), Node.js (NestJS), Go, Python, RESTful APIs, gRPC, Clean Architecture, DDD, CQRS, SOLID, WebSockets.</p>
-                <p class="mb-1" data-item><strong>Dados &amp; Mensageria:</strong> Oracle, PostgreSQL, SQL Server, MySQL, MongoDB, Redis, ClickHouse, Databricks, Apache Kafka, RabbitMQ, Event Sourcing, Circuit Breakers.</p>
-                <p class="mb-1" data-item><strong>Cloud, DevOps &amp; SRE:</strong> AWS, GCP, Azure, Oracle Cloud, IBM Cloud, Docker, Kubernetes (Helm/HPA), Terraform, CI/CD, OpenTelemetry, Prometheus, Grafana, Jaeger, FinOps.</p>
-                <p class="mb-1" data-item><strong>IA &amp; Governança:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, RAG, Agentes LLM, Visão Computacional, TDD, BDD, Testes E2E, SonarQube, SOX, IFRS/CPC.</p>
+            <div class="text-slate-700">
+                <p class="mb-1" data-item data-rule="habilidade"><strong>Frontend &amp; UI:</strong> React, Next.js, Angular, Vue.js, React Native, Flutter, TypeScript, JavaScript, Micro-frontends, SSR, Storybook, Tailwind CSS, Design Systems.</p>
+                <p class="mb-1" data-item data-rule="habilidade"><strong>Backend &amp; Frameworks:</strong> Java (Spring Boot), C# (.NET Core), Node.js (NestJS), Go, Python, RESTful APIs, gRPC, WebSockets, Clean Architecture, DDD, CQRS, SOLID.</p>
+                <p class="mb-1" data-item data-rule="habilidade"><strong>Dados &amp; Mensageria:</strong> Oracle, PostgreSQL, SQL Server, MySQL, MongoDB, Redis, ClickHouse, Databricks, Apache Kafka, RabbitMQ, Event Sourcing, Circuit Breakers.</p>
+                <p class="mb-1" data-item data-rule="habilidade"><strong>Cloud, DevOps &amp; SRE:</strong> AWS, GCP, Azure, Oracle Cloud, IBM Cloud, Docker, Kubernetes (Helm), Terraform, CI/CD, OpenTelemetry, Prometheus, Grafana, Jaeger, FinOps.</p>
+                <p class="mb-1" data-item data-rule="habilidade"><strong>IA &amp; Governança:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, RAG, Agentes LLM, Visão Computacional, TDD, BDD, Testes E2E, SonarQube, SOX, IFRS/CPC.</p>
             </div>
         </section>
 
+        <!--
+            Degrees and languages: one column, stacked, each entry one line.
+
+            They were a two-column grid to save 43mm, and that was the wrong saving
+            - see the note on `.fact-list` in the print block. The millimetres are
+            found in the content instead, under the limits in
+            `scripts/data/resume-layout-rules.ts`.
+
+            `nowrap` on both lists is what makes "one line" mean one line: an entry
+            that is too long overflows and fails the build rather than wrapping into
+            a second line that a reader reads as a second degree.
+        -->
         <section class="mb-2 keep-together" data-block="formacao">
-            <div class="two-col">
-                <div>
-                    <h3 class="section-title">Formação Acadêmica &amp; Especializações</h3>
-                    <div class="fact-list">
-                        <p><strong>Bacharelado em Engenharia de Computação</strong> — UNIVESP, 2021 – 2026</p>
-                        <p><strong>Bacharelado em Ciências Contábeis</strong> — Estácio, concluído 2017</p>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="section-title">Idiomas</h3>
-                    <div class="fact-list">
-                        <p><strong>Espanhol:</strong> Básico — leitura técnica e comunicação assíncrona.</p>
-                        <p><strong>Inglês Profissional:</strong> Fluente — reuniões, negociações, arquitetura, dailies e code review.</p>
-                    </div>
-                </div>
+            <h3 class="section-title">Formação Acadêmica &amp; Especializações</h3>
+            <div class="fact-list">
+                <p data-item data-rule="formacao"><strong>Bacharelado em Engenharia de Computação</strong> — UNIVESP, 2021 – 2026</p>
+                <p data-item data-rule="formacao"><strong>Bacharelado em Ciências Contábeis</strong> — Estácio, concluído 2017</p>
+            </div>
+        </section>
+
+        <section class="mb-2 keep-together" data-block="idiomas">
+            <h3 class="section-title">Idiomas</h3>
+            <div class="fact-list">
+                <p data-item data-rule="idioma"><strong>Espanhol:</strong> Básico — leitura técnica e comunicação assíncrona.</p>
+                <p data-item data-rule="idioma"><strong>Inglês Profissional:</strong> Fluente — reuniões, negociações, arquitetura e code review.</p>
             </div>
         </section>
 
@@ -380,62 +459,62 @@
         <div class="mb-4 keep-together" data-block="cargo" data-breaks-page="true">
             <h3 class="section-title">Experiência Profissional</h3>
             <div class="role-head">
-                <h4>Engenheiro de Software Sênior &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT</span></h4>
-                <span class="role-when">(1 ano) · Out/2025 – Set/2026</span>
+                <h4 data-rule="cargo-titulo">Engenheiro de Software Sênior &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT</span></h4>
+                <span data-rule="cargo-periodo" class="role-when">(1 ano) · Out/2025 – Set/2026</span>
             </div>
-                <div class="stack-line"><strong>Stack:</strong> Java, Spring Boot, Spring AI, Angular, TypeScript, Micro-frontends, PostgreSQL, Redis, RabbitMQ, gRPC, K8s, AWS.</div>
+                <div class="stack-line" data-rule="stack"><strong>Stack:</strong> Java, Spring Boot, Spring AI, Angular, TypeScript, Micro-frontends, PostgreSQL, Redis, gRPC, K8s, AWS.</div>
                 <ul class="role-bullets">
-                    <li><strong>Liderança Técnica &amp; Integração IA:</strong> Liderança de squad (8 pessoas) na reestruturação de sistemas críticos processando 100M+ mensagens/dia. IA Corporativa conectando o backend via Spring AI para fluxos agênticos em tempo real, preservando contrato de R$ 24M/ano.</li>
-                    <li><strong>Aceleração de 10x no Processamento:</strong> Migração de arquitetura relacional gargalo para microsserviços em Java, com tuning de JVM (ZGC) e baixa latência via gRPC e RabbitMQ.</li>
-                    <li><strong>Micro-frontends Enterprise:</strong> Interfaces web complexas em Angular, com gerenciamento reativo (RxJS/NgRx), assegurando UX fluida sob alta carga.</li>
+                    <li data-rule="bullet"><strong>Liderança Técnica &amp; Integração IA:</strong> Liderança de squad (8 pessoas) na reestruturação de sistemas críticos processando 100M+ mensagens/dia. IA Corporativa conectando o backend via Spring AI para fluxos agênticos em tempo real, preservando contrato de R$ 24M/ano.</li>
+                    <li data-rule="bullet"><strong>Aceleração de 10x no Processamento:</strong> Migração de arquitetura relacional gargalo para microsserviços em Java, com tuning de JVM (ZGC) e baixa latência via gRPC e RabbitMQ.</li>
+                    <li data-rule="bullet"><strong>Micro-frontends Enterprise:</strong> Interfaces web complexas em Angular, com gerenciamento reativo (RxJS/NgRx), assegurando UX fluida sob alta carga.</li>
                 </ul>
         </div>
         <!-- BNP Paribas -->
         <div class="mb-4 keep-together" data-block="cargo">
             <div class="role-head">
-                <h4>Engenheiro de Software Sênior <span class="text-slate-400 font-normal">| BNP Paribas</span></h4>
-                <span class="role-when">(2 anos e 10 meses) · Dez/2022 – Set/2025</span>
+                <h4 data-rule="cargo-titulo">Engenheiro de Software Sênior <span class="text-slate-400 font-normal">| BNP Paribas</span></h4>
+                <span data-rule="cargo-periodo" class="role-when">(2 anos e 10 meses) · Dez/2022 – Set/2025</span>
             </div>
-                <div class="stack-line"><strong>Stack:</strong> Java (Spring Boot/Batch), Angular, Micro-frontends, Oracle SQL, Kafka, OAuth2, Kubernetes, Jenkins, Helm.</div>
+                <div class="stack-line" data-rule="stack"><strong>Stack:</strong> Java (Spring Boot/Batch), Angular, Micro-frontends, Oracle SQL, Kafka, OAuth2, K8s, Jenkins, Helm.</div>
                 <ul class="role-bullets">
-                    <li><strong>Modernização de Monolito Bancário:</strong> Pilar técnico de tribo (12 devs) no desacoplamento de sistemas legados (COBOL, VB) para arquitetura orientada a eventos em Java e interfaces modulares em Angular (95% de testes).</li>
-                    <li><strong>Liquidação D+0 &amp; Tempo Real:</strong> Substituição de esteiras D+1 por conciliação de fundos em tempo real via Apache Kafka e Spring Batch, gerando +45% nos ativos geridos com SLA de 100% uptime.</li>
-                    <li><strong>Economia e Orquestração Global:</strong> Automação de fundos ETF institucionais, integrando B3 e bolsas internacionais, com impacto estimado de +R$ 50 Milhões em captação.</li>
+                    <li data-rule="bullet"><strong>Modernização de Monolito Bancário:</strong> Pilar técnico de tribo (12 devs) no desacoplamento de sistemas legados (COBOL, VB) para arquitetura orientada a eventos em Java e interfaces modulares em Angular (95% de testes).</li>
+                    <li data-rule="bullet"><strong>Liquidação D+0 &amp; Tempo Real:</strong> Substituição de esteiras D+1 por conciliação de fundos em tempo real via Apache Kafka e Spring Batch, gerando +45% nos ativos geridos com SLA de 100% uptime.</li>
+                    <li data-rule="bullet"><strong>Economia e Orquestração Global:</strong> Automação de fundos ETF institucionais, integrando B3 e bolsas internacionais, com impacto estimado de +R$ 50 Milhões em captação.</li>
                 </ul>
         </div>
         <!-- ITAÚ -->
         <div class="mb-4 keep-together" data-block="cargo">
             <div class="role-head">
-                <h4>Engenheiro de Software Sênior <span class="text-slate-400 font-normal">| ITAÚ</span></h4>
-                <span class="role-when">(2 anos e 5 meses) · Jul/2020 – Nov/2022</span>
+                <h4 data-rule="cargo-titulo">Engenheiro de Software Pleno <span class="text-slate-400 font-normal">| ITAÚ</span></h4>
+                <span data-rule="cargo-periodo" class="role-when">(2 anos e 5 meses) · Jul/2020 – Nov/2022</span>
             </div>
-                <div class="stack-line"><strong>Stack:</strong> Java (Spring WebFlux), Angular, TypeScript, PostgreSQL, Redis, Kafka, AWS, Docker, Kubernetes, Terraform.</div>
+                <div class="stack-line" data-rule="stack"><strong>Stack:</strong> Java (Spring WebFlux), Angular, TypeScript, PostgreSQL, Redis, Kafka, AWS, K8s, Terraform.</div>
                 <ul class="role-bullets">
-                    <li><strong>Custódia Institucional Estratégica (+R$ 100 Bi):</strong> Orquestração conjunta (squad de 15 engenheiros) desenhando e sustentando plataforma B2B conectada à B3, com arquitetura cloud-native (AWS), APIs reativas em Java e painéis Angular.</li>
-                    <li><strong>Gestão de Crises e Resiliência:</strong> Resolução de gargalos de concorrência no Kafka sob alta volatilidade em menos de 24h, aplicando estrita idempotência transacional.</li>
-                    <li><strong>Aumento de 8x na Qualidade:</strong> Mentoria técnica e automação E2E (CI/CD), blindando o ecossistema contra regressões críticas.</li>
+                    <li data-rule="bullet"><strong>Custódia Institucional Estratégica (+R$ 100 Bi):</strong> Orquestração conjunta (squad de 15 engenheiros) desenhando e sustentando plataforma B2B conectada à B3, com arquitetura cloud-native (AWS), APIs reativas em Java e painéis Angular.</li>
+                    <li data-rule="bullet"><strong>Gestão de Crises e Resiliência:</strong> Resolução de gargalos de concorrência no Kafka sob alta volatilidade em menos de 24h, aplicando estrita idempotência transacional.</li>
+                    <li data-rule="bullet"><strong>Aumento de 8x na Qualidade:</strong> Mentoria técnica e automação E2E (CI/CD), blindando o ecossistema contra regressões críticas.</li>
                 </ul>
         </div>
         <!-- ZUP -->
         <div class="mb-4 keep-together" data-block="cargo">
             <div class="role-head">
-                <h4>Engenheiro de Software Pleno <span class="text-slate-400 font-normal">| ZUP</span></h4>
-                <span class="role-when">(1 ano e 4 meses) · Mar/2019 – Jun/2020</span>
+                <h4 data-rule="cargo-titulo">Engenheiro de Software Pleno <span class="text-slate-400 font-normal">| ZUP</span></h4>
+                <span data-rule="cargo-periodo" class="role-when">(1 ano e 4 meses) · Mar/2019 – Jun/2020</span>
             </div>
-                <div class="stack-line"><strong>Stack:</strong> Java, Angular, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, Kubernetes, CI/CD.</div>
+                <div class="stack-line" data-rule="stack"><strong>Stack:</strong> Java, Angular, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, Kubernetes, CI/CD.</div>
                 <ul class="role-bullets">
-                    <li><strong>Evolução Rápida e Cloud:</strong> Promovido de Júnior a Pleno em 1 ano. Time ágil de 6 devs refatorando monolitos Java para eventos e migração AWS na metade do prazo estipulado.</li>
-                    <li><strong>Resiliência Transacional:</strong> Correção estrutural em mensageria assíncrona (RabbitMQ) via Circuit Breakers e DLQs, garantindo 100% de assertividade.</li>
+                    <li data-rule="bullet"><strong>Evolução Rápida e Cloud:</strong> Promovido de Júnior a Pleno em 1 ano. Time ágil de 6 devs refatorando monolitos Java para eventos e migração AWS na metade do prazo estipulado.</li>
+                    <li data-rule="bullet"><strong>Resiliência Transacional:</strong> Correção estrutural em mensageria assíncrona (RabbitMQ) via Circuit Breakers e DLQs, garantindo 100% de assertividade.</li>
                 </ul>
         </div>
         <!-- Consultoria Corporativa -->
         <div class="mb-5 keep-together" data-block="cargo">
             <div class="role-head">
-                <h4>Analista Contábil &amp; Gestor Financeiro <span class="text-slate-400 font-normal">| Consultoria Corporativa</span></h4>
-                <span class="role-when">(15 anos e 6 meses) · Jul/2003 – Dez/2018</span>
+                <h4 data-rule="cargo-titulo">Analista Contábil &amp; Gestor Financeiro <span class="text-slate-400 font-normal">| Consultoria</span></h4>
+                <span data-rule="cargo-periodo" class="role-when">(15 anos e 6 meses) · Jul/2003 – Dez/2018</span>
             </div>
                 <ul class="role-bullets">
-                    <li><strong>Diferencial em Engenharia Corporativa:</strong> Liderança de equipes e redesenho de processos que reduziu o fechamento contábil em 83%. Profunda expertise em finanças e regras tributárias traduzidas diretamente para equipes de software.</li>
+                    <li data-rule="bullet"><strong>Diferencial em Engenharia Corporativa:</strong> Liderança de equipes e redesenho de processos que reduziu o fechamento contábil em 83%. Profunda expertise em finanças e regras tributárias traduzidas diretamente para equipes de software.</li>
                 </ul>
         </div>
 

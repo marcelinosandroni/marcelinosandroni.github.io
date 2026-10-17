@@ -227,7 +227,7 @@ export function buildTimeline(roles: ReadonlyArray<TimelineRole>): string {
           width,
           index >= roles.length
             ? `<div class="tl-label tl-future-mark">${FUTURE_LABEL}</div>`
-            : `<div class="tl-label">${roles[index].label}</div>`,
+            : `<div class="tl-label" data-rule="tl-empresa">${roles[index].label}</div>`,
         ),
       ),
     ),
@@ -243,8 +243,8 @@ export function buildTimeline(roles: ReadonlyArray<TimelineRole>): string {
       slot(
         width,
         index >= roles.length
-          ? `<div class="tl-level tl-level--future">${FUTURE_LEVEL}</div>`
-          : `<div class="tl-level">${roles[index].level}</div>`,
+          ? `<div class="tl-level tl-level--future" data-rule="tl-nivel">${FUTURE_LEVEL}</div>`
+          : `<div class="tl-level" data-rule="tl-nivel">${roles[index].level}</div>`,
       ),
     )),
     yearAxis(roles),
@@ -313,7 +313,7 @@ function yearAxis(roles: ReadonlyArray<TimelineRole>): string {
       : `left:${position.toFixed(2)}%;${lastTick ? "transform:translateX(-100%);" : ""}`;
 
     ticks.push(
-      `<span class="tl-year${firstTick ? " tl-year--first" : ""}${lastTick ? " tl-year--last" : ""}" style="${align}">${year}</span>`,
+      `<span class="tl-year${firstTick ? " tl-year--first" : ""}${lastTick ? " tl-year--last" : ""}" data-rule="tl-ano" style="${align}">${year}</span>`,
     );
   }
 
@@ -350,28 +350,40 @@ export const TIMELINE_CSS = `
             /*
               The sizes are the document's own.
 
-              9px is what the metric captions use and 11.5px is the body; the bar
-              was first drawn at 7.4 and 6.6, smaller than anything else on the
-              page, which made the one element meant to be read at a glance the
-              hardest thing on it to read.
+              The bar was first drawn at 7.4px and 6.6px, smaller than anything else
+              on the page, which made the one element meant to be read at a glance the
+              hardest thing on it to read. Then it sat at 9.5 and 8.5 while the rest of
+              the body was 12.5 - a bar that restates the experience section, set below
+              the section it restates, which tells the reader it carries less than the
+              prose beside it. It does not: it says the same four jobs and the same four
+              dates. So the company names, the levels and the year ruler are all at the
+              body size now, declared in resume-layout-rules.ts like everything else.
+
+              The labels stay on nowrap because a company name over its own segment must
+              not wrap: the segments are proportional to the months served, so the
+              narrowest is the ZUP one, and a wrapped label there prints over its
+              neighbour. nowrap turns that into an overflow the build refuses.
 
               No backticks in these comments: this is a template literal, and one
               would close the string the CSS lives in.
             */
             .tl-label {
-                font-size: 9.5px; font-weight: 700; line-height: 1.15; color: #1e293b;
+                font-size: 12.5px; font-weight: 700; line-height: 1.2; color: #1e293b;
                 text-align: center; white-space: nowrap;
             }
             /*
-              min-width 0 is what lets the caption wrap inside its own segment.
+              min-width 0 is what lets the level wrap inside its own segment.
 
-              A flex item's default minimum is its content width, so a caption
-              longer than its segment refuses to wrap and spills over the edge of
-              the thing it belongs to.
+              A flex item's default minimum is its content width, so a level longer
+              than its segment refuses to wrap and spills over the edge of the thing
+              it belongs to. Two lines is the budget the layout contract enforces, and
+              it is two rather than one because the narrowest segment is a quarter of
+              the widest - "Júnior to Pleno" fits the ZUP segment and "Principal & AI
+              Engineer" does not fit the open one without a second line.
             */
             .tl-level {
-                font-size: 8.5px; font-weight: 500; line-height: 1.2; color: #64748b;
-                text-align: center; letter-spacing: 0.01em; min-width: 0; max-width: 100%;
+                font-size: 12.5px; font-weight: 500; line-height: 1.2; color: #64748b;
+                text-align: center; letter-spacing: 0; min-width: 0; max-width: 100%;
             }
             .tl-bar { width: 100%; height: 3.6mm; border-radius: 0.9mm; }
             .tl-bar--future {
@@ -380,7 +392,7 @@ export const TIMELINE_CSS = `
                 border-radius: 0.9mm;
             }
             .tl-future-mark {
-                font-size: 15px; font-weight: 800; color: #94a3b8; line-height: 1;
+                font-size: 18px; font-weight: 800; color: #94a3b8; line-height: 1;
                 text-align: center;
             }
             .tl-level--future { color: #1e293b; font-weight: 700; }
@@ -395,13 +407,13 @@ export const TIMELINE_CSS = `
               and the ruler reads as broken.
             */
             .tl-axis {
-                position: relative; height: 3mm; margin-top: 0.2mm;
+                position: relative; height: 4.5mm; margin-top: 0.2mm;
                 border-top: 1px solid #e2e8f0;
             }
             .tl-year {
-                position: absolute; top: 0.8mm; transform: translateX(-50%);
-                font-size: 9px; font-weight: 600; color: #94a3b8;
-                line-height: 1; white-space: nowrap;
+                position: absolute; top: 0.6mm; transform: translateX(-50%);
+                font-size: 12.5px; font-weight: 600; color: #94a3b8;
+                line-height: 1.1; white-space: nowrap;
             }
             .tl-year--first { transform: none; }
 `;
