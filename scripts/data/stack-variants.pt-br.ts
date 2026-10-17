@@ -32,7 +32,7 @@
 import { TONES, type TimelineRole } from "./career-timeline";
 
 /*
-  The career timeline, per document.
+  The career timeline - one bar, because the experience is one.
 
   It restates the technology roles and nothing else. The fifteen years of finance
   before them are real and are in the document, but putting them on this bar would
@@ -40,7 +40,9 @@ import { TONES, type TimelineRole } from "./career-timeline";
   into a claim that the bar contradicts.
 
   Ordered oldest first, because a timeline reads left to right and the career did
-  not start on the right.
+  not start on the right. There is one of these for the whole set now: the experience is
+  the same in every document, so a variant bar that differed would be showing a
+  career the page does not contain.
 
   The periods are written out rather than derived, which is a second copy of a
   fact that also lives in the roles - so `assertTimelineMatchesRoles` fails the
@@ -48,19 +50,13 @@ import { TONES, type TimelineRole } from "./career-timeline";
   cheaper than threading structured data through a renderer that was built to take
   strings.
 */
-export const GENERAL_TIMELINE: ReadonlyArray<TimelineRole> = [
-  { label: "Pollux", period: "Fev/2021 – Fev/2022 · Remoto", level: "Júnior → Pleno", tone: TONES.lightest },
-  { label: "Itaú", period: "Mar/2022 – Fev/2023 · Híbrido", level: "Sênior", tone: TONES.light },
-  { label: "BNP Paribas", period: "Mar/2023 – Dez/2025 · Híbrido", level: "Sênior", tone: TONES.mid },
-  { label: "DGT", period: "Jan/2026 – Set/2026 · Remoto", level: "Tech Lead", tone: TONES.dark },
-];
-
-const JAVA_TIMELINE: ReadonlyArray<TimelineRole> = [
-  { label: "Zup", period: "Mar/2019 – Jun/2020 · Remoto", level: "Júnior → Pleno", tone: TONES.lightest },
-  { label: "Itaú", period: "Jul/2020 – Nov/2022 · Híbrido", level: "Sênior", tone: TONES.light },
+export const TIMELINE: ReadonlyArray<TimelineRole> = [
+  { label: "ZUP", period: "Mar/2019 – Jun/2020 · Remoto", level: "Júnior → Pleno", tone: TONES.lightest },
+  { label: "ITAÚ", period: "Jul/2020 – Nov/2022 · Híbrido", level: "Sênior", tone: TONES.light },
   { label: "BNP Paribas", period: "Dez/2022 – Set/2025 · Híbrido", level: "Sênior", tone: TONES.mid },
   { label: "DGT", period: "Out/2025 – Set/2026 · Remoto", level: "Tech Lead", tone: TONES.dark },
 ];
+
 
 const MONTH_INDEX: Readonly<Record<string, number>> = {
   jan: 1, fev: 2, mar: 3, abr: 4, mai: 5, jun: 6,
@@ -197,10 +193,9 @@ const summary = (lead: string, body: string): string => `
 export const variants = [
   {
 slug: "enterprise-java",
-    timeline: JAVA_TIMELINE,
     label: "Enterprise Java + Angular",
     title: "Marcelino Sandroni - Engenheiro Java e Angular",
-    headline: "Engenheiro de Software | Angular + Java",
+    headline: "Engenheiro de Software Sênior | Angular + Java + AI",
     skills: `<div class="text-[11.5px] text-slate-700">
                 <p class="mb-1" data-item><strong>Frontend &amp; UI Architecture:</strong> Angular (v8 à v22), TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends (Module Federation), Estado/Reatividade (RxJS, NgRx), SSR, Tailwind CSS, Angular Material, shadcn, Design Systems.</p>
                 <p class="mb-1" data-item><strong>Backend &amp; Frameworks:</strong> Java (do 8 ao 25 LTS), Spring Boot 3.x (AOT/GraalVM), Spring Cloud, Spring WebFlux (Project Reactor), Spring Batch, Spring Security (OAuth2, OIDC, JWT, mTLS), Hibernate/JPA (N+1), Tuning de JVM (ZGC/G1GC).</p>
@@ -290,10 +285,9 @@ slug: "enterprise-java",
 
   {
     slug: "enterprise-dotnet",
-    timeline: GENERAL_TIMELINE,
     label: "Enterprise C# + Angular",
     title: "Marcelino Sandroni - Engenheiro C# e Angular",
-    headline: "Engenheiro de Software | C# &amp; Angular",
+    headline: "Engenheiro de Software Sênior | C# &amp; Angular",
     skills: `<div class="text-[11.5px] text-slate-700">
                 <p class="mb-1" data-item><strong>Frontend &amp; UI Architecture:</strong> Angular, TypeScript, RxJS, NgRx, Micro-frontends (Module Federation), SSR, Design Systems, Tailwind CSS, Angular Material, Cypress, Flutter.</p>
                 <p class="mb-1" data-item><strong>Backend &amp; Frameworks:</strong> C# (.NET Core 6/8), ASP.NET Core, Entity Framework Core, xUnit, REST, gRPC, Clean Architecture, DDD, CQRS, SOLID.</p>
@@ -393,10 +387,9 @@ slug: "enterprise-java",
 
   {
     slug: "modern-web",
-    timeline: GENERAL_TIMELINE,
     label: "Modern Node + Go + React",
     title: "Marcelino Sandroni - Engenheiro Node, Go e React",
-    headline: "Engenheiro de Software | Node, Go &amp; React",
+    headline: "Engenheiro de Software Sênior | Node, Go &amp; React",
     skills: `<div class="text-[11.5px] text-slate-700">
                 <p class="mb-1" data-item><strong>Frontend &amp; UI:</strong> React, Next.js (RSC, SSR), Angular, Vue.js, React Native, TypeScript, Micro-frontends (Module Federation), Storybook, Tailwind CSS, Design Systems.</p>
                 <p class="mb-1" data-item><strong>Backend &amp; Distribuídos:</strong> Node.js, NestJS, Go, Java (Spring Boot), .NET Core, Python, REST, gRPC, WebSockets, Circuit Breakers, RabbitMQ (DLQ), Apache Kafka, Serverless.</p>

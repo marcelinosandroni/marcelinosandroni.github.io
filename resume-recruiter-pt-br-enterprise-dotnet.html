@@ -43,6 +43,28 @@
             background-color: #f3f4f6;
             padding: 4px 8px;
         }
+            /* Metadados do cargo: duracao, datas e modelo de trabalho, em uma linha. */
+            .role-meta {
+                font-size: 10px; font-weight: 600; color: #64748b;
+                margin-top: 1px; margin-bottom: 3px;
+            }
+
+            /*
+              A stack em uma linha so.
+
+              Uma lista de tecnologias que quebra em duas linhas deixa de ser uma
+              lista e vira um paragrafo - e a quebra cai no meio da frase, que e o
+              pior lugar. nowrap mantem a linha inteira; se o texto for longo demais
+              para a largura ele estoura em vez de quebrar, e a medicao de pagina
+              denuncia a folha que passou da conta.
+            */
+            .stack-line {
+                font-size: 10px; color: #4b5563; white-space: nowrap;
+                background-color: #f9fafb; border: 1px solid #e5e7eb;
+                border-radius: 4px; padding: 3px 8px; margin-bottom: 4px;
+            }
+            .stack-line strong { color: #111827; font-weight: 700; }
+
         .tech-box {
             background-color: #f9fafb;
             border: 1px solid #e5e7eb;
@@ -133,24 +155,30 @@
                 text-align: center;
             }
 
+            /*
+              The sizes are the document's own.
+
+              9px is what the metric captions use and 11.5px is the body; the bar
+              was first drawn at 7.4 and 6.6, smaller than anything else on the
+              page, which made the one element meant to be read at a glance the
+              hardest thing on it to read.
+
+              No backticks in these comments: this is a template literal, and one
+              would close the string the CSS lives in.
+            */
             .tl-label {
-                font-size: 7.4px; font-weight: 600; line-height: 1.1; color: #334155;
+                font-size: 9.5px; font-weight: 700; line-height: 1.15; color: #1e293b;
                 text-align: center; white-space: nowrap;
             }
             /*
               min-width 0 is what lets the caption wrap inside its own segment.
 
               A flex item's default minimum is its content width, so a caption
-              longer than its segment - "Principal & AI Engineer" in a block a
-              seventh of the bar - refuses to wrap and spills over the edge of the
-              thing it belongs to. Setting it to zero lets the text break, which is
-              the only way a narrow segment can carry a long label honestly.
-
-              No backticks in these comments: this is a template literal, and one
-              would close the string the CSS lives in.
+              longer than its segment refuses to wrap and spills over the edge of
+              the thing it belongs to.
             */
             .tl-level {
-                font-size: 6.6px; font-weight: 500; line-height: 1.15; color: #64748b;
+                font-size: 8.5px; font-weight: 500; line-height: 1.2; color: #64748b;
                 text-align: center; letter-spacing: 0.01em; min-width: 0; max-width: 100%;
             }
             .tl-bar { width: 100%; height: 4.4mm; border-radius: 0.9mm; }
@@ -165,6 +193,26 @@
             }
             .tl-level--future { color: #1e293b; font-weight: 700; }
 
+            /*
+              The year ruler.
+
+              Absolutely positioned inside the bar and scaled by the past share,
+              so a tick for 2023 lands where January actually falls rather than a
+              fraction of the way along. Pinned at the two ends rather than
+              centred on their tick: a centred one hangs off the edge of the bar
+              and the ruler reads as broken.
+            */
+            .tl-axis {
+                position: relative; height: 4.6mm; margin-top: 0.2mm;
+                border-top: 1px solid #e2e8f0;
+            }
+            .tl-year {
+                position: absolute; top: 0.8mm; transform: translateX(-50%);
+                font-size: 9px; font-weight: 600; color: #94a3b8;
+                line-height: 1; white-space: nowrap;
+            }
+            .tl-year--first { transform: none; }
+
         </style>
 <style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;height:auto}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:not([hidden=until-found]){display:none}.absolute{position:absolute}.bottom-4{bottom:1rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.ml-1{margin-left:0.25rem}.mt-0{margin-top:0px}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.mb-1\.5{margin-bottom:0.375rem}.flex{display:flex}.grid{display:grid}.w-\[calc\(100\%-30mm\)\]{width:calc(100% - 30mm)}.w-full{width:100%}.list-disc{list-style-type:disc}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-start{justify-content:flex-start}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-y-1\.5{row-gap:0.375rem}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.justify-self-center{justify-self:center}.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:0.25rem}.border{border-width:1px}.border-t{border-top-width:1px}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.p-2{padding:0.5rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.pl-4{padding-left:1rem}.pt-2{padding-top:0.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-justify{text-align:justify}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11\.5px\]{font-size:11.5px}.text-\[12\.5px\]{font-size:12.5px}.text-\[13px\]{font-size:13px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-\[16px\]{font-size:16px}.font-black{font-weight:900}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.leading-none{line-height:1}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}</style></head>
 <body class="antialiased text-sm">
@@ -173,11 +221,12 @@
     
         <div class="a4-page">
             <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 1 de 3
+                Marcelino Sandroni Dias — Engenheiro de Software Sênior &amp; IA — Currículo v1 — Página 1 de 3
             </div>
         <header class="mb-4" data-block="header" data-pinned="first">
             <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase">Marcelino Sandroni Dias</h1>
-            <h2 class="text-base font-bold text-slate-700 mt-1 mb-3">Engenheiro de Software | C# &amp; Angular</h2>
+            <h2 class="text-base font-bold text-slate-700 mt-1 mb-3">Engenheiro de Software Sênior | C# &amp; Angular</h2>
+            <p class="text-[11.5px] text-slate-600 mb-3 leading-snug">Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.</p>
 
             <div class="text-[11.5px] text-slate-700 bg-slate-50 p-2 rounded border border-slate-100">
                 <!-- GRID DE 3 COLUNAS ALINHADO E SEM QUEBRA DE LINHA -->
@@ -244,9 +293,10 @@
         <section class="mb-4 keep-together" data-block="carreira" aria-hidden="true" role="presentation">
             <h3 class="section-title">Linha do Tempo de Carreira</h3>
             <div class="tl">
-            <div class="tl-row tl-row--labels"><div class="tl-slot" style="flex:13.000 1 0"><div class="tl-inner"><div class="tl-label">Pollux</div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-label">Itaú</div></div></div><div class="tl-slot" style="flex:34.000 1 0"><div class="tl-inner"><div class="tl-label">BNP Paribas</div></div></div><div class="tl-slot" style="flex:9.000 1 0"><div class="tl-inner"><div class="tl-label">DGT</div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-label tl-future-mark">?</div></div></div></div>
-            <div class="tl-row tl-row--bar"><div class="tl-slot" style="flex:13.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#cbd5e1"></div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#94a3b8"></div></div></div><div class="tl-slot" style="flex:34.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#64748b"></div></div></div><div class="tl-slot" style="flex:9.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#1e293b"></div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-bar tl-bar--future"></div></div></div></div>
-            <div class="tl-row tl-row--levels"><div class="tl-slot" style="flex:13.000 1 0"><div class="tl-inner"><div class="tl-level">Júnior → Pleno</div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-level">Sênior</div></div></div><div class="tl-slot" style="flex:34.000 1 0"><div class="tl-inner"><div class="tl-level">Sênior</div></div></div><div class="tl-slot" style="flex:9.000 1 0"><div class="tl-inner"><div class="tl-level">Tech Lead</div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-level tl-level--future">Principal &amp; AI Engineer</div></div></div></div>
+            <div class="tl-row tl-row--labels"><div class="tl-slot" style="flex:16.000 1 0"><div class="tl-inner"><div class="tl-label">ZUP</div></div></div><div class="tl-slot" style="flex:29.000 1 0"><div class="tl-inner"><div class="tl-label">ITAÚ</div></div></div><div class="tl-slot" style="flex:34.000 1 0"><div class="tl-inner"><div class="tl-label">BNP Paribas</div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-label">DGT</div></div></div><div class="tl-slot" style="flex:16.059 1 0"><div class="tl-inner"><div class="tl-label tl-future-mark">?</div></div></div></div>
+            <div class="tl-row tl-row--bar"><div class="tl-slot" style="flex:16.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#cbd5e1"></div></div></div><div class="tl-slot" style="flex:29.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#94a3b8"></div></div></div><div class="tl-slot" style="flex:34.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#64748b"></div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#1e293b"></div></div></div><div class="tl-slot" style="flex:16.059 1 0"><div class="tl-inner"><div class="tl-bar tl-bar--future"></div></div></div></div>
+            <div class="tl-row tl-row--levels"><div class="tl-slot" style="flex:16.000 1 0"><div class="tl-inner"><div class="tl-level">Júnior → Pleno</div></div></div><div class="tl-slot" style="flex:29.000 1 0"><div class="tl-inner"><div class="tl-level">Sênior</div></div></div><div class="tl-slot" style="flex:34.000 1 0"><div class="tl-inner"><div class="tl-level">Sênior</div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-level">Tech Lead</div></div></div><div class="tl-slot" style="flex:16.059 1 0"><div class="tl-inner"><div class="tl-level tl-level--future">Principal &amp; AI Engineer</div></div></div></div>
+            <div class="tl-axis" aria-hidden="true"><span class="tl-year tl-year--first" style="left:0;">2019</span><span class="tl-year" style="left:9.34%;">2020</span><span class="tl-year" style="left:20.55%;">2021</span><span class="tl-year" style="left:31.76%;">2022</span><span class="tl-year" style="left:42.97%;">2023</span><span class="tl-year" style="left:54.18%;">2024</span><span class="tl-year" style="left:65.38%;">2025</span><span class="tl-year tl-year--last" style="left:76.59%;transform:translateX(-100%);">2026</span></div>
             </div>
         </section>
 
@@ -259,95 +309,69 @@
         <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Cloud, DevOps &amp; Mensageria:</strong> AWS (EKS, ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, Secrets Manager, KMS), Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Apache Kafka, RabbitMQ, OpenTelemetry, Prometheus.</p></div>
 
         <div data-block="habilidades" class="text-[11.5px] text-slate-700 mb-4"><p class="mb-1"><strong>Dados &amp; Analítico:</strong> SQL Server, PostgreSQL, MySQL, Oracle, Redis, MongoDB, ClickHouse, Databricks, RAG, LangChain.</p></div>
-
-        <div class="mb-4 keep-together keep-together" data-block="cargo">
-                <h3 class="section-title">Experiência Profissional</h3>
-                <div class="flex justify-between items-end mb-1">
-                    <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT Tecnologia</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">9 meses (Jan/2026 – Set/2026) · Remoto</span>
-                </div>
-                <div class="tech-box">
-                    <strong>C# &amp; .NET:</strong> .NET Core, ASP.NET, NuGet, xUnit, Microsserviços .NET, Entity Framework.<br>
-                    <strong>Front/Mobile:</strong> Angular, TypeScript, Storybook, Design Systems, Micro-frontends.<br>
-                    <strong>Dados &amp; Infra:</strong> MySQL, ClickHouse, Databricks, Redis, RabbitMQ, Kubernetes, Terraform.
-                </div>
-                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
-                    <li><strong>10x de performance (100M+ eventos/dia):</strong> Decomponho monolito em .NET em 12 microsserviços — Go para processamento de vídeo, .NET Core para regras de negócio — com escalabilidade horizontal independente.</li>
-                    <li><strong>Consultas de 30s para &lt;200ms:</strong> Migrei MySQL para ClickHouse com pipeline ETL em Databricks, reduzindo em 70% a carga sobre o banco transacional.</li>
-                    <li><strong>R$ 24M/ano preservados:</strong> assertividade de leitura de placas elevada de &lt;60% para 100% em 6 semanas, com TDD e automação E2E com Playwright no lugar de validação manual de QA.</li>
-                    <li><strong>Cultura de reutilização em .NET:</strong> Bibliotecas NuGet e Maven privadas, design system Angular documentado em Storybook e portal de arquitetura com ADRs, onboarding de meses para semanas.</li>
-                </ul>
-            </div>
         </div>
 
         <div class="a4-page">
             <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 2 de 3
+                Marcelino Sandroni Dias — Engenheiro de Software Sênior &amp; IA — Currículo v1 — Página 2 de 3
             </div>
-        <div class="mb-2 keep-together keep-together" data-block="cargo">
-                <div class="flex justify-between items-end mb-1">
-                    <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software <span class="text-slate-400 font-normal">| Antlia / Banco BNP Paribas</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">2 anos e 10 meses (Mar/2023 – Dez/2025) · Híbrido</span>
-                </div>
-                <div class="tech-box">
-                    <strong>C# &amp; .NET:</strong> .NET Core, ASP.NET, NuGet, xUnit, Entity Framework.<br>
-                    <strong>Java &amp; Front:</strong> Java (Spring Boot), Angular, TypeScript, Micro-frontends, Design Systems.<br>
-                    <strong>Dados &amp; Regulação:</strong> Oracle SQL, PostgreSQL, Kafka, Redis, SOX, Helm, Kubernetes, IBM Cloud.
-                </div>
-                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
-                    <li><strong>Migração de legado C# e VB para arquitetura orientada a eventos:</strong> Desacoplei sistemas em COBOL, VB e C# com Kafka, quebrando monolitos em microsserviços e Angular, alcançando 95%+ de cobertura de testes.</li>
-                    <li><strong>Arquitetura hexagonal como padrão do banco:</strong> SOLID e Clean Code em todos os serviços, com code review sistemático e definição clara de DoR/DoD.</li>
+        <div class="mb-4 keep-together" data-block="cargo" data-breaks-page="true">
+            <h3 class="section-title">Experiência Profissional</h3>
+            <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software Sênior &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT</span></h4>
+            <div class="role-meta">(1 ano) · Out/2025 – Set/2026 · Remoto</div>
+                <div class="stack-line"><strong>Stack:</strong> Java, Spring Boot, Spring AI, Angular, TypeScript, Micro-frontends, PostgreSQL, Redis, RabbitMQ, gRPC, K8s, AWS.</div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-1.5 text-justify">
+                    <li><strong>Liderança Técnica &amp; Integração IA:</strong> Liderança de squad (8 pessoas) na reestruturação de sistemas críticos processando 100M+ mensagens/dia. IA Corporativa conectando o backend via Spring AI para fluxos agênticos em tempo real, preservando contrato de R$ 24M/ano.</li>
+                    <li><strong>Aceleração de 10x no Processamento:</strong> Migração de arquitetura relacional gargalo para microsserviços em Java, com tuning de JVM (ZGC) e baixa latência via gRPC e RabbitMQ.</li>
+                    <li><strong>Micro-frontends Enterprise:</strong> Interfaces web complexas em Angular, com gerenciamento reativo (RxJS/NgRx), assegurando UX fluida sob alta carga.</li>
                 </ul>
-            </div>
+        </div>
 
-        <div class="mb-4 keep-together keep-together" data-block="cargo">
-                <div class="flex justify-between items-end mb-1">
-                    <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software <span class="text-slate-400 font-normal">| Banco Itaú (Atacado)</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">1 ano (Mar/2022 – Fev/2023) · Híbrido</span>
-                </div>
-                <div class="tech-box">
-                    <strong>C# &amp; .NET:</strong> .NET Core, ASP.NET, Entity Framework, xUnit, Testes de integração com banco embutido.<br>
-                    <strong>Angular &amp; Mobile:</strong> Angular, TypeScript, RxJS, Cypress, Flutter, Micro-frontends.<br>
-                    <strong>Enterprise:</strong> AWS (EC2, S3, Lambda, SQS, RDS), Docker, Kubernetes, Terraform, CI/CD.
-                </div>
-                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
-                    <li><strong>Custódia institucional de +R$ 100 Bi:</strong> Desenhei e sustentei plataforma B2B conectada à B3 para apuração contínua e visão unificada multi-carteira atendendo investidores de altíssimo patrimônio.</li>
-                    <li><strong>Qualidade em 8x:</strong> Implementei e capacitei time de 9 pessoas em testes unitários .NET e Java (80%+ de cobertura), E2E com Cypress nos fluxos críticos de Angular e mobile com Flutter Test.</li>
-                    <li><strong>+45% de ativos sob gestão em 1 ano:</strong> Liquidação migrou de D+1 para tempo real e o uptime subiu de 95% para 100%, com lançamento de novos produtos em semanas em vez de meses.</li>
-                    <li><strong>Resgate de lançamento crítico em &lt;24h:</strong> Corrigi microsserviços de mensageria e integrações quebradas com observabilidade estruturada, entregando o lançamento no prazo.</li>
+        <div class="mb-4 keep-together" data-block="cargo">
+            <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software Sênior <span class="text-slate-400 font-normal">| BNP Paribas</span></h4>
+            <div class="role-meta">(2 anos e 10 meses) · Dez/2022 – Set/2025 · Híbrido</div>
+                <div class="stack-line"><strong>Stack:</strong> Java (Spring Boot/Batch), Angular, Micro-frontends, Oracle SQL, Kafka, OAuth2, Kubernetes, Jenkins, Helm.</div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-1.5 text-justify">
+                    <li><strong>Modernização de Monolito Bancário:</strong> Pilar técnico de tribo (12 devs) no desacoplamento de sistemas legados (COBOL, VB) para arquitetura orientada a eventos em Java e interfaces modulares em Angular (95% de testes).</li>
+                    <li><strong>Liquidação D+0 &amp; Tempo Real:</strong> Substituição de esteiras D+1 por conciliação de fundos em tempo real via Apache Kafka e Spring Batch, gerando +45% nos ativos geridos com SLA de 100% uptime.</li>
+                    <li><strong>Economia e Orquestração Global:</strong> Automação de fundos ETF institucionais, integrando B3 e bolsas internacionais, com impacto estimado de +R$ 50 Milhões em captação.</li>
                 </ul>
-            </div>
+        </div>
 
-        <div class="mb-4 keep-together keep-together" data-block="cargo">
-                <div class="flex justify-between items-end mb-1">
-                    <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software <span class="text-slate-400 font-normal">| Pollux Technology</span> <span class="bg-emerald-100 text-emerald-800 px-1 py-0.5 rounded text-[9px] ml-1 uppercase font-bold">Promoção em 3 meses</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">1 ano e 1 mês (Fev/2021 – Fev/2022) · Remoto</span>
-                </div>
-                <div class="tech-box">
-                    <strong>C# &amp; Front:</strong> .NET, React, Next.js, Angular, TypeScript, Micro-frontends, Tailwind CSS, Design System.<br>
-                    <strong>Dados &amp; Infra:</strong> PostgreSQL, MySQL, MongoDB, Redis, RabbitMQ, AWS, GCP, Kubernetes, Terraform.<br>
-                    <strong>Enterprise:</strong> Serverless, CI/CD.
-                </div>
-                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
-                    <li><strong>Redução de 50% em custo de cloud:</strong> Políticas de auto-scaling e right-sizing na AWS, somando a migração concluída em metade do prazo.</li>
-                    <li><strong>80% de entregas antecipadas:</strong> Com time de 5 pessoas em clientes de saúde, financeiro e esportes, sustentei 100% de pontualidade sob prazos apertados.</li>
+        <div class="mb-4 keep-together" data-block="cargo">
+            <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software Sênior <span class="text-slate-400 font-normal">| ITAÚ</span></h4>
+            <div class="role-meta">(2 anos e 5 meses) · Jul/2020 – Nov/2022 · Híbrido</div>
+                <div class="stack-line"><strong>Stack:</strong> Java (Spring WebFlux), Angular, TypeScript, PostgreSQL, Redis, Kafka, AWS, Docker, Kubernetes, Terraform.</div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-1.5 text-justify">
+                    <li><strong>Custódia Institucional Estratégica (+R$ 100 Bi):</strong> Orquestração conjunta (squad de 15 engenheiros) desenhando e sustentando plataforma B2B conectada à B3, com arquitetura cloud-native (AWS), APIs reativas em Java e painéis Angular.</li>
+                    <li><strong>Gestão de Crises e Resiliência:</strong> Resolução de gargalos de concorrência no Kafka sob alta volatilidade em menos de 24h, aplicando estrita idempotência transacional.</li>
+                    <li><strong>Aumento de 8x na Qualidade:</strong> Mentoria técnica e automação E2E (CI/CD), blindando o ecossistema contra regressões críticas.</li>
                 </ul>
-            </div>
+        </div>
 
-        <div class="mb-5 keep-together keep-together" data-block="cargo">
-                <div class="flex justify-between items-end mb-1">
-                    <h4 class="font-bold text-slate-900 text-[13px]">Analista Contábil &amp; Gestor Financeiro <span class="text-slate-400 font-normal">| Consultoria Corporativa (15 Anos)</span></h4>
-                    <span class="text-xs font-semibold text-slate-600">15 anos (Jul/2005 – Dez/2020) · Presencial</span>
-                </div>
-                <div class="tech-box">
-                    <strong>Core Business:</strong> FinOps, IFRS &amp; CPC, SOX Compliance, Planejamento Tributário, Automação de ERP. Diferencial estratégico: visão de balanço e compliance para desenhar a regra de negócio certa.
-                </div>
-                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-2">
-                    <li><strong>Fechamento contábil de 30 para 2 dias:</strong> Redesenho de processos liberando 20+ pessoas para funções de maior valor agregado.</li>
-                    <li><strong>Economia de +R$ 3 milhões:</strong> Planejamento tributário e reclassificação contábil com rigor auditável.</li>
+        <div class="mb-4 keep-together" data-block="cargo">
+            <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software Pleno <span class="text-slate-400 font-normal">| ZUP</span></h4>
+            <div class="role-meta">(1 ano e 4 meses) · Mar/2019 – Jun/2020 · Remoto</div>
+                <div class="stack-line"><strong>Stack:</strong> Java, Angular, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, Kubernetes, CI/CD.</div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-1.5 text-justify">
+                    <li><strong>Evolução Rápida e Cloud:</strong> Promovido de Júnior a Pleno em 1 ano. Time ágil de 6 devs refatorando monolitos Java para eventos e migração AWS na metade do prazo estipulado.</li>
+                    <li><strong>Resiliência Transacional:</strong> Correção estrutural em mensageria assíncrona (RabbitMQ) via Circuit Breakers e DLQs, garantindo 100% de assertividade.</li>
                 </ul>
-            </div>
+        </div>
 
+        <div class="mb-5 keep-together" data-block="cargo">
+            <h4 class="font-bold text-slate-900 text-[13px]">Analista Contábil &amp; Gestor Financeiro <span class="text-slate-400 font-normal">| Consultoria Corporativa</span></h4>
+            <div class="role-meta">(15 anos e 6 meses) · Jul/2003 – Dez/2018 · Presencial</div>
+                <ul class="list-disc pl-4 text-[11.5px] text-slate-700 space-y-1.5 mt-1.5 text-justify">
+                    <li><strong>Diferencial em Engenharia Corporativa:</strong> Liderança de equipes e redesenho de processos que reduziu o fechamento contábil em 83%. Profunda expertise em finanças e regras tributárias traduzidas diretamente para equipes de software.</li>
+                </ul>
+        </div>
+        </div>
+
+        <div class="a4-page">
+            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Engenheiro de Software Sênior &amp; IA — Currículo v1 — Página 3 de 3
+            </div>
         <section class="mb-4 keep-together" data-block="formacao">
             <h3 class="section-title">Formação Acadêmica &amp; Especializações</h3>
             <div class="space-y-2 text-xs text-slate-700">
@@ -361,12 +385,7 @@
                 </div>
             </div>
         </section>
-        </div>
 
-        <div class="a4-page">
-            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 3 de 3
-            </div>
         <section class="mb-4 keep-together" data-block="idiomas">
             <h3 class="section-title">Idiomas</h3>
             <div class="text-xs text-slate-700 flex flex-col gap-1" style="

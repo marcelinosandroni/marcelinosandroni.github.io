@@ -58,6 +58,8 @@ type Measured = {
   readonly spaceMm: number;
   /** Page one carries the name, contact details and photo block. */
   readonly pinnedToFirstPage: boolean;
+  /** Starts its own sheet, whatever room is left on the previous one. */
+  readonly startsNewPage: boolean;
   /**
    * Which sheet this block was measured on, counted from zero.
    *
@@ -457,6 +459,7 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
         return {
           id,
           pinned: node.dataset.pinned === "first",
+          startsPage: node.dataset.breaksPage === "true",
           sheet: sheetIndex,
           space,
           html,
@@ -475,6 +478,7 @@ async function measure(html: string): Promise<ReadonlyArray<Measured>> {
       html: block.html,
       spaceMm: block.space * MM_PER_PX,
       pinnedToFirstPage: block.pinned,
+      startsNewPage: block.startsPage,
       sheetIndex: block.sheet,
     }));
   } finally {
@@ -495,6 +499,18 @@ function pack(blocks: ReadonlyArray<Measured>): ReadonlyArray<ReadonlyArray<Meas
   };
 
   for (const block of blocks) {
+    /*
+      A block that asks for its own sheet gets one.
+
+      The experience is the argument of this document and the reader should meet it
+      at the top of a page, not three lines under a heading that is itself three lines
+      under a rule. Forcing the break is the whole point: the alternative is letting
+      the packer decide, and the packer decides by what happens to fit.
+    */
+    if (block.startsNewPage && current.length > 0) {
+      closeSheet();
+    }
+
     // The header belongs on the first sheet and is never pushed off it.
     if (block.pinnedToFirstPage) {
       if (sheets.length > 0) {
@@ -739,4 +755,4 @@ function render(
 }
 
 const defaultFooter = (page: number, total: number): string =>
-  `Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página ${page} de ${total}`;
+  `Marcelino Sandroni Dias — Engenheiro de Software Sênior &amp; IA — Currículo v1 — Página ${page} de ${total}`;

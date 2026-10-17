@@ -99,6 +99,35 @@ const MONTH_INDEX: Readonly<Record<string, number>> = {
 };
 
 /**
+ * The two ends of a period, as month numbers.
+ *
+ * One parser, used by the widths and by the year ruler, because a ruler reading a
+ * different date than the bar it sits under is a ruler that lies - and it did, for
+ * a while, over a single untrimmed leading space turning " set" into a month that
+ * does not exist.
+ */
+function parsePeriod(period: string): { start: [number, number]; end: [number, number] } {
+  const [from, to] = period
+    .split("·")[0]
+    .split("–")
+    .map((part) => part.trim());
+
+  const read = (value: string | undefined): [number, number] => {
+    const [month, year] = (value ?? "").split("/");
+    const index = MONTH_INDEX[(month ?? "").trim().toLowerCase()];
+    const parsedYear = Number(year);
+
+    if (index === undefined || Number.isNaN(parsedYear)) {
+      throw new Error(`cannot read a date: "${value ?? ""}" in "${period}"`);
+    }
+
+    return [index, parsedYear];
+  };
+
+  return { start: read(from), end: read(to) };
+}
+
+/**
  * Months between two dates, counting both ends.
  *
  * Inclusive, because that is how the tenures on the document are counted: someone
@@ -106,29 +135,9 @@ const MONTH_INDEX: Readonly<Record<string, number>> = {
  * built on a different convention from the text beside it would be a quiet lie.
  */
 export function monthsIn(period: string): number {
-  const [from, to] = period
-    .split("·")[0]
-    .split("–")
-    .map((part) => part.trim());
+  const { start, end } = parsePeriod(period);
 
-  const [fromMonth, fromYear] = (from ?? "").split("/");
-  const [toMonth, toYear] = (to ?? "").split("/");
-
-  const start = MONTH_INDEX[(fromMonth ?? "").toLowerCase()];
-  const end = MONTH_INDEX[(toMonth ?? "").toLowerCase()];
-  const startYear = Number(fromYear);
-  const endYear = Number(toYear);
-
-  if (
-    start === undefined ||
-    end === undefined ||
-    Number.isNaN(startYear) ||
-    Number.isNaN(endYear)
-  ) {
-    throw new Error(`cannot read a period: "${period}"`);
-  }
-
-  return (endYear - startYear) * 12 + (end - start) + 1;
+  return (end[1] - start[1]) * 12 + (end[0] - start[0]) + 1;
 }
 
 /**
@@ -148,7 +157,7 @@ export function assertTimelineMatchesRoles(
   renderedHtml: string,
 ): void {
   const documentStarts = new Set(
-    [...renderedHtml.matchAll(/text-xs font-semibold text-slate-600">[^<]*?([A-Za-zç]{3})\/(\d{4})/g)].map(
+    [...renderedHtml.matchAll(/class="role-meta">[^<]*?([A-Za-zç]{3})\/(\d{4})/g)].map(
       (match) => `${match[1]}/${match[2]}`,
     ),
   );
@@ -174,31 +183,32 @@ export function assertTimelineMatchesRoles(
  * the bar is comparable between them at a glance.
  */
 /** Turns a run of roles into the markup, oldest stretch on the left. */
+/**
+ * Turns a run of roles into the markup, oldest stretch on the left.
+ *
+ * The open segment is not one of the caller's: it is always appended, always
+ * reserved at the same share, so every document ends on the same empty block and
+ * two bars can be compared at a glance.
+ */
 export function buildTimeline(roles: ReadonlyArray<TimelineRole>): string {
   if (roles.length === 0) {
     throw new Error("a timeline with no history is just an empty box");
   }
 
-  const segments: ReadonlyArray<Segment> = roles.map((role) => ({
-    label: role.label,
-    level: role.level,
-    tone: role.tone,
-    months: monthsIn(role.period),
-  }));
-
-  const pastMonths = segments.reduce((total, segment) => total + segment.months, 0);
+  const months = roles.map((role) => monthsIn(role.period));
+  const pastMonths = months.reduce((total, value) => total + value, 0);
   const pastShare = 1 - FUTURE_SHARE;
 
   /*
     Flex-grow for the future is derived from the history rather than fixed.
 
-    `15% of the bar` is 15% of the bar, and the bar is as long as the history is
+    "15% of the bar" is 15% of the bar, and the bar is as long as the history is
     long. Two documents with different histories therefore need different numbers
     to reserve the same share, and fixing the figure would silently give one of
     them a longer or shorter open block.
   */
   const future = (pastMonths * FUTURE_SHARE) / pastShare;
-  const grow = (months: number): string => `flex:${months.toFixed(3)} 1 0`;
+  const grow = (value: number): string => `flex:${value.toFixed(3)} 1 0`;
 
   const row = (className: string, cells: ReadonlyArray<string>): string =>
     `<div class="${className}">${cells.join("")}</div>`;
@@ -206,7 +216,7 @@ export function buildTimeline(roles: ReadonlyArray<TimelineRole>): string {
   const slot = (flexGrow: string, inner: string): string =>
     `<div class="tl-slot" style="${flexGrow}"><div class="tl-inner">${inner}</div></div>`;
 
-  const widths = [...segments.map((segment) => grow(segment.months)), grow(future)];
+  const widths = [...months.map(grow), grow(future)];
 
   return [
     `<div class="tl">`,
@@ -215,34 +225,101 @@ export function buildTimeline(roles: ReadonlyArray<TimelineRole>): string {
       widths.map((width, index) =>
         slot(
           width,
-          index === segments.length
+          index >= roles.length
             ? `<div class="tl-label tl-future-mark">${FUTURE_LABEL}</div>`
-            : `<div class="tl-label">${segments[index].label}</div>`,
+            : `<div class="tl-label">${roles[index].label}</div>`,
         ),
       ),
     ),
     row(
       "tl-row tl-row--bar",
       widths.map((width, index) =>
-        index === segments.length
+        index >= roles.length
           ? slot(width, `<div class="tl-bar tl-bar--future"></div>`)
-          : slot(width, `<div class="tl-bar" style="background:${segments[index].tone}"></div>`),
+          : slot(width, `<div class="tl-bar" style="background:${roles[index].tone}"></div>`),
       ),
     ),
-    row(
-      "tl-row tl-row--levels",
-      widths.map((width, index) =>
-        slot(
-          width,
-          index === segments.length
-            ? `<div class="tl-level tl-level--future">${FUTURE_LEVEL}</div>`
-            : `<div class="tl-level">${segments[index].level}</div>`,
-        ),
+    row("tl-row tl-row--levels", widths.map((width, index) =>
+      slot(
+        width,
+        index >= roles.length
+          ? `<div class="tl-level tl-level--future">${FUTURE_LEVEL}</div>`
+          : `<div class="tl-level">${roles[index].level}</div>`,
       ),
-    ),
+    )),
+    yearAxis(roles),
     `</div>`,
   ].join("\n            ");
 }
+
+/**
+ * The year ruler, 2019 to 2026.
+ *
+ * A reader looking at four segments of different lengths is guessing at the dates.
+ * The ruler turns the guess into a reading: it answers "how long was that one?"
+ * without leaving the picture, which is the only thing a picture is good at.
+ *
+ * Positioned absolutely against the past region rather than laid out as its own
+ * row of cells, because a second row of cells has its own gaps and its own
+ * fractional widths, and the ticks would drift off the boundaries they are
+ * supposed to mark - a tick claiming 2022 in the middle of a segment that ends in
+ * 2021 is worse than no ruler at all.
+ *
+ * The years come from the roles rather than from a constant, so a document whose
+ * career starts later does not carry a ruler claiming years it never worked in.
+ */
+function yearAxis(roles: ReadonlyArray<TimelineRole>): string {
+  const first = roles[0];
+  const last = roles[roles.length - 1];
+
+  if (first === undefined || last === undefined) {
+    throw new Error("the year ruler needs at least one role");
+  }
+
+  const [startMonth, startYear] = parsePeriod(first.period).start;
+  const [endMonth, endYear] = parsePeriod(last.period).end;
+  const totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+
+  if (totalMonths <= 0) {
+    throw new Error(
+      `the year ruler found no span between "${first.period}" and "${last.period}"`,
+    );
+  }
+
+  const ticks: string[] = [];
+
+  for (let year = startYear; year <= endYear; year++) {
+    /*
+      The first year starts at the left edge and the last one ends at the right,
+      so the outermost labels are pinned rather than centred on their tick - a
+      centred one hangs off the edge of the bar and the ruler looks broken.
+    */
+    const firstTick = year === startYear;
+    const lastTick = year === endYear;
+
+    const offset =
+      firstTick ? 0 : (year * 12 + 1 - (startYear * 12 + startMonth)) / totalMonths;
+    const position = Math.min(1, Math.max(0, offset)) * (1 - FUTURE_SHARE) * 100;
+
+    /*
+      The last year is positioned like the rest, then pulled left by its own width.
+
+      Pinning it with `right: 0` would put it under the reserved block, claiming a
+      year the career has not reached - which is the one thing the open end of the
+      bar is there to say it has not.
+    */
+    const align = firstTick
+      ? "left:0;"
+      : `left:${position.toFixed(2)}%;${lastTick ? "transform:translateX(-100%);" : ""}`;
+
+    ticks.push(
+      `<span class="tl-year${firstTick ? " tl-year--first" : ""}${lastTick ? " tl-year--last" : ""}" style="${align}">${year}</span>`,
+    );
+  }
+
+  return `<div class="tl-axis" aria-hidden="true">${ticks.join("")}</div>`;
+}
+
 
 /**
  * The CSS the bar needs, appended to the print stylesheet.
@@ -270,24 +347,30 @@ export const TIMELINE_CSS = `
                 text-align: center;
             }
 
+            /*
+              The sizes are the document's own.
+
+              9px is what the metric captions use and 11.5px is the body; the bar
+              was first drawn at 7.4 and 6.6, smaller than anything else on the
+              page, which made the one element meant to be read at a glance the
+              hardest thing on it to read.
+
+              No backticks in these comments: this is a template literal, and one
+              would close the string the CSS lives in.
+            */
             .tl-label {
-                font-size: 7.4px; font-weight: 600; line-height: 1.1; color: #334155;
+                font-size: 9.5px; font-weight: 700; line-height: 1.15; color: #1e293b;
                 text-align: center; white-space: nowrap;
             }
             /*
               min-width 0 is what lets the caption wrap inside its own segment.
 
               A flex item's default minimum is its content width, so a caption
-              longer than its segment - "Principal & AI Engineer" in a block a
-              seventh of the bar - refuses to wrap and spills over the edge of the
-              thing it belongs to. Setting it to zero lets the text break, which is
-              the only way a narrow segment can carry a long label honestly.
-
-              No backticks in these comments: this is a template literal, and one
-              would close the string the CSS lives in.
+              longer than its segment refuses to wrap and spills over the edge of
+              the thing it belongs to.
             */
             .tl-level {
-                font-size: 6.6px; font-weight: 500; line-height: 1.15; color: #64748b;
+                font-size: 8.5px; font-weight: 500; line-height: 1.2; color: #64748b;
                 text-align: center; letter-spacing: 0.01em; min-width: 0; max-width: 100%;
             }
             .tl-bar { width: 100%; height: 4.4mm; border-radius: 0.9mm; }
@@ -301,4 +384,24 @@ export const TIMELINE_CSS = `
                 text-align: center;
             }
             .tl-level--future { color: #1e293b; font-weight: 700; }
+
+            /*
+              The year ruler.
+
+              Absolutely positioned inside the bar and scaled by the past share,
+              so a tick for 2023 lands where January actually falls rather than a
+              fraction of the way along. Pinned at the two ends rather than
+              centred on their tick: a centred one hangs off the edge of the bar
+              and the ruler reads as broken.
+            */
+            .tl-axis {
+                position: relative; height: 4.6mm; margin-top: 0.2mm;
+                border-top: 1px solid #e2e8f0;
+            }
+            .tl-year {
+                position: absolute; top: 0.8mm; transform: translateX(-50%);
+                font-size: 9px; font-weight: 600; color: #94a3b8;
+                line-height: 1; white-space: nowrap;
+            }
+            .tl-year--first { transform: none; }
 `;
