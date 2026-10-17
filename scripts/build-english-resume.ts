@@ -56,7 +56,15 @@ const TEXT: ReadonlyArray<Rule> = [
   { from: "Engenheiro de Software <span class=\"text-slate-400 font-normal\">| Antlia", to: "Software Engineer <span class=\"text-slate-400 font-normal\">| Antlia" },
   { from: "| Antlia / Banco BNP Paribas</span>", to: "| Antlia / BNP Paribas</span>" },
   { from: "Engenheiro de Software <span class=\"text-slate-400 font-normal\">| Banco Itaú", to: "Software Engineer <span class=\"text-slate-400 font-normal\">| Banco Itaú" },
-  { from: "Engenheiro de Software Pleno <span", to: "Full Software Engineer <span" },
+  /*
+    The Pollux title, matched by the badge that follows it.
+
+    It used to be matched by its level - `Engenheiro de Software Pleno <span` -
+    which is gone, since the level is gone. Matching on the promotion badge that
+    sits between the title and the company keeps the rule attached to the thing
+    that is actually there, instead of to a word a future pass will delete again.
+  */
+  { from: "Engenheiro de Software <span class=\"bg-emerald-100", to: "Software Engineer <span class=\"bg-emerald-100" },
   { from: ">Promoção em 3 meses<", to: ">Promoted in 3 months<" },
   { from: "Analista Contábil &amp; Gestor Financeiro <span", to: "Accounting Analyst &amp; Finance Manager <span" },
   { from: "| Consultoria Corporativa (15 Anos)</span>", to: "| Corporate Consulting (15 Years)</span>" },

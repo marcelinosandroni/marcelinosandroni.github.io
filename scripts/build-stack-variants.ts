@@ -144,6 +144,8 @@ async function main(): Promise<void> {
     that says "Página 1 de 2" while its PDF says three is a lie the reader finds
     out about on the last sheet.
   */
+  assertRoles("document", shell);
+
   const { html: general, pages: generalPages } = await paginate(shell);
 
   await fs.writeFile(resolve("resume-recruiter-pt-br.html"), general, "utf8");
@@ -325,6 +327,116 @@ ${variant.skills}
 
 
 /**
+ * The two facts a reader is entitled to, checked on every document.
+ *
+ * Both of these were wrong in shipped documents and neither had a guard: the
+ * levels came back in the titles, and two variants listed a 2019 role above a
+ * 2022 one. A build that cannot fail is not a check, so these run for the general
+ * document too - not only the variants, which is where they were first written.
+ */
+function assertRoles(slug: string, html: string): void {
+  /*
+    No seniority in the role titles.
+
+    The level is the reader's decision to make, and a document that names it on
+    the title line asks to be filtered by it. The guard used to be one word for
+    "Sênior" and let "Pleno" through - which is how a role came out reading
+    "Engenheiro de Software Pleno" in three of the five documents while every
+    other pass agreed the level was out.
+
+    Scoped to the titles, and that scoping is the point. Matching the whole
+    document flags the mentoring line - "elevar a régua de desenvolvedores
+    Júnior/Pleno" - which is a claim about the people he has taught, not about the
+    level he is asking to be hired at. Removing that would cost a real selling
+    point to satisfy a word list. `Sênior` is still checked everywhere: there is
+    no reading of it in this document that is about anyone else.
+  */
+  const titled = [...html.matchAll(/<h4[^>]*>([\s\S]*?)<\/h4>/g)]
+    .map((match) => match[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim())
+    .join(" | ");
+
+  const seniority = /\b(?:S(?:ê|e)nior|Pleno|Plen[oa]|J(?:ú|u)nior)\b/i.exec(titled);
+
+  if (seniority !== null) {
+    throw new Error(
+      `[${slug}] a role title carries a seniority level: "${titled}". ` +
+        `The level belongs to whoever is hiring.`,
+    );
+  }
+
+  if (/S(?:ê|e)nior/.test(html)) {
+    throw new Error(`[${slug}] reintroduced "Sênior" somewhere in the document`);
+  }
+
+  assertChronological(slug, html);
+}
+/**
+ * The roles run newest first.
+ *
+ * A résumé lists experience in reverse chronology, and that is the one ordering a
+ * reader never has to think about. It is also the ordering nothing else enforces:
+ * the roles are a flat array in a content module, and appending a new one puts it
+ * wherever the author put it. Two variants shipped a role from 2019 above one
+ * from 2022, and it read as a mistake because it was one.
+ *
+ * Checked against the dates in the document rather than against the array, so it
+ * holds for whatever the content ends up saying - including the shell.
+ */
+function assertChronological(slug: string, html: string): void {
+  const MONTHS: Readonly<Record<string, number>> = {
+    jan: 0, fev: 1, mar: 2, abr: 3, mai: 4, jun: 5,
+    jul: 6, ago: 7, set: 8, out: 9, nov: 10, dez: 11,
+  };
+
+  /*
+    The first date inside each role's period span, which is where it starts.
+
+    The tenure is baked into the same span before the dates - `1 ano e 1 mês
+    (Fev/2021 – Fev/2022)` - so the month is not adjacent to the opening tag. A
+    pattern that expected it to be matched nothing at all, and this check passed
+    every document it was supposed to be checking: a guard that cannot fail is
+    worse than no guard, because it reads like one.
+
+    Only start dates are compared. Two roles can legitimately overlap -
+    consulting beside a salaried post - and the mistake that actually happened was
+    a role that *starts* before the one above it, not one that overlaps.
+  */
+  const roles = [
+    ...html.matchAll(/text-xs font-semibold text-slate-600">[^<]*?([A-Za-zç]{3})\/(\d{4})/g),
+  ].map((match) => {
+    const month = MONTHS[match[1].toLowerCase()];
+
+    return {
+      raw: `${match[1]}/${match[2]}`,
+      when: month === undefined ? Number.NaN : Number(match[2]) * 12 + month,
+    };
+  });
+
+  if (roles.length === 0) {
+    throw new Error(
+      `[${slug}] no role periods were found - the chronological check matched ` +
+        `nothing, so it approved the document without reading it.`,
+    );
+  }
+
+  for (let i = 1; i < roles.length; i++) {
+    /*
+      Newer above older, so the error is a role that starts *later* than the one
+      above it. Reading this the other way round - "starts before" - rejects the
+      correct order and approves the wrong one, which is worse than not checking:
+      the build stops on the first real document and nobody reads what it meant.
+    */
+    if (roles[i].when > roles[i - 1].when) {
+      throw new Error(
+        `[${slug}] roles are not newest first: "${roles[i].raw}" starts after ` +
+          `"${roles[i - 1].raw}", which is listed above it. Order the roles by ` +
+          `start date, newest at the top.`,
+      );
+    }
+  }
+}
+
+/**
  * Refuses a variant that is not actually specialised.
  *
  * Each of these has already caught something real: a leftover marker found a
@@ -346,9 +458,7 @@ function assertComplete(variant: Variant, out: string): void {
     }
   }
 
-  if (out.includes("Sênior")) {
-    throw new Error(`[${variant.slug}] reintroduced a seniority prefix`);
-  }
+  assertRoles(variant.slug, out);
 
   /*
     A `<` that cannot open a tag.
