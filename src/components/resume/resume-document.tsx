@@ -9,7 +9,7 @@ import { toWhatsAppHref } from "@/domain/portfolio";
 import { isFeatureEnabled } from "@/domain/feature-flags/feature-flags";
 import type { Locale } from "@/domain/i18n";
 import type { ResumeContent, ResumeExperience, ResumeEducation } from "@/domain/resume/types";
-import { RESUME_TEMPLATES, type ResumeTemplateId } from "@/infrastructure/pdf/resume-template-registry";
+
 import { getDictionary, type Dictionary } from "@/i18n";
 import { formatMessage } from "@/i18n/format-message";
 
@@ -76,12 +76,6 @@ export async function ResumeDocument({
     while another is served the narrowed one.
   */
   const document_ = focused ?? resume;
-
-  const pdfTemplates = RESUME_TEMPLATES.map((template) => ({
-    id: template.id as ResumeTemplateId,
-    label: t.pdf.templates[template.id].label,
-    description: t.pdf.templates[template.id].description,
-  }));
 
   /*
    * Anchors first, then the routes. The summary sits at the top of the page and
@@ -162,16 +156,14 @@ export async function ResumeDocument({
             {isFeatureEnabled("resumeDownload") ? (
               <DownloadPDFButton
                 locale={locale}
-                templates={pdfTemplates}
                 /*
                   The stack travels into the PDF request.
 
                   Without it the download is always the generic résumé while the
-                  page shows the React + Node one — and a recruiter who reads the
-                  narrowed page and then downloads gets a different document. The
-                  parameter is ignored by a PDF route that does not support focus,
-                  which is the safe direction for a feature added ahead of its
-                  consumer.
+                  page shows the Angular + Java one — and a recruiter who reads the
+                  narrowed page and then downloads gets a different document. There
+                  is no second control: the choice was made by the selector above,
+                  as a URL, so it is shareable and this button only has to follow it.
                 */
                 stack={selectedProfile}
                 messages={{
@@ -179,7 +171,6 @@ export async function ResumeDocument({
                   generating: t.pdf.generating,
                   failed: t.pdf.failed,
                   unknownError: t.pdf.unknownError,
-                  chooseTemplate: t.pdf.chooseTemplate,
                 }}
               />
             ) : null}

@@ -144,6 +144,7 @@ echo "nova-entrada/" >> .gitignore
 | Status Implementação | [`docs/IMPLEMENTATION-STATUS.md`](./docs/IMPLEMENTATION-STATUS.md) | Progresso por feature |
 | Error Handling | [`docs/ERROR_HANDLING.md`](./docs/ERROR_HANDLING.md) | Estratégias de erro |
 | PDF Reference | [`docs/pdf-reference-contract.md`](./docs/pdf-reference-contract.md) | Contrato geração PDF |
+| PDF Layout Contract | [`docs/pdf-layout-contract.md`](./docs/pdf-layout-contract.md) | Limites de linhas e caracteres dos PDFs de recrutador |
 | LaTeX Template | [`docs/latex-template-authoring.md`](./docs/latex-template-authoring.md) | Guia templates LaTeX |
 | Release Process | [`docs/release-process.md`](./docs/release-process.md) | Processo de release |
 | Supabase Setup | [`docs/supabase-setup.md`](./docs/supabase-setup.md) | Variáveis, auth e analytics |

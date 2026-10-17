@@ -257,7 +257,6 @@ export const ptBR: Dictionary = {
     generating: "Gerando…",
     failed: "Falha ao baixar PDF",
     unknownError: "Erro desconhecido",
-    chooseTemplate: "Escolher modelo de PDF",
     /**
      * Seções impressas no PDF gerado. "Core Skills & Arquitetura de Software" é
      * intencional: o modelo DETAILED reproduz os títulos do PDF de referência.
@@ -285,17 +284,6 @@ export const ptBR: Dictionary = {
       challenge: "Desafio",
       solution: "Resposta",
       result: "Resultado",
-    },
-    templates: {
-      CLEAN: {
-        label: "CLEAN",
-        description: "Compacto. Cargos, datas e os resultados que carregam número.",
-      },
-      DETAILED: {
-        label: "DETAILED",
-        description:
-          "Tudo, com as evidências: estudos de caso, suas métricas, a stack de cada cargo, tamanho do time e escopo.",
-      },
     },
   },
   localeSwitcher: {

@@ -289,7 +289,6 @@ export const enUS = {
     generating: "Generating…",
     failed: "Failed to download PDF",
     unknownError: "Unknown error",
-    chooseTemplate: "Choose PDF template",
     /**
      * Section headings printed in the generated PDF. Kept apart from the web UI
      * because the document follows its own editorial structure, and the
@@ -318,17 +317,6 @@ export const enUS = {
       challenge: "Challenge",
       solution: "Response",
       result: "Result",
-    },
-    templates: {
-      CLEAN: {
-        label: "CLEAN",
-        description: "Compact. Roles, dates, and the outcomes that carry a number.",
-      },
-      DETAILED: {
-        label: "DETAILED",
-        description:
-          "Everything, with the evidence: case studies, their metrics, the stack behind each role, team size and scope.",
-      },
     },
   },
   localeSwitcher: {

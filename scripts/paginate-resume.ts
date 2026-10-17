@@ -652,18 +652,15 @@ function sheetHeight(sheet: ReadonlyArray<Measured>): number {
  * screenshot and obvious to a recruiter: a summary stranded at the bottom, a role
  * below the closing details. Three separate bugs produced exactly that, and each
  * one looked like a layout problem until the blocks were listed in order.
- */
-/**
- * The reading order every document has to keep.
- *
- * A résumé is read top to bottom in about four minutes, and the order is the
- * argument: what he is, what that produced, what he can do, where he did it, what
- * else he knows. A page break can move a section to another sheet; it cannot
- * reorder them.
  *
  * Counted per section rather than by name, because a section that may break
- * between its items - the inventory, the profile block - arrives here as several
- * consecutive units and the count is what stays fixed.
+ * between its items - the inventory, the degrees, the languages - arrives here as
+ * several consecutive units and the count is what stays fixed.
+ *
+ * `formacao` and `idiomas` are two entries rather than one because they are two
+ * sections now. They shared a single block while they shared a single row, and a
+ * single block holding both is what made the two-column grid possible in the first
+ * place - the layout wanted them side by side and the structure said so.
  */
 const REQUIRED_ORDER: ReadonlyArray<string> = [
   "header",
@@ -672,6 +669,7 @@ const REQUIRED_ORDER: ReadonlyArray<string> = [
   "carreira",
   "habilidades",
   "formacao",
+  "idiomas",
   "cargo",
   "cargo",
   "cargo",
