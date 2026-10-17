@@ -33,13 +33,10 @@
         }
         .section-title {
             border-left: 4px solid #1f2937;
-            padding-left: 8px;
             text-transform: uppercase;
             font-weight: 700;
             font-size: 0.875rem;
             letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-            margin-top: 1rem;
             background-color: #f3f4f6;
             padding: 4px 8px;
         }
@@ -71,6 +68,95 @@
             :root {
                 --body: 12.5px;
                 --contact: 11px;
+
+                /*
+                  The spacing scale. Three steps, and every gap on the page is one
+                  of them.
+
+                  It was not a scale. It was 1px, 2px, 4px, 0.2mm, 0.5mm, 0.6mm,
+                  8px and 16px - eight values for four kinds of gap, because each
+                  one was added when something did not fit and nothing ever recorded
+                  that the value it added was a new value. Measured, the result was
+                  4.23mm between most sections and 2.12mm between two of them,
+                  0.21mm between the groups of the inventory, 0.29mm between the
+                  degrees, 0.26mm between a role's title and its stack, and 0.53mm
+                  between two three-line paragraphs. A page with no vertical rhythm
+                  reads as assembled rather than composed, and no reader can say
+                  what is wrong with it.
+
+                  Three steps, because three is what the page actually has:
+
+                  --space-1  between siblings in a list.  The inventory groups, the
+                             degrees, the languages, the contact rows, the parts of
+                             one metric card. Tight on purpose: a list whose entries
+                             are one or two lines should read as one block, and a
+                             list whose entries are paragraphs is --space-2.
+
+                  --space-2  between paragraphs, and from a section's title to its
+                             content. Also the gap between the parts of one role -
+                             title, stack, bullets. Half of --space-3, so the
+                             distance inside a block always reads as clearly
+                             smaller than the distance between blocks.
+
+                  --space-3  between blocks. One value, everywhere, which is what
+                             makes a page look like one document rather than five
+                             sections that happen to be stacked.
+
+                  The ratio is 1 : 2 : 4 on a millimetre base, because the page is
+                  laid out in millimetres and the fit is measured in millimetres -
+                  so the unit here is the unit the arithmetic is in, and none of
+                  these values has to survive a conversion.
+                */
+                --space-1: 1mm;
+                --space-2: 2mm;
+                --space-3: 4mm;
+            }
+
+            /*
+              One margin for every block.
+
+              Set here rather than as Tailwind's `mb-4` / `mb-2` / `mb-5` in the
+              markup, because the compiled snapshot of Tailwind in this file comes
+              *after* this stylesheet: a utility class and an attribute selector of
+              the same specificity are decided by source order, and the snapshot
+              would win. Spacing that lives in the markup is also spacing that can
+              be changed one block at a time, which is how the eight values above
+              happened.
+
+              The margin classes are gone from the blocks, so there is one place that
+              decides what separates two sections.
+            */
+            [data-block] { margin-bottom: var(--space-3); }
+
+            /*
+              The two gaps a split section has, named rather than guessed at.
+
+              The paginator breaks a splittable section - the inventory, the degrees,
+              the languages - into one unit per entry, so each unit carries the
+              section's id and would otherwise be indistinguishable from a whole
+              section and take --space-3. Seven entries would then be seven sections
+              with seven four-millimetre gaps: twenty-eight millimetres of air where
+              there should be six.
+
+              So the paginator says which kind of unit it emitted. The last entry of
+              a section owns the gap to whatever comes next; every other unit is an
+              entry in a list and takes one step.
+            */
+            [data-gap="item"] { margin-bottom: var(--space-1); }
+            [data-gap="section"] { margin-bottom: var(--space-3); }
+
+            /*
+              What a section title does and does not own.
+
+              No top margin: the block above it already carries --space-3, and two
+              margins that collapse leave the larger, so a top margin here could
+              only ever be read as an accident. The title's own bottom margin is
+              --space-2, which is the one relationship a title has with its
+              content.
+            */
+            .section-title {
+                margin-top: 0;
+                margin-bottom: var(--space-2);
             }
             [data-block="resumo"] p,
             [data-block="habilidades"] p,
@@ -89,6 +175,63 @@
               what makes a six-item list read as a paragraph instead of a list.
             */
             [data-block="habilidades"] p { text-align: justify; }
+
+            /*
+              The container every list of short facts is written in, so the three
+              lists on the page - the inventory, the degrees and the languages - are
+              one thing typographically rather than three that happen to match.
+            */
+            .fact-list { color: #334155; }
+
+            /*
+              The gaps inside a block.
+
+              Everything below is one of the three steps, so this is the only part of
+              the stylesheet that is allowed to decide how far apart two things on
+              the same page are. Each rule names what it separates rather than which
+              element it happens to be written on, because a gap written per element
+              is a gap that can be re-decided one element at a time - which is how
+              there came to be eight values for four kinds of distance.
+            */
+
+            /* List entries: one step. A list of one- and two-line items. */
+            [data-block="habilidades"] p,
+            [data-block="formacao"] p,
+            [data-block="idiomas"] p,
+            .contact-block p + p { margin-top: var(--space-1); }
+
+            /*
+              The three parts of one metric card.
+
+              A step between the number and the name of the achievement, and between
+              the name and the sentence below it. It was half a millimetre, which is
+              not a gap - it is the absence of one, and the card read as four
+              unrelated lines rather than one figure with a label and a footnote.
+            */
+            [data-block="metricas"] div[data-rule="metrica-valor"],
+            [data-block="metricas"] div[data-rule="metrica-destaque"] { margin-top: var(--space-1); }
+
+            /* The head of the document: name, headline, tagline, contact band. */
+            header h2 { margin-top: var(--space-1); margin-bottom: var(--space-1); }
+            .header-tagline { margin-bottom: var(--space-2); }
+
+            /*
+              One role.
+
+              Title, then stack, then the bullets. The first two are --space-1
+              because they are two lines of one block: the stack is the title's
+              second line, set apart by a rule rather than by air. The bullets are
+              paragraphs, so they get --space-2 between each other - which is the
+              whole difference between a list and a wall of text.
+
+              The bullets take their spacing from `li + li` and not from a margin on
+              the list, so the gap above the first bullet is the stack line's margin
+              and the three numbers cannot disagree about where the block starts.
+            */
+            .role-head { margin-bottom: var(--space-1); }
+            .stack-line { margin-bottom: var(--space-1); }
+            .role-bullets { margin-top: 0; padding-left: 16px; color: #334155; list-style: disc; }
+            .role-bullets li + li { margin-top: var(--space-2); }
 
             /*
               The contact block, at its own size.
@@ -128,17 +271,16 @@
                 font-size: var(--contact); line-height: 1.4; color: #334155;
                 border-left: 1.5px solid #cbd5e1;
                 padding: 0.4mm 0.8mm;
-                margin: 0 -4mm 2mm;
+                margin: 0 -4mm 0;
             }
             .contact-block p { white-space: nowrap; }
-            .contact-block p + p { margin-top: 0.6mm; }
             .contact-block strong { color: #1f2937; font-weight: 600; }
             .contact-sep { color: #94a3b8; margin: 0 0.8mm; }
 
             /* The role header: title on the left, dates on the right, one line. */
             .role-head {
                 display: flex; justify-content: space-between; align-items: baseline;
-                gap: 3mm; margin-bottom: 1px;
+                gap: 3mm;
             }
             .role-head h4 {
                 font-size: 13px; font-weight: 700; color: #0f172a; line-height: 1.3;
@@ -147,10 +289,8 @@
                 font-size: var(--body); font-weight: 600; color: #64748b;
                 white-space: nowrap; flex: none;
             }
-            .role-bullets {
-                list-style: disc; padding-left: 16px; color: #334155;
-                margin-top: 2px;
-            }
+            .role-bullets li { text-align: justify; }
+
             /*
               The tagline runs at the body size.
 
@@ -159,10 +299,7 @@
               here would have quietly put the tagline back a step down with a rule
               that reads as though it belonged to both.
             */
-            .header-tagline { font-size: var(--body); line-height: 1.35; }
-            .header-tagline { color: #475569; margin-bottom: 3mm; }
-            .role-bullets li { text-align: justify; }
-            .role-bullets li + li { margin-top: 2px; }
+            .header-tagline { font-size: var(--body); line-height: 1.35; color: #475569; }
 
             /* Metadados do cargo, quando aparecerem fora da linha do titulo. */
             .role-meta {
@@ -232,47 +369,33 @@
             body { background-color: white; }
 
             /*
-              The profile page runs a half step tighter.
+              Nothing here decides a gap.
 
-              Everything on page one has to fit on page one: with the closing block
-              gone, that page carries the header, the summary, the metrics, the
-              career bar, the inventory, the degrees and the languages. A variant
-              whose inventory runs a line longer - the Java document carries six
-              groups where the others carry five - came out eleven millimetres over,
-              which pushed the languages onto a second sheet and the experience onto
-              a third.
+              It used to. This block carried three different vertical adjustments -
+              a section title's top margin, the inventory's leading, and the degrees'
+              and languages' bottom margin - each added because something did not fit
+              and each applying to one part of the page. A document whose spacing
+              differs between the page it prints on and the page it is read on, and
+              differs between sections on the same page, is a document with no
+              vertical rhythm at all; you cannot see it in a diff and you can see it
+              immediately on paper.
 
-              Only the space between blocks moves. No type size, no line height, no
-              measure: the profile still reads at the size the experience does.
+              All of it now lives in the one scale declared above, in millimetres,
+              and it applies identically on screen and in print. What is left here
+              is what genuinely differs between the two media: the page box, and
+              the leading of the long blocks.
             */
-            .section-title { margin-top: 0.35rem; }
-
-            /*
-              The inventory's leading.
-
-              Six groups in the Java document, five in the others, and the extra one
-              plus its gap was the last few millimetres the profile page was
-              missing. The paragraphs themselves are untouched; only the space
-              between them closes.
-            */
-            [data-block="habilidades"] p { margin-bottom: 0.2mm; }
-
-            /*
-              The last few millimetres, written here rather than as Tailwind
-              classes.
-
-              The stylesheet in this file is a compiled snapshot: it carries the
-              utilities that existed when it was generated and nothing else. Four
-              class names were edited here that it has never heard of -
-              `p-1`, `p-0.5`, `mb-0.5`, `leading-normal` - and every one of them
-              silently did nothing, which is why three rounds of "savings" moved
-              the page by a millimetre. Anything added from now on goes in this
-              block, where it is real.
-            */
-            [data-block="metricas"] > div > div { padding: 0.8mm; }
-            [data-block="metricas"] .mb-1 { margin-bottom: 0.5mm; }
             [data-block="resumo"] p { line-height: 1.5; }
             header p, [data-block="idiomas"] p, [data-block="formacao"] p { line-height: 1.35; }
+
+            /*
+              The metric cards, padded tighter.
+
+              The only spacing left in this block, and it is padding rather than
+              margin: a card is a box, and a box's interior is not a gap between
+              two things on the page, so it does not belong to the scale.
+            */
+            [data-block="metricas"] > div > div { padding: 0.8mm; }
 
             /*
               Formação and Idiomas, one column, never two.
@@ -290,9 +413,7 @@
               caps every line on this page, so the content is what gives, not the
               arrangement. That is the trade this document now makes everywhere.
             */
-            .fact-list { font-size: var(--body); color: #334155; line-height: 1.35; }
             [data-block="formacao"] p, [data-block="idiomas"] p { white-space: nowrap; }
-            [data-block="formacao"] p, [data-block="idiomas"] p { margin-bottom: 0.3mm; }
 
             .a4-page {
                 margin: 0;
@@ -313,13 +434,13 @@
               by two tenths of a millimetre and left eighty-six millimetres of white
               space behind.
 
-              The footer leads the sheet so this selector can name the block before it.
-              `> *:last-child:not(.resume-footer)` looks equivalent and matches nothing at
-              all - the footer is the last child, so the one element that is both
-              last and not the footer does not exist. The rule then never fires and every
-              sheet carries four dead millimetres.
+              `:last-child`, plainly. It used to be
+              `> .resume-footer ~ *:last-child`, written so that the footer could
+              lead the sheet - and there has been no footer for some time, so the
+              selector matched nothing and every sheet carried four dead millimetres
+              while the comment above it explained, at length, that it did not.
             */
-            .a4-page > .resume-footer ~ *:last-child { margin-bottom: 0 !important; }
+            .a4-page > *:last-child { margin-bottom: 0; }
 
             .no-print { display: none !important; }
             .keep-together { page-break-inside: avoid; }
@@ -332,9 +453,9 @@
     <div class="a4-page">
 
         <!-- HEADER -->
-        <header class="mb-4" data-block="header" data-pinned="first">
+        <header data-block="header" data-pinned="first">
             <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase" data-rule="nome">Marcelino Sandroni Dias</h1>
-            <h2 class="text-base font-bold text-slate-700 mt-1 mb-1" data-rule="cargo">Engenheiro de Software Sênior &amp; IA</h2>
+            <h2 class="text-base font-bold text-slate-700" data-rule="cargo">Engenheiro de Software Sênior &amp; IA</h2>
             <p class="header-tagline" data-rule="tagline">Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.</p>
 
             <!--
@@ -363,7 +484,7 @@
         </header>
 
         <!-- RESUMO PROFISSIONAL -->
-        <section class="mb-4" data-block="resumo">
+        <section data-block="resumo">
             <h3 class="section-title">Resumo Profissional</h3>
             <p class="text-[12.5px] text-slate-700 text-justify" data-rule="resumo">
                 <strong>Engenheiro Full Stack de verdade, </strong>unindo visão estratégica e análise de negócio à execução end-to-end em UI/UX, mobile, frontend, backend, DevOps, engenharia de dados e IA, com 6 anos em engenharia de software e 15 em governança financeira, criando soluções escaláveis e sistemas críticos que movimentam bilhões de reais.</p>
@@ -381,30 +502,30 @@
              them - which means a caption can no longer be made to fit by being made
              smaller. `scripts/data/resume-layout-rules.ts` records the size and the
              limit together so the two cannot drift apart. -->
-        <section class="mb-2 keep-together" data-block="metricas">
+        <section class="keep-together" data-block="metricas">
             <h3 class="section-title">Principais Métricas de Impacto em Produção</h3>
             <div class="grid grid-cols-4 gap-3 text-center">
                 <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
-                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1" data-rule="metrica-valor">+R$ 500 Bi</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5" data-rule="metrica-destaque">Gestão de Ativos</div>
+                    <div class="font-black text-slate-800 text-[16px] leading-none" data-rule="metrica-valor">+R$ 500 Bi</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight" data-rule="metrica-destaque">Gestão de Ativos</div>
                     <div class="text-[9px] text-slate-500 font-medium leading-tight" data-rule="metrica-descricao">Aplicações críticas de custódia de fundos.</div>
                 </div>
 
                 <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
-                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1" data-rule="metrica-valor">D+0 (Real-Time)</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5" data-rule="metrica-destaque">Liquidação Síncrona</div>
+                    <div class="font-black text-slate-800 text-[16px] leading-none" data-rule="metrica-valor">D+0 (Real-Time)</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight" data-rule="metrica-destaque">Liquidação Síncrona</div>
                     <div class="text-[9px] text-slate-500 font-medium leading-tight" data-rule="metrica-descricao">Sistema de processamento de pagamentos em tempo real.</div>
                 </div>
 
                 <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
-                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1" data-rule="metrica-valor">100M+ msgs/dia</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5" data-rule="metrica-destaque">Alta Escala</div>
+                    <div class="font-black text-slate-800 text-[16px] leading-none" data-rule="metrica-valor">100M+ msgs/dia</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight" data-rule="metrica-destaque">Alta Escala</div>
                     <div class="text-[9px] text-slate-500 font-medium leading-tight" data-rule="metrica-descricao">Arquitetura de processamento assíncrono de eventos.</div>
                 </div>
 
                 <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
-                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1" data-rule="metrica-valor">R$ 24M/ano (ROI)</div>
-                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-0.5" data-rule="metrica-destaque">Inteligência Artificial</div>
+                    <div class="font-black text-slate-800 text-[16px] leading-none" data-rule="metrica-valor">R$ 24M/ano (ROI)</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight" data-rule="metrica-destaque">Inteligência Artificial</div>
                     <div class="text-[9px] text-slate-500 font-medium leading-tight" data-rule="metrica-descricao">Contrato salvo com implementação e melhorias em IA de ponta.</div>
                 </div>
             </div>
@@ -429,11 +550,11 @@
             por ela em vez de ler cinco fragmentos de uma carreira fora de
             contexto.
         -->
-        <section class="mb-4 keep-together" data-block="carreira" aria-hidden="true" role="presentation">
+        <section class="keep-together" data-block="carreira" aria-hidden="true" role="presentation">
             <h3 class="section-title">Linha do Tempo de Carreira</h3>
             <div id="carreira-timeline"></div>
         </section>
-        <section class="mb-2 keep-together" data-block="habilidades">
+        <section class="keep-together" data-block="habilidades">
             <!--
                 The general inventory. A stack variant replaces this whole section
                 with one written for its stack - see `replaceInventory` in
@@ -442,12 +563,12 @@
                 document in the set.
             -->
             <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>
-            <div class="text-slate-700">
-                <p class="mb-1" data-item data-rule="habilidade"><strong>Frontend &amp; UI:</strong> React, Next.js, Angular, Vue.js, React Native, Flutter, TypeScript, JavaScript, Micro-frontends, SSR, Storybook, Tailwind CSS, Design Systems.</p>
-                <p class="mb-1" data-item data-rule="habilidade"><strong>Backend &amp; Frameworks:</strong> Java (Spring Boot), C# (.NET Core), Node.js (NestJS), Go, Python, RESTful APIs, gRPC, WebSockets, Clean Architecture, DDD, CQRS, SOLID.</p>
-                <p class="mb-1" data-item data-rule="habilidade"><strong>Dados &amp; Mensageria:</strong> Oracle, PostgreSQL, SQL Server, MySQL, MongoDB, Redis, ClickHouse, Databricks, Apache Kafka, RabbitMQ, Event Sourcing, Circuit Breakers.</p>
-                <p class="mb-1" data-item data-rule="habilidade"><strong>Cloud, DevOps &amp; SRE:</strong> AWS, GCP, Azure, Oracle Cloud, IBM Cloud, Docker, Kubernetes (Helm), Terraform, CI/CD, OpenTelemetry, Prometheus, Grafana, Jaeger, FinOps.</p>
-                <p class="mb-1" data-item data-rule="habilidade"><strong>IA &amp; Governança:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, RAG, Agentes LLM, Visão Computacional, TDD, BDD, Testes E2E, SonarQube, SOX, IFRS/CPC.</p>
+            <div class="fact-list">
+                <p data-item data-rule="habilidade"><strong>Frontend &amp; UI:</strong> React, Next.js, Angular, Vue.js, React Native, Flutter, TypeScript, JavaScript, Micro-frontends, SSR, Storybook, Tailwind CSS, Design Systems.</p>
+                <p data-item data-rule="habilidade"><strong>Backend &amp; Frameworks:</strong> Java (Spring Boot), C# (.NET Core), Node.js (NestJS), Go, Python, RESTful APIs, gRPC, WebSockets, Clean Architecture, DDD, CQRS, SOLID.</p>
+                <p data-item data-rule="habilidade"><strong>Dados &amp; Mensageria:</strong> Oracle, PostgreSQL, SQL Server, MySQL, MongoDB, Redis, ClickHouse, Databricks, Apache Kafka, RabbitMQ, Event Sourcing, Circuit Breakers.</p>
+                <p data-item data-rule="habilidade"><strong>Cloud, DevOps &amp; SRE:</strong> AWS, GCP, Azure, Oracle Cloud, IBM Cloud, Docker, Kubernetes (Helm), Terraform, CI/CD, OpenTelemetry, Prometheus, Grafana, Jaeger, FinOps.</p>
+                <p data-item data-rule="habilidade"><strong>IA &amp; Governança:</strong> PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, RAG, Agentes LLM, Visão Computacional, TDD, BDD, Testes E2E, SonarQube, SOX, IFRS/CPC.</p>
             </div>
         </section>
 
@@ -463,7 +584,7 @@
             that is too long overflows and fails the build rather than wrapping into
             a second line that a reader reads as a second degree.
         -->
-        <section class="mb-2 keep-together" data-block="formacao">
+        <section class="keep-together" data-block="formacao">
             <h3 class="section-title">Formação Acadêmica &amp; Especializações</h3>
             <div class="fact-list">
                 <p data-item data-rule="formacao"><strong>Bacharelado em Engenharia de Computação</strong> — UNIVESP, 2021 – 2026</p>
@@ -471,7 +592,7 @@
             </div>
         </section>
 
-        <section class="mb-2 keep-together" data-block="idiomas">
+        <section class="keep-together" data-block="idiomas">
             <h3 class="section-title">Idiomas</h3>
             <div class="fact-list">
                 <p data-item data-rule="idioma"><strong>Espanhol:</strong> Básico — leitura técnica e comunicação assíncrona.</p>
@@ -480,7 +601,7 @@
         </section>
 
         <!-- DGT -->
-        <div class="mb-4 keep-together" data-block="cargo" data-breaks-page="true">
+        <div class="keep-together" data-block="cargo" data-breaks-page="true">
             <h3 class="section-title">Experiência Profissional</h3>
             <div class="role-head">
                 <h4 data-rule="cargo-titulo">Engenheiro de Software Sênior &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT</span></h4>
@@ -494,7 +615,7 @@
                 </ul>
         </div>
         <!-- BNP Paribas -->
-        <div class="mb-4 keep-together" data-block="cargo">
+        <div class="keep-together" data-block="cargo">
             <div class="role-head">
                 <h4 data-rule="cargo-titulo">Engenheiro de Software Sênior <span class="text-slate-400 font-normal">| BNP Paribas</span></h4>
                 <span data-rule="cargo-periodo" class="role-when">(2 anos e 10 meses) · Dez/2022 – Set/2025</span>
@@ -507,7 +628,7 @@
                 </ul>
         </div>
         <!-- ITAÚ -->
-        <div class="mb-4 keep-together" data-block="cargo">
+        <div class="keep-together" data-block="cargo">
             <div class="role-head">
                 <h4 data-rule="cargo-titulo">Engenheiro de Software Pleno <span class="text-slate-400 font-normal">| ITAÚ</span></h4>
                 <span data-rule="cargo-periodo" class="role-when">(2 anos e 5 meses) · Jul/2020 – Nov/2022</span>
@@ -520,7 +641,7 @@
                 </ul>
         </div>
         <!-- ZUP -->
-        <div class="mb-4 keep-together" data-block="cargo">
+        <div class="keep-together" data-block="cargo">
             <div class="role-head">
                 <h4 data-rule="cargo-titulo">Engenheiro de Software Pleno <span class="text-slate-400 font-normal">| ZUP</span></h4>
                 <span data-rule="cargo-periodo" class="role-when">(1 ano e 4 meses) · Mar/2019 – Jun/2020</span>
@@ -532,7 +653,7 @@
                 </ul>
         </div>
         <!-- Consultoria Corporativa -->
-        <div class="mb-5 keep-together" data-block="cargo">
+        <div class="keep-together" data-block="cargo">
             <div class="role-head">
                 <h4 data-rule="cargo-titulo">Analista Contábil &amp; Gestor Financeiro <span class="text-slate-400 font-normal">| Consultoria</span></h4>
                 <span data-rule="cargo-periodo" class="role-when">(15 anos e 6 meses) · Jul/2003 – Dez/2018</span>

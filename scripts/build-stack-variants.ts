@@ -203,7 +203,7 @@ function render(shell: string, variant: Variant): string {
 
   out =
     out.slice(0, headline.index) +
-    `<h2 class="text-base font-bold text-slate-700 mt-1 mb-3" data-rule="cargo">${variant.headline}</h2>` +
+    `<h2 class="text-base font-bold text-slate-700" data-rule="cargo">${variant.headline}</h2>` +
     out.slice(headline.index + headline[0].length);
 
   return out;
@@ -242,7 +242,7 @@ function replaceInventory(html: string, variant: Variant): string {
   const replacement =
     variant.inventory === undefined
       ? ""
-      : `<section class="mb-2 keep-together" data-block="habilidades">
+      : `<section class="keep-together" data-block="habilidades">
             <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>${renderInventory(variant.inventory)}
         </section>
 
@@ -256,12 +256,12 @@ function renderInventory(groups: ReadonlyArray<readonly [string, string]>): stri
   const paragraphs = groups
     .map(
       ([label, items]) =>
-        `                <p class="mb-1" data-item data-rule="habilidade"><strong>${label}:</strong> ${items}</p>`,
+        `                <p data-item data-rule="habilidade"><strong>${label}:</strong> ${items}</p>`,
     )
     .join("\n");
 
   return `
-            <div class="text-slate-700">
+            <div class="fact-list">
 ${paragraphs}
             </div>`;
 }
