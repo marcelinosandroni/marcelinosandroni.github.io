@@ -1,5 +1,12 @@
 import { promises as fs } from "node:fs";
 import { paginate } from "./paginate-resume";
+import {
+  TONES,
+  TIMELINE_CSS,
+  assertTimelineMatchesRoles,
+  buildTimeline,
+  type TimelineRole,
+} from "./data/career-timeline";
 import { resolve } from "node:path";
 
 /**
@@ -51,6 +58,7 @@ const TEXT: ReadonlyArray<Rule> = [
 
   // Experience
   { from: ">Experiência Profissional<", to: ">Professional Experience<" },
+  { from: ">Linha do Tempo de Carreira<", to: ">Career Timeline<" },
   { from: ">Experiência Profissional (Continuação)<", to: ">Professional Experience (Continued)<" },
   { from: "Engenheiro de Software &amp; Tech Lead <span", to: "Software Engineer &amp; Tech Lead <span" },
   { from: "Engenheiro de Software <span class=\"text-slate-400 font-normal\">| Antlia", to: "Software Engineer <span class=\"text-slate-400 font-normal\">| Antlia" },
@@ -298,6 +306,24 @@ const LEFTOVERS: ReadonlyArray<string> = [
   "Dez/",
 ];
 
+
+/*
+  The career timeline, in English.
+
+  Written out rather than translated from the Portuguese one, because the levels
+  are words rather than markup and a translation rule that matched `Sênior` would
+  also match the one place in the Portuguese document it is allowed to appear.
+
+  The periods stay Portuguese: they are read for the month counts and never
+  printed, and the date pass below rewrites the ones the reader does see.
+*/
+const TIMELINE_EN: ReadonlyArray<TimelineRole> = [
+  { label: "Pollux", period: "Fev/2021 – Fev/2022 · Remoto", level: "Junior → Full", tone: TONES.lightest },
+  { label: "Itaú", period: "Mar/2022 – Fev/2023 · Híbrido", level: "Senior", tone: TONES.light },
+  { label: "BNP Paribas", period: "Mar/2023 – Dez/2025 · Híbrido", level: "Senior", tone: TONES.mid },
+  { label: "DGT", period: "Jan/2026 – Set/2026 · Remoto", level: "Tech Lead", tone: TONES.dark },
+];
+
 async function main(): Promise<void> {
   const source = await fs.readFile(resolve("resume-shell.html"), "utf8");
   let out = source;
@@ -327,6 +353,23 @@ async function main(): Promise<void> {
       /Engenheiro de Software &amp; IA — Currículo v1 — Página (\d+) de (\d+)/g,
       "Software &amp; AI Engineer — Resume v1 — Page $1 of $2",
     );
+
+  /*
+    The bar goes in before the date pass, not after it.
+
+    The guard compares the timeline's periods against the dates the document
+    actually carries, and the date pass below rewrites `Fev/2021` to `Feb/2021`.
+    Fill the bar afterwards and the two disagree about a month that was never in
+    dispute - which is the guard doing its job, on a document that is right.
+  */
+  const placeholder = '<div id="carreira-timeline"></div>';
+
+  if (!out.includes(placeholder)) {
+    throw new Error("the shell has no timeline placeholder");
+  }
+
+  assertTimelineMatchesRoles("en-US", TIMELINE_EN, out);
+  out = out.replace(placeholder, buildTimeline(TIMELINE_EN));
 
   /*
     Tenures and dates, which no phrase rule ever covered.
@@ -391,6 +434,7 @@ async function main(): Promise<void> {
       months === "1" ? "1 month" : `${months} months`,
     );
 
+
   const found = LEFTOVERS.filter((word) => {
     const body = out.slice(out.indexOf("<body"));
     return body.includes(word);
@@ -418,6 +462,8 @@ async function main(): Promise<void> {
     footers can be right; forcing both to two pages would mean cutting content
     because of a translation.
   */
+  out = out.replace("</style>", `${TIMELINE_CSS}\n        </style>`);
+
   const { html, pages } = await paginate(out, {
     footer: (page, total) =>
       `Marcelino Sandroni Dias — Software &amp; AI Engineer — Resume v1 — Page ${page} of ${total}`,

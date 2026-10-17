@@ -644,6 +644,7 @@ const REQUIRED_ORDER: ReadonlyArray<string> = [
   "header",
   "resumo",
   "metricas",
+  "carreira",
   "habilidades",
   "cargo",
   "cargo",

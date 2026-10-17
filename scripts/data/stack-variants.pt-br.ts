@@ -29,6 +29,39 @@
  * Read out of the period string, so editing a date corrects the duration on the
  * next build with no second edit to remember.
  */
+import { TONES, type TimelineRole } from "./career-timeline";
+
+/*
+  The career timeline, per document.
+
+  It restates the technology roles and nothing else. The fifteen years of finance
+  before them are real and are in the document, but putting them on this bar would
+  squeeze six years of engineering into a twentieth of the width and turn the shape
+  into a claim that the bar contradicts.
+
+  Ordered oldest first, because a timeline reads left to right and the career did
+  not start on the right.
+
+  The periods are written out rather than derived, which is a second copy of a
+  fact that also lives in the roles - so `assertTimelineMatchesRoles` fails the
+  build if the two stop agreeing. Writing the dates twice and checking them is
+  cheaper than threading structured data through a renderer that was built to take
+  strings.
+*/
+export const GENERAL_TIMELINE: ReadonlyArray<TimelineRole> = [
+  { label: "Pollux", period: "Fev/2021 – Fev/2022 · Remoto", level: "Júnior → Pleno", tone: TONES.lightest },
+  { label: "Itaú", period: "Mar/2022 – Fev/2023 · Híbrido", level: "Sênior", tone: TONES.light },
+  { label: "BNP Paribas", period: "Mar/2023 – Dez/2025 · Híbrido", level: "Sênior", tone: TONES.mid },
+  { label: "DGT", period: "Jan/2026 – Set/2026 · Remoto", level: "Tech Lead", tone: TONES.dark },
+];
+
+const JAVA_TIMELINE: ReadonlyArray<TimelineRole> = [
+  { label: "Zup", period: "Mar/2019 – Jun/2020 · Remoto", level: "Júnior → Pleno", tone: TONES.lightest },
+  { label: "Itaú", period: "Jul/2020 – Nov/2022 · Híbrido", level: "Sênior", tone: TONES.light },
+  { label: "BNP Paribas", period: "Dez/2022 – Set/2025 · Híbrido", level: "Sênior", tone: TONES.mid },
+  { label: "DGT", period: "Out/2025 – Set/2026 · Remoto", level: "Tech Lead", tone: TONES.dark },
+];
+
 const MONTH_INDEX: Readonly<Record<string, number>> = {
   jan: 1, fev: 2, mar: 3, abr: 4, mai: 5, jun: 6,
   jul: 7, ago: 8, set: 9, out: 10, nov: 11, dez: 12,
@@ -164,6 +197,7 @@ const summary = (lead: string, body: string): string => `
 export const variants = [
   {
 slug: "enterprise-java",
+    timeline: JAVA_TIMELINE,
     label: "Enterprise Java + Angular",
     title: "Marcelino Sandroni - Engenheiro Java e Angular",
     headline: "Engenheiro de Software | Angular + Java",
@@ -256,6 +290,7 @@ slug: "enterprise-java",
 
   {
     slug: "enterprise-dotnet",
+    timeline: GENERAL_TIMELINE,
     label: "Enterprise C# + Angular",
     title: "Marcelino Sandroni - Engenheiro C# e Angular",
     headline: "Engenheiro de Software | C# &amp; Angular",
@@ -358,6 +393,7 @@ slug: "enterprise-java",
 
   {
     slug: "modern-web",
+    timeline: GENERAL_TIMELINE,
     label: "Modern Node + Go + React",
     title: "Marcelino Sandroni - Engenheiro Node, Go e React",
     headline: "Engenheiro de Software | Node, Go &amp; React",
