@@ -114,7 +114,58 @@
             .no-print { display: none !important; }
             .keep-together { page-break-inside: avoid; }
         }
-    </style>
+    
+            /* The career timeline. One block, never split across a page break. */
+            .tl { display: flex; flex-direction: column; gap: 0.9mm; padding-top: 0.5mm; }
+            .tl-row { display: flex; align-items: stretch; gap: 0.7mm; }
+            .tl-slot { display: flex; min-width: 0; }
+            .tl-inner {
+                display: flex; flex: 1 1 auto; min-width: 0;
+                /*
+                  Stretch, not centre.
+
+                  Centring a column's children sizes them to their content, and a
+                  segment has no content - so every bar came out zero pixels wide
+                  and the timeline rendered as labels floating over an empty strip.
+                  The text centres itself instead.
+                */
+                flex-direction: column; align-items: stretch; justify-content: center;
+                text-align: center;
+            }
+
+            .tl-label {
+                font-size: 7.4px; font-weight: 600; line-height: 1.1; color: #334155;
+                text-align: center; white-space: nowrap;
+            }
+            /*
+              min-width 0 is what lets the caption wrap inside its own segment.
+
+              A flex item's default minimum is its content width, so a caption
+              longer than its segment - "Principal & AI Engineer" in a block a
+              seventh of the bar - refuses to wrap and spills over the edge of the
+              thing it belongs to. Setting it to zero lets the text break, which is
+              the only way a narrow segment can carry a long label honestly.
+
+              No backticks in these comments: this is a template literal, and one
+              would close the string the CSS lives in.
+            */
+            .tl-level {
+                font-size: 6.6px; font-weight: 500; line-height: 1.15; color: #64748b;
+                text-align: center; letter-spacing: 0.01em; min-width: 0; max-width: 100%;
+            }
+            .tl-bar { width: 100%; height: 4.4mm; border-radius: 0.9mm; }
+            .tl-bar--future {
+                background: transparent;
+                border: 0.5mm dashed #94a3b8;
+                border-radius: 0.9mm;
+            }
+            .tl-future-mark {
+                font-size: 15px; font-weight: 800; color: #94a3b8; line-height: 1;
+                text-align: center;
+            }
+            .tl-level--future { color: #1e293b; font-weight: 700; }
+
+        </style>
 <style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;height:auto}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:not([hidden=until-found]){display:none}.absolute{position:absolute}.bottom-4{bottom:1rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.ml-1{margin-left:0.25rem}.mt-0{margin-top:0px}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.mb-1\.5{margin-bottom:0.375rem}.flex{display:flex}.grid{display:grid}.w-\[calc\(100\%-30mm\)\]{width:calc(100% - 30mm)}.w-full{width:100%}.list-disc{list-style-type:disc}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-start{justify-content:flex-start}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-y-1\.5{row-gap:0.375rem}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.justify-self-center{justify-self:center}.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:0.25rem}.border{border-width:1px}.border-t{border-top-width:1px}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.p-2{padding:0.5rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.pl-4{padding-left:1rem}.pt-2{padding-top:0.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-justify{text-align:justify}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11\.5px\]{font-size:11.5px}.text-\[12\.5px\]{font-size:12.5px}.text-\[13px\]{font-size:13px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-\[16px\]{font-size:16px}.font-black{font-weight:900}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.leading-none{line-height:1}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}</style></head>
 <body class="antialiased text-sm">
 
@@ -190,6 +241,15 @@
                 </div>
             </div></section>
 
+        <section class="mb-4 keep-together" data-block="carreira" aria-hidden="true" role="presentation">
+            <h3 class="section-title">Linha do Tempo de Carreira</h3>
+            <div class="tl">
+            <div class="tl-row tl-row--labels"><div class="tl-slot" style="flex:16.000 1 0"><div class="tl-inner"><div class="tl-label">Zup</div></div></div><div class="tl-slot" style="flex:29.000 1 0"><div class="tl-inner"><div class="tl-label">Itaú</div></div></div><div class="tl-slot" style="flex:34.000 1 0"><div class="tl-inner"><div class="tl-label">BNP Paribas</div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-label">DGT</div></div></div><div class="tl-slot" style="flex:16.059 1 0"><div class="tl-inner"><div class="tl-label tl-future-mark">?</div></div></div></div>
+            <div class="tl-row tl-row--bar"><div class="tl-slot" style="flex:16.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#cbd5e1"></div></div></div><div class="tl-slot" style="flex:29.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#94a3b8"></div></div></div><div class="tl-slot" style="flex:34.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#64748b"></div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#1e293b"></div></div></div><div class="tl-slot" style="flex:16.059 1 0"><div class="tl-inner"><div class="tl-bar tl-bar--future"></div></div></div></div>
+            <div class="tl-row tl-row--levels"><div class="tl-slot" style="flex:16.000 1 0"><div class="tl-inner"><div class="tl-level">Júnior → Pleno</div></div></div><div class="tl-slot" style="flex:29.000 1 0"><div class="tl-inner"><div class="tl-level">Sênior</div></div></div><div class="tl-slot" style="flex:34.000 1 0"><div class="tl-inner"><div class="tl-level">Sênior</div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-level">Tech Lead</div></div></div><div class="tl-slot" style="flex:16.059 1 0"><div class="tl-inner"><div class="tl-level tl-level--future">Principal &amp; AI Engineer</div></div></div></div>
+            </div>
+        </section>
+
         <div data-block="habilidades" class="keep-together"><h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3></div>
 
         <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Frontend &amp; UI Architecture:</strong> Angular (v8 à v22), TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends (Module Federation), Estado/Reatividade (RxJS, NgRx), SSR, Tailwind CSS, Angular Material, shadcn, Design Systems.</p></div>
@@ -203,7 +263,12 @@
         <div data-block="habilidades" class="text-[11.5px] text-slate-700"><p class="mb-1"><strong>Arquitetura, APIs &amp; Mensageria:</strong> RESTful Nível 3, gRPC, GraphQL, WebSockets/SSE, Apache Kafka (partições, idempotência), RabbitMQ (topic exchanges, DLQ), Circuit Breakers, Clean Architecture, DDD, CQRS, SOLID.</p></div>
 
         <div data-block="habilidades" class="text-[11.5px] text-slate-700 mb-4"><p class="mb-1"><strong>Ecossistema Analítico &amp; Bancos:</strong> Oracle, PostgreSQL, SQL Server, MongoDB, Redis, Cassandra, Neo4j, DynamoDB, DocumentDB, Snowflake, Databricks.</p></div>
+        </div>
 
+        <div class="a4-page">
+            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 2 de 3
+            </div>
         <div class="mb-4 keep-together keep-together" data-block="cargo">
                 <h3 class="section-title">Experiência Profissional</h3>
                 <div class="flex justify-between items-end mb-1">
@@ -219,12 +284,7 @@
                     <li><strong>Micro-frontends Enterprise:</strong> Interfaces web complexas em Angular sobre micro-frontends reaproveitáveis, com gerenciamento reativo (RxJS/NgRx) via WebSockets, assegurando UX fluida sob alta carga.</li>
                 </ul>
             </div>
-        </div>
 
-        <div class="a4-page">
-            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 2 de 3
-            </div>
         <div class="mb-2 keep-together keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Engenheiro de Software <span class="text-slate-400 font-normal">| Banco BNP Paribas (via Antlia)</span></h4>
@@ -268,7 +328,12 @@
                     <li><strong>Resiliência e Circuit Breakers:</strong> Correção estrutural em integrações de mensageria assíncrona com RabbitMQ, implementando Circuit Breakers e Dead Letter Queues (DLQs), elevando a assertividade de dados transacionais para 100%.</li>
                 </ul>
             </div>
+        </div>
 
+        <div class="a4-page">
+            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
+                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 3 de 3
+            </div>
         <div class="mb-5 keep-together keep-together" data-block="cargo">
                 <div class="flex justify-between items-end mb-1">
                     <h4 class="font-bold text-slate-900 text-[13px]">Analista Contábil &amp; Gestor Financeiro <span class="text-slate-400 font-normal">| Consultoria Corporativa</span></h4>
@@ -295,12 +360,7 @@
                 </div>
             </div>
         </section>
-        </div>
 
-        <div class="a4-page">
-            <div class="resume-footer text-[9px] text-slate-400 text-center border-t border-slate-200 pt-2 mt-4 absolute bottom-4 w-[calc(100%-30mm)]">
-                Marcelino Sandroni Dias — Engenheiro de Software &amp; IA — Currículo v1 — Página 3 de 3
-            </div>
         <section class="mb-4 keep-together" data-block="idiomas">
             <h3 class="section-title">Idiomas</h3>
             <div class="text-xs text-slate-700 flex flex-col gap-1" style="

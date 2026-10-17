@@ -197,6 +197,23 @@
              stack. It is back because the inventory and the role boxes answer
              different questions - one says what he knows, the other says where he
              used it. -->
+        <!--
+            A barra de linha do tempo entra aqui.
+
+            O bloco e um placeholder: o build preenche com o markup e com o CSS a
+            partir de `scripts/data/career-timeline.ts`, para que as proporcoes, as
+            cores e o texto vivam em um lugar so. O esqueleto nao escreve nada -
+            ele e a fonte, e a fonte nao se edita sozinha.
+
+            `aria-hidden` porque a barra repete, em forma, o que a secao de
+            experiencia ja escreve em palavras. Um leitor de tela deve passar direto
+            por ela em vez de ler cinco fragmentos de uma carreira fora de
+            contexto.
+        -->
+        <section class="mb-4 keep-together" data-block="carreira" aria-hidden="true" role="presentation">
+            <h3 class="section-title">Linha do Tempo de Carreira</h3>
+            <div id="carreira-timeline"></div>
+        </section>
         <section class="mb-4 keep-together" data-block="habilidades">
             <h3 class="section-title">Habilidades Técnicas &amp; Arquitetura de Software</h3>
             <div class="text-[11.5px] text-slate-700">

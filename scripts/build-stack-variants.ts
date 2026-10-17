@@ -1,6 +1,13 @@
 import { promises as fs } from "node:fs";
 import { resolve } from "node:path";
 import { paginate } from "./paginate-resume";
+import {
+  TIMELINE_CSS,
+  assertTimelineMatchesRoles,
+  buildTimeline,
+  type TimelineRole,
+} from "./data/career-timeline";
+import { GENERAL_TIMELINE } from "./data/stack-variants.pt-br";
 
 /**
  * Builds the stack-specific résumés from the approved general one.
@@ -75,6 +82,14 @@ type Variant = {
    * the first sentence is what they read before deciding to read the rest.
    */
   readonly sections: Partial<Record<SectionId, string>>;
+  /**
+   * The roles the career timeline shows, oldest first.
+   *
+   * Required rather than optional: a variant that left it out would ship a
+   * document whose bar still showed the general document's history, which is the
+   * kind of quiet wrongness that survives review and reaches a recruiter.
+   */
+  readonly timeline: ReadonlyArray<TimelineRole>;
 };
 
 /**
@@ -146,7 +161,9 @@ async function main(): Promise<void> {
   */
   assertRoles("document", shell);
 
-  const { html: general, pages: generalPages } = await paginate(shell);
+  const withTimeline = injectTimeline(shell, GENERAL_TIMELINE, "document");
+
+  const { html: general, pages: generalPages } = await paginate(withTimeline);
 
   await fs.writeFile(resolve("resume-recruiter-pt-br.html"), general, "utf8");
   console.log(`wrote resume-recruiter-pt-br.html (${generalPages} pages)`);
@@ -201,6 +218,7 @@ function render(shell: string, variant: Variant): string {
   }
 
   out = replaceExperience(out, variant);
+  out = injectTimeline(out, variant.timeline, variant.slug);
   out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${variant.title}</title>`);
 
   /*
@@ -364,7 +382,26 @@ function assertRoles(slug: string, html: string): void {
     );
   }
 
-  if (/S(?:ê|e)nior/.test(html)) {
+  /*
+    The timeline is the one place a level is named, and it is a deliberate
+    exception rather than an oversight.
+
+    A bar that shows the shape of a career has to label the shape, and the shape
+    here is the progression - Júnior to Pleno to Sênior to Tech Lead. That is a
+    claim about the last seven years, which is different from a title line asking
+    to be hired at one level: nobody reads a timeline and concludes the candidate
+    will only accept one. It is `aria-hidden` decoration restating the experience
+    section, and it is the only block exempt from the check below.
+
+    If that reading ever stops being the right one, the exemption is the single
+    place to remove - the levels become the role titles and the bar reads the same.
+  */
+  const withoutTimeline = html.replace(
+    /<section[^>]*data-block="carreira"[\s\S]*?<\/section>/,
+    "",
+  );
+
+  if (/S(?:ê|e)nior/.test(withoutTimeline)) {
     throw new Error(`[${slug}] reintroduced "Sênior" somewhere in the document`);
   }
 
@@ -436,6 +473,43 @@ function assertChronological(slug: string, html: string): void {
   }
 }
 
+/**
+ * Fills the timeline placeholder, and teaches the stylesheet what it needs.
+ *
+ * The CSS is injected rather than hand-written into the shell so that the
+ * proportions, the tones and the markup come from one module. Two files describing
+ * the same bar is how a colour and a width end up disagreeing with nobody able to
+ * say which one is right.
+ */
+function injectTimeline(
+  html: string,
+  roles: ReadonlyArray<TimelineRole>,
+  slug: string,
+): string {
+  const placeholder = '<div id="carreira-timeline"></div>';
+
+  if (!html.includes(placeholder)) {
+    throw new Error(`[${slug}] the shell has no timeline placeholder`);
+  }
+
+  const bar = buildTimeline(roles);
+
+  /*
+    Checked against the document that is about to be paginated, not against the
+    data that produced the bar. The question is not "are these numbers right" but
+    "are these the same jobs this page lists" - and only the rendered document can
+    answer the second one.
+  */
+  assertTimelineMatchesRoles(slug, roles, html);
+
+  const withMarkup = html.replace(placeholder, bar);
+
+  if (withMarkup.includes(TIMELINE_CSS)) {
+    return withMarkup;
+  }
+
+  return withMarkup.replace("</style>", `${TIMELINE_CSS}\n        </style>`);
+}
 /**
  * Refuses a variant that is not actually specialised.
  *
