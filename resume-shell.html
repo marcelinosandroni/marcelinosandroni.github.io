@@ -267,15 +267,62 @@
               three facts legible instead of one run-on; the millimetres came from
               the breakout instead, where they cost the document nothing.
             */
+            /*
+              The contact block: six cells in two rows, on the same measure as
+              everything else.
+
+              ## The grid, and not two lines of prose
+
+              Two inline rows did not align. `Localização:` is wider than
+              `LinkedIn:`, so the six values started at six different places and
+              the block read as two unrelated lists. A six-column grid puts every
+              label on one baseline and every value on another, and the columns
+              line up across both rows because it is the same grid.
+
+              ## Why it fits where the inline version did not
+
+              A grid column is sized by the widest thing in it, and the block's
+              width is the sum of six maxima plus five gaps - not the sum of all
+              twelve cells, which is what two lines of inline text cost. The
+              difference is the width that made the six fields possible inside the
+              text column, and it is also why the block needed no padding, no
+              background and no negative margin: it sits exactly on the text
+              measure, aligned with the name and the section rules.
+
+              `1fr` on the last column so the block is exactly the measure wide and
+              not a row of natural widths that happens to fit today. It cannot
+              shrink below its content, so a field that grew would push the grid
+              past the column and the layout check would refuse the build.
+
+              ## No underline on the values
+
+              Every value but one was a link, and the link style underlines. That
+              put a rule under five of six values and left `Fortaleza, CE` sitting
+              differently from the rest — the lines looked misaligned because two
+              of the three things that should have matched did not. Underlining is
+              also noise on paper: a URL is not a reference a reader needs marked,
+              because it is already the address.
+
+              Hover brings it back on screen, where there is a cursor to point at
+              it. In print there is not one.
+            */
             .contact-block {
                 font-size: var(--contact); line-height: 1.4; color: #334155;
-                border-left: 1.5px solid #cbd5e1;
-                padding: 0.4mm 0.8mm;
-                margin: 0 -4mm 0;
+                display: grid;
+                grid-template-columns:
+                    max-content max-content
+                    max-content max-content
+                    max-content 1fr;
+                column-gap: var(--space-1);
+                row-gap: var(--space-1);
             }
-            .contact-block p { white-space: nowrap; }
+            .contact-block > * { white-space: nowrap; }
             .contact-block strong { color: #1f2937; font-weight: 600; }
-            .contact-sep { color: #94a3b8; margin: 0 0.8mm; }
+            .contact-block a { text-decoration: none; }
+            @media screen {
+                .contact-block a:hover,
+                .contact-block a:focus-visible { text-decoration: underline; }
+            }
 
             /* The role header: title on the left, dates on the right, one line. */
             .role-head {
@@ -459,27 +506,44 @@
             <p class="header-tagline" data-rule="tagline">Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.</p>
 
             <!--
-                Contacto: dois campos fixos, sempre estes, sempre nesta ordem.
+                Contacto: seis campos fixos, sempre estes, sempre nesta ordem,
+                em duas linhas de três.
 
                 `data-rule="contato"` é o que o contrato de layout mede, e o
-                `nowrap` no bloco de impressão é o que faz uma linha longa
-                transbordar e reprovar o build em vez de quebrar e empurrar o
-                documento para baixo.
+                `nowrap` em cada célula é o que faz um campo longo transbordar e
+                reprovar o build em vez de quebrar.
+
+                Uma grade de seis colunas, não duas linhas de texto solto, porque as
+                duas linhas de texto solto não se alinhavam: "Localização" é mais
+                largo que "LinkedIn", então os valores começavam em seis lugares
+                diferentes e as duas linhas pareciam duas listas em vez de uma
+                tabela. Seis colunas com o rótulo e o valor separados alinham os
+                rótulos entre si e os valores entre si, e as colunas se alinham
+                pelas duas linhas porque é a mesma grade.
+
+                E uma grade cabe onde duas linhas de texto não cabiam. As colunas
+                são dimensionadas pelo conteúdo, então a largura é a soma dos
+                maiores valores de cada coluna - e não a soma dos doze, que é o
+                que Inline fazia. Foi o que permitiu os seis campos em duas linhas
+                dentro da coluna de texto, sem sair dela.
 
                 Isto já foi uma grade de três colunas. Lia como três fatos sobre três
                 pessoas diferentes: quem procurava um telefone tinha que adivinhar
-                qual coluna era a dele, e um leitor coluna por coluna recebia três
-                campos sem relação entre si.
-
-                Os campos são fixos e não se edita por limite. Seis URLs em duas
-                linhas a 11px não cabem na largura da página com qualquer respiro
-                lateral, e o bloco não tem respiro lateral nenhum: o `padding` dele é
-                só o da borda esquerda. Foi por medir que se descobriu - e o que
-                sobra não é gigante, mas é o que existe sem mexer na tipografia.
+                qual coluna era a dele.
             -->
-            <div class="contact-block text-slate-700">
-                <p data-rule="contato"><strong>Localização:</strong> Fortaleza, CE (Atuação Remota)<span class="contact-sep">·</span><strong>Email:</strong> <a href="mailto:marcelino.sandroni@gmail.com" class="link-hover font-medium">marcelino.sandroni@gmail.com</a><span class="contact-sep">·</span><strong>WhatsApp:</strong> <a href="https://wa.me/5511914461993" target="_blank" class="link-hover font-medium">+55 11 91446-1993</a></p>
-                <p data-rule="contato"><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/marcelinosandroni" target="_blank" class="link-hover font-medium">linkedin.com/in/marcelinosandroni</a><span class="contact-sep">·</span><strong>Git:</strong> <a href="https://github.com/marcelinosandroni" target="_blank" class="link-hover font-medium">github.com/marcelinosandroni</a><span class="contact-sep">·</span><strong>Portfólio:</strong> <a href="https://marcelinosandroni.com/" target="_blank" class="link-hover font-medium">marcelinosandroni.com</a></p>
+            <div class="contact-block" data-rule="contato">
+                <strong>Localização:</strong>
+                <span>Fortaleza, CE (Atuação Remota)</span>
+                <strong>Email:</strong>
+                <span><a href="mailto:marcelino.sandroni@gmail.com" class="link-hover font-medium">marcelino.sandroni@gmail.com</a></span>
+                <strong>WhatsApp:</strong>
+                <span><a href="https://wa.me/5511914461993" target="_blank" class="link-hover font-medium">+55 11 91446-1993</a></span>
+                <strong>LinkedIn:</strong>
+                <span><a href="https://linkedin.com/in/marcelinosandroni" target="_blank" class="link-hover font-medium">linkedin.com/in/marcelinosandroni</a></span>
+                <strong>Git:</strong>
+                <span><a href="https://github.com/marcelinosandroni" target="_blank" class="link-hover font-medium">github.com/marcelinosandroni</a></span>
+                <strong>Portfólio:</strong>
+                <span><a href="https://marcelinosandroni.com/" target="_blank" class="link-hover font-medium">marcelinosandroni.com</a></span>
             </div>
         </header>
 

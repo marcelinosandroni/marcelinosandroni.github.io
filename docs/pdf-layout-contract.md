@@ -38,7 +38,7 @@ saber que se está em 185 de 215 sem rodar nada, e continua dentro.
 | Nome | 1 | 40 | 30px (display) | 23 |
 | Cargo (headline) | 1 | 80 | 16px (display) | 51 |
 | Tagline | 1 | 120 | 12.5px | 77 |
-| Contacto (cada linha) | 1 | 110 | 11px ⚠ | 110 |
+| Contacto (as duas linhas) | 2 | 230 | 11px ⚠ | 218 |
 | Resumo Profissional | 5 | 500 | 12.5px | 468 |
 | Métrica — valor | 1 | 24 | 16px (display) | 16 |
 | Métrica — destaque | 1 | 26 | 9px ⚠ | 23 |
@@ -109,36 +109,63 @@ estão nesta tabela com o limite que os sustenta.
 
 Seis campos de referência não são prosa. São a parte da página que ninguém lê de
 perto, e um passo abaixo tira o olho do nome e do resumo. Continua legível, e o
-limite de 1 linha é o que garante isso: uma linha que não cabe transborda e o
-build recusa, em vez de encolher para caber.
+limite de 2 linhas e nenhum transbordo horizontal são o que garantem isso: um
+campo que não cabe empurra a grade para fora da coluna e o build recusa, em vez de
+encolher para caber.
 
 **Os campos são fixos.** Não se edita por limite. São sempre estes, nesta ordem,
 iguais em todos os cinco documentos:
 
 ```
-Linha 1   Localização: Fortaleza, CE (Atuação Remota) · Email: · WhatsApp:
-Linha 2   LinkedIn: · Git: · Portfólio:
+Linha 1   Localização:  Fortaleza, CE (Atuação Remota)      Email:   marcelino.sandroni@gmail.com   WhatsApp: +55 11 91446-1993
+Linha 2   LinkedIn:     linkedin.com/in/marcelinosandroni  Git:     github.com/marcelinosandroni    Portfólio: marcelinosandroni.com
 ```
 
-O que o orçamento de 110 caracteres cobre é **a linha, não a redação**. Seis URLs
-em duas linhas a 11px precisam de mais do que a coluna de texto tem: a primeira
-medição disse 46 pixels, e a correção saiu da **caixa**, não do tipo —
+O orçamento de 230 caracteres cobre **as duas linhas, não a redação**. Um campo que
+crescesse empurraria a grade para fora da coluna de texto e reprovaria o build — que
+é o lugar certo para isso falhar.
 
-- **sem padding horizontal e sem fundo**. Uma caixa que empurra o próprio texto
-  gasta milímetros em decoração. Sobrou um fio na borda esquerda, que agrupa as
-  duas linhas sem custar um milímetro da medida.
-- **quebra a coluna de texto dos dois lados, pelo mesmo valor**, e também se
-  acota igual dos dois lados. O texto começa e termina à mesma distância da borda
-  do papel, então lê como uma faixa um pouco mais larga que a prosa de cima — que
-  é como material de referência deve parecer — e não como algo que escorregou
-  para fora.
-- **os separadores mantêm o espaçamento.** A primeira tentativa deARRumar espaço
-  tirou-o deles e deixou `(Atuação Remota)·Email:` — uma linha que cabe e não se
-  lê. O espaço em volta do separador é o que faz três fatos virarem texto corrido;
-  os milímetros vieram da quebra, onde não custam nada ao documento.
+### A grade de seis colunas, e por que ela cabe
 
-Sobram 3,2mm de folga na linha mais cheia, e o orçamento de 110 caracteres trava o
-conteúdo, então ela não cresce.
+Duas linhas de texto solto **não se alinhavam**: `Localização:` é mais larga que
+`LinkedIn:`, então os seis valores começavam em seis lugares diferentes e o bloco lia
+como duas listas em vez de uma tabela. Uma grade de seis colunas — rótulo e valor
+separados — põe todos os rótulos numa linha de base e todos os valores noutra, e as
+colunas se alinham pelas duas linhas porque é a mesma grade.
+
+E **uma grade cabe onde duas linhas de texto não cabiam.** A coluna de uma grade é
+dimensionada pelo mais largo que há nela, e a largura do bloco é a soma de seis
+máximos mais cinco vãos — não a soma das doze células, que é o que o inline custava.
+Foi essa diferença que permitiu os seis campos dentro da coluna de texto sem sair
+dela.
+
+Por isso o bloco **não tem padding, nem fundo, nem margem negativa**: ele fica
+exatamente na medida do texto. A versão anterior, para caber, tinha de sair da coluna
+4mm de cada lado — e ficava em 10,0mm enquanto o nome e os títulos de seção ficavam
+em 14,0mm. Esse era o desalinhamento.
+
+Medido agora:
+
+| | |
+|---|---|
+| Fonte | **11px** |
+| Bloco | **14,0mm**, largura 182mm |
+| Nome (`h1`) | 14,0mm |
+| Títulos de seção | 14,0mm |
+| Rótulos, nas **duas** linhas | **14,0 / 81,8 / 136,2mm** |
+| Valores, nas **duas** linhas | **32,7 / 91,3 / 152,9mm** |
+| Transbordo horizontal | 0px |
+
+### Sem sublinhado nos valores
+
+Cinco dos seis valores eram links, e o estilo de link sublinha. Isso punha uma régua
+embaixo de cinco valores e deixava `Fortaleza, CE` assentando diferente do resto — as
+linhas pareciam desalinhadas porque duas das três coisas que deviam bater não batiam.
+Sublinhado também é ruído no papel: uma URL não é uma referência que o leitor precise
+marcada, porque ela já é o endereço.
+
+No hover o sublinhado volta na tela, onde há um cursor apontando. Na impressão não
+há.
 
 ### Legenda das métricas — 9px
 

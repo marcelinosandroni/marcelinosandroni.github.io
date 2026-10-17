@@ -32,7 +32,12 @@ const TEXT: ReadonlyArray<Rule> = [
     { from: "Marcelino Sandroni - Curriculo", to: "Marcelino Sandroni - Resume" },
     { from: "Engenheiro de Software Sênior &amp; IA<", to: "Senior Software &amp; AI Engineer<" },
     // Contact block
-    { from: "<strong>Localização:</strong> Fortaleza, CE (Atuação Remota)", to: "<strong>Location:</strong> Fortaleza, CE (Fully Remote)" },
+    { from: "<strong>Localização:</strong>", to: "<strong>Location:</strong>" },
+    { from: "Fortaleza, CE (Atuação Remota)", to: "Fortaleza, CE (Fully Remote)" },
+    { from: "<strong>Email:</strong>", to: "<strong>Email:</strong>" },
+    { from: "<strong>WhatsApp:</strong>", to: "<strong>WhatsApp:</strong>" },
+    { from: "<strong>LinkedIn:</strong>", to: "<strong>LinkedIn:</strong>" },
+    { from: "<strong>Git:</strong>", to: "<strong>Git:</strong>" },
     { from: "<strong>Portfólio:</strong>", to: "<strong>Portfolio:</strong>" },
     // Summary
     { from: "Resumo Profissional", to: "Professional Summary" },
