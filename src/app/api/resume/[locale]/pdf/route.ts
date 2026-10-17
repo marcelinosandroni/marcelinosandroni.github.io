@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { join, dirname } from "node:path";
 import { readFileSync, mkdirSync } from "node:fs";
+import { decideResumePdfResponse } from "@/application/publication/resume-pdf-response";
 import { CURRENT_RESUME_VERSION } from "@/domain/publication/current-resume-version";
 import { BuildResumeDocument } from "@/application/publication/build-resume-document";
 import { PublishPDFResume } from "@/application/publication/publish-pdf-resume";
@@ -128,14 +129,7 @@ export async function GET(
       const artifact = await readFixedResumeArtifact(normalizedLocale, variant);
 
       if (artifact !== null) {
-        return new NextResponse(new Uint8Array(artifact.bytes), {
-          headers: {
-            "Content-Type": "application/pdf",
-            "Content-Disposition": `attachment; filename="${fixedResumeFilename(normalizedLocale, variant)}"`,
-            "Content-Length": String(artifact.bytes.length),
-            "Cache-Control": "public, max-age=3600, s-maxage=86400",
-          },
-        });
+        return respondWithPdf(artifact.bytes, request, fixedResumeFilename(normalizedLocale, variant));
       }
 
       /*
@@ -269,15 +263,33 @@ export async function GET(
       pdfBytes = readFileSync(generatedPath);
     }
 
-    return new NextResponse(new Uint8Array(pdfBytes), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${preferredFilename}"`,
-      },
-    });
+    return respondWithPdf(pdfBytes, request, preferredFilename);
   } catch (error) {
     // Use centralized error handler for consistent responses
     return createErrorResponse(error);
   }
+}
+
+/**
+ * A résumé download, with the cache policy the route is not allowed to invent.
+ *
+ * The decision lives in the application layer because it is a decision, not a
+ * detail of this handler: the URL is stable and the bytes are not, so the cache is
+ * keyed on the content. See `decideResumePdfResponse` for why a day-long shared
+ * cache was wrong here.
+ */
+function respondWithPdf(
+  bytes: Uint8Array,
+  request: NextRequest,
+  filename: string,
+): NextResponse {
+  const decision = decideResumePdfResponse(bytes, {
+    filename,
+    ifNoneMatch: request.headers.get("if-none-match"),
+  });
+
+  return new NextResponse(decision.body === null ? null : new Uint8Array(decision.body), {
+    status: decision.status,
+    headers: decision.headers,
+  });
 }
