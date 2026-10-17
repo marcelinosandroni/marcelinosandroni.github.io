@@ -159,6 +159,15 @@ export const ptBR: Dictionary = {
     galleryNext: "Próxima",
     galleryClose: "Fechar",
     stackAll: "Todas",
+    /*
+      O rotulo do documento geral, e nao do link "todas".
+
+      `stackAll` serve ao link que desfaz um filtro - "Todas" responde a pergunta
+      "quais?". O documento geral responde a outra: "qual e o completo?". Sao dois
+      textos, e usar um para os dois e o motivo de o botao ter passado a dizer
+      "Todas" ao apontar para um documento unico.
+    */
+    stackComplete: "Completo",
     stackChoose: "Ver o currículo por stack",
     stackFocusedOn: "Focado em {stack}",
     stackNarrowed: "Esta versão destaca as stacks selecionadas",

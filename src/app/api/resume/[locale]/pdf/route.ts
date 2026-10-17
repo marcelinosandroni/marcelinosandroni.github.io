@@ -25,10 +25,10 @@ import { assertResumeDownloadEnabled } from "@/application/publication/assert-re
 import {
   RESUME_VARIANTS,
   availableResumeVariants,
-  fixedResumeFilename,
   readFixedResumeArtifact,
-  resolveResumeVariant,
 } from "@/infrastructure/pdf/fixed-resume-artifact";
+import { resumePdfFilename } from "@/domain/publication/resume-pdf-filename";
+import { resolveResumeVariant } from "@/domain/publication/resume-variant";
 import { resolveResumePdfSource } from "@/domain/publication/resume-pdf-source";
 import {
   InvalidLocaleError,
@@ -153,7 +153,7 @@ export async function GET(
       const artifact = await readFixedResumeArtifact(normalizedLocale, variant);
 
       if (artifact !== null) {
-        return respondWithPdf(artifact.bytes, request, fixedResumeFilename(normalizedLocale, variant));
+        return respondWithPdf(artifact.bytes, request, resumePdfFilename(normalizedLocale, variant));
       }
 
       /*

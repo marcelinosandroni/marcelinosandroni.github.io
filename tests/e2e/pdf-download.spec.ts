@@ -35,8 +35,13 @@ test.describe("Localized routing and PDF download", () => {
     await downloadButton.click();
 
     const download = await downloadPromise;
-    expect(download.suggestedFilename()).toContain(".pdf");
-    expect(download.suggestedFilename()).toContain("resume-marcelino-sandroni-en-US");
+
+    /*
+      Asserted in full, because a partial match passes for almost any convention.
+      What matters is that it names the role in the language the document is
+      written in, and that nothing in it is a slug or a locale code.
+    */
+    expect(download.suggestedFilename()).toBe("Marcelino Sandroni - Software Engineer.pdf");
   });
 
   test("serves the Portuguese resume at /pt-br and downloads the PT-BR PDF", async ({ page }) => {
@@ -55,7 +60,7 @@ test.describe("Localized routing and PDF download", () => {
     await downloadButton.click();
 
     const download = await downloadPromise;
-    expect(download.suggestedFilename()).toContain("resume-marcelino-sandroni-pt-BR");
+    expect(download.suggestedFilename()).toBe("Marcelino Sandroni - Engenheiro de Software.pdf");
   });
 
   test("navigates between locales through the switcher link", async ({ page }) => {
@@ -245,7 +250,9 @@ test.describe("Localized routing and PDF download", () => {
 
     const download = await downloadPromise;
 
-    expect(download.suggestedFilename()).toContain("enterprise-java");
+    expect(download.suggestedFilename()).toBe(
+      "Marcelino Sandroni - Engenheiro de Software - Java e Angular.pdf",
+    );
 
     /*
       Named in the failure, because a bare `false` against an array of URLs says

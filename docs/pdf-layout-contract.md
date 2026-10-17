@@ -244,6 +244,58 @@ exata se ela estourar. Os outros quatro documentos têm de 25mm a 37mm.
 
 ---
 
+## O nome do arquivo
+
+```
+Marcelino Sandroni - Engenheiro de Software.pdf
+Marcelino Sandroni - Software Engineer.pdf
+
+Marcelino Sandroni - Engenheiro de Software - Java e Angular.pdf
+Marcelino Sandroni - Software Engineer - Java and Angular.pdf
+```
+
+Nome, depois **o cargo no idioma em que o documento está escrito**, depois a stack
+quando o documento é para uma stack. Um traço antes de cada parte, para que as
+peças se vejam separadas em vez de virarem um caldo de title case.
+
+O **locale e o prefixo `enterprise-` saíram**. O leitor sabe qual documento pediu e
+não precisa ver de volta o que já escolheu; e um arquivo que se chama
+`...-pt-BR-...-CLEAN.pdf` diz menos do que um que nomeia o cargo.
+
+Os **variantes são sempre backend + frontend**, e só isso:
+
+| Slug | pt-BR | en-US |
+|---|---|---|
+| `enterprise-java` | Java e Angular | Java and Angular |
+| `enterprise-dotnet` | C# e Angular | C# and Angular |
+| `modern-web` | Node e React | Node and React |
+
+Os rótulos antigos puxavam por senioridade — `Enterprise Java + Angular`,
+`Modern Node + Go + React` — e faziam dois dos três parecerem mais abertos para
+trabalho mais sénior que o terceiro. Não é isso que os separa, e não é por isso que
+alguém escolhe entre eles. `modern-web` cobre Node, Go e React e é nomeada pelo par
+que se procura; a lista inteira fica no headline do documento.
+
+O rótulo do botão e o nome do arquivo vêm **da mesma tabela** — um rótulo e um
+filename que discordam são como a mesma stack acaba escrita de dois jeitos na mesma
+página.
+
+### Onde isso mora
+
+`src/domain/publication/resume-variant.ts` (a tabela de stacks e o resolvedor de
+slug) e `src/domain/publication/resume-pdf-filename.ts` (o esquema). É domínio, e
+não infraestrutura, por dois motivos: um nome de arquivo é uma decisão, e a decisão
+precisa chegar ao navegador — o botão baixa o PDF como blob e salva com o nome que
+**ele** compõe, então o `Content-Disposition` do servidor só é visto por quem abre
+a URL direto. Uma regra que só o servidor tem é uma regra que o cliente quebra em
+silêncio.
+
+Os **nomes de arquivo em disco** continuam sendo `resume-fixed-pt-BR-enterprise-java.pdf`:
+esses nomeiam um artefato de build, e o outro nomeia o entregável. São diferentes de
+propósito.
+
+---
+
 ## O que é fixo e o que é editável
 
 Vale deixar explícito, porque é a linha que separa "não mexe" de "pode mudar":

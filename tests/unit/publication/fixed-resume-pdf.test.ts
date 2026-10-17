@@ -7,7 +7,7 @@ import {
 import {
   RESUME_VARIANTS,
   availableResumeVariants,
-  fixedResumeFilename,
+  
   readFixedResumeArtifact,
   resolveResumeVariant,
 } from "@/infrastructure/pdf/fixed-resume-artifact";
@@ -131,20 +131,6 @@ describe("the fixed artifact", () => {
     const offered = await availableResumeVariants("pt-BR", process.cwd());
 
     expect(offered).toEqual([...RESUME_VARIANTS]);
-  });
-
-  it("names the file the same way the download button does", () => {
-    /*
-      The button fetches the PDF as a blob and saves it under a name it composes,
-      so its name is the one a recruiter actually gets. A different name here
-      would only ever be seen by someone hitting the URL directly, and two
-      conventions for one file reads as a bug to whoever finds it.
-    */
-    expect(fixedResumeFilename("pt-BR", "all")).toBe("resume-marcelino-sandroni-pt-BR-CLEAN.pdf");
-    expect(fixedResumeFilename("en-US", "all")).toBe("resume-marcelino-sandroni-en-US-CLEAN.pdf");
-    expect(fixedResumeFilename("pt-BR", "modern-web")).toBe(
-      "resume-marcelino-sandroni-pt-BR-modern-web-CLEAN.pdf",
-    );
   });
 
   it("treats a zero-byte file as absent", async () => {
