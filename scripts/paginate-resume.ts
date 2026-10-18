@@ -670,7 +670,7 @@ function sheetHeight(sheet: ReadonlyArray<Measured>): number {
  * single block holding both is what made the two-column grid possible in the first
  * place - the layout wanted them side by side and the structure said so.
  */
-const REQUIRED_ORDER: ReadonlyArray<string> = [
+export const REQUIRED_ORDER: ReadonlyArray<string> = [
   "header",
   "resumo",
   "metricas",
