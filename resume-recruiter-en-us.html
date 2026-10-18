@@ -308,15 +308,35 @@
             */
             .contact-block {
                 font-size: var(--contact); line-height: 1.4; color: #334155;
-                display: grid;
-                grid-template-columns:
-                    max-content max-content
-                    max-content max-content
-                    max-content 1fr;
-                column-gap: var(--space-1);
-                row-gap: var(--space-1);
             }
-            .contact-block > * { white-space: nowrap; }
+
+            /*
+              One line, three pairs, distributed.
+
+              `space-between` puts the first pair against the left margin and the
+              last against the right, with equal gaps between them — so the pairs are
+              three pieces rather than a run of six values. It is also the only
+              reason they are not all bunched at the left, which is what three
+              inline children with no distribution instruction do.
+
+              `nowrap` on the line as well as on the pair: the line is one line, and
+              a field that is too long has to spill out of it and fail the build
+              rather than push the rest of the document down.
+            */
+            .contact-row {
+                display: flex; justify-content: space-between; white-space: nowrap;
+            }
+
+            /*
+              The pair, as one thing that does not come apart.
+
+              `flex: none` is the one that matters. A flex item's default is to
+              shrink, so without it the pair compresses when the content is tight
+              and the text breaks *inside* it — the value wrapping away from its
+              own label, which is the thing this block exists to prevent.
+            */
+            .contact-field { flex: none; white-space: nowrap; }
+
             .contact-block strong { color: #1f2937; font-weight: 600; }
             .contact-block a { text-decoration: none; }
             @media screen {
@@ -604,41 +624,46 @@
                 Contacto: seis campos fixos, sempre estes, sempre nesta ordem,
                 em duas linhas de três.
 
-                `data-rule="contato"` é o que o contrato de layout mede, e o
-                `nowrap` em cada célula é o que faz um campo longo transbordar e
-                reprovar o build em vez de quebrar.
+                `data-rule="contato"` é o que o contrato de layout mede, e está na
+                linha e não no bloco: cada linha é uma linha, com um orçamento de
+                linha, e é a linha que transborda se um campo crescer.
 
-                Uma grade de seis colunas, não duas linhas de texto solto, porque as
-                duas linhas de texto solto não se alinhavam: "Localização" é mais
-                largo que "LinkedIn", então os valores começavam em seis lugares
-                diferentes e as duas linhas pareciam duas listas em vez de uma
-                tabela. Seis colunas com o rótulo e o valor separados alinham os
-                rótulos entre si e os valores entre si, e as colunas se alinham
-                pelas duas linhas porque é a mesma grade.
+                ## Um div por par, e não um span
 
-                E uma grade cabe onde duas linhas de texto não cabiam. As colunas
-                são dimensionadas pelo conteúdo, então a largura é a soma dos
-                maiores valores de cada coluna - e não a soma dos doze, que é o
-                que Inline fazia. Foi o que permitiu os seis campos em duas linhas
-                dentro da coluna de texto, sem sair dela.
+                Chave e valor vivem no mesmo div, em sequência: `Localização:`
+                seguido de `Fortaleza, CE` como uma peça só. A versão anterior os
+                punha em colunas separadas de uma grade, e o resultado lia como uma
+                tabela - o rótulo numa linha de base e o valor noutra. Uma lista de
+                contacto é um dicionário, não uma tabela.
+
+                E a peça é um div porque é a unidade que o flex distribui: um
+                container é o que garante que chave e valor não se separam, e
+                nenhuma das duas propriedades abaixo faz isso sozinha.
+
+                ## As três propriedades, e o que cada uma impede
+
+                `flex: none` no par, `nowrap` nele e na linha, `space-between` na
+                linha. Sem a primeira o par encolhe quando o conteúdo aperta e o
+                texto quebra *dentro* dele, que é o oposto do que se quer. Sem a
+                segunda chave e valor se separam quando a linha está cheia. Sem a
+                terceira os três pares ficam colados à esquerda - que é o que
+                acontece sem nenhuma instrução de distribuição.
 
                 Isto já foi uma grade de três colunas. Lia como três fatos sobre três
                 pessoas diferentes: quem procurava um telefone tinha que adivinhar
                 qual coluna era a dele.
             -->
-            <div class="contact-block" data-rule="contato">
-                <strong>Location:</strong>
-                <span>Fortaleza, CE (Fully Remote)</span>
-                <strong>Email:</strong>
-                <span><a href="mailto:marcelino.sandroni@gmail.com" class="link-hover font-medium">marcelino.sandroni@gmail.com</a></span>
-                <strong>WhatsApp:</strong>
-                <span><a href="https://wa.me/5511914461993" target="_blank" class="link-hover font-medium">+55 11 91446-1993</a></span>
-                <strong>LinkedIn:</strong>
-                <span><a href="https://linkedin.com/in/marcelinosandroni" target="_blank" class="link-hover font-medium">linkedin.com/in/marcelinosandroni</a></span>
-                <strong>Git:</strong>
-                <span><a href="https://github.com/marcelinosandroni" target="_blank" class="link-hover font-medium">github.com/marcelinosandroni</a></span>
-                <strong>Portfolio:</strong>
-                <span><a href="https://marcelinosandroni.com/" target="_blank" class="link-hover font-medium">marcelinosandroni.com</a></span>
+            <div class="contact-block">
+                <div class="contact-row" data-rule="contato">
+                    <div class="contact-field"><strong>Location:</strong> Fortaleza, CE (Fully Remote)</div>
+                    <div class="contact-field"><strong>Email:</strong> <a href="mailto:marcelino.sandroni@gmail.com" class="link-hover font-medium">marcelino.sandroni@gmail.com</a></div>
+                    <div class="contact-field"><strong>WhatsApp:</strong> <a href="https://wa.me/5511914461993" target="_blank" class="link-hover font-medium">+55 11 91446-1993</a></div>
+                </div>
+                <div class="contact-row" data-rule="contato">
+                    <div class="contact-field"><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/marcelinosandroni" target="_blank" class="link-hover font-medium">linkedin.com/in/marcelinosandroni</a></div>
+                    <div class="contact-field"><strong>Git:</strong> <a href="https://github.com/marcelinosandroni" target="_blank" class="link-hover font-medium">github.com/marcelinosandroni</a></div>
+                    <div class="contact-field"><strong>Portfolio:</strong> <a href="https://marcelinosandroni.com/" target="_blank" class="link-hover font-medium">marcelinosandroni.com</a></div>
+                </div>
             </div>
         </header>
         <section data-block="resumo">

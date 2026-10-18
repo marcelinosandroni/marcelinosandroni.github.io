@@ -38,7 +38,7 @@ saber que se está em 185 de 215 sem rodar nada, e continua dentro.
 | Nome | 1 | 40 | 30px (display) | 23 |
 | Cargo (headline) | 1 | 80 | 16px (display) | 51 |
 | Tagline | 1 | 120 | 12.5px | 77 |
-| Contacto (as duas linhas) | 2 | 230 | 11px ⚠ | 218 |
+| Contacto (cada linha) | 1 | 110 | 11px ⚠ | 110 |
 | Resumo Profissional | 5 | 500 | 12.5px | 468 |
 | Métrica — valor | 1 | 24 | 16px (display) | 16 |
 | Métrica — destaque | 1 | 26 | 9px ⚠ | 23 |
@@ -109,52 +109,71 @@ estão nesta tabela com o limite que os sustenta.
 
 Seis campos de referência não são prosa. São a parte da página que ninguém lê de
 perto, e um passo abaixo tira o olho do nome e do resumo. Continua legível, e o
-limite de 2 linhas e nenhum transbordo horizontal são o que garantem isso: um
-campo que não cabe empurra a grade para fora da coluna e o build recusa, em vez de
-encolher para caber.
+limite de 1 linha por linha e nenhum transbordo horizontal são o que garantem
+isso: um campo que não cabe estoura a linha e o build recusa, em vez de encolher
+para caber.
 
 **Os campos são fixos.** Não se edita por limite. São sempre estes, nesta ordem,
 iguais em todos os cinco documentos:
 
 ```
-Linha 1   Localização:  Fortaleza, CE (Atuação Remota)      Email:   marcelino.sandroni@gmail.com   WhatsApp: +55 11 91446-1993
-Linha 2   LinkedIn:     linkedin.com/in/marcelinosandroni  Git:     github.com/marcelinosandroni    Portfólio: marcelinosandroni.com
+Linha 1   Localização: Fortaleza, CE (Atuação Remota)          Email: marcelino.sandroni@gmail.com        WhatsApp: +55 11 91446-1993
+Linha 2   LinkedIn: linkedin.com/in/marcelinosandroni          Git: github.com/marcelinosandroni        Portfólio: marcelinosandroni.com
 ```
 
-O orçamento de 230 caracteres cobre **as duas linhas, não a redação**. Um campo que
-crescesse empurraria a grade para fora da coluna de texto e reprovaria o build — que
-é o lugar certo para isso falhar.
+O orçamento de 110 caracteres cobre **a linha, não a redação**. Um campo que
+crescesse estouraria a linha e reprovaria o build — que é o lugar certo para isso
+falhar.
 
-### A grade de seis colunas, e por que ela cabe
+### Legenda das métricas — 9px
 
-Duas linhas de texto solto **não se alinhavam**: `Localização:` é mais larga que
-`LinkedIn:`, então os seis valores começavam em seis lugares diferentes e o bloco lia
-como duas listas em vez de uma tabela. Uma grade de seis colunas — rótulo e valor
-separados — põe todos os rótulos numa linha de base e todos os valores noutra, e as
-colunas se alinham pelas duas linhas porque é a mesma grade.
+Isto é aritmética, não gosto. O cartão tem 43mm de largura. A 12.5px, uma legenda de
+duas linhas cabe cerca de 50 caracteres — e "Arquitetura de processamento
+assíncrono de eventos" não cabe em 50. Medido: 63 caracteres ainda fazem duas
+linhas; 68 fazem três.
 
-E **uma grade cabe onde duas linhas de texto não cabiam.** A coluna de uma grade é
-dimensionada pelo mais largo que há nela, e a largura do bloco é a soma de seis
-máximos mais cinco vãos — não a soma das doze células, que é o que o inline custava.
-Foi essa diferença que permitiu os seis campos dentro da coluna de texto sem sair
-dela.
+Então a escolha era entre uma legenda correndo quatro linhas numa caixa feita para
+duas, ou uma legenda no tamanho para o qual a caixa foi desenhada. Ela está no
+tamanho certo, e **o limite de duas linhas é verificado acima dela** — o que
+significa que uma legenda não pode mais ser encurtada ficando menor. Era
+justamente essa a propriedade que valia a pena ter.
 
-Por isso o bloco **não tem padding, nem fundo, nem margem negativa**: ele fica
-exatamente na medida do texto. A versão anterior, para caber, tinha de sair da coluna
-4mm de cada lado — e ficava em 10,0mm enquanto o nome e os títulos de seção ficavam
-em 14,0mm. Esse era o desalinhamento.
+---
 
-Medido agora:
+### Um div por par, e `space-between` na linha
+
+Chave e valor vivem no **mesmo div**, em sequência: `Localização:` seguido de
+`Fortaleza, CE` como uma peça só. A versão anterior os punha em colunas separadas de
+uma grade, e o resultado lia como uma tabela — o rótulo numa linha de base e o valor
+noutra. Uma lista de contacto é um dicionário, não uma tabela.
+
+A peça é um `div` porque é a unidade que o flex distribui, e três propriedades
+sustentam o desenho — cada uma impedindo uma coisa diferente:
+
+| Propriedade | Sem ela |
+|---|---|
+| `flex: none` no par | O par **encolhe** quando o conteúdo aperta e o texto quebra *dentro* dele — o valor se afastando do próprio rótulo. |
+| `white-space: nowrap` no par | Chave e valor se separam quando a linha está cheia. |
+| `space-between` na linha | Os três pares ficam colados à esquerda — que é o que três filhos inline fazem sem nenhuma instrução de distribuição. |
+
+A linha inteira também tem `nowrap`, porque a linha **é** uma linha: um campo longo
+demais tem de estourar a linha e reprovar o build, e não empurrar o documento.
+
+Medido:
 
 | | |
 |---|---|
 | Fonte | **11px** |
-| Bloco | **14,0mm**, largura 182mm |
-| Nome (`h1`) | 14,0mm |
-| Títulos de seção | 14,0mm |
-| Rótulos, nas **duas** linhas | **14,0 / 81,8 / 136,2mm** |
-| Valores, nas **duas** linhas | **32,7 / 91,3 / 152,9mm** |
-| Transbordo horizontal | 0px |
+| Bloco | **14,0mm** — o mesmo x do nome (`h1`) e dos títulos de seção |
+| 1º par | encosta na esquerda, em **14,0mm** |
+| 3º par | encosta na direita, folga **0,00mm** |
+| Vãos, linha 1 | **11,89mm / 11,89mm** |
+| Vãos, linha 2 | **12,84mm / 12,84mm** |
+| Transbordo horizontal | **0px** |
+
+Os vãos são iguais **dentro** de cada linha — é o que `space-between` faz. As duas
+linhas têm vãos diferentes entre si porque cada uma distribui a folga que sobrou
+para ela. Não dá para ter o mesmo vão nas duas *e* o último par colado na direita.
 
 ### Sem sublinhado nos valores
 
@@ -167,162 +186,7 @@ marcada, porque ela já é o endereço.
 No hover o sublinhado volta na tela, onde há um cursor apontando. Na impressão não
 há.
 
-### Legenda das métricas — 9px
-
-Isto é aritmética, não gosto. O cartão tem 43mm de largura. A 12.5px, uma legenda
-de duas linhas cabe cerca de 50 caracteres — e "Arquitetura de processamento
-assíncrono de eventos" não cabe em 50. Medido: 63 caracteres ainda fazem duas
-linhas; 68 fazem três.
-
-Então a escolha era entre uma legenda correndo quatro linhas numa caixa feita para
-duas, ou uma legenda no tamanho para o qual a caixa foi desenhada. Ela está no
-tamanho certo, e **o limite de duas linhas é verificado acima dela** — o que
-significa que uma legenda não pode mais ser encurtada ficando menor. Era
-justamente essa a propriedade que valia a pena ter.
-
 ---
-
-## Como editar sem quebrar a estrutura
-
-1. **Escreva dentro do orçamento de caracteres.** A tabela acima é o orçamento.
-2. **Rode o build.** Ele imprime a tabela e diz o que estourou, com o texto que
-   estourou.
-3. **Se estourou, corte o texto.** Não a fonte.
-
-Para conferir um documento já gerado, sem reconstruir:
-
-```bash
-npx tsx scripts/check-layout.ts resume-recruiter-pt-br.html
-npx tsx scripts/check-layout.ts resume-recruiter-*.html
-```
-
-E para ver o que cabe em cada folha:
-
-```bash
-npm run resume:measure -- resume-recruiter-pt-br-enterprise-java.html
-```
-
----
-
----
-
-## A escala de espaçamento
-
-Três passos, em milímetros, e **toda distância na página é um deles**. A razão é
-1 : 2 : 4, numa base de milímetro — porque a página édiagramada em milímetros e o
-encaixe é medido em milímetros, então nenhum valor tem que sobreviver a uma
-conversão.
-
-| Passo | Onde |
-|---:|---|
-| **1mm** | Entre irmãos de uma **lista**: grupos de habilidade, cursos, idiomas, linhas de contacto, as três partes de um cartão de métrica, as linhas da barra do tempo. Apertado de propósito — uma lista de itens de uma ou duas linhas deve ler como um bloco. |
-| **2mm** | Entre **parágrafos** (os bullets de uma vaga), e do **título de uma seção ao seu conteúdo**. Também entre as partes de uma vaga: título → stack. |
-| **4mm** | Entre **blocos**. Um valor só, em toda parte. É o que faz a página parecer um documento e não cinco seções empilhadas. |
-
-### O que existia antes
-
-Oito valores para quatro tipos de distância: **1px, 2px, 4px, 0,2mm, 0,5mm,
-0,6mm, 8px e 16px**. Cada um foi adicionado quando alguma coisa não cabia, e nada
-registrou que o valor adicionado era um valor novo. Medido, o resultado era:
-
-| Onde | Antes |
-|---|---|
-| Entre seções (a maioria) | 4,23mm |
-| Entre `métricas` e `linha do tempo` | **2,12mm** |
-| Entre grupos de habilidade | **0,21mm** |
-| Entre cursos | **0,29mm** |
-| Título da vaga → stack | **0,26mm** |
-| Entre dois bullets de 3 linhas | **0,53mm** |
-
-Uma página sem ritmo vertical lê como montada em vez de composta, e ninguém
-consegue dizer o que está errado — dá para ver no papel e não aparece em diff.
-
-### Onde a escala mora
-
-`resume-shell.html`, no `:root`, como `--space-1`, `--space-2` e `--space-3`. **As
-classes de margem saíram do markup** (`mb-4`, `mb-2`, `mb-5`): o snapshot compilado
-do Tailwind vem *depois* dessa folha de estilo, então uma classe utilitária e um
-seletor de atributo com a mesma especificidade são decididos pela ordem do
-arquivo — e o snapshot venceria. Espaçamento que mora no markup é espaçamento que
-pode ser mudado um bloco por vez, que é exatamente como surgiram os oito valores.
-
-O bloco de impressão **não decide nenhuma distância**. Ele já decidia três — a
-margem de topo do título, o entrelinhamento do inventário e a margem de baixo dos
-cursos — e cada uma valia para uma parte da página. Um documento cujo espaçamento
-difere entre a página em que é impresso e a página em que é lido, e difere entre
-seções da mesma página, não tem ritmo nenhum.
-
-### A lista quebrada precisa dizer o que é
-
-O paginador parte uma seção quebrável — inventário, cursos, idiomas — em uma
-unidade por entrada, e cada unidade carrega o id da seção. Sem mais nada, cada uma
-seria indistinguível de uma seção inteira e levaria 4mm: **sete entradas, sete
-gaps de 4mm, 28mm de ar** onde caberiam 6.
-
-Por isso o paginador emite `data-gap="item"` ou `data-gap="section"`. A última
-entrada de uma seção é dona do espaço até o que vem depois; toda as outras são
-entradas de uma lista.
-
-### O que a escala custou
-
-Page one subiu ~12mm no documento Java, que é o mais cheio: de 15mm de folga para
-**3mm**. É o preço honesto de um ritmo que se veja, e o build reporta a folha
-exata se ela estourar. Os outros quatro documentos têm de 25mm a 37mm.
-
----
-
-## O nome do arquivo
-
-```
-Marcelino Sandroni - Engenheiro de Software.pdf
-Marcelino Sandroni - Software Engineer.pdf
-
-Marcelino Sandroni - Engenheiro de Software - Java e Angular.pdf
-Marcelino Sandroni - Software Engineer - Java and Angular.pdf
-```
-
-Nome, depois **o cargo no idioma em que o documento está escrito**, depois a stack
-quando o documento é para uma stack. Um traço antes de cada parte, para que as
-peças se vejam separadas em vez de virarem um caldo de title case.
-
-O **locale e o prefixo `enterprise-` saíram**. O leitor sabe qual documento pediu e
-não precisa ver de volta o que já escolheu; e um arquivo que se chama
-`...-pt-BR-...-CLEAN.pdf` diz menos do que um que nomeia o cargo.
-
-Os **variantes são sempre backend + frontend**, e só isso:
-
-| Slug | pt-BR | en-US |
-|---|---|---|
-| `enterprise-java` | Java e Angular | Java and Angular |
-| `enterprise-dotnet` | C# e Angular | C# and Angular |
-| `modern-web` | Node e React | Node and React |
-
-Os rótulos antigos puxavam por senioridade — `Enterprise Java + Angular`,
-`Modern Node + Go + React` — e faziam dois dos três parecerem mais abertos para
-trabalho mais sénior que o terceiro. Não é isso que os separa, e não é por isso que
-alguém escolhe entre eles. `modern-web` cobre Node, Go e React e é nomeada pelo par
-que se procura; a lista inteira fica no headline do documento.
-
-O rótulo do botão e o nome do arquivo vêm **da mesma tabela** — um rótulo e um
-filename que discordam são como a mesma stack acaba escrita de dois jeitos na mesma
-página.
-
-### Onde isso mora
-
-`src/domain/publication/resume-variant.ts` (a tabela de stacks e o resolvedor de
-slug) e `src/domain/publication/resume-pdf-filename.ts` (o esquema). É domínio, e
-não infraestrutura, por dois motivos: um nome de arquivo é uma decisão, e a decisão
-precisa chegar ao navegador — o botão baixa o PDF como blob e salva com o nome que
-**ele** compõe, então o `Content-Disposition` do servidor só é visto por quem abre
-a URL direto. Uma regra que só o servidor tem é uma regra que o cliente quebra em
-silêncio.
-
-Os **nomes de arquivo em disco** continuam sendo `resume-fixed-pt-BR-enterprise-java.pdf`:
-esses nomeiam um artefato de build, e o outro nomeia o entregável. São diferentes de
-propósito.
-
----
-
 ## O que é fixo e o que é editável
 
 Vale deixar explícito, porque é a linha que separa "não mexe" de "pode mudar":

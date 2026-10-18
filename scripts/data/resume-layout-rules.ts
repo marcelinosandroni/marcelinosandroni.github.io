@@ -139,11 +139,11 @@ export const LAYOUT_RULES: ReadonlyArray<LayoutRule> = [
   },
   {
     id: "contato",
-    label: "Contacto (as duas linhas)",
+    label: "Contacto (cada linha)",
     hook: "contato",
-    maxLines: 2,
-    maxChars: 230,
-    why: "Six fixed fields in two rows of three, on one six-column grid so the labels align with the labels and the values with the values. These are not edited to fit a limit - they are facts, and they are the same in every document. Two lines, and no horizontal overflow: a field that grew would push the grid past the text measure and fail the build, which is the correct place for that to fail.",
+    maxLines: 1,
+    maxChars: 110,
+    why: "Three fixed fields on one line, each field a single div so the label and its value stay together, and the three pairs distributed by space-between. These are not edited to fit a limit - they are facts, and they are the same in every document. What the budget covers is the line: a field that grew would spill out of the row and fail the build, which is the right place for that to fail.",
   },
   {
     id: "resumo",
