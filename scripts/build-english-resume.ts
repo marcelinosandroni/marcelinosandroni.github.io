@@ -43,9 +43,9 @@ const TEXT: ReadonlyArray<Rule> = [
     { from: "Resumo Profissional", to: "Professional Summary" },
     {
       from:
-        "<strong>Engenheiro Full Stack de verdade, </strong>unindo visão estratégica e análise de negócio à execução end-to-end em UI/UX, mobile, frontend, backend, DevOps, engenharia de dados e IA, com 6 anos em engenharia de software e 15 em governança financeira, criando soluções escaláveis e sistemas críticos que movimentam bilhões de reais.",
+        "<strong>Engenheiro Full Stack de verdade, </strong>unindo visão estratégica e análise de negócio à execução end-to-end em UI/UX, mobile, frontend, backend, DevOps, engenharia de dados e IA, com quase 8 anos em engenharia de software e 15 em governança financeira, criando soluções escaláveis e sistemas críticos que movimentam bilhões de reais.",
       to:
-        "<strong>A genuine full-stack engineer, </strong>pairing strategic vision and business analysis with end-to-end delivery across UI/UX, mobile, frontend, backend, DevOps, data engineering and AI. Six years in software engineering and fifteen in financial governance, building scalable solutions and critical systems that move billions of reais.",
+        "<strong>A genuine full-stack engineer, </strong>pairing strategic vision and business analysis with end-to-end delivery across UI/UX, mobile, frontend, backend, DevOps, data engineering and AI. Almost eight years in software engineering and fifteen in financial governance, building scalable solutions and critical systems that move billions of reais.",
     },
     // Metrics
     { from: "Principais Métricas de Impacto em Produção", to: "Key Production Impact Metrics" },
@@ -60,7 +60,7 @@ const TEXT: ReadonlyArray<Rule> = [
     { from: "Contrato salvo com implementação e melhorias em IA de ponta.", to: "Contract saved through state-of-the-art AI implementation." },
   // Experience
     { from: ">Experiência Profissional<", to: ">Professional Experience<" },
-    { from: ">Linha do Tempo de Carreira<", to: ">Career Timeline<" },
+    { from: ">Linha do Tempo de Carreira em Engenharia<", to: ">Career Timeline in Engineering<" },
     /*
       Titles carry their level again, so the translation carries it too.
       "Sênior" and "Pleno" are not decoration in Portuguese and dropping them here

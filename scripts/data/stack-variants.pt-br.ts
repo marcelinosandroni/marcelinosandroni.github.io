@@ -140,7 +140,7 @@ export const variants: ReadonlyArray<Variant> = [
     inventory: [
       [
         "Frontend &amp; UI Architecture",
-        "Angular (8 ao 22), TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends, Estado/Reatividade (RxJS, NgRx), SSR, Tailwind CSS, Angular Material, shadcn, Design Systems.",
+        "Angular (8 ao 22), TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends, Estado/Reatividade (RxJS, NgRx), SSR, Tailwind CSS, Angular Material, Design Systems.",
       ],
       [
         "Backend &amp; Frameworks",
@@ -151,12 +151,12 @@ export const variants: ReadonlyArray<Variant> = [
         "LLMs corporativos via Spring AI e LangChain4j, Amazon Bedrock (Claude/Titan), RAG, Agentic Workflows (Function Calling), Vector Databases (pgvector, Milvus).",
       ],
       [
-        "Cloud, DevOps",
+        "Cloud &amp; DevOps",
         "AWS (EKS/ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, CloudWatch), Docker, Kubernetes (Helm), Terraform, CI/CD (GitHub Actions, Bitbucket, Jenkins), Observabilidade (OpenTelemetry, Datadog).",
       ],
       [
         "Arquitetura, APIs &amp; Mensageria",
-        "RESTful Nível 3, gRPC, GraphQL, WebSockets/SSE, Apache Kafka (partições, idempotência), RabbitMQ (topic exchanges, DLQ), Circuit Breakers, Clean Architecture, DDD, CQRS, SOLID.",
+        "REST Nível 3, gRPC, GraphQL, WebSockets, Kafka (partições, idempotência), RabbitMQ (exchanges, DLQ), Circuit Breakers, Clean, Hexagonal, DDD, CQRS, SOLID, EDA, Microsserviços.",
       ],
       [
         "Ecossistema Analítico &amp; Bancos",
@@ -165,7 +165,7 @@ export const variants: ReadonlyArray<Variant> = [
     ],
     sections: {
       summary: summary(
-        "Engenheiro de Software unindo 6+ anos em arquiteturas distribuídas (Java, Spring, Angular, Kafka) a 15 anos de background corporativo e financeiro. ",
+        "Engenheiro de Software unindo quase 8 anos em arquiteturas distribuídas (Java, Spring, Angular, Kafka) a 15 anos de background corporativo e financeiro. ",
         "Atuo da concepção de ecossistemas cloud-native do zero ao desacoplamento de sistemas críticos. Foco na construção de microsserviços, micro-frontends e IA corporativa (Agentes/RAG), garantindo alta performance, escalabilidade e resiliência para sistemas de missão crítica, sob extrema cultura de testes e observabilidade.",
       ),
       metrics: metrics([
@@ -204,7 +204,7 @@ export const variants: ReadonlyArray<Variant> = [
     sections: {
       summary: summary(
         "Engenheiro de Software especializado em C#/.NET e Angular para plataformas de ativos e custódia, ",
-        "com 6 anos de engenharia de software e 15 em governança financeira. No Itaú desenhei a plataforma que sustenta +R$ 100 bilhões em custódia e liderei a adoção de testes automatizados em .NET, Angular e Flutter que elevou a qualidade em 8x.",
+        "com quase 8 anos de engenharia de software e 15 em governança financeira. No Itaú desenhei a plataforma que sustenta +R$ 100 bilhões em custódia e liderei a adoção de testes automatizados em .NET, Angular e Flutter que elevou a qualidade em 8x.",
       ),
       metrics: metrics([
         ["+R$ 100 Bi", "Custódia", "Plataforma B2B integrada à B3 com visão multi-carteira."],
@@ -246,7 +246,7 @@ export const variants: ReadonlyArray<Variant> = [
     sections: {
       summary: summary(
         "Engenheiro de Software focado em Node, Go e React para sistemas de alta escala, ",
-        "com 6 anos de engenharia de software e 15 em governança financeira. Entrego performance onde ela é medida — 10x em 100 milhões de mensagens por dia, consultas de 30s para menos de 200ms, deploy de 4 horas para 15 minutos — com microsserviços em Go, APIs em NestJS e interfaces em React e Next.js em Kubernetes.",
+        "com quase 8 anos de engenharia de software e 15 em governança financeira. Entrego performance onde ela é medida — 10x em 100 milhões de mensagens por dia, consultas de 30s para menos de 200ms, deploy de 4 horas para 15 minutos — com microsserviços em Go, APIs em NestJS e interfaces em React e Next.js em Kubernetes.",
       ),
       metrics: metrics([
         ["10x", "Performance", "100M+ mensagens processadas por dia em Go."],
