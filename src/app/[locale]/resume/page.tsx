@@ -10,7 +10,12 @@ import {
 } from "@/domain/i18n";
 import { readResume, readResolvedProfiles } from "@/infrastructure/repositories";
 import { resolveResumePdfSource } from "@/domain/publication/resume-pdf-source";
-import { applyFocus, narrowDocument } from "@/domain/resume/focus";
+import {
+  availableResumeVariants,
+  type ResumeVariant,
+} from "@/infrastructure/pdf/fixed-resume-artifact";
+import { resumeVariantLabel } from "@/domain/publication/resume-variant";
+import { applyFocus, narrowDocument, type FocusExpansion } from "@/domain/resume/focus";
 import { getDictionary } from "@/i18n";
 
 const SUFFIX = "/resume";
@@ -94,20 +99,68 @@ export default async function Page({
   }
 
   /*
-    The stack selector is offered only when the PDF could honour it.
+    Which résumé the reader is looking at.
 
-    With the fixed source the download is a pre-rendered document that has no
-    relation graph, so a stack the reader picks cannot reach it — the endpoint
-    answers 400 rather than quietly serving the generic résumé under a filename
-    that promises React + Node.
-
-    Offering a control that cannot work is worse than not offering it: the reader
-    narrows the page, reads the narrowed version and then downloads something
-    that does not match it. So the selector disappears, and this page goes back
-    to being the generic résumé it has always been able to be.
+    With the fixed source a stack selects a *document*, not a slice of one: the
+    specialised versions are written for their stack rather than narrowed out of
+    the general one. So the selector offers the documents that actually exist
+    rather than the profiles the database happens to hold - a selector that
+    offers something the endpoint cannot serve is worse than no selector, because
+    the reader picks it and gets something else.
   */
-  const focusable = resolveResumePdfSource() === "database";
-  const profiles = focusable ? await readResolvedProfiles(locale) : [];
+  const focusable = resolveResumePdfSource() === "fixed";
+
+  /*
+    One element type for both sources, so `find` returns a single shape rather
+    than a union. `focus` is present only on the database path, which is what
+    makes "can this stack narrow the page" a question about the value instead of
+    about the type it came from.
+  */
+  type PageProfile = {
+    readonly slug: string;
+    readonly label: string;
+    readonly description: string;
+    readonly focus?: FocusExpansion;
+  };
+
+  const t = await getDictionary(locale);
+
+  /*
+    Every variant is labelled with the same thing its file is named after.
+
+    Backend plus frontend, in the reader's language, from the one table in
+    `resume-variant.ts`. The label used to be a seniority-led string written out
+    here — "Enterprise Java + Angular", "Modern Node + Go + React" — which made two
+    of the three look like they were for more senior work than the third. That is
+    not what separates them, and it is not what anyone choosing between them is
+    comparing.
+
+    A label and a filename that disagree is also how the same stack ends up written
+    two ways on one page: the button says one thing and the file it produces is
+    called something else.
+  */
+  const profiles: ReadonlyArray<{ profile: PageProfile }> = focusable
+    ? (await availableResumeVariants(locale)).map((slug: ResumeVariant) => ({
+        profile: {
+          slug,
+          label: resumeVariantLabel(locale, slug, t.resume.stackComplete),
+          description: "",
+        },
+      }))
+    : (await readResolvedProfiles(locale)).map((entry) => ({ profile: entry.profile }));
+
+  /*
+    A selector with one entry is not a choice.
+
+    On the fixed source only the general document is rendered today, so offering a
+    control with a single "Completo" button would be decoration dressed as a
+    choice - it implies a specialisation is available and none is. It stays hidden
+    until a second document exists, and then appears on its own.
+
+    On the database path the selector stays a single-entry control as before: there
+    it drives narrowing as well as the download, so it keeps its own history.
+  */
+  const selectable = focusable && profiles.length < 2 ? [] : profiles;
 
   /*
     An unrecognised `stack` falls back to the generic résumé rather than 404ing.
@@ -140,10 +193,20 @@ export default async function Page({
     result. Doing it in the domain would mean the domain could rebuild a document
     it was only ever given positions into.
   */
-  const narrowed =
-    selected === undefined || resume.stackIndex === undefined
-      ? null
-      : applyFocus(resume.stackIndex, resume, selected.focus);
+  let narrowed: ReturnType<typeof applyFocus> | null = null;
+
+  /*
+    Narrowing exists only on the database path, where the stack index can actually
+    decide which roles and bullets belong. On the fixed path the specialised
+    documents are separate files, and narrowing this page would produce a third
+    thing that is neither.
+  */
+  if (!focusable && selected !== undefined && selected.profile.focus !== undefined) {
+    narrowed =
+      resume.stackIndex === undefined
+        ? null
+        : applyFocus(resume.stackIndex, resume, selected.profile.focus);
+  }
 
   /*
     The same `narrowDocument` the PDF route uses.
@@ -154,17 +217,31 @@ export default async function Page({
   */
   const focused = narrowed === null ? undefined : narrowDocument(resume, narrowed);
 
+  /*
+    On the fixed source the page shows the general document whatever stack is
+    selected.
+
+    The specialised versions are separate documents, not narrowed views of this
+    one, so narrowing this page by the stack index would produce a *third* thing:
+    neither the general résumé nor the specialised one. It would look like the
+    choice worked while the download returned something else entirely.
+
+    So the selector here chooses the download, and this page stays the general
+    document - which is also the honest reading, since it is the complete record.
+  */
+  const focusedForPage = narrowed === null ? undefined : narrowDocument(resume, narrowed);
+
   return (
     <ResumeDocument
       locale={locale}
       resume={resume}
-      profiles={profiles.map((entry) => ({
+      profiles={selectable.map((entry) => ({
         slug: entry.profile.slug,
         label: entry.profile.label,
         description: entry.profile.description,
       }))}
       selectedProfile={selected?.profile.slug ?? null}
-      focused={focused}
+      focused={focusedForPage}
       narrowedRoles={narrowed?.narrowedRoles ?? 0}
       untaggedDropped={narrowed?.untaggedDropped ?? 0}
     />

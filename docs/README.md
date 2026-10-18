@@ -26,6 +26,7 @@ Documentação técnica detalhada e guias específicos:
 | [`IMPLEMENTATION-STATUS.md`](./IMPLEMENTATION-STATUS.md) | Status atual de implementação das features |
 | [`ERROR_HANDLING.md`](./ERROR_HANDLING.md) | Estratégias de tratamento de erro |
 | [`pdf-reference-contract.md`](./pdf-reference-contract.md) | Contrato de referência para geração de PDF |
+| [`pdf-layout-contract.md`](./pdf-layout-contract.md) | Contrato de layout dos PDFs de recrutador: linhas e caracteres por item, e a regra de tipografia fixa |
 | [`latex-template-authoring.md`](./latex-template-authoring.md) | Guia para criação de templates LaTeX |
 | [`release-process.md`](./release-process.md) | Processo de release e versionamento |
 | [`supabase-setup.md`](./supabase-setup.md) | Variáveis, autenticação do dono e analytics |

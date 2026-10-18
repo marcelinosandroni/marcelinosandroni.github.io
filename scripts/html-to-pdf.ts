@@ -21,12 +21,17 @@ import { chromium } from "playwright";
  * is what an applicant tracking system parses. A screenshot-based "PDF" would
  * look identical and score zero.
  *
- * ## What it deliberately does not do
+ * ## Page count: reported by default, asserted on request
  *
- * It does not fix the HTML. A page that overflows A4 is a design decision the
- * author made, and silently re-flowing it would hide the problem behind a file
- * that looks fine. The page count is reported and can be asserted, so an overflow
- * is *visible* here rather than discovered by a recruiter.
+ * The default is to render whatever the document is and say how many pages came
+ * out. Nothing is forced, nothing is trimmed, and the typography is the
+ * typography the source already declares.
+ *
+ * Passing a third argument turns that report into an assertion: the run fails if
+ * the PDF does not have the number of pages asked for. That is the opt-in check
+ * for the moment a page limit is a real requirement - and when it fires it names
+ * the sections that cost the most height, because "too long" is not actionable
+ * and "the inventory is 93mm and the fourth role is 66mm" is.
  */
 
 /**
@@ -125,11 +130,101 @@ async function report(options: Options): Promise<void> {
       A mismatch is a real defect and the script is the right place to say so:
       it is the one moment the layout is known to be wrong rather than merely
       unverified, and a PDF is easy to send and hard to notice.
+
+      What it must not do is say "check the source layout" and stop. That is the
+      one answer that helps nobody: the author already knows it grew, and the
+      question is which part to give back. So the document is measured again and
+      the largest sections are named with the millimetres each one costs, because
+      "too long" is not actionable and "the inventory is 93mm and the fourth role
+      is 66mm" is.
     */
+    const over = pages - options.expectPages;
+
     throw new Error(
-      `expected ${options.expectPages} page(s), got ${pages}. ` +
-        "Content is overflowing its .a4-page — check the source layout.",
+      `expected ${options.expectPages} page(s), got ${pages} — ${over} page${over === 1 ? "" : "s"} too many.\n` +
+        (await describeWhatToTrim(options.input)),
     );
+  }
+}
+
+/**
+ * Names the sections that cost the most height, biggest first.
+ *
+ * Measured in the print stylesheet, because that is the layout the PDF uses.
+ */
+async function describeWhatToTrim(input: string): Promise<string> {
+  const sections = await measureSections(input);
+
+  if (sections.length === 0) {
+    return "  (the source has no marked sections to measure)";
+  }
+
+  const lines = sections.map((s) => `    ${s.heightMm.toFixed(1).padStart(6)}mm  ${s.label}`);
+
+  return ["  Largest sections, to trim from the bottom of this list:", ...lines].join("\n");
+}
+
+type Section = { readonly label: string; readonly heightMm: number };
+
+async function measureSections(input: string): Promise<ReadonlyArray<Section>> {
+  const browser = await chromium.launch();
+
+  try {
+    const page = await browser.newPage();
+
+    await page.goto(pathToFileURL(input).href, { waitUntil: "networkidle", timeout: 60_000 });
+    await page.emulateMedia({ media: "print" });
+    await page.evaluate(() => document.fonts.ready);
+
+    const measured = await page.evaluate(() => {
+      /*
+        Written inline, with no named helper.
+
+        The function passed to `evaluate` is serialised and re-parsed inside the
+        browser. esbuild's name-keeping wraps any function *declared* inside it
+        with a `__name` helper that does not exist over there, so the whole
+        evaluation dies on a ReferenceError that names no line of this file.
+
+        A block's `data-block` says what kind of thing it is - "cargo",
+        "habilidades" - and not which one. In a report whose job is saying what to
+        cut, five lines all reading "cargo" is no report at all, so the label comes
+        from the block's own heading: the role's company, or the section title.
+      */
+      return Array.from(document.querySelectorAll<HTMLElement>("[data-block]")).map((node) => {
+        const role = node.querySelector<HTMLElement>("h4");
+        const section = node.querySelector<HTMLElement>("h3.section-title");
+
+        const text =
+          role !== null
+            ? (role.querySelector("span")?.textContent ?? role.textContent ?? "")
+            : (section?.textContent ?? node.dataset.block ?? node.tagName);
+
+        return {
+          label: text.replace(/\s+/g, " ").replace(/^\|\s*/, "").trim(),
+          height: node.getBoundingClientRect().height,
+        };
+      });
+    });
+
+    await page.close();
+
+    return measured
+      .map((m) => ({ label: m.label, heightMm: m.height * (25.4 / 96) }))
+      .sort((a, b) => b.heightMm - a.heightMm);
+  } catch (error: unknown) {
+    /*
+      Reported rather than swallowed.
+
+      This report is an answer to "which part do I cut", and a silent empty result
+      is the worst possible failure for it: the assertion still fires, so it looks
+      like the document has no marked sections at all rather than like the
+      measurement broke.
+    */
+    console.warn(`  (could not measure the source: ${error instanceof Error ? error.message : String(error)})`);
+
+    return [];
+  } finally {
+    await browser.close();
   }
 }
 
@@ -159,10 +254,16 @@ function usage(): string {
     "",
     "  input.html      a print-designed HTML file",
     "  output.pdf      defaults to the input path with a .pdf extension",
-    "  expectedPages   optional; the run fails if the PDF has a different count",
+    "  expectedPages   optional; when given, the run fails if the PDF has a",
+    "                  different page count, and names the largest sections so",
+    "                  it is clear what to trim",
     "",
-    "Example:",
-    "  npm run pdf:from-html -- resume-recruiter-pt-br.html resume-recruiter-pt-br.pdf 2",
+    "Without expectedPages the document renders as written: the page count is",
+    "reported and nothing is trimmed.",
+    "",
+    "Examples:",
+    "  npm run pdf:from-html -- resume-recruiter-pt-br.html resume-recruiter-pt-br.pdf",
+    "  npm run pdf:from-html -- resume-recruiter-pt-br.html out.pdf 2",
   ].join("\n");
 }
 

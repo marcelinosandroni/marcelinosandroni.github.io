@@ -159,6 +159,15 @@ export const ptBR: Dictionary = {
     galleryNext: "Próxima",
     galleryClose: "Fechar",
     stackAll: "Todas",
+    /*
+      O rotulo do documento geral, e nao do link "todas".
+
+      `stackAll` serve ao link que desfaz um filtro - "Todas" responde a pergunta
+      "quais?". O documento geral responde a outra: "qual e o completo?". Sao dois
+      textos, e usar um para os dois e o motivo de o botao ter passado a dizer
+      "Todas" ao apontar para um documento unico.
+    */
+    stackComplete: "Completo",
     stackChoose: "Ver o currículo por stack",
     stackFocusedOn: "Focado em {stack}",
     stackNarrowed: "Esta versão destaca as stacks selecionadas",
@@ -257,7 +266,6 @@ export const ptBR: Dictionary = {
     generating: "Gerando…",
     failed: "Falha ao baixar PDF",
     unknownError: "Erro desconhecido",
-    chooseTemplate: "Escolher modelo de PDF",
     /**
      * Seções impressas no PDF gerado. "Core Skills & Arquitetura de Software" é
      * intencional: o modelo DETAILED reproduz os títulos do PDF de referência.
@@ -285,17 +293,6 @@ export const ptBR: Dictionary = {
       challenge: "Desafio",
       solution: "Resposta",
       result: "Resultado",
-    },
-    templates: {
-      CLEAN: {
-        label: "CLEAN",
-        description: "Compacto. Cargos, datas e os resultados que carregam número.",
-      },
-      DETAILED: {
-        label: "DETAILED",
-        description:
-          "Tudo, com as evidências: estudos de caso, suas métricas, a stack de cada cargo, tamanho do time e escopo.",
-      },
     },
   },
   localeSwitcher: {

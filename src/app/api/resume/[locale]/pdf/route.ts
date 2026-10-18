@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { join, dirname } from "node:path";
 import { readFileSync, mkdirSync } from "node:fs";
+import { decideResumePdfResponse } from "@/application/publication/resume-pdf-response";
 import { CURRENT_RESUME_VERSION } from "@/domain/publication/current-resume-version";
 import { BuildResumeDocument } from "@/application/publication/build-resume-document";
 import { PublishPDFResume } from "@/application/publication/publish-pdf-resume";
@@ -14,21 +15,27 @@ import { applyFocus, narrowDocument } from "@/domain/resume/focus";
 import { getDictionary } from "@/i18n";
 import { getPdfSectionLabels } from "@/infrastructure/pdf/pdf-section-labels";
 import {
+  DEFAULT_RESUME_TEMPLATE,
+  DOWNLOADABLE_RESUME_TEMPLATE_IDS,
   resolveResumeTemplateId,
   type ResumeTemplateId,
 } from "@/infrastructure/pdf/resume-template-registry";
 import { createErrorResponse } from "@/infrastructure/http/error-handler";
 import { assertResumeDownloadEnabled } from "@/application/publication/assert-resume-download-enabled";
 import {
-  fixedResumeFilename,
+  RESUME_VARIANTS,
+  availableResumeVariants,
   readFixedResumeArtifact,
 } from "@/infrastructure/pdf/fixed-resume-artifact";
+import { resumePdfFilename } from "@/domain/publication/resume-pdf-filename";
+import { resolveResumeVariant } from "@/domain/publication/resume-variant";
 import { resolveResumePdfSource } from "@/domain/publication/resume-pdf-source";
 import {
   InvalidLocaleError,
-  InvalidStackForFixedSourceError,
   InvalidTemplateError,
   PdfGenerationError,
+  ResumeVariantNotRenderedError,
+  UnknownResumeVariantError,
 } from "@/domain/errors";
 
 function getCacheDirectory(): string {
@@ -106,42 +113,82 @@ export async function GET(
       file removes the LaTeX container and the database round trip from a
       download a recruiter is waiting on, which is the whole point.
 
-      Focus is rejected rather than ignored. Narrowing works by tagging roles and
-      bullets in the relation graph, and a fixed document has none - so a
-      `?stack=react-node` request would otherwise answer with the generic résumé
-      under a filename promising React + Node. The page hides the selector when
-      this source is active, so this is the backstop for a hand-typed URL.
+      `?stack=` chooses *which document*, not which part of one. A fixed document
+      has no relation graph, so the stack cannot narrow it at request time - the
+      specialised versions are separate documents written for that stack, and the
+      slug selects between them. An unknown slug is refused rather than silently
+      answered with the general résumé, which would be a document that never
+      mentions the stack the reader asked about.
     */
     if (resolveResumePdfSource() === "fixed") {
-      const requestedStack = request.nextUrl.searchParams.get("stack");
+      /*
+        The template a fixed download may be asked for.
 
-      if (requestedStack !== null && requestedStack.trim() !== "") {
-        return createErrorResponse(
-          new InvalidStackForFixedSourceError(requestedStack),
+        The document served here was built and committed in this repository and has
+        one form, so a template has nothing to choose between. The parameter used to
+        be accepted and ignored, which was the worst of the three possible answers:
+        `?template=DETAILED` returned the default document under a name promising
+        something else, and the reader had no way to tell from the file.
+
+        Refused rather than ignored, so a link from before the template menu was
+        removed fails with a sentence that says what happened. `CLEAN` and no
+        parameter at all both resolve to the default and keep working, so the only
+        links that break are the ones that were already lying.
+      */
+      if (!DOWNLOADABLE_RESUME_TEMPLATE_IDS.includes(templateId)) {
+        throw new InvalidTemplateError(
+          `Invalid template: ${requestedTemplate}. A download of the fixed résumé ` +
+            `is the default document or one written for a stack, chosen with ?stack=.`,
+          { providedTemplate: requestedTemplate },
         );
       }
 
-      const artifact = await readFixedResumeArtifact(normalizedLocale);
+      const requestedStack = request.nextUrl.searchParams.get("stack");
+      const variant = resolveResumeVariant(requestedStack);
+
+      if (variant === null) {
+        return createErrorResponse(new UnknownResumeVariantError(requestedStack ?? "", RESUME_VARIANTS));
+      }
+
+      const artifact = await readFixedResumeArtifact(normalizedLocale, variant);
 
       if (artifact !== null) {
-        return new NextResponse(new Uint8Array(artifact.bytes), {
-          headers: {
-            "Content-Type": "application/pdf",
-            "Content-Disposition": `attachment; filename="${fixedResumeFilename(normalizedLocale)}"`,
-            "Content-Length": String(artifact.bytes.length),
-            "Cache-Control": "public, max-age=3600, s-maxage=86400",
-          },
-        });
+        return respondWithPdf(artifact.bytes, request, resumePdfFilename(normalizedLocale, variant));
       }
 
       /*
-        No artifact for this locale. The typed catalog is the documented second
-        source, and it is a real answer: the fixed document exists only in the
-        language it was designed in, and an English reader served the Portuguese
-        one would be worse than one served the catalog.
+        No artifact for this variant in this locale.
+
+        Two different situations share this branch, and they get different answers
+        because they are different problems.
+
+        When the *locale* has nothing rendered, there used to be a fallback: log a
+        line and carry on into the database path below. That is how a download from
+        this route produced a 39KB LaTeX document when the request had asked for a
+        345KB one - the reader got a real, complete, professionally typeset résumé
+        that was not the one on the site, and nothing in the download said so.
+
+        Falling back is exactly the failure the branch above exists to prevent, one
+        level up. If the artifacts are missing, the build has not run: the answer is
+        a refusal naming the command, not a different document. Setting
+        `RESUME_PDF_SOURCE=database` still gets the database path on purpose.
       */
-      console.warn(
-        `[resume-pdf] fixed source has no artifact for ${normalizedLocale}; using the database path`,
+      const offered = await availableResumeVariants(normalizedLocale);
+
+      if (offered.length > 0) {
+        return createErrorResponse(
+          new ResumeVariantNotRenderedError(variant, normalizedLocale, offered),
+        );
+      }
+
+      return createErrorResponse(
+        new ResumeVariantNotRenderedError(
+          variant,
+          normalizedLocale,
+          [],
+          "no fixed artefact has been built for this locale. Run `npm run pdf:fixed:build`, " +
+            "or set RESUME_PDF_SOURCE=database to serve the database document instead.",
+        ),
       );
     }
 
@@ -249,15 +296,33 @@ export async function GET(
       pdfBytes = readFileSync(generatedPath);
     }
 
-    return new NextResponse(new Uint8Array(pdfBytes), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${preferredFilename}"`,
-      },
-    });
+    return respondWithPdf(pdfBytes, request, preferredFilename);
   } catch (error) {
     // Use centralized error handler for consistent responses
     return createErrorResponse(error);
   }
+}
+
+/**
+ * A résumé download, with the cache policy the route is not allowed to invent.
+ *
+ * The decision lives in the application layer because it is a decision, not a
+ * detail of this handler: the URL is stable and the bytes are not, so the cache is
+ * keyed on the content. See `decideResumePdfResponse` for why a day-long shared
+ * cache was wrong here.
+ */
+function respondWithPdf(
+  bytes: Uint8Array,
+  request: NextRequest,
+  filename: string,
+): NextResponse {
+  const decision = decideResumePdfResponse(bytes, {
+    filename,
+    ifNoneMatch: request.headers.get("if-none-match"),
+  });
+
+  return new NextResponse(decision.body === null ? null : new Uint8Array(decision.body), {
+    status: decision.status,
+    headers: decision.headers,
+  });
 }

@@ -176,6 +176,15 @@ export const enUS = {
     galleryNext: "Next",
     galleryClose: "Close",
     stackAll: "All",
+  /*
+    The label of the general document, not of the "all" link.
+
+    `stackAll` serves the link that undoes a filter - "All" answers "which?".
+    The general document answers a different one: "which is the complete one?".
+    Two texts, and using one for both is why the button came to say "All" while
+    pointing at a single document.
+  */
+  stackComplete: "Full",
     stackChoose: "View the résumé by stack",
     stackFocusedOn: "Focused on {stack}",
     stackNarrowed: "This version leads with the selected stacks",
@@ -289,7 +298,6 @@ export const enUS = {
     generating: "Generating…",
     failed: "Failed to download PDF",
     unknownError: "Unknown error",
-    chooseTemplate: "Choose PDF template",
     /**
      * Section headings printed in the generated PDF. Kept apart from the web UI
      * because the document follows its own editorial structure, and the
@@ -318,17 +326,6 @@ export const enUS = {
       challenge: "Challenge",
       solution: "Response",
       result: "Result",
-    },
-    templates: {
-      CLEAN: {
-        label: "CLEAN",
-        description: "Compact. Roles, dates, and the outcomes that carry a number.",
-      },
-      DETAILED: {
-        label: "DETAILED",
-        description:
-          "Everything, with the evidence: case studies, their metrics, the stack behind each role, team size and scope.",
-      },
     },
   },
   localeSwitcher: {
