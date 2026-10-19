@@ -181,6 +181,8 @@ describe("the scheme, spelled out", () => {
     ["en-US", "enterprise-java-react", "Marcelino Sandroni - Software Engineer - Java and React.pdf"],
     ["pt-BR", "enterprise-dotnet", "Marcelino Sandroni - Engenheiro de Software - C# e Angular.pdf"],
     ["en-US", "enterprise-dotnet", "Marcelino Sandroni - Software Engineer - C# and Angular.pdf"],
+    ["pt-BR", "enterprise-dotnet-react", "Marcelino Sandroni - Engenheiro de Software - C# e React.pdf"],
+    ["en-US", "enterprise-dotnet-react", "Marcelino Sandroni - Software Engineer - C# and React.pdf"],
     ["pt-BR", "modern-web", "Marcelino Sandroni - Engenheiro de Software - Node e React.pdf"],
     ["en-US", "modern-web", "Marcelino Sandroni - Software Engineer - Node and React.pdf"],
   ];

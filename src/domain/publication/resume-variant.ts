@@ -20,6 +20,7 @@ export const RESUME_VARIANTS = [
   "enterprise-java",
   "enterprise-java-react",
   "enterprise-dotnet",
+  "enterprise-dotnet-react",
   "modern-web",
 ] as const;
 
@@ -40,13 +41,14 @@ export type ResumeVariant = (typeof RESUME_VARIANTS)[number];
  * covers Node, Go and React, and is named for the pair a reader scans for rather
  * than the full list, which lives in its headline.
  *
- * ## Why Java appears twice
+ * ## Why each backend appears twice
  *
  * Because a backend alone does not decide whether someone is interested, and the
- * two documents really are different: the Angular one and the React one disagree
- * about the frontend everywhere below the headline, including the stack on every
- * role. Collapsing them into one "Java" document would mean choosing a frontend for
- * a reader who has a preference, which is the one thing the split exists to avoid.
+ * pairs are genuinely different documents: Java with Angular and Java with React
+ * disagree about the frontend everywhere below the headline, including the stack on
+ * every role. Collapsing them into one "Java" document would mean choosing a frontend
+ * for a reader who has a preference, which is the one thing the split exists to
+ * avoid.
  *
  * ## Why it is per locale
  *
@@ -60,6 +62,7 @@ export const RESUME_VARIANT_STACKS: Record<
   "enterprise-java": { "pt-BR": "Java e Angular", "en-US": "Java and Angular" },
   "enterprise-java-react": { "pt-BR": "Java e React", "en-US": "Java and React" },
   "enterprise-dotnet": { "pt-BR": "C# e Angular", "en-US": "C# and Angular" },
+  "enterprise-dotnet-react": { "pt-BR": "C# e React", "en-US": "C# and React" },
   "modern-web": { "pt-BR": "Node e React", "en-US": "Node and React" },
 };
 

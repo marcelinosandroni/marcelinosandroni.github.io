@@ -57,6 +57,7 @@ const FILENAMES: Record<Locale, Record<ResumeVariant, string>> = {
     "enterprise-java": "resume-fixed-pt-BR-enterprise-java.pdf",
     "enterprise-java-react": "resume-fixed-pt-BR-enterprise-java-react.pdf",
     "enterprise-dotnet": "resume-fixed-pt-BR-enterprise-dotnet.pdf",
+    "enterprise-dotnet-react": "resume-fixed-pt-BR-enterprise-dotnet-react.pdf",
     "modern-web": "resume-fixed-pt-BR-modern-web.pdf",
   },
   "en-US": {
@@ -64,6 +65,7 @@ const FILENAMES: Record<Locale, Record<ResumeVariant, string>> = {
     "enterprise-java": "resume-fixed-en-US-enterprise-java.pdf",
     "enterprise-java-react": "resume-fixed-en-US-enterprise-java-react.pdf",
     "enterprise-dotnet": "resume-fixed-en-US-enterprise-dotnet.pdf",
+    "enterprise-dotnet-react": "resume-fixed-en-US-enterprise-dotnet-react.pdf",
     "modern-web": "resume-fixed-en-US-modern-web.pdf",
   },
 };
