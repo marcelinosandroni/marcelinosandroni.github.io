@@ -11,13 +11,14 @@ A fonte da verdade é o código: `npm run resume:prompt` reescreve este arquivo.
 
 ## 1. O que este currículo é
 
-Cinco documentos que compartilham **uma estrutura e uma tipografia**:
+6 documentos que compartilham **uma estrutura e uma tipografia**:
 
-- `pt-BR` — o geral
-- `pt-BR` — Java + Angular
-- `pt-BR` — C# + Angular
-- `pt-BR` — Node + React
-- `en-US` — o geral
+`pt-BR` — o geral
+`pt-BR` — Java + Angular
+`pt-BR` — Java + React
+`pt-BR` — C# + Angular
+`pt-BR` — Node + Go + React
+`en-US` — o geral
 
 Dois A4, sempre. **Página 1 vende o perfil; página 2 é a experiência completa.**
 A quebra entre as duas é forçada, não automática.

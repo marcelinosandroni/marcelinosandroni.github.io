@@ -325,7 +325,18 @@ async function main(): Promise<void> {
   console.log("done.");
 }
 
-main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exit(1);
-});
+/*
+  Only when this file is the entry point.
+ *
+  `convertHtmlToPdf` is exported, and `scripts/render-variant-pdfs.ts` imports it to
+  render one document per stack variant. An unconditional `main()` here would fire on
+  that import, read the *importing* script's argv, find no arguments, and print usage
+  and exit — which is what it did. A module with a CLI has to know whether it is
+  running as one.
+ */
+if (require.main === module) {
+  main().catch((error: unknown) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  });
+}

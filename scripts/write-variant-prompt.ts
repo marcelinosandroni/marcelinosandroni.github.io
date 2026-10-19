@@ -235,6 +235,33 @@ ${cards.join("\n")}
 ${groups.join("\n")}`;
 }
 
+/**
+ * The set of documents, read out of the variant data.
+ *
+ * Written by hand it was correct until a fourth variant was added, at which point it
+ * described five documents while the project shipped six - and the brief is the
+ * thing handed to another model to write the seventh. A list that quietly falls
+ * behind is worse than no list, because it is believed.
+ *
+ * The leading word is stripped rather than the whole label reproduced, because the
+ * brief names the backend and frontend a reader chooses on, and the data's label
+ * leads with a register - `Enterprise`, `Modern` - that the reader is not choosing
+ * between.
+ *
+ * The English line is written out rather than derived: `en-US` is rendered by
+ * `scripts/build-english-resume.ts` and has no entry in the Portuguese variant data,
+ * so there is nothing here to read it from.
+ */
+function documents(): ReadonlyArray<string> {
+  return [
+    "`pt-BR` — o geral",
+    ...variants.map(
+      (variant) => `\`pt-BR\` — ${variant.label.replace(/^[A-Z][a-z]+ /, "")}`,
+    ),
+    "`en-US` — o geral",
+  ];
+}
+
 function document_(java: ReadonlyArray<readonly [number, number]>): string {
   return `# Prompt: escrever o conteúdo de uma variante do currículo
 
@@ -249,13 +276,9 @@ A fonte da verdade é o código: \`npm run resume:prompt\` reescreve este arquiv
 
 ## 1. O que este currículo é
 
-Cinco documentos que compartilham **uma estrutura e uma tipografia**:
+${documents().length} documentos que compartilham **uma estrutura e uma tipografia**:
 
-- \`pt-BR\` — o geral
-- \`pt-BR\` — Java + Angular
-- \`pt-BR\` — C# + Angular
-- \`pt-BR\` — Node + React
-- \`en-US\` — o geral
+${documents().join("\n")}
 
 Dois A4, sempre. **Página 1 vende o perfil; página 2 é a experiência completa.**
 A quebra entre as duas é forçada, não automática.

@@ -18,6 +18,7 @@ import type { Locale } from "@/domain/i18n";
 export const RESUME_VARIANTS = [
   "all",
   "enterprise-java",
+  "enterprise-java-react",
   "enterprise-dotnet",
   "modern-web",
 ] as const;
@@ -32,12 +33,20 @@ export type ResumeVariant = (typeof RESUME_VARIANTS)[number];
  * Because the reader is choosing between these documents, and the comparison they
  * are making is "which backend, which frontend". A label that leads with a
  * seniority — `Enterprise Java + Angular`, `Modern Node + Go + React` — makes two
- * of the three documents look like they are for more senior work than the third,
- * which is not what separates them and not what anyone is choosing on.
+ * of the documents look like they are for more senior work than the third, which is
+ * not what separates them and not what anyone is choosing on.
  *
- * So the shape is fixed: **backend + frontend, and nothing else**. The third
- * variant covers Node, Go and React, and is named for the pair a reader scans
- * for rather than the full list, which lives in its headline.
+ * So the shape is fixed: **backend + frontend, and nothing else**. The Node variant
+ * covers Node, Go and React, and is named for the pair a reader scans for rather
+ * than the full list, which lives in its headline.
+ *
+ * ## Why Java appears twice
+ *
+ * Because a backend alone does not decide whether someone is interested, and the
+ * two documents really are different: the Angular one and the React one disagree
+ * about the frontend everywhere below the headline, including the stack on every
+ * role. Collapsing them into one "Java" document would mean choosing a frontend for
+ * a reader who has a preference, which is the one thing the split exists to avoid.
  *
  * ## Why it is per locale
  *
@@ -49,6 +58,7 @@ export const RESUME_VARIANT_STACKS: Record<
   Readonly<Record<Locale, string>>
 > = {
   "enterprise-java": { "pt-BR": "Java e Angular", "en-US": "Java and Angular" },
+  "enterprise-java-react": { "pt-BR": "Java e React", "en-US": "Java and React" },
   "enterprise-dotnet": { "pt-BR": "C# e Angular", "en-US": "C# and Angular" },
   "modern-web": { "pt-BR": "Node e React", "en-US": "Node and React" },
 };
