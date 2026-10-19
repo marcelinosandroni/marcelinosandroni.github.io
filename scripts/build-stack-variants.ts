@@ -8,6 +8,7 @@ import {
   type TimelineRole,
 } from "./data/career-timeline";
 import { TIMELINE, type Variant } from "./data/stack-variants.pt-br";
+import { replaceVariantRoles } from "./data/variant-roles";
 import { checkLayout, type LayoutDocument } from "./check-layout";
 
 /**
@@ -176,6 +177,7 @@ function render(shell: string, variant: Variant): string {
   }
 
   out = replaceInventory(out, variant);
+  out = replaceVariantRoles(out, variant.roles ?? [], variant.slug);
   out = injectTimeline(out, variant.timeline, variant.slug);
   out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${variant.title}</title>`);
 
@@ -265,7 +267,6 @@ function renderInventory(groups: ReadonlyArray<readonly [string, string]>): stri
 ${paragraphs}
             </div>`;
 }
-
 
 /**
  * The two facts a reader is entitled to, checked on every document.

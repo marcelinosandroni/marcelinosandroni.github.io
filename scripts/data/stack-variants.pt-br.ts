@@ -27,6 +27,9 @@
  * technical inventory. Everything else is inherited.
  */
 import { TONES, type TimelineRole } from "./career-timeline";
+import type { RoleContent } from "./variant-roles";
+
+export type { RoleContent };
 
 /*
   The career timeline - one bar, because the experience is one.
@@ -127,6 +130,28 @@ export type Variant = {
     readonly summary: string;
     readonly metrics: string;
   };
+  /**
+   * Each role's stack line and bullets, when this variant argues a different stack.
+   *
+   * ## What stays shared, and why that is not a compromise
+   *
+   * The role, the company, the dates and the tenure are one set across all five
+   * documents, because they are facts rather than arguments: a date that exists in
+   * five places is five places to let it go stale, and `assertTimelineMatchesRoles`
+   * would catch the drift only after it had already shipped in a document or two.
+   *
+   * The stack line and the bullets are the argument, though, and they were reading
+   * as the general résumé's argument - a document that names Node, Go and React under
+   * the name and then credits Spring Boot and RxJS through the middle of its
+   * experience reads as carelessness rather than breadth. So those move here.
+   *
+   * Declaring `roles` opts a variant in completely: a variant that declares some of
+   * them and not the others fails the build, because a partial declaration is
+   * indistinguishable at a glance from a complete one and leaves half the experience
+   * arguing for the other stack. A variant that declares none inherits all of them,
+   * which is what the two variants written before this field existed still do.
+   */
+  readonly roles?: ReadonlyArray<RoleContent>;
   /** The roles the career timeline shows, oldest first. */
   readonly timeline: ReadonlyArray<TimelineRole>;
 };
@@ -220,41 +245,127 @@ export const variants: ReadonlyArray<Variant> = [
     slug: "modern-web",
     label: "Modern Node + Go + React",
     title: "Marcelino Sandroni - Engenheiro Node, Go e React",
-    headline: "Engenheiro de Software Sênior | Node, Go &amp; React",
+    headline: "Engenheiro de Software Sênior | Node, React, Go &amp; IA",
     inventory: [
       [
-        "Frontend &amp; UI",
-        "React, Next.js (RSC, SSR), Angular, Vue.js, React Native, TypeScript, Micro-frontends, Storybook, Tailwind CSS, Design Systems.",
+        "Frontend &amp; Mobile",
+        "React, Next.js, Angular, React Native, Flutter, Micro-frontends, Tailwind, SSR, Zustand, Redux, Design Systems.",
       ],
       [
-        "Backend &amp; Distribuídos",
-        "Node.js, NestJS, Go, Java (Spring Boot), .NET Core, Python, REST, gRPC, WebSockets, Circuit Breakers, RabbitMQ (DLQ), Apache Kafka, Serverless.",
+        "Backend &amp; Frameworks",
+        "Node.js (NestJS, Express), Go, Python, RESTful, gRPC, WebSockets, GraphQL, OAuth2, OIDC, JWT, mTLS.",
       ],
       [
-        "Dados &amp; Analítico",
-        "PostgreSQL, MySQL, MongoDB, Redis, ClickHouse, Databricks, ETL, Pipelines de Dados.",
+        "Inteligência Artificial &amp; Dados",
+        "Integração LLMs (OpenAI, Claude, Gemini), RAG, Agentic Workflows, LangChain, Vector DBs (pgvector, Milvus).",
       ],
       [
-        "Cloud, DevOps &amp; SRE",
-        "AWS (EKS, ECS, Lambda, S3, RDS, DynamoDB, SQS, API Gateway), GCP, Azure, Docker, Kubernetes (Helm), Terraform, CI/CD (Jenkins, GitHub Actions), Prometheus, Grafana, Jaeger, OpenTelemetry.",
+        "Cloud &amp; DevOps",
+        "AWS (EKS, S3, SQS, Lambda), Docker, Kubernetes (Helm), Terraform, CI/CD (GitHub Actions, Jenkins), Datadog.",
       ],
       [
-        "IA &amp; Dados Aplicacionais",
-        "PyTorch, TensorFlow, YOLOv8, LangChain, MLflow, Agentes LLM, Visão Computacional, SDD (Spec Driven Development).",
+        "Arquitetura &amp; Mensageria",
+        "Microsserviços, Clean Architecture, DDD, CQRS, SOLID, EDA, Apache Kafka, RabbitMQ, Circuit Breakers.",
+      ],
+      [
+        "Ecossistema Analítico &amp; Bancos",
+        "PostgreSQL, MongoDB, Redis, ClickHouse, DynamoDB, DocumentDB, Snowflake, Databricks.",
       ],
     ],
     sections: {
       summary: summary(
-        "Engenheiro de Software focado em Node, Go e React para sistemas de alta escala, ",
-        "com quase 8 anos de engenharia de software e 15 em governança financeira. Entrego performance onde ela é medida — 10x em 100 milhões de mensagens por dia, consultas de 30s para menos de 200ms, deploy de 4 horas para 15 minutos — com microsserviços em Go, APIs em NestJS e interfaces em React e Next.js em Kubernetes.",
+        "Engenheiro de Software unindo quase 8 anos em ecossistemas modernos (Node, Go, React, Python) a 15 anos de background corporativo. ",
+        "Atuo da concepção cloud-native ao desacoplamento de sistemas críticos. Foco em microsserviços de alta escala, micro-frontends e IA corporativa (Agentes/RAG), garantindo performance, escalabilidade e resiliência para aplicações de missão crítica, sob extrema cultura de testes.",
       ),
       metrics: metrics([
-        ["10x", "Performance", "100M+ mensagens processadas por dia em Go."],
-        ["30s → 200ms", "Consultas", "MySQL para ClickHouse com ETL em Databricks."],
-        ["4h → 15min", "Deploy", "Pipeline declarativo em Kubernetes."],
-        ["-50%", "Custo Cloud", "Auto-scaling e right-sizing na AWS."],
+        ["+R$ 500 Bi", "Gestão de Ativos", "Plataformas B2B de custódia e orquestração de fundos."],
+        ["10x", "Performance ETL", "Migração relacional para microsserviços em Go e Node."],
+        ["100M+ msgs/dia", "Alta Escala", "Orientada a eventos, serverless e tolerante a falhas."],
+        ["-50% Custos", "Otimização FinOps", "Auto-scaling e right-sizing em ecossistemas cloud (AWS)."],
       ]),
     },
+    roles: [
+      {
+        key: "dgt",
+        stack:
+          "Node.js, React, Next.js, Go, Python, IA, PostgreSQL, ClickHouse, Redis, RabbitMQ, gRPC, K8s, AWS.",
+        bullets: [
+          [
+            "Liderança Técnica &amp; Alta Volumetria",
+            "Liderança de squad na reestruturação de sistemas processando 100M+ mensagens/dia. Migração para ClickHouse e microsserviços pesados em Go e Node.",
+          ],
+          [
+            "Integração de IA Corporativa",
+            "Implementação de fluxos agênticos em tempo real conectando backend a LLMs (Python/LangChain), entregando assertividade absoluta e preservando contrato de R$ 24M/ano.",
+          ],
+          [
+            "Micro-frontends Enterprise",
+            "Construção de painéis web complexos utilizando React e Next.js em arquitetura de micro-frontends, garantindo UX fluida sob alta carga de processamento do browser.",
+          ],
+        ],
+      },
+      {
+        key: "bnp-paribas",
+        stack: "Node.js, React, Angular, Go, PostgreSQL, Kafka, OAuth2, Kubernetes, Jenkins, Helm.",
+        bullets: [
+          [
+            "Modernização de Monolitos",
+            "Pilar técnico no desacoplamento de sistemas bancários legados (COBOL/VB) para microsserviços em Node e Go, alcançando 95% de cobertura de testes.",
+          ],
+          [
+            "Liquidação D+0 &amp; Tempo Real",
+            "Substituição de esteiras D+1 por conciliação de fundos em tempo real via Kafka, gerando +45% nos ativos geridos com SLA de 100% de uptime em liquidações.",
+          ],
+          [
+            "Orquestração Global",
+            "Automação de fundos ETF institucionais, integrando B3 e bolsas internacionais, com impacto estimado de +R$ 50 Milhões em captação operacional para o banco.",
+          ],
+        ],
+      },
+      {
+        key: "itau",
+        stack: "Node.js, NestJS, React, TypeScript, PostgreSQL, Redis, Kafka, AWS, Kubernetes, Terraform.",
+        bullets: [
+          [
+            "Custódia Institucional Estratégica",
+            "Desenvolvimento full-stack de portal B2B focado em UX, unindo frontend React com APIs reativas e de alta disponibilidade orquestradas em Node.js.",
+          ],
+          [
+            "Gestão de Crises e Resiliência",
+            "Intervenção cirúrgica em fluxos críticos de mensageria assíncrona (Kafka) sob forte tráfego, garantindo total integridade transacional dos ativos.",
+          ],
+          [
+            "Automação E2E",
+            "Liderança na implementação rigorosa de testes automatizados com Cypress, blindando o ecossistema contra regressões sistêmicas e acelerando o pipeline de delivery.",
+          ],
+        ],
+      },
+      {
+        key: "zup",
+        stack: "Node.js, React, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, CI/CD.",
+        bullets: [
+          [
+            "Migração Cloud Acelerada",
+            "Promovido a Pleno em 1 ano. Executou migração de infraestrutura para AWS e refatorou APIs em Node.js para mensageria na metade do prazo estipulado.",
+          ],
+          [
+            "Resiliência Transacional",
+            "Correção estrutural em mensageria assíncrona (RabbitMQ) via Circuit Breakers e DLQs, garantindo 100% de assertividade transacional e recuperação de falhas.",
+          ],
+        ],
+      },
+      {
+        key: "consultoria",
+        /* A stack is what an engineering job was; this one was not. */
+        stack: null,
+        bullets: [
+          [
+            "Diferencial em Engenharia Corporativa",
+            "Liderança de equipes e redesenho de processos que reduziu fechamento contábil em 83%. Expertise financeira traduzida para software de alto ROI.",
+          ],
+        ],
+      },
+    ],
     timeline: TIMELINE,
   },
 ];

@@ -127,14 +127,15 @@ coluna é quanto o documento Java + Angular usa hoje — a folga que sobrou.
 - O resumo profissional, em até 5 linhas.
 - As quatro métricas: valor, destaque verde e descrição.
 - O inventário de habilidades, um grupo por linha de 2.
-- O texto dos bullets e da stack de cada vaga, se a variante argumentar para outra stack.
+- A stack e os bullets de cada uma das cinco vagas — se a variante argumentar para outra stack.
 
 ### Não se mexe — é fixo em todos os cinco documentos
 
 - Os seis campos de contacto — Localização, Email, WhatsApp, LinkedIn, Git, Portfólio. São fatos, iguais nos cinco documentos.
 - A barra da linha do tempo — é montada a partir das datas das vagas, não escrita.
-- As datas e as tenures das vagas — a tenure é calculada a partir das datas.
-- Os títulos dos cargos e o nível — o build exige que toda vaga de engenharia nomeie o nível (Sênior, Pleno, Sênior & Tech Lead).
+- As datas, as tenures, os títulos dos cargos e os nomes das empresas — são fatos, e existem em um lugar só. Uma variante que reescrevesse a própria vaga criaria um quinto lugar para uma data envelhecer.
+- O nível de cada cargo de engenharia — o build exige que toda vaga nomeie o nível (Sênior, Pleno, Sênior & Tech Lead).
+- Quantos bullets cada vaga tem — três, três, três, dois, um. É o que faz a página 2 ser escaneável.
 - A ordem das seções — o build recusa um documento fora dela.
 - A formação e os idiomas — uma linha por item.
 - O cabeçalho, a tipografia e os espaçamentos.
@@ -144,12 +145,19 @@ coluna é quanto o documento Java + Angular usa hoje — a folga que sobrou.
 ## 7. O esqueleto de uma vaga
 
 ```
-Linha 1   <titulo do cargo> | <empresa>          à direita: (N anos e M meses) · Início – Fim
-Linha 2   Stack: <uma linha, nunca quebra>
-Bullets   o mais recente leva 3 · o seguinte 3 · o seguinte 3 · o seguinte 2 · o mais antigo 1
+FIXO         Linha 1   <titulo do cargo> | <empresa>          à direita: (N anos e M meses) · Início – Fim
+             Linha 2   Stack: <uma linha, nunca quebra>       <- você escreve
+Bullets       o mais recente leva 3 · o seguinte 3 · o seguinte 3 · o seguinte 2 · o mais antigo 1
+             <rótulo curto:> e depois a frase, justificado, 2 a 3 linhas   <- você escreve
 
-O primeiro bullet de cada cargo começa com um <strong>rótulo curto:</strong> e depois a frase.
-Exemplo: <strong>Custódia Institucional Estratégica (+R$ 100 Bi):</strong> Orquestração conjunta…
+Título, empresa, datas e tenure são fixos e compartilhados pelos cinco documentos.
+A stack e os bullets são seus. O primeiro bullet de cada cargo começa com um <strong>rótulo curto:</strong>.
+Exemplo: <strong>Custódia Institucional Estratégica:</strong> Desenvolvimento full-stack de portal B2B…
+
+Regra do tudo-ou-nada: você declara as CINCO vagas ou nenhuma. Declarar três deixa
+duas com o texto do currículo geral, e o documento passa a defender Node em três
+vagas e Spring em duas — o contrato de layout não pega isso, porque cada stack e cada
+bullet estão dentro dos limites individualmente.
 ```
 
 O bullet é justificado, como o resumo e o inventário. Cada bullet leva 2 a 3 linhas.
@@ -209,6 +217,9 @@ Cada um destes já reprovou uma execução:
 - **Uma regra sem elemento** — se o gancho `data-rule` sumir, o build acusa a regra que parou de verificar alguma coisa.
 - **Uma vaga de engenharia sem nível** no título.
 - **Uma data fora de ordem** — as vagas são da mais recente para a mais antiga.
+- **Uma variante que declara só três das cinco vagas** — as outras duas ficam com o texto do currículo geral. Declare as cinco ou nenhuma.
+- **Um número de bullets que não bate com o da vaga** — a contagem é do documento, não da variante.
+- **Uma stack numa vaga que não tem linha de stack** — a vaga contábil não é de engenharia, e é de engenharia que uma stack é.
 - **Um texto em português no documento inglês**, pela lista de vestígios.
 
 ---
