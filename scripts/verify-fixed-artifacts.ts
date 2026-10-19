@@ -19,6 +19,7 @@ import { join } from "node:path";
 const EXPECTED: ReadonlyArray<readonly [string, number]> = [
   ["resume-fixed-pt-BR.pdf", 2],
   ["resume-fixed-pt-BR-enterprise-java.pdf", 2],
+  ["resume-fixed-pt-BR-enterprise-java-react.pdf", 2],
   ["resume-fixed-pt-BR-enterprise-dotnet.pdf", 2],
   ["resume-fixed-pt-BR-modern-web.pdf", 2],
   ["resume-fixed-en-US.pdf", 2],

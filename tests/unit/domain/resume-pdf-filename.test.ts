@@ -172,20 +172,42 @@ describe("what the selector calls each document", () => {
 
 /** The two shapes the scheme has to keep producing, spelled out. */
 describe("the scheme, spelled out", () => {
-  it("is `Name - Role` or `Name - Role - Backend and Frontend`", () => {
-    const cases: ReadonlyArray<readonly [Locale, ResumeVariant, string]> = [
-      ["pt-BR", "all", "Marcelino Sandroni - Engenheiro de Software.pdf"],
-      ["en-US", "all", "Marcelino Sandroni - Software Engineer.pdf"],
-      ["pt-BR", "enterprise-dotnet", "Marcelino Sandroni - Engenheiro de Software - C# e Angular.pdf"],
-      ["en-US", "enterprise-dotnet", "Marcelino Sandroni - Software Engineer - C# and Angular.pdf"],
-      ["pt-BR", "modern-web", "Marcelino Sandroni - Engenheiro de Software - Node e React.pdf"],
-      ["en-US", "modern-web", "Marcelino Sandroni - Software Engineer - Node and React.pdf"],
-    ];
+  const cases: ReadonlyArray<readonly [Locale, ResumeVariant, string]> = [
+    ["pt-BR", "all", "Marcelino Sandroni - Engenheiro de Software.pdf"],
+    ["en-US", "all", "Marcelino Sandroni - Software Engineer.pdf"],
+    ["pt-BR", "enterprise-java", "Marcelino Sandroni - Engenheiro de Software - Java e Angular.pdf"],
+    ["en-US", "enterprise-java", "Marcelino Sandroni - Software Engineer - Java and Angular.pdf"],
+    ["pt-BR", "enterprise-java-react", "Marcelino Sandroni - Engenheiro de Software - Java e React.pdf"],
+    ["en-US", "enterprise-java-react", "Marcelino Sandroni - Software Engineer - Java and React.pdf"],
+    ["pt-BR", "enterprise-dotnet", "Marcelino Sandroni - Engenheiro de Software - C# e Angular.pdf"],
+    ["en-US", "enterprise-dotnet", "Marcelino Sandroni - Software Engineer - C# and Angular.pdf"],
+    ["pt-BR", "modern-web", "Marcelino Sandroni - Engenheiro de Software - Node e React.pdf"],
+    ["en-US", "modern-web", "Marcelino Sandroni - Software Engineer - Node and React.pdf"],
+  ];
 
+  it("is `Name - Role` or `Name - Role - Backend and Frontend`", () => {
     for (const [locale, variant, expected] of cases) {
       expect(`${locale}:${variant}:${resumePdfFilename(locale, variant)}`).toBe(
         `${locale}:${variant}:${expected}`,
       );
+    }
+  });
+
+  it("spells out every variant that exists", () => {
+    /*
+      The table above is a list someone has to remember to extend, and the thing it
+      would miss is exactly the thing that matters: a variant added to
+      `RESUME_VARIANTS` with no asserted filename ships a document whose download is
+      named by whatever the code happens to produce.
+    */
+    for (const locale of ["pt-BR", "en-US"] as const) {
+      for (const variant of RESUME_VARIANTS) {
+        const spelled = cases.some(([where, which]) => where === locale && which === variant);
+
+        expect(`${locale}/${variant} is spelled out above: ${spelled}`).toBe(
+          `${locale}/${variant} is spelled out above: true`,
+        );
+      }
     }
   });
 });
