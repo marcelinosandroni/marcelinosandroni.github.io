@@ -88,6 +88,45 @@ describe("the variant content brief", () => {
     expect(brief).toContain("Localização, Email, WhatsApp, LinkedIn, Git, Portfólio");
   });
 
+  it("tells the writer which half of a role is theirs", () => {
+    /*
+      This changed once and the brief is what makes it stick. The role, company, dates
+      and tenure are one set across five documents - they are facts, and a variant
+      that rewrote its own role block would make a fifth place for a date to go
+      stale. The stack line and the bullets are the argument, and each variant has to
+      be allowed to make its own: a document naming Node under the name and crediting
+      Spring Boot through its experience reads as carelessness.
+
+      A brief that put the whole role on either side of that line would be wrong in
+      whichever direction a model happened to read it, so both halves are stated.
+    */
+    const brief = readFileSync(path, "utf8");
+
+    expect(brief).toContain("A stack e os bullets de cada uma das cinco vagas");
+    expect(brief).toContain("As datas, as tenures, os títulos dos cargos e os nomes das empresas");
+    expect(brief).toContain("Quantos bullets cada vaga tem");
+    expect(brief).toContain("tudo-ou-nada");
+  });
+
+  it("names every refusal, so a model knows what it is aiming at", () => {
+    /*
+      Each of these has already failed a build. The three about roles came with the
+      per-variant stacks and are the ones a model would otherwise discover from an
+      error message instead of from the brief.
+    */
+    const brief = readFileSync(path, "utf8");
+
+    for (const refusal of [
+      "declara só três das cinco vagas",
+      "número de bullets que não bate",
+      "stack numa vaga que não tem linha de stack",
+      "Uma linha a mais",
+      "Transbordo horizontal",
+      "Uma regra sem elemento",
+    ]) {
+      expect(`${refusal}: ${brief.includes(refusal)}`).toBe(`${refusal}: true`);
+    }
+  });
   it("carries the worked example from the Java variant, not a copy of it", () => {
     /*
       If the Java variant's inventory changes and the brief still shows the old one,
