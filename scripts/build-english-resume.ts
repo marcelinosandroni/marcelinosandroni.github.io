@@ -27,10 +27,20 @@ import { resolve } from "node:path";
  */
 type Rule = { readonly from: string; readonly to: string };
 
-const TEXT: ReadonlyArray<Rule> = [
+/**
+ * The rules every document carries, whatever it is.
+ *
+ * Headings, contact, education, languages, the experience titles, the metrics. What
+ * every document in the set has, in every language.
+ */
+const TEXT_SHARED: ReadonlyArray<Rule> = [
     // Head and identity
-    { from: "Marcelino Sandroni - Curriculo", to: "Marcelino Sandroni - Resume" },
-    { from: "Engenheiro de Software Sênior &amp; IA<", to: "Senior Software &amp; AI Engineer<" },
+    /*
+      The document title and the headline under the name are the shell's, and a
+      variant replaces both with its own. They are therefore the general résumé's
+      alone, and live in `GENERAL_ONLY` rather than here — a variant that carried
+      the shell's headline would be a document claiming to be something it is not.
+    */
     // Contact block
     { from: "<strong>Localização:</strong>", to: "<strong>Location:</strong>" },
     { from: "Fortaleza, CE (Atuação Remota)", to: "Fortaleza, CE (Fully Remote)" },
@@ -41,23 +51,8 @@ const TEXT: ReadonlyArray<Rule> = [
     { from: "<strong>Portfólio:</strong>", to: "<strong>Portfolio:</strong>" },
     // Summary
     { from: "Resumo Profissional", to: "Professional Summary" },
-    {
-      from:
-        "<strong>Engenheiro Full Stack de verdade, </strong>unindo visão estratégica e análise de negócio à execução end-to-end em UI/UX, mobile, frontend, backend, DevOps, engenharia de dados e IA, com quase 8 anos em engenharia de software e 15 em governança financeira, criando soluções escaláveis e sistemas críticos que movimentam bilhões de reais.",
-      to:
-        "<strong>A genuine full-stack engineer, </strong>pairing strategic vision and business analysis with end-to-end delivery across UI/UX, mobile, frontend, backend, DevOps, data engineering and AI. Almost eight years in software engineering and fifteen in financial governance, building scalable solutions and critical systems that move billions of reais.",
-    },
     // Metrics
     { from: "Principais Métricas de Impacto em Produção", to: "Key Production Impact Metrics" },
-    { from: "+R$ 500 Bi<", to: "+R$ 500Bn<" },
-    { from: ">Gestão de Ativos<", to: ">Asset Management<" },
-    { from: "Aplicações críticas de custódia de fundos.", to: "Critical applications for fund custody." },
-    { from: ">Liquidação Síncrona<", to: ">Synchronous Settlement<" },
-    { from: "Sistema de processamento de pagamentos em tempo real.", to: "Real-time payment processing system." },
-    { from: ">Alta Escala<", to: ">High Scale<" },
-    { from: "Arquitetura de processamento assíncrono de eventos.", to: "Architecture for asynchronous event processing." },
-    { from: ">Inteligência Artificial<", to: ">Artificial Intelligence<" },
-    { from: "Contrato salvo com implementação e melhorias em IA de ponta.", to: "Contract saved through state-of-the-art AI implementation." },
   // Experience
     { from: ">Experiência Profissional<", to: ">Professional Experience<" },
     { from: ">Linha do Tempo de Carreira em Engenharia<", to: ">Career Timeline in Engineering<" },
@@ -70,8 +65,19 @@ const TEXT: ReadonlyArray<Rule> = [
       literal ones: "Sênior" is Senior, "Pleno" is Full.
     */
     { from: "Engenheiro de Software Sênior &amp; Tech Lead", to: "Senior Software Engineer &amp; Tech Lead" },
-    { from: "Engenheiro de Software Sênior", to: "Senior Software Engineer" },
-    { from: "Engenheiro de Software Pleno", to: "Full Software Engineer" },
+    /*
+      The `<span` is load-bearing, not decoration.
+      *
+      * "Engenheiro de Software Sênior" on its own is a prefix of the general résumé's
+      * headline, "Engenheiro de Software Sênior & IA". The role titles are always
+      * followed by the company in a span; the headline is followed by its closing tag.
+      * Without the span, this rule would consume the headline too - and because the
+      * headline's own rule runs later, in `GENERAL_ONLY`, the headline would be left
+      * as "Senior Software Engineer & IA", which is not a level and not what the
+      * document says.
+      */
+    { from: "Engenheiro de Software Sênior <span", to: "Senior Software Engineer <span" },
+    { from: "Engenheiro de Software Pleno <span", to: "Full Software Engineer <span" },
     { from: "Analista Contábil &amp; Gestor Financeiro", to: "Accounting Analyst &amp; Finance Manager" },
     /*
       The company names are shortened to their first word, so the title line reads
@@ -81,15 +87,39 @@ const TEXT: ReadonlyArray<Rule> = [
       not already assume.
     */
     { from: "<strong>Stack:</strong>", to: "<strong>Stack:</strong>" },
-    /*
-      The role bodies.
-      Eleven sentences, written rather than derived. The previous list translated the
-      experience as a set of word swaps, which worked while the text was the same
-      across the variants and stops working the moment the experience is rewritten:
-      every one of those rules now points at a sentence that no longer exists, and a
-      rule that cannot match takes the build down rather than quietly translating
-      nothing.
-    */
+    // Education
+    { from: "Formação Acadêmica &amp; Especializações", to: "Academic Education &amp; Specializations" },
+    { from: "<strong>Bacharelado em Engenharia de Computação</strong>", to: "<strong>BSc in Computer Engineering</strong>" },
+    { from: "<strong>Bacharelado em Ciências Contábeis</strong> — Estácio, concluído 2017", to: "<strong>BSc in Accounting</strong> — Estácio, completed 2017" },
+    // Languages
+    { from: ">Idiomas<", to: ">Languages<" },
+    { from: ">Espanhol:<", to: ">Spanish:<" },
+    { from: "leitura técnica e comunicação assíncrona.", to: "reading technical material and written communication." },
+    { from: "<strong>Inglês Profissional:</strong> Fluente — reuniões, negociações, arquitetura e code review.", to: "<strong>Professional English:</strong> Fluent — meetings, negotiation, architecture and code review." },
+    // Skills inventory
+    {
+      from: "Habilidades Técnicas &amp; Arquitetura de Software",
+      to: "Technical Skills &amp; Software Architecture",
+    },
+];
+
+/**
+ * The role bodies the shell carries.
+ *
+ * Applied only where the shell's own experience survives - the general résumé, and
+ * the variants that declare no roles of their own. A variant that declares roles has
+ * replaced these sentences with its own, and a rule that cannot match is a missing
+ * translation, so applying them to that variant would take the build down for the
+ * wrong reason: reporting a translation that was never needed.
+ *
+ * Eleven sentences, written rather than derived. The previous list translated the
+ * experience as a set of word swaps, which worked while the text was the same
+ * across the variants and stops working the moment the experience is rewritten:
+ * every one of those rules now points at a sentence that no longer exists, and a
+ * rule that cannot match takes the build down rather than quietly translating
+ * nothing.
+ */
+const TEXT_EXPERIENCE: ReadonlyArray<Rule> = [
     {
       from:
         "<strong>Liderança Técnica &amp; Integração IA:</strong> Liderança de squad (8 pessoas) na reestruturação de sistemas críticos processando 100M+ mensagens/dia. IA Corporativa conectando o backend via Spring AI para fluxos agênticos em tempo real, preservando contrato de R$ 24M/ano.",
@@ -162,20 +192,16 @@ const TEXT: ReadonlyArray<Rule> = [
       to:
         "<strong>Corporate Engineering Edge:</strong> Team leadership and process redesign that cut the accounting close by 83%. Deep expertise in finance and tax rules, translated directly into software teams.",
     },
-    // Education
-    { from: "Formação Acadêmica &amp; Especializações", to: "Academic Education &amp; Specializations" },
-    { from: "<strong>Bacharelado em Engenharia de Computação</strong>", to: "<strong>BSc in Computer Engineering</strong>" },
-    { from: "<strong>Bacharelado em Ciências Contábeis</strong> — Estácio, concluído 2017", to: "<strong>BSc in Accounting</strong> — Estácio, completed 2017" },
-    // Languages
-    { from: ">Idiomas<", to: ">Languages<" },
-    { from: ">Espanhol:<", to: ">Spanish:<" },
-    { from: "leitura técnica e comunicação assíncrona.", to: "reading technical material and written communication." },
-    { from: "<strong>Inglês Profissional:</strong> Fluente — reuniões, negociações, arquitetura e code review.", to: "<strong>Professional English:</strong> Fluent — meetings, negotiation, architecture and code review." },
-    // Skills inventory
-    {
-      from: "Habilidades Técnicas &amp; Arquitetura de Software",
-      to: "Technical Skills &amp; Software Architecture",
-    },
+];
+
+/**
+ * The technical inventory the shell carries.
+ *
+ * Applied only to the general résumé. Every variant replaces the inventory with its
+ * own, so these labels appear nowhere else - and a variant that did not would be the
+ * general résumé with a different headline.
+ */
+const TEXT_INVENTORY: ReadonlyArray<Rule> = [
     {
       from: "<strong>Frontend &amp; UI:</strong>",
       to: "<strong>Frontend &amp; UI:</strong>",
@@ -196,6 +222,56 @@ const TEXT: ReadonlyArray<Rule> = [
       from: "<strong>IA &amp; Governança:</strong>",
       to: "<strong>AI &amp; Governance:</strong>",
     },
+];
+
+/**
+ * The summary of the general résumé, translated.
+ *
+ * Held apart from `TEXT` because it is the one rule that does not belong to the
+ * shared document. The general résumé's summary lives in the shell; a variant's
+ * summary is replaced with its own before translation, so this phrase never appears
+ * in a variant and a rule that required it would take the build down for the wrong
+ * reason — reporting a missing translation when the document simply has a different
+ * summary, which is what a variant is.
+ */
+const GENERAL_ONLY: ReadonlyArray<Rule> = [
+  {
+    from:
+      "<strong>Engenheiro Full Stack de verdade, </strong>unindo visão estratégica e análise de negócio à execução end-to-end em UI/UX, mobile, frontend, backend, DevOps, engenharia de dados e IA, com quase 8 anos em engenharia de software e 15 em governança financeira, criando soluções escaláveis e sistemas críticos que movimentam bilhões de reais.",
+    to:
+      "<strong>A genuine full-stack engineer, </strong>pairing strategic vision and business analysis with end-to-end delivery across UI/UX, mobile, frontend, backend, DevOps, data engineering and AI. Almost eight years in software engineering and fifteen in financial governance, building scalable solutions and critical systems that move billions of reais.",
+  },
+  /*
+    The general résumé's four metrics.
+    *
+    * With the summary, these are the shell's own. A variant replaces the whole
+    * metrics section with its own four cards, so the values here appear nowhere else
+    * — and the general document is the only one that states "+R$ 500 Bi" and
+    * "Gestão de Ativos" in Portuguese. The heading above them, by contrast, is
+    * shared: it is a section heading, and what follows it is what differs.
+    */
+  { from: "+R$ 500 Bi<", to: "+R$ 500Bn<" },
+  { from: ">Gestão de Ativos<", to: ">Asset Management<" },
+  { from: "Aplicações críticas de custódia de fundos.", to: "Critical applications for fund custody." },
+  { from: ">Liquidação Síncrona<", to: ">Synchronous Settlement<" },
+  { from: "Sistema de processamento de pagamentos em tempo real.", to: "Real-time payment processing system." },
+  { from: ">Alta Escala<", to: ">High Scale<" },
+  { from: "Arquitetura de processamento assíncrono de eventos.", to: "Architecture for asynchronous event processing." },
+  { from: ">Inteligência Artificial<", to: ">Artificial Intelligence<" },
+  { from: "Contrato salvo com implementação e melhorias em IA de ponta.", to: "Contract saved through state-of-the-art AI implementation." },
+  /*
+    The document title and the headline under the name.
+    *
+    * Both are the shell's. A variant replaces the title and the headline with its
+    * own — the headline is the one place a variant states what it is *for*, and the
+    * title is the first thing a recruiter reads — so these appear only in the
+    * general résumé. They are here rather than in `TEXT_SHARED` for the same reason
+    * the metrics are: a rule that cannot match is a missing translation, and a
+    * variant that had already replaced these would fail the build for a sentence it
+    * never contained.
+    */
+  { from: "Marcelino Sandroni - Curriculo", to: "Marcelino Sandroni - Resume" },
+  { from: "Engenheiro de Software Sênior &amp; IA<", to: "Senior Software &amp; AI Engineer<" },
 ];
 
 /** Portuguese words that would betray an untranslated leftover in the output. */
@@ -253,20 +329,71 @@ const LEFTOVERS: ReadonlyArray<string> = [
   The periods stay Portuguese: they are read for the month counts and never
   printed, and the date pass below rewrites the ones the reader does see.
 */
-const TIMELINE_EN: ReadonlyArray<TimelineRole> = [
+export const TIMELINE_EN: ReadonlyArray<TimelineRole> = [
   { label: "ZUP", period: "Mar/2019 – Jun/2020 · Remoto", level: "Junior → Full", tone: TONES.lightest },
   { label: "ITAÚ", period: "Jul/2020 – Nov/2022 · Híbrido", level: "Full", tone: TONES.light },
   { label: "BNP Paribas", period: "Dez/2022 – Set/2025 · Híbrido", level: "Senior", tone: TONES.mid },
   { label: "DGT", period: "Out/2025 – Set/2026 · Remoto", level: "Tech Lead", tone: TONES.dark },
 ];
 
-async function main(): Promise<void> {
-  const source = await fs.readFile(resolve("resume-shell.html"), "utf8");
+/**
+ * Translates a flat résumé document into English.
+ *
+ * Exported so the stack variants can reuse the whole pipeline — the same `TEXT`
+ * rules, the same month and tenure passes, the same leftover check, the same
+ * pagination and the same layout contract. A variant is translated by the same code
+ * as the general document, because the two must stay structurally identical; a second
+ * translation path for them would be a second answer to "what does this say in
+ * English", which is exactly the drift this script exists to prevent.
+ *
+ * `extraRules` is where a variant's own text goes. The shared rules cover what the
+ * shell carries — headings, contact, education, the experience — and every variant
+ * replaces the summary, the metrics, the inventory, the headline and, for four of
+ * the five, the stack lines and bullets. Those are the phrases that differ between
+ * a variant and the general résumé, and they are passed in rather than added to
+ * `TEXT` so a rule that cannot match is a missing translation and not a leftover.
+ */
+export async function translateResumeToEnglish(
+  source: string,
+  slug: string,
+  {
+    extraRules = [],
+    shellContent = "all",
+  }: {
+    readonly extraRules?: ReadonlyArray<Rule>;
+    /**
+     * How much of the *shell's own content* the document carries.
+     *
+     * Three answers, because three documents are different:
+     *
+     * - `all` - the general résumé, which keeps the shell's summary, inventory and
+     *   experience. Applies every group.
+     * - `experience` - a variant that declares no roles, so its experience is the
+     *   shell's, but which replaces the summary and the inventory. Applies the
+     *   shared rules and the experience.
+     * - `none` - a variant that declares its own experience. Only the shared rules
+     *   apply; the rest was replaced before translation began.
+     *
+     * This is what keeps a rule that cannot match from being either skipped silently
+     * or required where it does not belong. The general résumé and the role-declaring
+     * variants differ about which sentences they contain, and the difference is a
+     * fact about the document rather than a case for two translation paths.
+     */
+    readonly shellContent?: "all" | "experience" | "none";
+  } = {},
+): Promise<{ readonly html: string; readonly pages: number }> {
   let out = source;
 
   const missing: string[] = [];
 
-  for (const rule of TEXT) {
+  const groups: ReadonlyArray<ReadonlyArray<Rule>> =
+    shellContent === "all"
+      ? [TEXT_SHARED, TEXT_EXPERIENCE, TEXT_INVENTORY]
+      : shellContent === "experience"
+        ? [TEXT_SHARED, TEXT_EXPERIENCE]
+        : [TEXT_SHARED];
+
+  for (const rule of [...groups.flat(), ...extraRules]) {
     if (!out.includes(rule.from)) {
       missing.push(rule.from.slice(0, 60));
       continue;
@@ -300,12 +427,22 @@ async function main(): Promise<void> {
   */
   const placeholder = '<div id="carreira-timeline"></div>';
 
-  if (!out.includes(placeholder)) {
-    throw new Error("the shell has no timeline placeholder");
-  }
+  /*
+    Only when the placeholder is still there.
 
-  assertTimelineMatchesRoles("en-US", TIMELINE_EN, out);
-  out = out.replace(placeholder, buildTimeline(TIMELINE_EN));
+    The general résumé reaches this point straight from the shell, so the bar has not
+    been built yet. A stack variant reaches it through `renderVariant`, which already
+    filled the placeholder with the same bar - and re-injecting here would be looking
+    for a placeholder that is legitimately gone, and fail a document that is right.
+
+    So the check is "is there still a bar to put in" rather than "was I given a shell",
+    which is the difference between the general document and a variant without either
+    being a special case.
+  */
+  if (out.includes(placeholder)) {
+    assertTimelineMatchesRoles("en-US", TIMELINE_EN, out);
+    out = out.replace(placeholder, buildTimeline(TIMELINE_EN));
+  }
 
   /*
     Tenures and dates, which no phrase rule ever covered.
@@ -420,11 +557,40 @@ async function main(): Promise<void> {
 
   await checkLayout([{ slug: "en-US", html: out }]);
 
+  return { html, pages };
+}
+
+/**
+ * The general résumé, built from the shell.
+ *
+ * Only this one carries the shell's own summary, so it is the only one that applies
+ * `GENERAL_ONLY`. A variant replaces that summary with its own, which is why the rule
+ * is separate from the shared `TEXT` rather than in it.
+ */
+async function main(): Promise<void> {
+  const source = await fs.readFile(resolve("resume-shell.html"), "utf8");
+
+  const { html, pages } = await translateResumeToEnglish(source, "en-US", {
+    extraRules: GENERAL_ONLY,
+    shellContent: "all",
+  });
+
   await fs.writeFile(resolve("resume-recruiter-en-us.html"), html, "utf8");
 
   console.log(
-    `wrote resume-recruiter-en-us.html (${html.length} chars, ${TEXT.length} replacements, ${pages} pages)`,
+    `wrote resume-recruiter-en-us.html (${html.length} chars, ${pages} pages)`,
   );
 }
 
-main();
+/*
+  Only when this file is the entry point.
+
+  `translateResumeToEnglish` is exported for the stack variants, and an unconditional
+  `main()` here would fire on that import, read the importing script's argv, and
+  produce a general résumé when it was asked for five variants — or, for the first
+  variant only, five nearly identical documents. A module with a CLI has to know
+  whether it is running as one.
+*/
+if (require.main === module) {
+  main();
+}
