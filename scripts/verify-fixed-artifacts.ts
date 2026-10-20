@@ -24,6 +24,11 @@ const EXPECTED: ReadonlyArray<readonly [string, number]> = [
   ["resume-fixed-pt-BR-enterprise-dotnet-react.pdf", 2],
   ["resume-fixed-pt-BR-modern-web.pdf", 2],
   ["resume-fixed-en-US.pdf", 2],
+  ["resume-fixed-en-US-enterprise-java.pdf", 2],
+  ["resume-fixed-en-US-enterprise-java-react.pdf", 2],
+  ["resume-fixed-en-US-enterprise-dotnet.pdf", 2],
+  ["resume-fixed-en-US-enterprise-dotnet-react.pdf", 2],
+  ["resume-fixed-en-US-modern-web.pdf", 2],
 ];
 
 const DIR = join(process.cwd(), "public", "artifacts", "fixed");

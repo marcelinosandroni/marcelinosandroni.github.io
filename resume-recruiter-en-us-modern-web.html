@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcelino Sandroni - Resume</title>
+    <!--
+        A folha do Tailwind vem compilada e embutida abaixo, então este arquivo não
+        depende de CDN para o layout. A fonte continua vindo da Google Fonts: o
+        original apontava para uma cópia local (`./..._files/css2`) que não viaja
+        junto com o HTML, e sem a Inter carregando o navegador cai no fallback do
+        sistema - as métricas mudam e o layout inteiro desalinha.
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 20px auto;
+            padding: 15mm 15mm;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            position: relative;
+        }
+        .section-title {
+            border-left: 4px solid #1f2937;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            background-color: #f3f4f6;
+            padding: 4px 8px;
+        }
+            /*
+              One size for the body of the document.
+
+              Everything a reader actually reads is set at 12.5px, which is the
+              summary. The roles used to be a step below it, and so were the
+              inventory, the degrees and the languages - so a document whose
+              argument is spread over three pages told the reader, in type, that
+              the parts carrying the numbers were the parts worth less.
+
+              Headings stay headings and labels stay labels. What changes is that
+              nothing in the body is smaller than anything else in the body.
+
+              The career bar was the last holdout, at 9.5px and 8.5px, and it is
+              now on this rule too: it restates the experience section, so it being
+              set below the section it restates told the reader it carried less than
+              the prose next to it.
+
+              Two elements sit deliberately below this, and both are declared in
+              `scripts/data/resume-layout-rules.ts` next to the limits that hold
+              them: the contact block, because six reference fields are not prose,
+              and the metric captions, because a 43mm card cannot hold a two-line
+              caption at this size. Both are the *only* two, both are enforced by
+              the same build as everything else, and neither can be made smaller
+              to fit a longer caption - the caption would simply fail its limit.
+            */
+            :root {
+                --body: 12.5px;
+                --contact: 11px;
+
+                /*
+                  The spacing scale. Three steps, and every gap on the page is one
+                  of them.
+
+                  It was not a scale. It was 1px, 2px, 4px, 0.2mm, 0.5mm, 0.6mm,
+                  8px and 16px - eight values for four kinds of gap, because each
+                  one was added when something did not fit and nothing ever recorded
+                  that the value it added was a new value. Measured, the result was
+                  4.23mm between most sections and 2.12mm between two of them,
+                  0.21mm between the groups of the inventory, 0.29mm between the
+                  degrees, 0.26mm between a role's title and its stack, and 0.53mm
+                  between two three-line paragraphs. A page with no vertical rhythm
+                  reads as assembled rather than composed, and no reader can say
+                  what is wrong with it.
+
+                  Three steps, because three is what the page actually has:
+
+                  --space-1  between siblings in a list.  The inventory groups, the
+                             degrees, the languages, the contact rows, the parts of
+                             one metric card. Tight on purpose: a list whose entries
+                             are one or two lines should read as one block, and a
+                             list whose entries are paragraphs is --space-2.
+
+                  --space-2  between paragraphs, and from a section's title to its
+                             content. Also the gap between the parts of one role -
+                             title, stack, bullets. Half of --space-3, so the
+                             distance inside a block always reads as clearly
+                             smaller than the distance between blocks.
+
+                  --space-3  between blocks. One value, everywhere, which is what
+                             makes a page look like one document rather than five
+                             sections that happen to be stacked.
+
+                  The ratio is 1 : 2 : 4 on a millimetre base, because the page is
+                  laid out in millimetres and the fit is measured in millimetres -
+                  so the unit here is the unit the arithmetic is in, and none of
+                  these values has to survive a conversion.
+                */
+                --space-1: 1mm;
+                --space-2: 2mm;
+                --space-3: 4mm;
+            }
+
+            /*
+              One margin for every block.
+
+              Set here rather than as Tailwind's `mb-4` / `mb-2` / `mb-5` in the
+              markup, because the compiled snapshot of Tailwind in this file comes
+              *after* this stylesheet: a utility class and an attribute selector of
+              the same specificity are decided by source order, and the snapshot
+              would win. Spacing that lives in the markup is also spacing that can
+              be changed one block at a time, which is how the eight values above
+              happened.
+
+              The margin classes are gone from the blocks, so there is one place that
+              decides what separates two sections.
+            */
+            [data-block] { margin-bottom: var(--space-3); }
+
+            /*
+              The two gaps a split section has, named rather than guessed at.
+
+              The paginator breaks a splittable section - the inventory, the degrees,
+              the languages - into one unit per entry, so each unit carries the
+              section's id and would otherwise be indistinguishable from a whole
+              section and take --space-3. Seven entries would then be seven sections
+              with seven four-millimetre gaps: twenty-eight millimetres of air where
+              there should be six.
+
+              So the paginator says which kind of unit it emitted. The last entry of
+              a section owns the gap to whatever comes next; every other unit is an
+              entry in a list and takes one step.
+            */
+            [data-gap="item"] { margin-bottom: var(--space-1); }
+            [data-gap="section"] { margin-bottom: var(--space-3); }
+
+            /*
+              What a section title does and does not own.
+
+              No top margin: the block above it already carries --space-3, and two
+              margins that collapse leave the larger, so a top margin here could
+              only ever be read as an accident. The title's own bottom margin is
+              --space-2, which is the one relationship a title has with its
+              content.
+            */
+            .section-title {
+                margin-top: 0;
+                margin-bottom: var(--space-2);
+            }
+            [data-block="resumo"] p,
+            [data-block="habilidades"] p,
+            [data-block="formacao"] p,
+            [data-block="idiomas"] p,
+            .role-bullets,
+            .stack-line,
+            header p { font-size: var(--body); }
+
+            /*
+              Justified, like the bullets and the summary.
+
+              The inventory is the one block that was left ragged while everything
+              around it was justified. Ragged right on a list of technologies gives
+              every group a different right edge, and a column of ragged edges is
+              what makes a six-item list read as a paragraph instead of a list.
+            */
+            [data-block="habilidades"] p { text-align: justify; }
+
+            /*
+              The container every list of short facts is written in, so the three
+              lists on the page - the inventory, the degrees and the languages - are
+              one thing typographically rather than three that happen to match.
+            */
+            .fact-list { color: #334155; }
+
+            /*
+              The gaps inside a block.
+
+              Everything below is one of the three steps, so this is the only part of
+              the stylesheet that is allowed to decide how far apart two things on
+              the same page are. Each rule names what it separates rather than which
+              element it happens to be written on, because a gap written per element
+              is a gap that can be re-decided one element at a time - which is how
+              there came to be eight values for four kinds of distance.
+            */
+
+            /* List entries: one step. A list of one- and two-line items. */
+            [data-block="habilidades"] p,
+            [data-block="formacao"] p,
+            [data-block="idiomas"] p,
+            .contact-block p + p { margin-top: var(--space-1); }
+
+            /*
+              The three parts of one metric card.
+
+              A step between the number and the name of the achievement, and between
+              the name and the sentence below it. It was half a millimetre, which is
+              not a gap - it is the absence of one, and the card read as four
+              unrelated lines rather than one figure with a label and a footnote.
+            */
+            [data-block="metricas"] div[data-rule="metrica-valor"],
+            [data-block="metricas"] div[data-rule="metrica-destaque"] { margin-top: var(--space-1); }
+
+            /* The head of the document: name, headline, tagline, contact band. */
+            header h2 { margin-top: var(--space-1); margin-bottom: var(--space-1); }
+            .header-tagline { margin-bottom: var(--space-2); }
+
+            /*
+              One role.
+
+              Title, then stack, then the bullets. The first two are --space-1
+              because they are two lines of one block: the stack is the title's
+              second line, set apart by a rule rather than by air. The bullets are
+              paragraphs, so they get --space-2 between each other - which is the
+              whole difference between a list and a wall of text.
+
+              The bullets take their spacing from `li + li` and not from a margin on
+              the list, so the gap above the first bullet is the stack line's margin
+              and the three numbers cannot disagree about where the block starts.
+            */
+            .role-head { margin-bottom: var(--space-1); }
+            .stack-line { margin-bottom: var(--space-1); }
+            .role-bullets { margin-top: 0; padding-left: 16px; color: #334155; list-style: disc; }
+            .role-bullets li + li { margin-top: var(--space-2); }
+
+            /*
+              The contact block, at its own size.
+
+              One line per row, full width, no wrapping - so that a row which is
+              too long fails the build instead of spilling off the page. It used to
+              be a three-column grid, which read as three facts about three people:
+              a reader looking for a phone number had to work out which column was
+              theirs.
+
+              ## The three things that make it fit, and why each is here
+
+              The fields are fixed - six of them, three per row - and at 11px they
+              need more than the text column has. The first measurement said so by
+              forty-six pixels, and the correction is in the box, not in the type,
+              because the type is the one thing in this document that does not move.
+
+              **No horizontal padding, and no background.** A box that pads its text
+              spends millimetres on decoration. This one lost both: what is left is a
+              hairline down the left edge, which groups the two rows without costing
+              a single millimetre across the measure.
+
+              **It breaks out of the text column, and pads itself, by the same
+              distance on both sides.** The remaining seventeen pixels were about
+              four and a half millimetres. Symmetric - the text starts and ends the
+              same distance from the page edge - so it reads as a band set slightly
+              wider than the prose above it, which is what reference material should
+              look like, and not as something that slipped off the right-hand side.
+
+              **The separators keep their spacing.** The first attempt to find the
+              room took it out of them and left `(Atuação Remota)·Email:` - a row
+              that fits and cannot be read. Spacing around a separator is what makes
+              three facts legible instead of one run-on; the millimetres came from
+              the breakout instead, where they cost the document nothing.
+            */
+            /*
+              The contact block: six cells in two rows, on the same measure as
+              everything else.
+
+              ## The grid, and not two lines of prose
+
+              Two inline rows did not align. `Localização:` is wider than
+              `LinkedIn:`, so the six values started at six different places and
+              the block read as two unrelated lists. A six-column grid puts every
+              label on one baseline and every value on another, and the columns
+              line up across both rows because it is the same grid.
+
+              ## Why it fits where the inline version did not
+
+              A grid column is sized by the widest thing in it, and the block's
+              width is the sum of six maxima plus five gaps - not the sum of all
+              twelve cells, which is what two lines of inline text cost. The
+              difference is the width that made the six fields possible inside the
+              text column, and it is also why the block needed no padding, no
+              background and no negative margin: it sits exactly on the text
+              measure, aligned with the name and the section rules.
+
+              `1fr` on the last column so the block is exactly the measure wide and
+              not a row of natural widths that happens to fit today. It cannot
+              shrink below its content, so a field that grew would push the grid
+              past the column and the layout check would refuse the build.
+
+              ## No underline on the values
+
+              Every value but one was a link, and the link style underlines. That
+              put a rule under five of six values and left `Fortaleza, CE` sitting
+              differently from the rest — the lines looked misaligned because two
+              of the three things that should have matched did not. Underlining is
+              also noise on paper: a URL is not a reference a reader needs marked,
+              because it is already the address.
+
+              Hover brings it back on screen, where there is a cursor to point at
+              it. In print there is not one.
+            */
+            .contact-block {
+                font-size: var(--contact); line-height: 1.4; color: #334155;
+            }
+
+            /*
+              One line, three pairs, distributed.
+
+              `space-between` puts the first pair against the left margin and the
+              last against the right, with equal gaps between them — so the pairs are
+              three pieces rather than a run of six values. It is also the only
+              reason they are not all bunched at the left, which is what three
+              inline children with no distribution instruction do.
+
+              `nowrap` on the line as well as on the pair: the line is one line, and
+              a field that is too long has to spill out of it and fail the build
+              rather than push the rest of the document down.
+            */
+            .contact-row {
+                display: flex; justify-content: space-between; white-space: nowrap;
+            }
+
+            /*
+              The pair, as one thing that does not come apart.
+
+              `flex: none` is the one that matters. A flex item's default is to
+              shrink, so without it the pair compresses when the content is tight
+              and the text breaks *inside* it — the value wrapping away from its
+              own label, which is the thing this block exists to prevent.
+            */
+            .contact-field { flex: none; white-space: nowrap; }
+
+            .contact-block strong { color: #1f2937; font-weight: 600; }
+            .contact-block a { text-decoration: none; }
+            @media screen {
+                .contact-block a:hover,
+                .contact-block a:focus-visible { text-decoration: underline; }
+            }
+
+            /* The role header: title on the left, dates on the right, one line. */
+            .role-head {
+                display: flex; justify-content: space-between; align-items: baseline;
+                gap: 3mm;
+            }
+            .role-head h4 {
+                font-size: 13px; font-weight: 700; color: #0f172a; line-height: 1.3;
+            }
+            .role-when {
+                font-size: var(--body); font-weight: 600; color: #64748b;
+                white-space: nowrap; flex: none;
+            }
+            .role-bullets li { text-align: justify; }
+
+            /*
+              The tagline runs at the body size.
+
+              It was written into a shared rule with the contact block, and the
+              contact block has since moved to its own smaller size - so leaving it
+              here would have quietly put the tagline back a step down with a rule
+              that reads as though it belonged to both.
+            */
+            .header-tagline { font-size: var(--body); line-height: 1.35; color: #475569; }
+
+            /* Metadados do cargo, quando aparecerem fora da linha do titulo. */
+            .role-meta {
+                font-size: var(--body); font-weight: 600; color: #64748b;
+                margin-top: 1px; margin-bottom: 3px;
+            }
+
+            /*
+              A stack em uma linha so.
+
+              Uma lista de tecnologias que quebra em duas linhas deixa de ser uma
+              lista e vira um paragrafo - e a quebra cai no meio da frase, que e o
+              pior lugar. nowrap mantem a linha inteira; se o texto for longo demais
+              para a largura ele estoura em vez de quebrar, e a medicao de pagina
+              denuncia a folha que passou da conta.
+
+              O tamanho vive na regra unificada acima. Ele era declarado aqui, a
+              10px - e como esta regra vem depois daquela, vencia: a linha de stack
+              era a unica coisa da pagina ainda um passo abaixo de todo o resto, em
+              um documento construido para ter um unico tamanho.
+            */
+            .stack-line {
+                color: #4b5563; white-space: nowrap;
+                background-color: #f9fafb; border: 1px solid #e5e7eb;
+                border-radius: 4px; padding: 2px 8px; margin-bottom: 4px;
+            }
+            .stack-line strong { color: #111827; font-weight: 700; }
+        .tech-box {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+        }
+        .tech-box strong {
+            color: #1f2937;
+        }
+        .link-hover {
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            text-decoration-color: #cbd5e1;
+            transition: all 0.2s;
+        }
+        .link-hover:hover {
+            color: #059669; /* Emerald 600 */
+            text-decoration-color: #059669;
+        }
+        /*
+         * Impressão.
+         *
+         * Nenhuma regra de tipografia aqui. A Inter, os tamanhos e as entrelinhas
+         * são exatamente os que o Tailwind define para a tela - este bloco só
+         * remove a moldura de visualização (sombra, margem de centralização) e
+         * neutraliza a quebra de página no último bloco, que geraria uma terceira
+         * folha em branco.
+         *
+         * Foi tentado o caminho de comprimir a entrelinha para o conteúdo caber em
+         * duas páginas, e foi medido que não é suficiente: com a tipografia
+         * intacta o documento tem 681mm de conteúdo contra 562mm de capacidade,
+         * ou 17,5% a mais do que duas folhas comportam. Estreitar as margens
+         * compra 20mm desse déficit. O que fecha são duas páginas com o
+         * espaçamento de tela, e o conteúdo foi enxugado para chegar lá.
+         */
+        @media print {
+            body { background-color: white; }
+
+            /*
+              Nothing here decides a gap.
+
+              It used to. This block carried three different vertical adjustments -
+              a section title's top margin, the inventory's leading, and the degrees'
+              and languages' bottom margin - each added because something did not fit
+              and each applying to one part of the page. A document whose spacing
+              differs between the page it prints on and the page it is read on, and
+              differs between sections on the same page, is a document with no
+              vertical rhythm at all; you cannot see it in a diff and you can see it
+              immediately on paper.
+
+              All of it now lives in the one scale declared above, in millimetres,
+              and it applies identically on screen and in print. What is left here
+              is what genuinely differs between the two media: the page box, and
+              the leading of the long blocks.
+            */
+            [data-block="resumo"] p { line-height: 1.5; }
+            header p, [data-block="idiomas"] p, [data-block="formacao"] p { line-height: 1.35; }
+
+            /*
+              The metric cards, padded tighter.
+
+              The only spacing left in this block, and it is padding rather than
+              margin: a card is a box, and a box's interior is not a gap between
+              two things on the page, so it does not belong to the scale.
+            */
+            [data-block="metricas"] > div > div { padding: 0.8mm; }
+
+            /*
+              Formação and Idiomas, one column, never two.
+
+              These were side by side to save 43mm, and that saving was the wrong
+              kind: a document parsed column by column reads the degrees, then the
+              languages, and a parser that reads them in visual order - which is
+              what a human eye does and what plenty of filters do - reads both
+              degrees and then both languages. The document becomes harder to read
+              for a machine to save millimetres for a person, and the person is not
+              the one being parsed.
+
+              So they are stacked, and the millimetres are found somewhere that
+              costs nothing: the layout contract in `scripts/data/resume-layout-rules.ts`
+              caps every line on this page, so the content is what gives, not the
+              arrangement. That is the trade this document now makes everywhere.
+            */
+            [data-block="formacao"] p, [data-block="idiomas"] p { white-space: nowrap; }
+
+            .a4-page {
+                margin: 0;
+                box-shadow: none;
+                padding: 10mm 14mm;
+                page-break-after: always;
+            }
+
+            /*
+              The last block on a sheet drops its bottom margin.
+
+              That margin exists to space a block from the one after it, and at the
+              foot of a sheet there is no one after it - it is four millimetres of
+              dead height. Four millimetres is also the difference between a sheet
+              that fits and one that does not: `.a4-page` is `min-height: 297mm`, so
+              content that overruns the content box grows the box and prints as an
+              extra page the footers never counted. A role was pushed off page one
+              by two tenths of a millimetre and left eighty-six millimetres of white
+              space behind.
+
+              `:last-child`, plainly. It used to be
+              `> .resume-footer ~ *:last-child`, written so that the footer could
+              lead the sheet - and there has been no footer for some time, so the
+              selector matched nothing and every sheet carried four dead millimetres
+              while the comment above it explained, at length, that it did not.
+            */
+            .a4-page > *:last-child { margin-bottom: 0; }
+
+            .no-print { display: none !important; }
+            .keep-together { page-break-inside: avoid; }
+        }
+    
+            /*
+  The career timeline. One block, never split across a page break.
+
+  Every gap in here is a step of the document's own spacing scale, declared in
+  resume-shell.html. It was 0.2mm, 0.4mm and 0.7mm - three values for one kind of
+  distance, none of them on the scale, and the gap between a company's name and its
+  bar was a different distance from the gap between the bar and its level.
+*/
+            .tl { display: flex; flex-direction: column; gap: var(--space-1); padding-top: 0; }
+            .tl-row { display: flex; align-items: stretch; gap: var(--space-1); }
+            .tl-slot { display: flex; min-width: 0; }
+            .tl-inner {
+                display: flex; flex: 1 1 auto; min-width: 0;
+                /*
+                  Stretch, not centre.
+
+                  Centring a column's children sizes them to their content, and a
+                  segment has no content - so every bar came out zero pixels wide
+                  and the timeline rendered as labels floating over an empty strip.
+                  The text centres itself instead.
+                */
+                flex-direction: column; align-items: stretch; justify-content: center;
+                text-align: center;
+            }
+
+            /*
+              The sizes are the document's own.
+
+              The bar was first drawn at 7.4px and 6.6px, smaller than anything else
+              on the page, which made the one element meant to be read at a glance the
+              hardest thing on it to read. Then it sat at 9.5 and 8.5 while the rest of
+              the body was 12.5 - a bar that restates the experience section, set below
+              the section it restates, which tells the reader it carries less than the
+              prose beside it. It does not: it says the same four jobs and the same four
+              dates. So the company names, the levels and the year ruler are all at the
+              body size now, declared in resume-layout-rules.ts like everything else.
+
+              The labels stay on nowrap because a company name over its own segment must
+              not wrap: the segments are proportional to the months served, so the
+              narrowest is the ZUP one, and a wrapped label there prints over its
+              neighbour. nowrap turns that into an overflow the build refuses.
+
+              No backticks in these comments: this is a template literal, and one
+              would close the string the CSS lives in.
+            */
+            .tl-label {
+                font-size: 12.5px; font-weight: 700; line-height: 1.2; color: #1e293b;
+                text-align: center; white-space: nowrap;
+            }
+            /*
+              min-width 0 is what lets the level wrap inside its own segment.
+
+              A flex item's default minimum is its content width, so a level longer
+              than its segment refuses to wrap and spills over the edge of the thing
+              it belongs to. Two lines is the budget the layout contract enforces, and
+              it is two rather than one because the narrowest segment is a quarter of
+              the widest - "Júnior to Pleno" fits the ZUP segment and "Principal & AI
+              Engineer" does not fit the open one without a second line.
+            */
+            .tl-level {
+                font-size: 12.5px; font-weight: 500; line-height: 1.2; color: #64748b;
+                text-align: center; letter-spacing: 0; min-width: 0; max-width: 100%;
+            }
+            .tl-bar { width: 100%; height: 3.6mm; border-radius: 0.9mm; }
+            .tl-bar--future {
+                background: transparent;
+                border: 0.5mm dashed #94a3b8;
+                border-radius: 0.9mm;
+            }
+            .tl-future-mark {
+                font-size: 18px; font-weight: 800; color: #94a3b8; line-height: 1;
+                text-align: center;
+            }
+            .tl-level--future { color: #1e293b; font-weight: 700; }
+
+            /*
+              The year ruler.
+
+              Absolutely positioned inside the bar and scaled by the past share,
+              so a tick for 2023 lands where January actually falls rather than a
+              fraction of the way along. Pinned at the two ends rather than
+              centred on their tick: a centred one hangs off the edge of the bar
+              and the ruler reads as broken.
+            */
+            .tl-axis {
+                position: relative; height: 4.5mm; margin-top: var(--space-1);
+                border-top: 1px solid #e2e8f0;
+            }
+            .tl-year {
+                position: absolute; top: 0.6mm; transform: translateX(-50%);
+                font-size: 12.5px; font-weight: 600; color: #94a3b8;
+                line-height: 1.1; white-space: nowrap;
+            }
+            .tl-year--first { transform: none; }
+
+        
+            /*
+  The career timeline. One block, never split across a page break.
+
+  Every gap in here is a step of the document's own spacing scale, declared in
+  resume-shell.html. It was 0.2mm, 0.4mm and 0.7mm - three values for one kind of
+  distance, none of them on the scale, and the gap between a company's name and its
+  bar was a different distance from the gap between the bar and its level.
+*/
+            .tl { display: flex; flex-direction: column; gap: var(--space-1); padding-top: 0; }
+            .tl-row { display: flex; align-items: stretch; gap: var(--space-1); }
+            .tl-slot { display: flex; min-width: 0; }
+            .tl-inner {
+                display: flex; flex: 1 1 auto; min-width: 0;
+                /*
+                  Stretch, not centre.
+
+                  Centring a column's children sizes them to their content, and a
+                  segment has no content - so every bar came out zero pixels wide
+                  and the timeline rendered as labels floating over an empty strip.
+                  The text centres itself instead.
+                */
+                flex-direction: column; align-items: stretch; justify-content: center;
+                text-align: center;
+            }
+
+            /*
+              The sizes are the document's own.
+
+              The bar was first drawn at 7.4px and 6.6px, smaller than anything else
+              on the page, which made the one element meant to be read at a glance the
+              hardest thing on it to read. Then it sat at 9.5 and 8.5 while the rest of
+              the body was 12.5 - a bar that restates the experience section, set below
+              the section it restates, which tells the reader it carries less than the
+              prose beside it. It does not: it says the same four jobs and the same four
+              dates. So the company names, the levels and the year ruler are all at the
+              body size now, declared in resume-layout-rules.ts like everything else.
+
+              The labels stay on nowrap because a company name over its own segment must
+              not wrap: the segments are proportional to the months served, so the
+              narrowest is the ZUP one, and a wrapped label there prints over its
+              neighbour. nowrap turns that into an overflow the build refuses.
+
+              No backticks in these comments: this is a template literal, and one
+              would close the string the CSS lives in.
+            */
+            .tl-label {
+                font-size: 12.5px; font-weight: 700; line-height: 1.2; color: #1e293b;
+                text-align: center; white-space: nowrap;
+            }
+            /*
+              min-width 0 is what lets the level wrap inside its own segment.
+
+              A flex item's default minimum is its content width, so a level longer
+              than its segment refuses to wrap and spills over the edge of the thing
+              it belongs to. Two lines is the budget the layout contract enforces, and
+              it is two rather than one because the narrowest segment is a quarter of
+              the widest - "Júnior to Pleno" fits the ZUP segment and "Principal & AI
+              Engineer" does not fit the open one without a second line.
+            */
+            .tl-level {
+                font-size: 12.5px; font-weight: 500; line-height: 1.2; color: #64748b;
+                text-align: center; letter-spacing: 0; min-width: 0; max-width: 100%;
+            }
+            .tl-bar { width: 100%; height: 3.6mm; border-radius: 0.9mm; }
+            .tl-bar--future {
+                background: transparent;
+                border: 0.5mm dashed #94a3b8;
+                border-radius: 0.9mm;
+            }
+            .tl-future-mark {
+                font-size: 18px; font-weight: 800; color: #94a3b8; line-height: 1;
+                text-align: center;
+            }
+            .tl-level--future { color: #1e293b; font-weight: 700; }
+
+            /*
+              The year ruler.
+
+              Absolutely positioned inside the bar and scaled by the past share,
+              so a tick for 2023 lands where January actually falls rather than a
+              fraction of the way along. Pinned at the two ends rather than
+              centred on their tick: a centred one hangs off the edge of the bar
+              and the ruler reads as broken.
+            */
+            .tl-axis {
+                position: relative; height: 4.5mm; margin-top: var(--space-1);
+                border-top: 1px solid #e2e8f0;
+            }
+            .tl-year {
+                position: absolute; top: 0.6mm; transform: translateX(-50%);
+                font-size: 12.5px; font-weight: 600; color: #94a3b8;
+                line-height: 1.1; white-space: nowrap;
+            }
+            .tl-year--first { transform: none; }
+
+        </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;height:auto}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:not([hidden=until-found]){display:none}.absolute{position:absolute}.bottom-4{bottom:1rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.ml-1{margin-left:0.25rem}.mt-0{margin-top:0px}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.mb-1\.5{margin-bottom:0.375rem}.flex{display:flex}.grid{display:grid}.w-\[calc\(100\%-30mm\)\]{width:calc(100% - 30mm)}.w-full{width:100%}.list-disc{list-style-type:disc}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-start{justify-content:flex-start}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-y-1\.5{row-gap:0.375rem}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.justify-self-center{justify-self:center}.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:0.25rem}.border{border-width:1px}.border-t{border-top-width:1px}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.p-2{padding:0.5rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.pl-4{padding-left:1rem}.pt-2{padding-top:0.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-justify{text-align:justify}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11\.5px\]{font-size:11.5px}.text-\[12\.5px\]{font-size:12.5px}.text-\[13px\]{font-size:13px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-\[16px\]{font-size:16px}.font-black{font-weight:900}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.leading-none{line-height:1}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}</style></head>
+<body class="antialiased text-sm">
+
+    <!-- PÁGINA 1 -->
+    
+        <div class="a4-page">
+        <header data-block="header" data-pinned="first">
+            <h1 class="text-3xl font-black tracking-tight text-slate-900 uppercase" data-rule="nome">Marcelino Sandroni Dias</h1>
+            <h2 class="text-base font-bold text-slate-700" data-rule="cargo">Senior Software Engineer | Node, React, Go &amp; AI</h2>
+            <p class="header-tagline" data-rule="tagline">Engenharia que conecta sistemas distribuídos, produto e resultado financeiro.</p>
+
+            <!--
+                Contacto: seis campos fixos, sempre estes, sempre nesta ordem,
+                em duas linhas de três.
+
+                `data-rule="contato"` é o que o contrato de layout mede, e está na
+                linha e não no bloco: cada linha é uma linha, com um orçamento de
+                linha, e é a linha que transborda se um campo crescer.
+
+                ## Um div por par, e não um span
+
+                Chave e valor vivem no mesmo div, em sequência: `Localização:`
+                seguido de `Fortaleza, CE` como uma peça só. A versão anterior os
+                punha em colunas separadas de uma grade, e o resultado lia como uma
+                tabela - o rótulo numa linha de base e o valor noutra. Uma lista de
+                contacto é um dicionário, não uma tabela.
+
+                E a peça é um div porque é a unidade que o flex distribui: um
+                container é o que garante que chave e valor não se separam, e
+                nenhuma das duas propriedades abaixo faz isso sozinha.
+
+                ## As três propriedades, e o que cada uma impede
+
+                `flex: none` no par, `nowrap` nele e na linha, `space-between` na
+                linha. Sem a primeira o par encolhe quando o conteúdo aperta e o
+                texto quebra *dentro* dele, que é o oposto do que se quer. Sem a
+                segunda chave e valor se separam quando a linha está cheia. Sem a
+                terceira os três pares ficam colados à esquerda - que é o que
+                acontece sem nenhuma instrução de distribuição.
+
+                Isto já foi uma grade de três colunas. Lia como três fatos sobre três
+                pessoas diferentes: quem procurava um telefone tinha que adivinhar
+                qual coluna era a dele.
+            -->
+            <div class="contact-block">
+                <div class="contact-row" data-rule="contato">
+                    <div class="contact-field"><strong>Location:</strong> Fortaleza, CE (Fully Remote)</div>
+                    <div class="contact-field"><strong>Email:</strong> <a href="mailto:marcelino.sandroni@gmail.com" class="link-hover font-medium">marcelino.sandroni@gmail.com</a></div>
+                    <div class="contact-field"><strong>WhatsApp:</strong> <a href="https://wa.me/5511914461993" target="_blank" class="link-hover font-medium">+55 11 91446-1993</a></div>
+                </div>
+                <div class="contact-row" data-rule="contato">
+                    <div class="contact-field"><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/marcelinosandroni" target="_blank" class="link-hover font-medium">linkedin.com/in/marcelinosandroni</a></div>
+                    <div class="contact-field"><strong>Git:</strong> <a href="https://github.com/marcelinosandroni" target="_blank" class="link-hover font-medium">github.com/marcelinosandroni</a></div>
+                    <div class="contact-field"><strong>Portfolio:</strong> <a href="https://marcelinosandroni.com/" target="_blank" class="link-hover font-medium">marcelinosandroni.com</a></div>
+                </div>
+            </div>
+        </header>
+        <section data-block="resumo">
+            <h3 class="section-title">Professional Summary</h3>
+            <p class="text-[12.5px] leading-relaxed text-slate-700 text-justify" data-rule="resumo">
+                <strong>A software engineer drawing on almost eight years in modern ecosystems (Node, Go, React, Python) and fifteen in corporate and financial backgrounds. </strong>I work from cloud-native greenfield systems through to decoupling critical systems, focused on high-scale microservices, micro-frontends and corporate AI (agents/RAG) — delivering performance, scalability and resilience for mission-critical applications under an uncompromising testing culture.</p></section>
+        <section class="keep-together" data-block="metricas">
+            <h3 class="section-title">Key Production Impact Metrics</h3>
+            <div class="grid grid-cols-4 gap-3 text-center">
+
+                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5" data-rule="metrica-valor">+R$ 500Bn</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1" data-rule="metrica-destaque">Asset Management</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight" data-rule="metrica-descricao">B2B platforms for fund custody and orchestration.</div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5" data-rule="metrica-valor">10x</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1" data-rule="metrica-destaque">ETL Performance</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight" data-rule="metrica-descricao">Relational to Go and Node microservices migration.</div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5" data-rule="metrica-valor">100M+ msgs/day</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1" data-rule="metrica-destaque">High Scale</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight" data-rule="metrica-descricao">Event-driven, serverless and fault-tolerant.</div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded p-2 flex flex-col justify-start items-center shadow-sm">
+                    <div class="font-black text-slate-800 text-[16px] leading-none mb-1.5" data-rule="metrica-valor">-50% Costs</div>
+                    <div class="text-[9px] text-emerald-700 uppercase font-black tracking-wide leading-tight mb-1" data-rule="metrica-destaque">FinOps Optimisation</div>
+                    <div class="text-[9px] text-slate-500 font-medium leading-tight" data-rule="metrica-descricao">Auto-scaling and right-sizing in cloud ecosystems (AWS).</div>
+                </div>
+            </div></section>
+        <section class="keep-together" data-block="carreira" aria-hidden="true" role="presentation">
+            <h3 class="section-title">Career Timeline in Engineering</h3>
+            <div class="tl">
+            <div class="tl-row tl-row--labels"><div class="tl-slot" style="flex:16.000 1 0"><div class="tl-inner"><div class="tl-label" data-rule="tl-empresa">ZUP</div></div></div><div class="tl-slot" style="flex:29.000 1 0"><div class="tl-inner"><div class="tl-label" data-rule="tl-empresa">ITAÚ</div></div></div><div class="tl-slot" style="flex:34.000 1 0"><div class="tl-inner"><div class="tl-label" data-rule="tl-empresa">BNP Paribas</div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-label" data-rule="tl-empresa">DGT</div></div></div><div class="tl-slot" style="flex:16.059 1 0"><div class="tl-inner"><div class="tl-label tl-future-mark">?</div></div></div></div>
+            <div class="tl-row tl-row--bar"><div class="tl-slot" style="flex:16.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#cbd5e1"></div></div></div><div class="tl-slot" style="flex:29.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#94a3b8"></div></div></div><div class="tl-slot" style="flex:34.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#64748b"></div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-bar" style="background:#1e293b"></div></div></div><div class="tl-slot" style="flex:16.059 1 0"><div class="tl-inner"><div class="tl-bar tl-bar--future"></div></div></div></div>
+            <div class="tl-row tl-row--levels"><div class="tl-slot" style="flex:16.000 1 0"><div class="tl-inner"><div class="tl-level" data-rule="tl-nivel">Junior → Full</div></div></div><div class="tl-slot" style="flex:29.000 1 0"><div class="tl-inner"><div class="tl-level" data-rule="tl-nivel">Full</div></div></div><div class="tl-slot" style="flex:34.000 1 0"><div class="tl-inner"><div class="tl-level" data-rule="tl-nivel">Senior</div></div></div><div class="tl-slot" style="flex:12.000 1 0"><div class="tl-inner"><div class="tl-level" data-rule="tl-nivel">Tech Lead</div></div></div><div class="tl-slot" style="flex:16.059 1 0"><div class="tl-inner"><div class="tl-level tl-level--future" data-rule="tl-nivel">Principal &amp; AI Engineer</div></div></div></div>
+            <div class="tl-axis" aria-hidden="true"><span class="tl-year tl-year--first" data-rule="tl-ano" style="left:0;">2019</span><span class="tl-year" data-rule="tl-ano" style="left:9.34%;">2020</span><span class="tl-year" data-rule="tl-ano" style="left:20.55%;">2021</span><span class="tl-year" data-rule="tl-ano" style="left:31.76%;">2022</span><span class="tl-year" data-rule="tl-ano" style="left:42.97%;">2023</span><span class="tl-year" data-rule="tl-ano" style="left:54.18%;">2024</span><span class="tl-year" data-rule="tl-ano" style="left:65.38%;">2025</span><span class="tl-year tl-year--last" data-rule="tl-ano" style="left:76.59%;transform:translateX(-100%);">2026</span></div>
+            </div>
+        </section>
+        <div data-block="habilidades" data-gap="item" class="keep-together"><h3 class="section-title">Technical Skills &amp; Software Architecture</h3></div>
+        <div data-block="habilidades" data-gap="item" class="fact-list"><p data-rule="habilidade"><strong>Frontend &amp; Mobile:</strong> React, Next.js, Angular, React Native, Flutter, Micro-frontends, Tailwind, SSR, Zustand, Redux, Design Systems.</p></div>
+        <div data-block="habilidades" data-gap="item" class="fact-list"><p data-rule="habilidade"><strong>Backend &amp; Frameworks:</strong> Node.js (NestJS, Express), Go, Python, RESTful, gRPC, WebSockets, GraphQL, OAuth2, OIDC, JWT, mTLS.</p></div>
+        <div data-block="habilidades" data-gap="item" class="fact-list"><p data-rule="habilidade"><strong>Artificial Intelligence &amp; Data:</strong> LLM integration (OpenAI, Claude, Gemini), RAG, agentic workflows, LangChain, vector databases (pgvector, Milvus).</p></div>
+        <div data-block="habilidades" data-gap="item" class="fact-list"><p data-rule="habilidade"><strong>Cloud &amp; DevOps:</strong> AWS (EKS, S3, SQS, Lambda), Docker, Kubernetes (Helm), Terraform, CI/CD (GitHub Actions, Jenkins), Datadog.</p></div>
+        <div data-block="habilidades" data-gap="item" class="fact-list"><p data-rule="habilidade"><strong>Architecture &amp; Messaging:</strong> Microservices, clean architecture, DDD, CQRS, SOLID, EDA, Apache Kafka, RabbitMQ, circuit breakers.</p></div>
+        <div data-block="habilidades" data-gap="section" class="fact-list"><p data-rule="habilidade"><strong>Analytics Ecosystem &amp; Databases:</strong> PostgreSQL, MongoDB, Redis, ClickHouse, DynamoDB, DocumentDB, Snowflake, Databricks.</p></div>
+        <div data-block="formacao" data-gap="item" class="keep-together"><h3 class="section-title">Academic Education &amp; Specializations</h3></div>
+        <div data-block="formacao" data-gap="item" class="fact-list"><p data-rule="formacao"><strong>BSc in Computer Engineering</strong> — UNIVESP, 2021 – 2026</p></div>
+        <div data-block="formacao" data-gap="section" class="fact-list"><p data-rule="formacao"><strong>BSc in Accounting</strong> — Estácio, completed 2017</p></div>
+        <div data-block="idiomas" data-gap="item" class="keep-together"><h3 class="section-title">Languages</h3></div>
+        <div data-block="idiomas" data-gap="item" class="fact-list"><p data-rule="idioma"><strong>Spanish:</strong> Básico — reading technical material and written communication.</p></div>
+        <div data-block="idiomas" data-gap="section" class="fact-list"><p data-rule="idioma"><strong>Professional English:</strong> Fluent — meetings, negotiation, architecture and code review.</p></div>
+        </div>
+
+        <div class="a4-page">
+        <div class="keep-together" data-block="cargo" data-role="dgt" data-breaks-page="true">
+            <h3 class="section-title">Professional Experience</h3>
+            <div class="role-head">
+                <h4 data-rule="cargo-titulo">Senior Software Engineer &amp; Tech Lead <span class="text-slate-400 font-normal">| DGT</span></h4>
+                <span data-rule="cargo-periodo" class="role-when">(1 year) · Oct/2025 – Sep/2026</span>
+            </div>
+                <div class="stack-line" data-rule="stack"><strong>Stack:</strong> Node.js, React, Next.js, Go, Python, AI, PostgreSQL, ClickHouse, Redis, RabbitMQ, gRPC, Kubernetes, AWS.</div>
+                <ul class="role-bullets">
+                    <li data-rule="bullet"><strong>Technical Leadership &amp; High Throughput:</strong> Led a squad restructuring systems processing 100M+ messages/day. Migration to ClickHouse and heavy microservices in Go and Node.</li>
+                    <li data-rule="bullet"><strong>Corporate AI Integration:</strong> Implemented real-time agentic flows connecting the backend to LLMs (Python/LangChain), delivering absolute accuracy and protecting a R$ 24M/year contract.</li>
+                    <li data-rule="bullet"><strong>Enterprise Micro-frontends:</strong> Built complex web dashboards in React and Next.js with a micro-frontends architecture, keeping the experience fluid under heavy browser processing load.</li>
+                </ul>
+        </div>
+        <div class="keep-together" data-block="cargo" data-role="bnp-paribas">
+            <div class="role-head">
+                <h4 data-rule="cargo-titulo">Senior Software Engineer <span class="text-slate-400 font-normal">| BNP Paribas</span></h4>
+                <span data-rule="cargo-periodo" class="role-when">(2 years and 10 months) · Dec/2022 – Sep/2025</span>
+            </div>
+                <div class="stack-line" data-rule="stack"><strong>Stack:</strong> Node.js, React, Angular, Go, PostgreSQL, Kafka, OAuth2, Kubernetes, Jenkins, Helm.</div>
+                <ul class="role-bullets">
+                    <li data-rule="bullet"><strong>Monolith Modernisation:</strong> Technical pillar decoupling legacy banking systems (COBOL/VB) into Node and Go microservices, reaching 95% test coverage.</li>
+                    <li data-rule="bullet"><strong>D+0 Settlement &amp; Real Time:</strong> Replaced D+1 pipelines with real-time fund reconciliation on Kafka, lifting assets under management by 45% with a 100% uptime SLA.</li>
+                    <li data-rule="bullet"><strong>Global Orchestration:</strong> Automated institutional ETF funds, integrating B3 and international exchanges, with an estimated R$ 50 million in operational inflows for the bank.</li>
+                </ul>
+        </div>
+        <div class="keep-together" data-block="cargo" data-role="itau">
+            <div class="role-head">
+                <h4 data-rule="cargo-titulo">Full Software Engineer <span class="text-slate-400 font-normal">| ITAÚ</span></h4>
+                <span data-rule="cargo-periodo" class="role-when">(2 years and 5 months) · Jul/2020 – Nov/2022</span>
+            </div>
+                <div class="stack-line" data-rule="stack"><strong>Stack:</strong> Node.js, NestJS, React, TypeScript, PostgreSQL, Redis, Kafka, AWS, K8s, Terraform.</div>
+                <ul class="role-bullets">
+                    <li data-rule="bullet"><strong>Strategic Institutional Custody:</strong> Full-stack development of a B2B portal focused on UX, pairing a React frontend with reactive, high-availability APIs orchestrated in Node.js.</li>
+                    <li data-rule="bullet"><strong>Crisis Management and Resilience:</strong> Surgical intervention in critical asynchronous messaging flows (Kafka) under heavy traffic, guaranteeing full transactional integrity of assets.</li>
+                    <li data-rule="bullet"><strong>E2E Automation:</strong> Led rigorous automated testing with Cypress, shielding the ecosystem from systemic regressions and accelerating the delivery pipeline.</li>
+                </ul>
+        </div>
+        <div class="keep-together" data-block="cargo" data-role="zup">
+            <div class="role-head">
+                <h4 data-rule="cargo-titulo">Full Software Engineer <span class="text-slate-400 font-normal">| ZUP</span></h4>
+                <span data-rule="cargo-periodo" class="role-when">(1 year and 4 months) · Mar/2019 – Jun/2020</span>
+            </div>
+                <div class="stack-line" data-rule="stack"><strong>Stack:</strong> Node.js, React, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, CI/CD.</div>
+                <ul class="role-bullets">
+                    <li data-rule="bullet"><strong>Accelerated Cloud Migration:</strong> Promoted to Full within a year. Migrated infrastructure to AWS and refactored Node.js APIs for messaging in half the agreed schedule.</li>
+                    <li data-rule="bullet"><strong>Transactional Resilience:</strong> Structural fix to asynchronous messaging (RabbitMQ) with circuit breakers and DLQs, guaranteeing 100% transactional accuracy and failure recovery.</li>
+                </ul>
+        </div>
+        <div class="keep-together" data-block="cargo" data-role="consultoria">
+            <div class="role-head">
+                <h4 data-rule="cargo-titulo">Accounting Analyst &amp; Finance Manager <span class="text-slate-400 font-normal">| Consultoria</span></h4>
+                <span data-rule="cargo-periodo" class="role-when">(15 years and 6 months) · Jul/2003 – Dec/2018</span>
+            </div>
+                <ul class="role-bullets">
+                    <li data-rule="bullet"><strong>Corporate Engineering Edge:</strong> Team leadership and process redesign that cut the accounting close by 83%. Financial expertise translated into high-ROI software.</li>
+                </ul>
+        </div>
+        </div></body></html>
