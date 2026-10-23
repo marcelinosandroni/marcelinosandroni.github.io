@@ -24,8 +24,8 @@ Security & Testing: TDD, Cypress, Playwright, K6. OAuth 2.0 (PKCE), OIDC, JWT, X
 
 PROFESSIONAL EXPERIENCE
 
-DGT Tecnologia | Senior Software Engineer & Tech Lead
-Jan/2026 – Present
+DGT | Senior Software Engineer & Tech Lead
+Oct/2025 – Sep/2026
 
 Modernized legacy systems and orchestrated high-volume microservices in C# (.NET), Go, and Node.js with CQRS and Event-Driven architecture, ingesting 100 million telemetry events per day.
 
@@ -35,8 +35,8 @@ Spearheaded DevOps/SRE culture, zero-downtime CI/CD, Kubernetes with Helm/HPA, a
 
 Developed reactive architectures in Angular and React Native with Micro-frontends and Core Web Vitals optimization.
 
-Antlia | Tech Lead & Strategic Consultant
-Dec/2022 – Dec/2025
+BNP Paribas | Senior Software Engineer
+Dec/2022 – Sep/2025
 
 Led web development for the financial sector in Angular, React, and Next.js with complex state management.
 
@@ -44,8 +44,8 @@ Designed DDD microservices in Java (Spring Boot) and C# (.NET Core) ensuring ACI
 
 Provisioned cloud infrastructure (AWS/Azure) via Terraform, optimizing costs and secure networks.
 
-Banco Itaú | Full Software Engineer & Tech Lead
-Mar/2022 – Nov/2022
+ITAÚ | Full Software Engineer
+Jul/2020 – Nov/2022
 
 Built the asset-management platform operating on +R$ 100 billion in custody, integrated with B3.
 
@@ -53,15 +53,15 @@ Drove the adoption of Clean Code and TDD, increasing test coverage and mitigatin
 
 Developed highly available microservices in C# and Java integrated with message brokers.
 
-Pollux Technologies | Full Software Engineer (Promoted in 3 months)
-Jun/2021 – Jan/2022
+ZUP | Full Software Engineer
+Mar/2019 – Jun/2020
 
 Architected microservices and serverless applications in TypeScript (NestJS), exposing RESTful and GraphQL APIs.
 
 Created dynamic, market-driven interfaces for startups using React and Flutter.
 
-Accounting Consulting Firms | Accounting Analyst & Manager
-Jan/2005 – Dec/2020 (15 years)
+Consultoria | Accounting Analyst & Finance Manager
+Jul/2003 – Dec/2018 (15 years and 6 months)
 
 Led financial and accounting teams, providing strategic business consulting and financial analysis focused on corporate governance and compliance.
 

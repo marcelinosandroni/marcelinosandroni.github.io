@@ -24,8 +24,8 @@ Segurança & Testes: TDD, Cypress, Playwright, K6. OAuth 2.0 (PKCE), OIDC, JWT, 
 
 EXPERIÊNCIA PROFISSIONAL
 
-DGT Tecnologia | Engenheiro de Software Sênior & Tech Lead
-Jan/2026 – Presente
+DGT | Engenheiro de Software Sênior & Tech Lead
+Out/2025 – Set/2026
 
 Modernizou sistemas legados e orquestrou microsserviços de alta volumetria em C# (.NET), Go e Node.js com CQRS e Event-Driven, ingerindo 100 milhões de eventos de telemetria por dia.
 
@@ -35,8 +35,8 @@ Liderou cultura DevOps/SRE, CI/CD zero-downtime, Kubernetes com Helm/HPA, e IaC 
 
 Desenvolveu arquiteturas reativas em Angular e React Native com Micro-frontends e otimização de Core Web Vitals.
 
-Antlia | Tech Lead & Consultor Estratégico
-Dez/2022 – Dez/2025
+BNP Paribas | Engenheiro de Software Sênior
+Dez/2022 – Set/2025
 
 Liderou desenvolvimento web para o setor financeiro em Angular, React e Next.js com gestão de estado complexa.
 
@@ -44,8 +44,8 @@ Concebeu microsserviços DDD em Java (Spring Boot) e C# (.NET Core) garantindo t
 
 Provisionou infraestrutura cloud (AWS/Azure) via Terraform, otimizando custos e redes seguras.
 
-Banco Itaú | Engenheiro de Software Pleno & Tech Lead
-Mar/2022 – Nov/2022
+ITAÚ | Engenheiro de Software Pleno & Tech Lead
+Jul/2020 – Nov/2022
 
 Construí a plataforma de gestão de ativos que opera +R$ 100 bilhões em custódia, com integração B3.
 
@@ -53,15 +53,15 @@ Conduzi adoção de Clean Code e TDD, elevando cobertura de testes e mitigando v
 
 Desenvolveu microsserviços altamente disponíveis em C# e Java integrados a brokers de mensagens.
 
-Pollux Technologies | Engenheiro de Software Pleno (Promovido em 3 meses)
-Jun/2021 – Jan/2022
+ZUP | Engenheiro de Software Pleno
+Mar/2019 – Jun/2020
 
 Arquitetou microsserviços e aplicações serverless em TypeScript (NestJS), expondo APIs RESTful e GraphQL.
 
 Criou interfaces dinâmicas com aderência ágil ao mercado para startups utilizando React e Flutter.
 
-Empresas de Consultoria Contábil | Analista Contábil & Gestor
-Jan/2005 – Dez/2020 (15 anos)
+Consultoria | Analista Contábil & Gestor Financeiro
+Jul/2003 – Dez/2018 (15 anos e 6 meses)
 
 Liderou equipes financeiras, executando consultoria estratégica focada em compliance e otimização de fluxo de caixa.
 
