@@ -15,9 +15,9 @@ export const resumeContent: ResumeContent = {
     "15 anos de governança financeira corporativa (2005–2020) somados a 6 anos de engenharia de software (2021–2026): 21 anos de expertise combinada. Engenheiro de Software Sênior e Tech Lead com atuação de ponta a ponta em backend, frontend, mobile e DevOps. Traduzo regras corporativas financeiras complexas em arquiteturas web escaláveis e sistemas distribuídos de alta volumetria — com resultados medidos de R$ 24 milhões/ano, 100 milhões de mensagens/dia e ganho de 10x em performance. Atuo como referência técnica: arquitetura, liderança de times multidisciplinares, mentoria e automação com IA para acelerar entregas com código limpo e sustentável.",
   experiences: [
     {
-      company: "DGT Tecnologia",
+      company: "DGT",
       role: "Engenheiro de Software Sênior & Tech Lead",
-      period: "Jan/2026 – Presente",
+      period: "Out/2025 – Set/2026",
       location: "Remoto",
       summary: "Liderança técnica na reestruturação e modernização de sistemas críticos legados para monitoramento de segurança pública com IA, processando 100 milhões de mensagens diárias. Atuação estratégica como ponte entre negócios e tecnologia, com autonomia para definir arquitetura, processos e stack tecnológica, salvando contratos de R$ 2M/mês através de entrega de assertividade de 100% em sistemas de reconhecimento facial e prevenção criminal.",
       highlights: [
@@ -114,9 +114,9 @@ export const resumeContent: ResumeContent = {
       scope: "Sistemas críticos de segurança pública com IA, processamento de 100M de mensagens/dia, contratos governamentais de R$ 24M+/ano, liderança técnica transversal definindo arquitetura, processos e stack para múltiplos projetos",
     },
     {
-      company: "Antlia",
-      role: "Tech Lead & Consultor Estratégico",
-      period: "Dez/2022 – Dez/2025",
+      company: "BNP Paribas",
+      role: "Engenheiro de Software Sênior",
+      period: "Dez/2022 – Set/2025",
       location: "Remoto",
       summary: "Liderança técnica na modernização de sistemas legados críticos do BNPP Paribas, maior cliente do banco, recriando ecossistema de pagamentos e integração com sistemas consolidados. Atuação desde planejamento até entrega, focando em sistemas distribuídos escaláveis com Java Spring, Angular microfrontend, mensageria Kafka e DevOps completo (Kubernetes, Jenkins, Helm). Entrega de novas aplicações para gerenciamento de ativos com fundos de investimento no mercado primário/atacado, integrando B3, ETFs EUA/Europa e grandes bancos/corretoras.",
       highlights: [
@@ -213,9 +213,9 @@ export const resumeContent: ResumeContent = {
       scope: "Modernização de sistemas críticos BNPP Paribas, ecossistema de pagamentos e gestão de ativos com integração B3/global, liderança técnica completa definindo arquitetura, processos DevOps e padrões de qualidade",
     },
     {
-      company: "Banco Itaú",
+      company: "ITAÚ",
       role: "Engenheiro de Software Pleno & Tech Lead",
-      period: "Mar/2022 – Nov/2022",
+      period: "Jul/2020 – Nov/2022",
       location: "Híbrido",
       summary: "Liderança técnica no desenvolvimento de aplicações para gestão interna de ativos do mercado de atacado, controlando +R$ 100 bilhões em ativos de grandes investidores e clientes. Ecossistema de controle e investimento com inteligência e insights, integração B3, assets nacionais e internacionais. Atuação com time de 9 pessoas (6 devs, Tech Lead, PO, PM) em melhorias de processos técnicos, code review, versionamento, e mentoria de níveis júnior/pleno em front, back e mobile.",
       highlights: [
@@ -310,9 +310,9 @@ export const resumeContent: ResumeContent = {
       scope: "Aplicações para gestão interna de ativos +R$ 100 bi, liderança técnica de time multidisciplinar, implementação de cultura de testes e padronização arquitetural, mentoria de devs júnior/pleno",
     },
     {
-      company: "Pollux Technologies",
-      role: "Engenheiro de Software Pleno (Promovido em 3 meses)",
-      period: "Jun/2021 – Jan/2022",
+      company: "ZUP",
+      role: "Engenheiro de Software Pleno",
+      period: "Mar/2019 – Jun/2020",
       location: "Remoto",
       summary: "Atuação em múltiplos clientes com foco em modernização de sistemas, migração cloud e resolução de problemas críticos. Promoção de Junior para Pleno em apenas 3 meses devido a excelência técnica e impacto nas entregas. Experiência em saúde (prontuário eletrônico e previsão de consultas), financeiro (migração AWS), e esportes (entrega crítica em 2 semanas). Redução de custos de infraestrutura em 30-50%, melhoria de performance em até 200%, e entrega pontual em 80% dos projetos (20% no prazo).",
       highlights: [
@@ -407,9 +407,9 @@ export const resumeContent: ResumeContent = {
       scope: "Atuação em múltiplos clientes (saúde, financeiro, esportes) com modernização de sistemas, migração cloud, otimização de custos AWS, resolução de problemas críticos, e entrega de projetos sob prazos apertados com excelência técnica",
     },
     {
-      company: "Empresas de Consultoria Contábil",
-      role: "Analista Contábil & Gestor",
-      period: "Jan/2005 – Dez/2020",
+      company: "Consultoria",
+      role: "Analista Contábil & Gestor Financeiro",
+      period: "Jul/2003 – Dez/2018",
       location: "São Paulo",
       summary:
         "Transformação digital e reestruturação operacional de empresas através de automação de processos contábeis, gestão financeira estratégica e liderança de equipes. Atuação como ponte entre negócios e tecnologia, implementando soluções que reduziram custos operacionais em 83% e liberaram capital de giro para investimentos estratégicos.",

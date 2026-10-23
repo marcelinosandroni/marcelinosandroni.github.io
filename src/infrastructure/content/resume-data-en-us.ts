@@ -28,9 +28,9 @@ export const resumeContentEnUs: ResumeContent = {
     "15 years of corporate financial governance (2005–2020) plus 6 years of software engineering (2021–2026): 21 years of combined expertise. Senior Software Engineer and Tech Lead working end to end across backend, frontend, mobile and DevOps. I translate complex corporate financial rules into scalable web architectures and high-volume distributed systems — with measured results of R$ 24 million/year, 100 million messages/day and 10x throughput gains. I work as a technical reference point: architecture, multidisciplinary team leadership, mentoring and AI-assisted automation to ship faster with clean, sustainable code.",
   experiences: [
     {
-      company: "DGT Tecnologia",
+      company: "DGT",
       role: "Senior Software Engineer & Tech Lead",
-      period: "Jan/2026 – Present",
+      period: "Oct/2025 – Sep/2026",
       location: "Remote",
       summary:
         "Technical leadership in the restructuring and modernization of critical legacy systems for AI-powered public security monitoring, processing 100 million messages daily. Strategic role as the bridge between business and technology, with the autonomy to define architecture, processes and the technology stack, saving contracts worth R$ 2M/month by delivering 100% accuracy across facial recognition and crime prevention systems.",
@@ -129,9 +129,9 @@ export const resumeContentEnUs: ResumeContent = {
         "Critical public security systems with AI, processing 100M messages/day, R$ 24M+/year government contracts, cross-cutting technical leadership defining architecture, processes and stack for multiple projects",
     },
     {
-      company: "Antlia",
-      role: "Tech Lead & Strategic Consultant",
-      period: "Dec/2022 – Dec/2025",
+      company: "BNP Paribas",
+      role: "Senior Software Engineer",
+      period: "Dec/2022 – Sep/2025",
       location: "Remote",
       summary:
         "Technical leadership in the modernization of critical legacy systems for BNPP Paribas, the bank's largest client, recreating the payments ecosystem and integrating with consolidated systems. Involved from planning through delivery, focusing on scalable distributed systems with Java Spring, an Angular microfrontend, Kafka messaging and complete DevOps (Kubernetes, Jenkins, Helm). Delivery of new applications for asset management with investment funds in the primary/wholesale market, integrating B3, US/European ETFs and large banks/brokers.",
@@ -230,9 +230,9 @@ export const resumeContentEnUs: ResumeContent = {
         "modernization of critical BNPP Paribas systems, payments ecosystem and asset management with B3/global integration, complete technical leadership defining architecture, DevOps processes and quality standards",
     },
     {
-      company: "Banco Itaú",
-      role: "Full Software Engineer & Tech Lead",
-      period: "Mar/2022 – Nov/2022",
+      company: "ITAÚ",
+      role: "Full Software Engineer",
+      period: "Jul/2020 – Nov/2022",
       location: "Hybrid",
       summary:
         "Technical leadership in the development of applications for internal management of wholesale market assets, controlling more than R$ 100 billion in assets of large investors and clients. Control and investment ecosystem with intelligence and insights, B3 integration, national and international assets. Worked with a team of 9 people (6 developers, Tech Lead, PO, PM) on technical process improvements, code review, versioning, and mentoring of junior and mid-level developers in front end, back end and mobile.",
@@ -329,9 +329,9 @@ export const resumeContentEnUs: ResumeContent = {
         "Applications for internal management of assets over R$ 100 billion, multidisciplinary team technical leadership, implementation of a testing culture and architectural standardization, mentoring of junior and mid-level developers",
     },
     {
-      company: "Pollux Technologies",
-      role: "Full Software Engineer (Promoted in 3 months)",
-      period: "Jun/2021 – Jan/2022",
+      company: "ZUP",
+      role: "Full Software Engineer",
+      period: "Mar/2019 – Jun/2020",
       location: "Remote",
       summary:
         "Work across multiple clients focused on system modernization, cloud migration and resolution of critical problems. Promoted from Junior to Mid-level in just 3 months due to technical excellence and impact on delivery. Experience in healthcare (electronic medical records and appointment forecasting), finance (AWS migration) and sports (critical delivery in 2 weeks). 30-50% reduction in infrastructure costs, performance improvements of up to 200%, and on-time delivery on 80% of projects (20% delivered early).",
@@ -428,9 +428,9 @@ export const resumeContentEnUs: ResumeContent = {
         "Work across multiple clients (healthcare, finance, sports) covering system modernization, cloud migration, AWS cost optimization, resolution of critical problems, and project delivery under tight deadlines with technical excellence",
     },
     {
-      company: "Accounting Consulting Firms",
-      role: "Accounting Analyst & Manager",
-      period: "Jan/2005 – Dec/2020",
+      company: "Consultoria",
+      role: "Accounting Analyst & Finance Manager",
+      period: "Jul/2003 – Dec/2018",
       location: "São Paulo",
       summary:
         "Digital transformation and operational restructuring of companies through accounting process automation, strategic financial management and team leadership. Acted as the bridge between business and technology, implementing solutions that reduced operating costs by 83% and released working capital for strategic investments.",

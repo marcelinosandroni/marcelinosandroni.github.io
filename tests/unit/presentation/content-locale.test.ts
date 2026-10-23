@@ -38,11 +38,11 @@ describe("Content Locale & Factual Consistency", () => {
     // Proper nouns stay identical; the generic descriptor of the consulting
     // practice is translated like any other prose.
     expect(en.experiences.map((experience) => experience.company)).toEqual([
-      "DGT Tecnologia",
-      "Antlia",
-      "Banco Itaú",
-      "Pollux Technologies",
-      "Accounting Consulting Firms",
+      "DGT",
+      "BNP Paribas",
+      "ITAÚ",
+      "ZUP",
+      "Consultoria",
     ]);
   });
 
@@ -50,15 +50,11 @@ describe("Content Locale & Factual Consistency", () => {
     // Only the month names are translated ("Presente" -> "Present",
     // "Dez" -> "Dec"), so the digits must match exactly.
     const expectedPeriods = [
-      "Jan/2026 – Present",
-      // Antlia runs continuously from Itaú (which ends Nov/2022) to DGT (which
-      // starts Jan/2026). The `Jul/2024` this used to assert opened a 20-month
-      // hole in the middle of a six-year software career — the first thing a
-      // hiring manager scans for, and the reason the period was reverted.
-      "Dec/2022 – Dec/2025",
-      "Mar/2022 – Nov/2022",
-      "Jun/2021 – Jan/2022",
-      "Jan/2005 – Dec/2020",
+      "Oct/2025 – Sep/2026",
+      "Dec/2022 – Sep/2025",
+      "Jul/2020 – Nov/2022",
+      "Mar/2019 – Jun/2020",
+      "Jul/2003 – Dec/2018",
     ];
 
     expect(en.experiences.map((experience) => experience.period)).toEqual(expectedPeriods);
@@ -110,10 +106,10 @@ describe("Content Locale & Factual Consistency", () => {
   it("translates the role instead of dropping the seniority", () => {
     const expectedRoles = [
       "Senior Software Engineer & Tech Lead",
-      "Tech Lead & Strategic Consultant",
-      "Full Software Engineer & Tech Lead",
-      "Full Software Engineer (Promoted in 3 months)",
-      "Accounting Analyst & Manager",
+      "Senior Software Engineer",
+      "Full Software Engineer",
+      "Full Software Engineer",
+      "Accounting Analyst & Finance Manager",
     ];
 
     expect(en.experiences.map((experience) => experience.role)).toEqual(expectedRoles);
