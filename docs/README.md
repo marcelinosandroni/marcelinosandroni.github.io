@@ -27,6 +27,7 @@ Documentação técnica detalhada e guias específicos:
 | [`ERROR_HANDLING.md`](./ERROR_HANDLING.md) | Estratégias de tratamento de erro |
 | [`pdf-reference-contract.md`](./pdf-reference-contract.md) | Contrato de referência para geração de PDF |
 | [`pdf-layout-contract.md`](./pdf-layout-contract.md) | Contrato de layout dos PDFs de recrutador: linhas e caracteres por item, e a regra de tipografia fixa |
+| [`pdf-generation-guide.md`](./pdf-generation-guide.md) | Guia prático: comandos para gerar PDF de um stack específico e onde alterar cada detalhe |
 | [`variant-content-prompt.md`](./variant-content-prompt.md) | Prompt pronto para escrever o conteúdo de uma variante, gerado do contrato de layout |
 | [`latex-template-authoring.md`](./latex-template-authoring.md) | Guia para criação de templates LaTeX |
 | [`release-process.md`](./release-process.md) | Processo de release e versionamento |
