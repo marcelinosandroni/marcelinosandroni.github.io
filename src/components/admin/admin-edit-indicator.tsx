@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-import { getOwnerSession } from "@/infrastructure/auth/owner-session";
-
 /**
  * Inline edit indicator shown to the owner when they are logged in.
  *

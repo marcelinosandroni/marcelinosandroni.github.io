@@ -19,7 +19,7 @@ import { useCallback, useState } from "react";
  * closed over the response would be reading a variable it does not own, so the
  * callback receives it instead.
  */
-export function useAdminWrite(): {
+export function useAdminWrite(endpoint: string = "/api/admin/resume"): {
   status: string | null;
   pending: boolean;
   /** Show a message without having written anything. */
@@ -45,7 +45,7 @@ export function useAdminWrite(): {
       setPending(true);
 
       try {
-        const response = await fetch("/api/admin/resume", {
+        const response = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -72,7 +72,7 @@ export function useAdminWrite(): {
         setPending(false);
       }
     },
-    [],
+    [endpoint],
   );
 
   return { status, pending, notify, write };

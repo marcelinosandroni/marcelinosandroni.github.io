@@ -17,7 +17,6 @@
  *   npm run db:sync -- --dry # prints what would change without writing
  */
 import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
 
 function loadEnvLocal(): void {
   if (!existsSync(".env.local")) return;

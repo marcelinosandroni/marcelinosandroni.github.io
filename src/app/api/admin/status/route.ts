@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { getOwnerSession, isAuthEnabled } from "@/infrastructure/auth/owner-session";
+import { isAuthEnabled } from "@/infrastructure/auth/owner-session";
+import { getOwnerSession } from "@/infrastructure/auth/owner-session";
 
 /**
  * Lightweight status check for the inline admin edit indicator.
