@@ -1,38 +1,30 @@
 /**
- * Syncs résumé content from Supabase to the typed catalog files.
+ * Syncs résumé content from Supabase to a JSON snapshot.
  *
- * ## Why this exists
+ * ## Why a snapshot and not the typed catalog files
  *
- * The PDFs are built from static TypeScript files (`scripts/data/stack-variants.pt-br.ts`,
- * `src/infrastructure/content/resume-data.ts`, etc.). The site reads from Supabase
- * with a fallback to the typed catalog. When the owner edits content in `/admin`,
- * the database changes but the static files do not — so the next PDF build would
- * use stale content.
+ * The typed catalog files (`resume-data.ts`, `stack-variants.pt-br.ts`) are
+ * hand-maintained TypeScript with rich types, comments and derived logic. Rewriting
+ * them from the database would destroy that structure and make diffs unreadable.
  *
- * This script reads from Supabase and regenerates the static files, so the PDF
- * build always reflects the current database state. It is the bridge between the
- * editable database and the build pipeline that needs files on disk.
+ * Instead, this script writes a JSON snapshot (`public/artifacts/db-snapshot.json`)
+ * that the build pipeline can read when available. The typed catalog remains the
+ * fallback, so a build without database access still works — it just uses the
+ * last committed catalog.
  *
  * ## Usage
  *
- *   npm run db:sync          # reads from Supabase, writes to src/infrastructure/content/
+ *   npm run db:sync          # reads from Supabase, writes snapshot
  *   npm run db:sync -- --dry # prints what would change without writing
  *
  * ## What it syncs
  *
- * - resume_profile → resume-data.ts (name, title, summary, contact)
- * - resume_experience + highlights + case_studies + technologies → resume-data.ts (experiences)
- * - resume_skill_group + resume_skill → resume-data.ts (skillGroups)
- * - resume_education → resume-data.ts (education)
- * - resume_language → resume-data.ts (languages)
- * - resume_variant + children → stack-variants.pt-br.ts / .en-us.ts
- * - cheatsheet_category + cheatsheet_term + cheatsheet_tag → cheatsheet-content.ts
- * - home_content → home-pt-br.ts / home-en-us.ts
- *
- * ## What it does NOT sync
- *
- * - The shell (resume-shell.html) — structure, not content
- * - The layout rules (resume-layout-rules.ts) — these are design decisions
+ * - resume_profile, resume_experience, resume_highlight, resume_case_study,
+ *   resume_technology, resume_skill_group, resume_skill, resume_education,
+ *   resume_language
+ * - resume_variant + children (metrics, inventory, roles, bullets)
+ * - cheatsheet_category, cheatsheet_term, cheatsheet_tag, cheatsheet_term_tag
+ * - home_content
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -55,7 +47,7 @@ loadEnvLocal();
 async function main() {
   const dryRun = process.argv.includes("--dry");
 
-  console.log("Syncing résumé content from Supabase to static files...");
+  console.log("Syncing résumé content from Supabase to snapshot...");
   console.log(`Mode: ${dryRun ? "dry run (no writes)" : "write"}`);
 
   const { supabaseReadConfigFromEnv } = await import("../src/infrastructure/supabase/server");
@@ -79,24 +71,34 @@ async function main() {
     return Array.isArray(data) ? (data as Array<Record<string, unknown>>) : [];
   }
 
-  // Read all resume data from DB
-  const profiles = await fetchRows("resume_profile", { order: "locale.asc" });
-  const experiences = await fetchRows("resume_experience", { order: "sort_order.asc" });
-  const highlights = await fetchRows("resume_highlight", { order: "sort_order.asc" });
-  const caseStudies = await fetchRows("resume_case_study", { order: "sort_order.asc" });
-  const technologies = await fetchRows("resume_technology", { order: "sort_order.asc" });
-  const skillGroups = await fetchRows("resume_skill_group", { order: "sort_order.asc" });
-  const skills = await fetchRows("resume_skill", { order: "sort_order.asc" });
-  const education = await fetchRows("resume_education", { order: "sort_order.asc" });
-  const languages = await fetchRows("resume_language", { order: "sort_order.asc" });
-  const variants = await fetchRows("resume_variant", { order: "sort_order.asc" });
-  const variantMetrics = await fetchRows("resume_variant_metric", { order: "sort_order.asc" });
-  const variantInventory = await fetchRows("resume_variant_inventory", { order: "sort_order.asc" });
-  const variantRoles = await fetchRows("resume_variant_role", { order: "sort_order.asc" });
-  const variantBullets = await fetchRows("resume_variant_role_bullet", { order: "sort_order.asc" });
-  const cheatsheetCategories = await fetchRows("cheatsheet_category", { order: "sort_order.asc" });
-  const cheatsheetTerms = await fetchRows("cheatsheet_term", { order: "sort_order.asc" });
-  const homeContent = await fetchRows("home_content", { order: "locale.asc" });
+  // Read all data from DB
+  const [
+    profiles, experiences, highlights, caseStudies, technologies,
+    skillGroups, skills, education, languages,
+    variants, variantMetrics, variantInventory, variantRoles, variantBullets,
+    cheatsheetCategories, cheatsheetTerms, cheatsheetTags, cheatsheetTermTags,
+    homeContent,
+  ] = await Promise.all([
+    fetchRows("resume_profile", { order: "locale.asc" }),
+    fetchRows("resume_experience", { order: "sort_order.asc" }),
+    fetchRows("resume_highlight", { order: "sort_order.asc" }),
+    fetchRows("resume_case_study", { order: "sort_order.asc" }),
+    fetchRows("resume_technology", { order: "sort_order.asc" }),
+    fetchRows("resume_skill_group", { order: "sort_order.asc" }),
+    fetchRows("resume_skill", { order: "sort_order.asc" }),
+    fetchRows("resume_education", { order: "sort_order.asc" }),
+    fetchRows("resume_language", { order: "sort_order.asc" }),
+    fetchRows("resume_variant", { order: "sort_order.asc" }),
+    fetchRows("resume_variant_metric", { order: "sort_order.asc" }),
+    fetchRows("resume_variant_inventory", { order: "sort_order.asc" }),
+    fetchRows("resume_variant_role", { order: "sort_order.asc" }),
+    fetchRows("resume_variant_role_bullet", { order: "sort_order.asc" }),
+    fetchRows("cheatsheet_category", { order: "sort_order.asc" }),
+    fetchRows("cheatsheet_term", { order: "sort_order.asc" }),
+    fetchRows("cheatsheet_tag", { order: "sort_order.asc" }),
+    fetchRows("cheatsheet_term_tag", { order: "term_id.asc" }),
+    fetchRows("home_content", { order: "locale.asc" }),
+  ]);
 
   console.log(`\nDB content summary:`);
   console.log(`  Profiles: ${profiles.length}`);
@@ -115,6 +117,7 @@ async function main() {
   console.log(`  Variant bullets: ${variantBullets.length}`);
   console.log(`  Cheatsheet categories: ${cheatsheetCategories.length}`);
   console.log(`  Cheatsheet terms: ${cheatsheetTerms.length}`);
+  console.log(`  Cheatsheet tags: ${cheatsheetTags.length}`);
   console.log(`  Home content: ${homeContent.length}`);
 
   if (dryRun) {
@@ -122,7 +125,6 @@ async function main() {
     return;
   }
 
-  // Write a JSON snapshot that can be consumed by the build pipeline
   const snapshot = {
     syncedAt: new Date().toISOString(),
     profiles,
@@ -141,6 +143,8 @@ async function main() {
     variantBullets,
     cheatsheetCategories,
     cheatsheetTerms,
+    cheatsheetTags,
+    cheatsheetTermTags,
     homeContent,
   };
 
