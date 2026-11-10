@@ -25,6 +25,7 @@ export type AdminSection =
   | "tech-stack"
   | "catalog"
   | "profiles"
+  | "cheatsheet"
   | "job-match"
   | "blog"
   | "chat"
@@ -37,6 +38,7 @@ const SECTIONS: ReadonlyArray<{ id: AdminSection; label: string; icon: string }>
   { id: "tech-stack", label: "Tech Stack", icon: "🛠️" },
   { id: "catalog", label: "Technology Catalog", icon: "📚" },
   { id: "profiles", label: "Stack Profiles", icon: "🎯" },
+  { id: "cheatsheet", label: "Cheatsheet Tags", icon: "🏷️" },
   { id: "job-match", label: "Job Match", icon: "🔍" },
   { id: "blog", label: "Blog / CMS", icon: "✍️" },
   { id: "chat", label: "Chat & Presence", icon: "💬" },

@@ -220,6 +220,65 @@ export default async function AdminPage() {
   }
 
   /*
+    The cheatsheet tags and terms, read alongside the variants. They are the
+    content of the cheatsheet page, and the admin needs them in the same render
+    so a tag created here is immediately available to toggle on a term.
+  */
+  let cheatsheetTags: ReadonlyArray<{ id: string; slug: string; label: string; color: string }> = [];
+  let cheatsheetTerms: ReadonlyArray<{ id: string; term: string; tags: string[] }> = [];
+
+  try {
+    const config = (await import("@/infrastructure/supabase/server")).supabaseReadConfigFromEnv();
+
+    if (config.configured) {
+      const { url, publishableKey: key } = config;
+
+      const fetchRows = async (table: string, filters: Record<string, string> = {}) => {
+        const params = new URLSearchParams(filters);
+        const response = await fetch(`${url}/${table}?${params.toString()}`, {
+          headers: { apikey: key, Authorization: `Bearer ${key}` },
+        });
+        if (!response.ok) return [];
+        const data = (await response.json()) as unknown;
+        return Array.isArray(data) ? (data as Array<Record<string, unknown>>) : [];
+      };
+
+      const categories = await fetchRows("cheatsheet_category", { locale: `eq.${DEFAULT_LOCALE}`, order: "sort_order.asc" });
+      const categoryIds = categories.map((c) => String(c["id"]));
+      const terms = categoryIds.length === 0 ? [] : await fetchRows("cheatsheet_term", { "category_id": `in.(${categoryIds.join(",")})`, locale: `eq.${DEFAULT_LOCALE}`, order: "sort_order.asc" });
+      const tags = await fetchRows("cheatsheet_tag", { locale: `eq.${DEFAULT_LOCALE}`, order: "sort_order.asc" });
+      const termTags = terms.length === 0 ? [] : await fetchRows("cheatsheet_term_tag", { "term_id": `in.(${terms.map((t) => String(t["id"])).join(",")})` });
+
+      const tagsByTerm = new Map<string, string[]>();
+      for (const tt of termTags) {
+        const termId = String(tt["term_id"]);
+        const tagId = String(tt["tag_id"]);
+        const tag = tags.find((t) => String(t["id"]) === tagId);
+        if (tag) {
+          const list = tagsByTerm.get(termId) ?? [];
+          list.push(String(tag["slug"]));
+          tagsByTerm.set(termId, list);
+        }
+      }
+
+      cheatsheetTags = tags.map((t) => ({
+        id: String(t["id"]),
+        slug: String(t["slug"] ?? ""),
+        label: String(t["label"] ?? ""),
+        color: String(t["color"] ?? "primary"),
+      }));
+
+      cheatsheetTerms = terms.map((t) => ({
+        id: String(t["id"]),
+        term: String(t["term"] ?? ""),
+        tags: tagsByTerm.get(String(t["id"])) ?? [],
+      }));
+    }
+  } catch {
+    // DB unreachable — keep empty.
+  }
+
+  /*
     The profiles, read alongside the catalog rather than after it.
 
     The editor's job is to move technologies between a profile's two lists, so it
@@ -307,6 +366,8 @@ export default async function AdminPage() {
       profiles={profiles}
       experienceDocument={experienceDocument}
       variants={variants}
+      cheatsheetTags={cheatsheetTags}
+      cheatsheetTerms={cheatsheetTerms}
       board={board}
       conversationList={conversationList}
       database={database}
