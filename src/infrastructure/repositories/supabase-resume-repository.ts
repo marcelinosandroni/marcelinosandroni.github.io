@@ -462,7 +462,11 @@ export class SupabaseResumeRepository implements ResumeRepository {
       }),
       skillGroups: groups.map((group, index) => ({
         label: text(group["label"]),
-        skills: (skillsByGroup[index]?.skills ?? []).map((s) => text(s["label"])),
+        skills: (skillsByGroup[index]?.skills ?? []).map((s) => ({
+          label: text(s["label"]),
+          description: s["description"] ? text(s["description"]) : undefined,
+          cheatsheetSlug: s["cheatsheet_slug"] ? String(s["cheatsheet_slug"]) : undefined,
+        })),
       })),
       education: education.map((row) => ({
         title: text(row["title"]),

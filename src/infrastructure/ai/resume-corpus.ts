@@ -85,10 +85,10 @@ function chunksFromResume(resume: ResumeContent, locale: Locale): KnowledgeChunk
     for (const [skillIndex, skill] of group.skills.entries()) {
       chunks.push({
         id: `${localeTag}:skill:${groupIndex}:${skillIndex}`,
-        source: { kind: "skill", group: group.label, skill },
-        label: `${group.label} — ${skill}`,
-        text: `${group.label}: ${skill}`,
-        keywords: [skill, group.label],
+        source: { kind: "skill", group: group.label, skill: skill.label },
+        label: `${group.label} — ${skill.label}`,
+        text: `${group.label}: ${skill.label}`,
+        keywords: [skill.label, group.label],
       });
     }
   }

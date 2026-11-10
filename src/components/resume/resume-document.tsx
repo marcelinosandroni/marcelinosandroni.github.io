@@ -236,7 +236,7 @@ export async function ResumeDocument({
         )}
 
         <ResumeExperienceList experiences={document_.experiences} t={t} />
-        <ResumeSkills resume={document_} t={t} />
+        <ResumeSkills resume={document_} t={t} locale={locale} />
         <ResumeEducationSection resume={document_} t={t} />
 
         <footer className="mt-space-2xl border-t border-border-subtle pt-space-xl">
@@ -423,7 +423,7 @@ function CaseRow({ label, body }: { label: string; body: string }) {
   );
 }
 
-function ResumeSkills({ resume, t }: { resume: ResumeContent; t: Dictionary }) {
+function ResumeSkills({ resume, t, locale }: { resume: ResumeContent; t: Dictionary; locale: string }) {
   return (
     <section id="skills" aria-labelledby="skills-heading" className="scroll-mt-24 pt-space-3xl">
       <SectionHeader
@@ -444,12 +444,14 @@ function ResumeSkills({ resume, t }: { resume: ResumeContent; t: Dictionary }) {
             </h3>
             <div className="mt-space-md flex flex-wrap gap-1.5">
               {group.skills.map((skill) => (
-                <span
-                  key={skill}
-                  className="rounded border border-border-subtle bg-surface-overlay px-2 py-0.5 font-label-mono text-[10px] uppercase text-text-secondary"
+                <a
+                  key={skill.label}
+                  href={skill.cheatsheetSlug ? `/${locale}/cheatsheet#${skill.cheatsheetSlug}` : `/${locale}/cheatsheet`}
+                  title={skill.description ?? skill.label}
+                  className="rounded border border-border-subtle bg-surface-overlay px-2 py-0.5 font-label-mono text-[10px] uppercase text-text-secondary transition-colors hover:border-primary-container hover:text-primary-container"
                 >
-                  {skill}
-                </span>
+                  {skill.label}
+                </a>
               ))}
             </div>
           </article>

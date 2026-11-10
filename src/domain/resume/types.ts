@@ -102,9 +102,15 @@ export type ResumeExperience = {
   surfaces?: readonly Surface[];
 };
 
+export type ResumeSkill = {
+  label: string;
+  description?: string;
+  cheatsheetSlug?: string;
+};
+
 export type ResumeSkillGroup = {
   label: string;
-  skills: string[];
+  skills: ResumeSkill[];
 };
 
 export type ResumeEducation = {

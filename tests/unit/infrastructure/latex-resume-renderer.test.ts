@@ -32,7 +32,7 @@ const sampleContent = {
   skillGroups: [
     {
       label: "Backend",
-      skills: ["C#", "Java", "Node.js"],
+      skills: [{ label: "C#" }, { label: "Java" }, { label: "Node.js" }],
     },
   ],
   education: [

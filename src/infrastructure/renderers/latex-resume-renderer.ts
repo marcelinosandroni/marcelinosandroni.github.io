@@ -219,7 +219,7 @@ export class LaTeXResumeRenderer implements ResumeDocumentRenderer {
   }
 
   private renderSkills(
-    groups: Array<{ label: string; skills: string[] }>,
+    groups: Array<{ label: string; skills: Array<{ label: string; description?: string; cheatsheetSlug?: string }> }>,
     title: string,
   ): string {
     if (groups.length === 0) return "";
@@ -228,7 +228,7 @@ export class LaTeXResumeRenderer implements ResumeDocumentRenderer {
       "\\begin{tabularx}{\\linewidth}{@{}p{0.25\\linewidth}X@{}}",
       ...groups.map(
         (group) =>
-          `${escapeLatex(group.label)} & ${group.skills.map((skill) => escapeLatex(skill)).join(", ")} \\\\`,
+          `${escapeLatex(group.label)} & ${group.skills.map((skill) => escapeLatex(skill.label)).join(", ")} \\\\`,
       ),
       "\\end{tabularx}",
     ].join("\n");
