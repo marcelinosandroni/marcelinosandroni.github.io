@@ -108,6 +108,7 @@ export async function HomeView({
     { key: "experience", label: t.nav.experience, href: `#${home.trackRecord.id}` },
     { key: "blog", label: t.nav.blog, href: blogPath(locale) },
     { key: "resume", label: t.nav.resume, href: resumePath(locale) },
+    { key: "cheatsheet", label: "Cheatsheet", href: `/${locale}/cheatsheet` },
   ];
 
   return (
