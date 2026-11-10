@@ -42,6 +42,8 @@ export type WritableTable =
   | "resume_skill"
   | "resume_education"
   | "resume_language"
+  | "cheatsheet_category"
+  | "cheatsheet_term"
   | "resume_variant"
   | "resume_variant_metric"
   | "resume_variant_inventory"
@@ -90,6 +92,8 @@ const WRITABLE: ReadonlySet<string> = new Set<WritableTable>([
   "resume_skill",
   "resume_education",
   "resume_language",
+  "cheatsheet_category",
+  "cheatsheet_term",
   "resume_variant",
   "resume_variant_metric",
   "resume_variant_inventory",
@@ -683,4 +687,62 @@ export async function readVariantList(locale: Locale): Promise<
     headline: String(row["headline"] ?? ""),
     sortOrder: typeof row["sort_order"] === "number" ? row["sort_order"] : 0,
   }));
+}
+
+/**
+ * The cheatsheet content, for the page.
+ *
+ * Reads from `cheatsheet_category` and `cheatsheet_term`. Returns `null` when
+ * Supabase is not configured, so the page falls back to the typed catalog.
+ */
+export async function readCheatsheetContent(locale: Locale): Promise<{
+  categories: Array<{
+    id: string;
+    title: string;
+    icon: string;
+    terms: Array<{ term: string; definition: string; example?: string }>;
+  }>;
+} | null> {
+  const config = supabaseReadConfigFromEnv();
+
+  if (!config.configured) {
+    return null;
+  }
+
+  const { url, publishableKey: key } = config;
+
+  const categories = await fetchRows(url, key, "cheatsheet_category", {
+    locale: `eq.${locale}`,
+    order: "sort_order.asc",
+  });
+
+  const categoryIds = categories.map((c) => String(c["id"]));
+  const terms = categoryIds.length === 0
+    ? []
+    : await fetchRows(url, key, "cheatsheet_term", {
+        category_id: `in.(${categoryIds.join(",")})`,
+        locale: `eq.${locale}`,
+        order: "sort_order.asc",
+      });
+
+  const termsByCategory = new Map<string, Array<Record<string, unknown>>>();
+  for (const t of terms) {
+    const cid = String(t["category_id"]);
+    const list = termsByCategory.get(cid) ?? [];
+    list.push(t);
+    termsByCategory.set(cid, list);
+  }
+
+  return {
+    categories: categories.map((cat) => ({
+      id: String(cat["id"]),
+      title: String(cat["title"] ?? ""),
+      icon: String(cat["icon"] ?? ""),
+      terms: (termsByCategory.get(String(cat["id"])) ?? []).map((t) => ({
+        term: String(t["term"] ?? ""),
+        definition: String(t["definition"] ?? ""),
+        example: t["example"] ? String(t["example"]) : undefined,
+      })),
+    })),
+  };
 }

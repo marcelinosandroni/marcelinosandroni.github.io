@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import type { CheatsheetCategory, CheatsheetContent, CheatsheetTerm } from "@/infrastructure/content/cheatsheet/cheatsheet-content";
+import type { CheatsheetContent } from "@/infrastructure/content/cheatsheet/cheatsheet-content";
 
 export function CheatsheetView({ content }: { content: CheatsheetContent }): React.ReactElement {
   const [search, setSearch] = useState("");
