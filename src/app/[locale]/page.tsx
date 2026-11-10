@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { HomeView } from "@/components/home/home-view";
+import { AdminEditIndicator } from "@/components/admin/admin-edit-indicator";
 import { toLocale } from "@/domain/i18n";
 import { isFeatureEnabled } from "@/domain/feature-flags/feature-flags";
 import { getHomeContent } from "@/infrastructure/content/home";
@@ -69,13 +70,16 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
   ]);
 
   return (
-    <HomeView
-      locale={locale}
-      resume={resume}
-      stack={stack}
-      annotations={annotations}
-      testimonials={testimonials}
-      testimonialsEnabled={isFeatureEnabled("testimonials")}
-    />
+    <>
+      <HomeView
+        locale={locale}
+        resume={resume}
+        stack={stack}
+        annotations={annotations}
+        testimonials={testimonials}
+        testimonialsEnabled={isFeatureEnabled("testimonials")}
+      />
+      <AdminEditIndicator section="home" label="Edit Home" />
+    </>
   );
 }
