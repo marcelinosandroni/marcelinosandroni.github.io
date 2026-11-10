@@ -42,6 +42,11 @@ export type WritableTable =
   | "resume_skill"
   | "resume_education"
   | "resume_language"
+  | "resume_variant"
+  | "resume_variant_metric"
+  | "resume_variant_inventory"
+  | "resume_variant_role"
+  | "resume_variant_role_bullet"
   | "tech_stack_cluster"
   | "tech_stack_item"
   | "track_record_annotation"
@@ -85,6 +90,11 @@ const WRITABLE: ReadonlySet<string> = new Set<WritableTable>([
   "resume_skill",
   "resume_education",
   "resume_language",
+  "resume_variant",
+  "resume_variant_metric",
+  "resume_variant_inventory",
+  "resume_variant_role",
+  "resume_variant_role_bullet",
   "tech_stack_cluster",
   "tech_stack_item",
   "track_record_annotation",
@@ -632,4 +642,45 @@ async function fetchRows(
   const data = (await response.json()) as unknown;
 
   return Array.isArray(data) ? (data as Array<Record<string, unknown>>) : [];
+}
+
+/**
+ * The variants, for the admin.
+ *
+ * Reads from `resume_variant` and its children. Returns `null` when Supabase is
+ * not configured, so the editor can say "needs the database" rather than
+ * rendering an empty list that looks like "you have no variants".
+ */
+export async function readVariantList(locale: Locale): Promise<
+  | ReadonlyArray<{
+      id: string;
+      slug: string;
+      label: string;
+      title: string;
+      headline: string;
+      sortOrder: number;
+    }>
+  | null
+> {
+  const config = supabaseReadConfigFromEnv();
+
+  if (!config.configured) {
+    return null;
+  }
+
+  const { url, publishableKey: key } = config;
+
+  const variants = await fetchRows(url, key, "resume_variant", {
+    locale: `eq.${locale}`,
+    order: "sort_order.asc",
+  });
+
+  return variants.map((row) => ({
+    id: String(row["id"]),
+    slug: String(row["slug"] ?? ""),
+    label: String(row["label"] ?? ""),
+    title: String(row["title"] ?? ""),
+    headline: String(row["headline"] ?? ""),
+    sortOrder: typeof row["sort_order"] === "number" ? row["sort_order"] : 0,
+  }));
 }

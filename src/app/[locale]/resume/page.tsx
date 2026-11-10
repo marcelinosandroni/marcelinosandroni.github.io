@@ -17,6 +17,7 @@ import {
 import { resumeVariantLabel } from "@/domain/publication/resume-variant";
 import { applyFocus, narrowDocument, type FocusExpansion } from "@/domain/resume/focus";
 import { getDictionary } from "@/i18n";
+import { AdminEditIndicator } from "@/components/admin/admin-edit-indicator";
 
 const SUFFIX = "/resume";
 
@@ -232,18 +233,21 @@ export default async function Page({
   const focusedForPage = narrowed === null ? undefined : narrowDocument(resume, narrowed);
 
   return (
-    <ResumeDocument
-      locale={locale}
-      resume={resume}
-      profiles={selectable.map((entry) => ({
-        slug: entry.profile.slug,
-        label: entry.profile.label,
-        description: entry.profile.description,
-      }))}
-      selectedProfile={selected?.profile.slug ?? null}
-      focused={focusedForPage}
-      narrowedRoles={narrowed?.narrowedRoles ?? 0}
-      untaggedDropped={narrowed?.untaggedDropped ?? 0}
-    />
+    <>
+      <ResumeDocument
+        locale={locale}
+        resume={resume}
+        profiles={selectable.map((entry) => ({
+          slug: entry.profile.slug,
+          label: entry.profile.label,
+          description: entry.profile.description,
+        }))}
+        selectedProfile={selected?.profile.slug ?? null}
+        focused={focusedForPage}
+        narrowedRoles={narrowed?.narrowedRoles ?? 0}
+        untaggedDropped={narrowed?.untaggedDropped ?? 0}
+      />
+      <AdminEditIndicator section="resume" label="Edit Resume" />
+    </>
   );
 }

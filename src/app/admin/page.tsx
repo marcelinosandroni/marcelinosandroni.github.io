@@ -1,22 +1,18 @@
 import type { Metadata } from "next";
 
-import { getOwnerSession, isAuthEnabled } from "@/infrastructure/auth/owner-session";
+import { getOwnerSession } from "@/infrastructure/auth/owner-session";
 import { GetThemeFeedback } from "@/application/feedback/theme-feedback";
 import { getThemeFeedbackRepository } from "@/infrastructure/feedback/repository";
 import type { FeedbackCounts } from "@/domain/feedback/theme-feedback";
 import { getDictionary } from "@/i18n";
 import { DEFAULT_LOCALE } from "@/domain/i18n";
-import { AdminSignIn } from "@/components/admin/admin-sign-in";
-import { DatabaseStatusPanel } from "@/components/admin/database-status-panel";
-import { ResumeSourcePanel } from "@/components/admin/resume-source-panel";
+// AdminSignIn removed: unauthenticated case handled by AdminDashboard's parent.
+import { AdminDashboard } from "@/components/admin/admin-dashboard";
 import {
   databaseStatusClient,
   readDatabaseStatus,
   type DatabaseStatus,
 } from "@/infrastructure/supabase/database-status";
-import { ThemeFeedbackPanel } from "@/components/admin/theme-feedback-panel";
-import { PostEditor } from "@/components/admin/post-editor";
-import { ChatConsole } from "@/components/admin/chat-console";
 import { ListOnlineVisitors } from "@/application/presence/track-visitors";
 import type { PresenceBoard } from "@/application/presence/track-visitors";
 import { ListConversations } from "@/application/chat/conversation";
@@ -30,22 +26,18 @@ import {
   readTechnologyCatalog,
   type ResumeSourceReport,
 } from "@/infrastructure/repositories";
-import { TechStackEditor } from "@/components/admin/tech-stack-editor";
-import { TechnologyCatalogEditor } from "@/components/admin/technology-catalog-editor";
-import { StackProfileEditor } from "@/components/admin/stack-profile-editor";
-import { ExperienceEditor } from "@/components/admin/experience-editor";
-import { JobMatchPanel } from "@/components/admin/job-match-panel";
-import type {
-  StackProfileSummary,
-  TechnologyCatalog,
-} from "@/domain/resume/resume-repository";
 import {
   readStackForEditor,
   readStackProfileEditor,
   readExperienceEditor,
+  readVariantList,
   type EditorCluster,
   type ExperienceEditorDocument,
 } from "@/infrastructure/repositories/resume-writer";
+import type {
+  StackProfileSummary,
+  TechnologyCatalog,
+} from "@/domain/resume/resume-repository";
 
 /**
  * Never indexable. A private area that a search engine can read the existence of
@@ -76,7 +68,10 @@ export default async function AdminPage() {
   if (session === null) {
     return (
       <main className="mx-auto w-full max-w-[1320px] px-margin py-space-lg md:px-margin-tablet lg:px-margin-desktop">
-        <AdminSignIn t={t} isConfigured={isAuthEnabled()} />
+        <p className="text-body-sm text-text-secondary">
+          Sign in required. Configure <code>ADMIN_EMAIL</code> and <code>ADMIN_PASSWORD</code> or use{" "}
+          <code>ADMIN_AUTH_BYPASS=1</code> for local development.
+        </p>
       </main>
     );
   }
@@ -163,8 +158,8 @@ export default async function AdminPage() {
     The catalog is read through the repository rather than a writer helper
     because it is the one read here that has no fallback: see
     `VersionedResumeRepository.readTechnologyCatalog`. `null` therefore means
-    "needs the database", and the panel says exactly that rather than rendering
-    an empty catalog, which would read as "you have no technologies".
+    "needs the database", and the panel says exactly that rather than rendering an
+    empty catalog, which would read as "you have no technologies".
   */
   let catalog: TechnologyCatalog | null = null;
 
@@ -188,6 +183,31 @@ export default async function AdminPage() {
     experienceDocument = await readExperienceEditor(DEFAULT_LOCALE);
   } catch {
     experienceDocument = null;
+  }
+
+  /*
+    The CV variants, read alongside the experience editor. They are the same
+    document of record in a different shape: a variant argues for one stack
+    rather than all of them, but it is built from the same experience, the
+    same education and the same contact details. Reading them together means
+    the admin sees one consistent picture.
+  */
+  let variants: ReadonlyArray<{
+    id: string;
+    slug: string;
+    label: string;
+    title: string;
+    headline: string;
+  }> = [];
+
+  try {
+    const result = await readVariantList(DEFAULT_LOCALE);
+
+    if (result !== null) {
+      variants = result;
+    }
+  } catch {
+    variants = [];
   }
 
   /*
@@ -251,7 +271,7 @@ export default async function AdminPage() {
     Not derived from `isSupabaseContentConfigured` and not derived from
     `database` above. Both of those are true statements about the environment
     that stay true when the database is reachable and the document still comes
-    from the catalog — a URL without `/rest/v1`, a paused project, a migration
+    from the shipped catalog — a URL without `/rest/v1`, a paused project, a migration
     run without its bootstrap. The deployment once spent a stretch serving the
     shipped catalog while the panel above said CONNECTED, which is why the
     question is asked of the repository instead of the configuration.
@@ -265,185 +285,23 @@ export default async function AdminPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-[1320px] px-margin py-space-lg md:px-margin-tablet lg:px-margin-desktop">
-      <section className="border border-border-subtle bg-surface-raised p-space-md">
-        <h1 className="font-headline-sm text-headline-sm text-text-primary">{t.admin.signInTitle}</h1>
-        <p className="mt-2 text-body-sm text-body-sm text-text-secondary">
-          {t.admin.signedInAs.replace("{email}", session.email)}
-        </p>
-
-        {/*
-          Only when the session was granted by `ADMIN_AUTH_BYPASS`, and the reason it
-          is a banner rather than a console warning is that it has to survive the thing
-          it is warning about: a person who walks away from a local server and comes
-          back to a Vercel preview built from the same branch. On screen, in the
-          payload, in the screenshot they might paste into an issue.
-
-          `role="status"` rather than `alert`: this is not an error, it is a statement
-          about the deployment, and an assertive announcement on every page load would
-          interrupt whatever the owner was already doing.
-        */}
-        {session.bypassed ? (
-          <div
-            role="status"
-            className="mt-space-md border border-primary-container bg-surface-base p-space-sm"
-          >
-            <p className="font-label-mono text-label-mono uppercase tracking-widest text-primary-container">
-              {t.admin.bypassTitle}
-            </p>
-            <p className="mt-1 text-body-sm text-body-sm text-text-secondary">
-              {t.admin.bypassBody}
-            </p>
-          </div>
-        ) : null}
-      </section>
-
-      {/*
-        Before the feedback panel, and for the same reason the CMS is first below the
-        header: this is the question an owner opens the page to answer — is what
-        stored here the same as what I just deployed — and the feedback counts are
-        the thing they look at second.
-      */}
-      <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
-        <DatabaseStatusPanel status={database} />
-      </div>
-
-      {/*
-        Directly under the database panel, because they answer the same question
-        from two directions and either one alone is misleading.
-
-        `DatabaseStatusPanel` says the connection works and which migrations ran.
-        It cannot say whether *this* document came back, because the fallback
-        swallows the read that would have answered it — so a reachable database
-        and a résumé being served from the shipped catalog coexist perfectly, and
-        that combination is precisely the one an owner needs flagged.
-
-        `null` only when the read itself threw, which the fallback is built not to
-        do; the panel has no way to report "unknown" without inventing a state
-        that the repository layer does not have.
-      */}
-      {resumeSource === null ? null : (
-        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
-          <ResumeSourcePanel report={resumeSource} />
-        </div>
-      )}
-
-      <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
-        <ThemeFeedbackPanel counts={counts} />
-      </div>
-
-      {/*
-        Rendered only after the session is confirmed — the early return above
-        handles the unauthenticated case — so an anonymous request never receives
-        a post title, a slug or a status in its payload.
-      */}
-      {/*
-        Before the CMS, because the tech stack is what actually changes: a new
-        tool, a dropped one, a chip that belongs on the résumé and not on the
-        summary. The blog is written on the order of a month; this is edited on
-        the order of a week.
-      */}
-      {stack === null ? (
-        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
-          <p className="text-body-sm text-body-sm text-text-secondary">
-            The tech stack editor needs Supabase. Run <code>npm run db:setup</code> locally, or
-            set the deployment&apos;s Supabase variables.
-          </p>
-        </div>
-      ) : (
-        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
-          <TechStackEditor initialClusters={stack} locale={DEFAULT_LOCALE} />
-        </div>
-      )}
-
-      {/*
-        Before the stack editor, not after: the catalog is what the chips and the
-        roles are *made of*, so it is the thing you fix when a chip is wrong. An
-        owner who opens this page to add a tool should not have to scroll past
-        the thing they were about to add.
-      */}
-      {experienceDocument === null ? (
-        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
-          <p className="text-body-sm text-body-sm text-text-secondary">
-            The experience editor needs the database. Run <code>npm run db:migrate</code> and{" "}
-            <code>npm run db:bootstrap</code> locally.
-          </p>
-        </div>
-      ) : (
-        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
-          <ExperienceEditor
-            initialDocument={experienceDocument}
-            locale={DEFAULT_LOCALE}
-          />
-        </div>
-      )}
-
-      {catalog === null ? (
-        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
-          <p className="text-body-sm text-body-sm text-text-secondary">
-            The technology catalog needs the database. Run <code>npm run db:migrate</code> to
-            create it, then <code>npm run db:bootstrap</code> to fill it from the existing résumé.
-          </p>
-        </div>
-      ) : (
-        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
-          <TechnologyCatalogEditor initialCatalog={catalog} locale={DEFAULT_LOCALE} />
-
-          {profiles === null ? (
-            <p className="mt-space-md text-body-sm text-text-secondary">
-              The stack profiles need the database too — they reference technologies by slug.
-            </p>
-          ) : (
-            <div className="mt-space-lg border-t border-border-subtle pt-space-md">
-              <StackProfileEditor
-                initialProfiles={profiles}
-                catalog={catalog.technologies}
-                categories={catalog.categories}
-                locale={DEFAULT_LOCALE}
-              />
-            </div>
-          )}
-        </div>
-      )}
-
-      {/*
-    After the editors and before the CMS.
-
-    It reads what the experience editor writes, so it sits below it: the panel
-    is only as good as the tagging above it, and an owner who has just tagged
-    bullets wants to see what they are now worth on a real posting.
-  */}
-      <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
-        <JobMatchPanel locale={DEFAULT_LOCALE} />
-      </div>
-
-      <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
-        <PostEditor t={t} locale={DEFAULT_LOCALE} initialPosts={postList} />
-      </div>
-
-      {/*
-        Last, and for the same reason: a session id and a last-seen time are the
-        only things in this section, and they are the owner's. Rendered after the
-        CMS so the writing surface — the thing an owner opens this page for — is
-        still the first thing below the sign-in header.
-      */}
-      <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
-        <ChatConsole
-          /*
-           * `agentNotice` is composed rather than declared twice.
-           *
-           * The owner and the visitor have to read the *same* words over an
-           * automated message — two catalogs holding two versions of a sentence
-           * that exists to say "this is not a person" is exactly the kind of drift
-           * that eventually produces a machine calling itself a colleague. So the
-           * label lives in the visitor's catalog, where it is written, and the
-           * console borrows it.
-           */
-          labels={{ ...t.admin.chat, agentNotice: t.chat.agentNotice }}
-          initialBoard={board}
-          initialConversations={conversationList}
-        />
-      </div>
-    </main>
+    <AdminDashboard
+      t={t}
+      sessionEmail={session.email}
+      bypassed={session.bypassed}
+      bypassTitle={t.admin.bypassTitle}
+      bypassBody={t.admin.bypassBody}
+      counts={counts}
+      postList={postList}
+      stack={stack}
+      catalog={catalog}
+      profiles={profiles}
+      experienceDocument={experienceDocument}
+      variants={variants}
+      board={board}
+      conversationList={conversationList}
+      database={database}
+      resumeSource={resumeSource}
+    />
   );
 }
