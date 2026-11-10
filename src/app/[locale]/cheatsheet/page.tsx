@@ -37,7 +37,7 @@ export default async function CheatsheetPage({
           id: cat.id,
           title: cat.title,
           icon: cat.icon,
-          terms: cat.terms.map((t) => ({ term: t.term, definition: t.definition, example: t.example })),
+          terms: cat.terms.map((t) => ({ term: t.term, definition: t.definition, example: t.example, tags: t.tags })),
         })),
       };
     }
