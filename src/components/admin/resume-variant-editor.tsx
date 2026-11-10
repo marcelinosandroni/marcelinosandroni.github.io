@@ -44,7 +44,7 @@ export function ResumeVariantEditor({
   const [newSlug, setNewSlug] = useState("");
   const [newTitle, setNewTitle] = useState("");
   const [newHeadline, setNewHeadline] = useState("");
-  const { status, pending, write } = useAdminWrite();
+  const { status, pending, write } = useAdminWrite("/api/admin/resume/variants");
 
   return (
     <div>
