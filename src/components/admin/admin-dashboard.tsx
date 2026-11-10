@@ -67,6 +67,15 @@ export function AdminDashboard({
     label: string;
     title: string;
     headline: string;
+    summaryLead?: string;
+    summaryBody?: string;
+    metrics?: ReadonlyArray<readonly [string, string, string]>;
+    inventory?: ReadonlyArray<readonly [string, string]>;
+    roles?: ReadonlyArray<{
+      key: string;
+      stack: string | null;
+      bullets: ReadonlyArray<readonly [string, string]>;
+    }>;
   }>;
   experienceDocument: ExperienceEditorDocument | null;
   board: PresenceBoard | null;

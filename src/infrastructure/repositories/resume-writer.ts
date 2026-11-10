@@ -666,6 +666,15 @@ export async function readVariantList(locale: Locale): Promise<
       label: string;
       title: string;
       headline: string;
+      summaryLead: string;
+      summaryBody: string;
+      metrics: ReadonlyArray<readonly [string, string, string]>;
+      inventory: ReadonlyArray<readonly [string, string]>;
+      roles: ReadonlyArray<{
+        key: string;
+        stack: string | null;
+        bullets: ReadonlyArray<readonly [string, string]>;
+      }>;
       sortOrder: number;
     }>
   | null
@@ -683,14 +692,99 @@ export async function readVariantList(locale: Locale): Promise<
     order: "sort_order.asc",
   });
 
-  return variants.map((row) => ({
-    id: String(row["id"]),
-    slug: String(row["slug"] ?? ""),
-    label: String(row["label"] ?? ""),
-    title: String(row["title"] ?? ""),
-    headline: String(row["headline"] ?? ""),
-    sortOrder: typeof row["sort_order"] === "number" ? row["sort_order"] : 0,
-  }));
+  if (variants.length === 0) {
+    return [];
+  }
+
+  const variantIds = variants.map((v) => String(v["id"]));
+
+  const [metrics, inventory, roles] = await Promise.all([
+    fetchRows(url, key, "resume_variant_metric", {
+      variant_id: `in.(${variantIds.join(",")})`,
+      order: "sort_order.asc",
+    }),
+    fetchRows(url, key, "resume_variant_inventory", {
+      variant_id: `in.(${variantIds.join(",")})`,
+      order: "sort_order.asc",
+    }),
+    fetchRows(url, key, "resume_variant_role", {
+      variant_id: `in.(${variantIds.join(",")})`,
+      order: "sort_order.asc",
+    }),
+  ]);
+
+  const roleIds = roles.map((r) => String(r["id"]));
+  const bullets = roleIds.length === 0
+    ? []
+    : await fetchRows(url, key, "resume_variant_role_bullet", {
+        role_id: `in.(${roleIds.join(",")})`,
+        order: "sort_order.asc",
+      });
+
+  const metricsByVariant = new Map<string, Array<Record<string, unknown>>>();
+  for (const m of metrics) {
+    const vid = String(m["variant_id"]);
+    const list = metricsByVariant.get(vid) ?? [];
+    list.push(m);
+    metricsByVariant.set(vid, list);
+  }
+
+  const inventoryByVariant = new Map<string, Array<Record<string, unknown>>>();
+  for (const inv of inventory) {
+    const vid = String(inv["variant_id"]);
+    const list = inventoryByVariant.get(vid) ?? [];
+    list.push(inv);
+    inventoryByVariant.set(vid, list);
+  }
+
+  const rolesByVariant = new Map<string, Array<Record<string, unknown>>>();
+  for (const r of roles) {
+    const vid = String(r["variant_id"]);
+    const list = rolesByVariant.get(vid) ?? [];
+    list.push(r);
+    rolesByVariant.set(vid, list);
+  }
+
+  const bulletsByRole = new Map<string, Array<Record<string, unknown>>>();
+  for (const b of bullets) {
+    const rid = String(b["role_id"]);
+    const list = bulletsByRole.get(rid) ?? [];
+    list.push(b);
+    bulletsByRole.set(rid, list);
+  }
+
+  return variants.map((v) => {
+    const vid = String(v["id"]);
+    const vRoles = rolesByVariant.get(vid) ?? [];
+
+    return {
+      id: vid,
+      slug: String(v["slug"] ?? ""),
+      label: String(v["label"] ?? ""),
+      title: String(v["title"] ?? ""),
+      headline: String(v["headline"] ?? ""),
+      summaryLead: "",
+      summaryBody: "",
+      metrics: (metricsByVariant.get(vid) ?? []).map((m) => [
+        String(m["value"] ?? ""),
+        String(m["label"] ?? ""),
+        String(m["caption"] ?? ""),
+      ] as readonly [string, string, string]),
+      inventory: (inventoryByVariant.get(vid) ?? []).map((inv) => [
+        String(inv["group_label"] ?? ""),
+        String(inv["items"] ?? ""),
+      ] as readonly [string, string]),
+      roles: vRoles.map((r) => ({
+        key: String(r["role_key"] ?? ""),
+        stack: r["stack"] ? String(r["stack"]) : null,
+        bullets: (bulletsByRole.get(String(r["id"])) ?? []).map((b) => [
+          String(b["label"] ?? ""),
+          String(b["body"] ?? ""),
+        ] as readonly [string, string]),
+      })),
+      sortOrder: typeof v["sort_order"] === "number" ? v["sort_order"] : 0,
+    };
+  });
 }
 
 /**
@@ -746,6 +840,7 @@ export async function readCheatsheetContent(locale: Locale): Promise<{
         term: String(t["term"] ?? ""),
         definition: String(t["definition"] ?? ""),
         example: t["example"] ? String(t["example"]) : undefined,
+        tags: Array.isArray(t["tags"]) ? (t["tags"] as string[]) : undefined,
       })),
     })),
   };
