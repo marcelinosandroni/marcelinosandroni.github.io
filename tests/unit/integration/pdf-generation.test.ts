@@ -30,7 +30,7 @@ const sampleContent = {
   skillGroups: [
     {
       label: "Technologies",
-      skills: ["TypeScript", "React"],
+      skills: [{ label: "TypeScript" }, { label: "React" }],
     },
   ],
   education: [

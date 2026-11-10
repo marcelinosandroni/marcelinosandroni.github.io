@@ -120,7 +120,7 @@ const DOCUMENT = {
     { company: "Pollux", highlights: ["React work", "Node work", "Untagged"] },
     { company: "Antlia", highlights: [".NET work", "Also untagged"] },
   ],
-  skillGroups: [{ label: "Backend", skills: ["Java", "TypeScript", "Python"] }],
+  skillGroups: [{ label: "Backend", skills: [{ label: "Java" }, { label: "TypeScript" }, { label: "Python" }] }],
 };
 
 const INDEX: ResumeStackIndex = {

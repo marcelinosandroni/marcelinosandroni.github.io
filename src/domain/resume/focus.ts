@@ -431,7 +431,7 @@ export function applyFocus(
       readonly highlights: readonly string[];
       readonly caseStudies?: ReadonlyArray<{ title: string }>;
     }>;
-    readonly skillGroups: ReadonlyArray<{ label: string; skills: readonly string[] }>;
+    readonly skillGroups: ReadonlyArray<{ label: string; skills: readonly { label: string; description?: string; cheatsheetSlug?: string }[] }>;
   },
   focus: FocusExpansion,
 ): FocusResult {

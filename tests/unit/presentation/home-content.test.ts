@@ -522,7 +522,8 @@ describe("copy rules: technical arsenal taxonomy", () => {
         expect(declared.size, cluster.title).toBeGreaterThan(0);
 
         for (const item of cluster.items) {
-          expect(declared.has(item), `${cluster.title}: "${item}"`).toBe(true);
+          const found = [...declared].some((s) => s.label === item);
+          expect(found, `${cluster.title}: "${item}"`).toBe(true);
         }
       }
     });
