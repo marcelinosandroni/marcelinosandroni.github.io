@@ -44,6 +44,8 @@ export type WritableTable =
   | "resume_language"
   | "cheatsheet_category"
   | "cheatsheet_term"
+  | "cheatsheet_tag"
+  | "cheatsheet_term_tag"
   | "resume_variant"
   | "resume_variant_metric"
   | "resume_variant_inventory"
@@ -94,6 +96,8 @@ const WRITABLE: ReadonlySet<string> = new Set<WritableTable>([
   "resume_language",
   "cheatsheet_category",
   "cheatsheet_term",
+  "cheatsheet_tag",
+  "cheatsheet_term_tag",
   "resume_variant",
   "resume_variant_metric",
   "resume_variant_inventory",
@@ -700,7 +704,7 @@ export async function readCheatsheetContent(locale: Locale): Promise<{
     id: string;
     title: string;
     icon: string;
-    terms: Array<{ term: string; definition: string; example?: string }>;
+    terms: Array<{ term: string; definition: string; example?: string; tags?: string[] }>;
   }>;
 } | null> {
   const config = supabaseReadConfigFromEnv();
