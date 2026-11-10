@@ -165,15 +165,15 @@ export const variants: ReadonlyArray<Variant> = [
     inventory: [
       [
         "Frontend &amp; UI Architecture",
-        "Angular (8 ao 22), TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends, Estado/Reatividade (RxJS, NgRx), SSR, Tailwind CSS, Angular Material, Design Systems.",
+        "Angular (8 ao 22), React (16 ao 19), Next, TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends, Estado/Reatividade, SSR, Tailwind CSS, Angular Material, Design Systems.",
       ],
       [
         "Backend &amp; Frameworks",
-        "Java (8 ao 25), Spring Boot 3.x (AOT/GraalVM), Spring Cloud, Spring WebFlux, Spring Batch, Spring Security (OAuth2, OIDC, JWT, mTLS), Hibernate/JPA (N+1), Tuning de JVM (ZGC/G1GC).",
+        "Java (8 ao 25), Spring Boot 3.x, Spring Cloud, Spring WebFlux, Spring Batch, Spring Security (OAuth2, OIDC, JWT, mTLS), Hibernate/JPA, Quarkus, Go, NodeJS (NestJS, Express).",
       ],
       [
         "Inteligência Artificial &amp; Dados",
-        "LLMs corporativos via Spring AI e LangChain4j, Amazon Bedrock (Claude/Titan), RAG, Agentic Workflows (Function Calling), Vector Databases (pgvector, Milvus).",
+        "LLMs corporativos via Spring AI e LangChain4j, Python, LangChain/LangGraph, Amazon Bedrock (Claude/Titan), RAG, Agentic Workflows (Function Calling), Vector DBs (pgvector, Milvus).",
       ],
       [
         "Cloud &amp; DevOps",

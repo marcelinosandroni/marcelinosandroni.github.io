@@ -44,6 +44,8 @@
     "db:keys": "tsx scripts/db-local-keys.ts",
     "db:migrate": "tsx scripts/db-migrate.ts",
     "db:bootstrap": "tsx scripts/db-seed-resume.ts",
+    "db:sync": "tsx scripts/db-sync.ts",
+    "db:sync:dry": "tsx scripts/db-sync.ts --dry",
     "db:setup": "npm run db:up && npm run db:keys && npm run db:migrate && npm run db:bootstrap"
   },
   "dependencies": {
