@@ -25,6 +25,7 @@ import { StackProfileEditor } from "@/components/admin/stack-profile-editor";
 import { ExperienceEditor } from "@/components/admin/experience-editor";
 import { JobMatchPanel } from "@/components/admin/job-match-panel";
 import { ResumeVariantEditor } from "@/components/admin/resume-variant-editor";
+import { CheatsheetTagEditor } from "@/components/admin/cheatsheet-tag-editor";
 
 /**
  * The client-side dashboard that owns the active section.
@@ -50,6 +51,8 @@ export function AdminDashboard({
   database,
   resumeSource,
   variants,
+  cheatsheetTags,
+  cheatsheetTerms,
 }: {
   t: Dictionary;
   sessionEmail: string;
@@ -77,6 +80,8 @@ export function AdminDashboard({
       bullets: ReadonlyArray<readonly [string, string]>;
     }>;
   }>;
+  cheatsheetTags: ReadonlyArray<{ id: string; slug: string; label: string; color: string }>;
+  cheatsheetTerms: ReadonlyArray<{ id: string; term: string; tags: string[] }>;
   experienceDocument: ExperienceEditorDocument | null;
   board: PresenceBoard | null;
   conversationList: ReadonlyArray<ConversationSummary> | null;
@@ -206,6 +211,16 @@ export function AdminDashboard({
               locale="pt-BR"
             />
           )}
+        </div>
+      ) : null}
+
+      {active === "cheatsheet" ? (
+        <div className="mt-space-lg border border-border-subtle bg-surface-raised p-space-md">
+          <CheatsheetTagEditor
+            initialTags={cheatsheetTags}
+            initialTerms={cheatsheetTerms}
+            locale="pt-BR"
+          />
         </div>
       ) : null}
 
