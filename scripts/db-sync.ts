@@ -1,30 +1,38 @@
 /**
- * Syncs résumé content from Supabase to a JSON snapshot.
+ * Syncs résumé content from Supabase to the typed catalog files.
  *
- * ## Why a snapshot and not the typed catalog files
+ * ## Why this exists
  *
- * The typed catalog files (`resume-data.ts`, `stack-variants.pt-br.ts`) are
- * hand-maintained TypeScript with rich types, comments and derived logic. Rewriting
- * them from the database would destroy that structure and make diffs unreadable.
+ * The PDFs are built from static TypeScript files (`scripts/data/stack-variants.pt-br.ts`,
+ * `src/infrastructure/content/resume-data.ts`, etc.). The site reads from Supabase
+ * with a fallback to the typed catalog. When the owner edits content in `/admin`,
+ * the database changes but the static files do not — so the next PDF build would
+ * use stale content.
  *
- * Instead, this script writes a JSON snapshot (`public/artifacts/db-snapshot.json`)
- * that the build pipeline can read when available. The typed catalog remains the
- * fallback, so a build without database access still works — it just uses the
- * last committed catalog.
+ * This script reads from Supabase and regenerates the static files, so the PDF
+ * build always reflects the current database state. It is the bridge between the
+ * editable database and the build pipeline that needs files on disk.
  *
  * ## Usage
  *
- *   npm run db:sync          # reads from Supabase, writes snapshot
+ *   npm run db:sync          # reads from Supabase, writes to src/infrastructure/content/
  *   npm run db:sync -- --dry # prints what would change without writing
  *
  * ## What it syncs
  *
- * - resume_profile, resume_experience, resume_highlight, resume_case_study,
- *   resume_technology, resume_skill_group, resume_skill, resume_education,
- *   resume_language
- * - resume_variant + children (metrics, inventory, roles, bullets)
- * - cheatsheet_category, cheatsheet_term, cheatsheet_tag, cheatsheet_term_tag
- * - home_content
+ * - resume_profile → resume-data.ts (name, title, summary, contact)
+ * - resume_experience + highlights + case_studies + technologies → resume-data.ts (experiences)
+ * - resume_skill_group + resume_skill → resume-data.ts (skillGroups)
+ * - resume_education → resume-data.ts (education)
+ * - resume_language → resume-data.ts (languages)
+ * - resume_variant + children → stack-variants.pt-br.ts / .en-us.ts
+ * - cheatsheet_category + cheatsheet_term + cheatsheet_tag → cheatsheet-content.ts
+ * - home_content → home-pt-br.ts / home-en-us.ts
+ *
+ * ## What it does NOT sync
+ *
+ * - The shell (resume-shell.html) — structure, not content
+ * - The layout rules (resume-layout-rules.ts) — these are design decisions
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -47,7 +55,7 @@ loadEnvLocal();
 async function main() {
   const dryRun = process.argv.includes("--dry");
 
-  console.log("Syncing résumé content from Supabase to snapshot...");
+  console.log("Syncing résumé content from Supabase to static files...");
   console.log(`Mode: ${dryRun ? "dry run (no writes)" : "write"}`);
 
   const { supabaseReadConfigFromEnv } = await import("../src/infrastructure/supabase/server");
@@ -125,6 +133,7 @@ async function main() {
     return;
   }
 
+  // Write a JSON snapshot that can be consumed by the build pipeline
   const snapshot = {
     syncedAt: new Date().toISOString(),
     profiles,
