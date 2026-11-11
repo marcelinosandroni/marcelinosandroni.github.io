@@ -3,15 +3,13 @@
  *
  * ## Why this exists
  *
- * The PDFs are built from static TypeScript files (`scripts/data/stack-variants.pt-br.ts`,
- * `src/infrastructure/content/resume-data.ts`, etc.). The site reads from Supabase
+ * The PDFs are built from static TypeScript files. The site reads from Supabase
  * with a fallback to the typed catalog. When the owner edits content in `/admin`,
  * the database changes but the static files do not — so the next PDF build would
  * use stale content.
  *
  * This script reads from Supabase and regenerates the static files, so the PDF
- * build always reflects the current database state. It is the bridge between the
- * editable database and the build pipeline that needs files on disk.
+ * build always reflects the current database state.
  *
  * ## Usage
  *
@@ -28,11 +26,6 @@
  * - resume_variant + children → stack-variants.pt-br.ts / .en-us.ts
  * - cheatsheet_category + cheatsheet_term + cheatsheet_tag → cheatsheet-content.ts
  * - home_content → home-pt-br.ts / home-en-us.ts
- *
- * ## What it does NOT sync
- *
- * - The shell (resume-shell.html) — structure, not content
- * - The layout rules (resume-layout-rules.ts) — these are design decisions
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -161,6 +154,7 @@ async function main() {
   writeFileSync(snapshotPath, JSON.stringify(snapshot, null, 2));
   console.log(`\nSnapshot written to ${snapshotPath}`);
   console.log("The build pipeline can now read from this snapshot instead of static files.");
+  console.log("\nSync complete. Run 'npm run pdf:fixed:build' to regenerate PDFs from the synced data.");
 }
 
 main().catch((error: unknown) => {
