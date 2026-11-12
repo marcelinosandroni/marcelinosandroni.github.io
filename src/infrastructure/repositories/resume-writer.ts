@@ -798,7 +798,7 @@ export async function readCheatsheetContent(locale: Locale): Promise<{
     id: string;
     title: string;
     icon: string;
-    terms: Array<{ term: string; definition: string; example?: string; tags?: string[] }>;
+    terms: Array<{ term: string; definition: string; example?: string; level?: string; tags?: string[] }>;
   }>;
 } | null> {
   const config = supabaseReadConfigFromEnv();
@@ -840,6 +840,7 @@ export async function readCheatsheetContent(locale: Locale): Promise<{
         term: String(t["term"] ?? ""),
         definition: String(t["definition"] ?? ""),
         example: t["example"] ? String(t["example"]) : undefined,
+        level: t["level"] ? String(t["level"]) : undefined,
         tags: Array.isArray(t["tags"]) ? (t["tags"] as string[]) : undefined,
       })),
     })),

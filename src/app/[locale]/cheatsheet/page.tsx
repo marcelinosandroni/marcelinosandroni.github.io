@@ -9,7 +9,7 @@ import type { CheatsheetContent } from "@/infrastructure/content/cheatsheet/chea
 export const metadata: Metadata = {
   title: "Cheatsheet SRE + AI Engineer",
   description:
-    "Termos, conceitos e arquiteturas para entrevistas técnicas — leitura rápida, resposta pronta.",
+    "Termos, conceitos e arquiteturas de engenharia de software — leitura rápida, referência pronta.",
 };
 
 export default async function CheatsheetPage({
@@ -37,7 +37,7 @@ export default async function CheatsheetPage({
           id: cat.id,
           title: cat.title,
           icon: cat.icon,
-          terms: cat.terms.map((t) => ({ term: t.term, definition: t.definition, example: t.example, tags: t.tags })),
+          terms: cat.terms.map((t) => ({ term: t.term, definition: t.definition, example: t.example, level: t.level as any, tags: t.tags })),
         })),
       };
     }
