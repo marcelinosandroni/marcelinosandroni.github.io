@@ -21,6 +21,12 @@
  * breadth, and that is the one thing these documents cannot afford.
  */
 
+import type { TechnologyCategory } from "./technology-categories";
+import {
+  resolveParamsFromStack,
+  interpolate,
+} from "./technology-categories";
+
 /** One role's stack line and bullets, as written for a particular stack. */
 export type RoleContent = {
   /**
@@ -38,10 +44,24 @@ export type RoleContent = {
    * would be indistinguishable from one that declared every role and gave this one a
    * stack, and the build would swap a stack line into a role that has no line to
    * hold it.
+   *
+   * The stack may contain `{{param}}` placeholders (e.g. `{{cloud}}`), resolved
+   * from this role's own stack (and from `params` below). This lets a variant
+   * keep one stack declaration and vary the wording of its bullets without
+   * rewriting them.
    */
   readonly stack: string | null;
   /** The bullets, as a bold label and the sentence that follows it. */
   readonly bullets: ReadonlyArray<readonly [string, string]>;
+  /**
+   * Optional parameter overrides for this role's placeholders.
+   *
+   * When a bullet says `{{cloud}}`, the value comes from the first cloud-classified
+   * technology in this role's `stack` (e.g. "AWS"). An override here (e.g.
+   * `{ cloud: "Azure" }`) wins over that derivation, which is what makes it
+   * possible to vary the cloud without rewriting the stack line.
+   */
+  readonly params?: Partial<Record<TechnologyCategory, string>>;
 };
 
 /**
@@ -73,6 +93,7 @@ export function replaceVariantRoles(
   html: string,
   roles: ReadonlyArray<RoleContent>,
   slug: string,
+  variantParams?: Partial<Record<TechnologyCategory, string>>,
 ): string {
   /*
     No roles declared means the variant inherits the shell's experience whole.
@@ -93,7 +114,7 @@ export function replaceVariantRoles(
 
   for (const role of roles) {
     const block = locateRole(out, slug, role.key);
-    out = out.replace(block, applyRole(block, slug, role));
+    out = out.replace(block, applyRole(block, slug, role, variantParams));
   }
 
   return out;
@@ -118,7 +139,12 @@ function locateRole(html: string, slug: string, key: string): string {
 }
 
 /** Swaps one role's stack line and bullet list for the variant's. */
-function applyRole(block: string, slug: string, role: RoleContent): string {
+function applyRole(
+  block: string,
+  slug: string,
+  role: RoleContent,
+  variantParams?: Partial<Record<TechnologyCategory, string>>,
+): string {
   const hasStackLine = block.includes('data-rule="stack"');
 
   if ((role.stack !== null) !== hasStackLine) {
@@ -131,13 +157,29 @@ function applyRole(block: string, slug: string, role: RoleContent): string {
     );
   }
 
+  /*
+     Parameters are resolved per role, from this role's own stack plus any
+     override carried by the role or by the variant. A bullet that says
+     `{{cloud}}` therefore names whatever the role's stack classifies as its
+     cloud (AWS by default, Azure when the variant overrides it), and a
+     placeholder with no resolution is left untouched so the mistake is visible
+     in the rendered document instead of being swallowed.
+   */
+  const params = resolveParamsFromStack(role.stack ?? "", {
+    ...(role.params ?? {}),
+    ...(variantParams ?? {}),
+  });
+
+  const resolvedStack =
+    role.stack === null ? null : interpolate(role.stack, params);
+
   let out = block;
 
-  if (role.stack !== null) {
+  if (resolvedStack !== null) {
     out = swap(
       out,
       /(<div class="stack-line" data-rule="stack">)[\s\S]*?(<\/div>)/,
-      `$1<strong>Stack:</strong> ${role.stack}$2`,
+      `$1<strong>Stack:</strong> ${resolvedStack}$2`,
       slug,
       role,
       "stack line",
@@ -145,10 +187,11 @@ function applyRole(block: string, slug: string, role: RoleContent): string {
   }
 
   const bullets = role.bullets
-    .map(
-      ([label, body]) =>
-        `                    <li data-rule="bullet"><strong>${label}:</strong> ${body}</li>`,
-    )
+    .map(([label, body]) => {
+      const resolvedLabel = interpolate(label, params);
+      const resolvedBody = interpolate(body, params);
+      return `                    <li data-rule="bullet"><strong>${resolvedLabel}:</strong> ${resolvedBody}</li>`;
+    })
     .join("\n");
 
   return swap(

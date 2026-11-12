@@ -14,7 +14,15 @@ npm run resume:build-en:all
 ```
 Gera `resume-recruiter-en-us.html` e as variantes `resume-recruiter-en-us-*.html`.
 
-### 3. Renderizar um PDF de UM stack específico (do HTML já construído)
+### 3. Gerar HTML + PDF de UMA variante pela slug (comando único)
+```bash
+npm run resume:build:slug -- enterprise-java
+npm run resume:build:slug -- modern-web --locale en-us
+npm run resume:build:slug -- document
+```
+Gera o HTML da variante e, em seguida, o PDF correspondente (o PDF tem base no HTML).
+
+### 4. Renderizar um PDF de UM stack específico (do HTML já construído)
 ```bash
 npm run pdf:from-html -- resume-recruiter-pt-br-enterprise-java.html public/artifacts/fixed/resume-fixed-pt-br-enterprise-java.pdf
 ```
@@ -23,19 +31,44 @@ Ou diretamente com o conversor:
 npx tsx scripts/html-to-pdf.ts resume-recruiter-pt-br-enterprise-java.html public/artifacts/fixed/resume-fixed-pt-br-enterprise-java.pdf
 ```
 
-### 4. Renderizar todas as variantes de uma vez
+### 5. Renderizar todas as variantes de uma vez
 ```bash
 npm run pdf:fixed:variants          # pt-BR (5 variantes + geral)
 npm run pdf:fixed:en:variants       # en-US (5 variantes + geral)
 ```
 
-### 5. Tudo (limpa, constrói, renderiza, verifica)
+### 6. Tudo (limpa, constrói, renderiza, verifica)
 ```bash
 npm run pdf:fixed:build
 ```
 Este é o comando que roda no CI. Ele limpa `public/artifacts/fixed/`, reconstrói todos os HTMLs, renderiza todos os 12 PDFs (6 pt-BR + 6 en-US) e roda `verify-fixed-artifacts` (confere que todos existem, têm 2 páginas e não são truncados).
 
-### 6. Medir apenas um documento (altura das páginas)
+### 8. Parâmetros em bullets e stacks ({{param}})
+
+Bullets e stacks de uma variante podem usar placeholders `{{param}}`, resolvidos
+a partir da própria stack do role (primeira tecnologia de cada categoria) ou de
+overrides da variante (`params`).
+
+Categorias disponíveis: `cloud`, `language`, `backend`, `frontend`, `mobile`,
+`devops`, `observability`, `messaging`, `database`, `ai`.
+
+Exemplo:
+```ts
+roles: [
+  {
+    key: "dgt",
+    stack: "Java, Spring Boot, Angular, PostgreSQL, Redis, K8s, {{cloud}}.",
+    bullets: [
+      ["Liderança", "Deploy em {{cloud}} com {{backend}}."],
+    ],
+    params: { cloud: "Azure" }, // override (por padrão deriva da stack)
+  },
+],
+```
+
+Por padrão (sem `roles` nem `params`) o documento herda o shell literalmente.
+
+### 7. Medir apenas um documento (altura das páginas)
 ```bash
 npm run resume:measure -- resume-recruiter-pt-br-enterprise-java.html
 ```
