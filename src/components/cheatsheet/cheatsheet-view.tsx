@@ -14,9 +14,19 @@ const TAG_COLORS: Record<string, string> = {
   database: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
   security: "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200",
   architecture: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200",
-  "interview-frequent": "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
   beginner: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
   advanced: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
+  estagiario: "bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200",
+  trainee: "bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200",
+  junior: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+  pleno: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+  senior: "bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200",
+  especialista: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+  staff: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
+  principal: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+  lead: "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200",
+  arquiteto: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200",
+  distinguished: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
 };
 
 export function CheatsheetView({ content }: { content: CheatsheetContent }): React.ReactElement {
@@ -124,6 +134,11 @@ export function CheatsheetView({ content }: { content: CheatsheetContent }): Rea
                         <dt className="font-label-mono text-label-mono uppercase tracking-widest text-text-primary">
                           {t.term}
                         </dt>
+                        {t.level ? (
+                          <span className={`rounded px-1.5 py-0.5 text-[9px] uppercase tracking-widest ${TAG_COLORS[t.level] ?? "bg-surface-overlay text-text-secondary"}`}>
+                            {t.level}
+                          </span>
+                        ) : null}
                         {(t.tags ?? []).length > 0 ? (
                           <div className="flex flex-wrap gap-1">
                             {(t.tags ?? []).map((tag) => (
