@@ -33,6 +33,11 @@ import {
 } from "./career-timeline";
 import { replaceVariantRoles } from "./variant-roles";
 import type { Variant } from "./stack-variants.pt-br";
+import {
+  resolveParamsFromStack,
+  interpolate,
+} from "./technology-categories";
+import type { TechnologyCategory } from "./technology-categories";
 
 /** Section headings, mapped to the id a variant fills. */
 export const HEADINGS: ReadonlyArray<readonly [RegExp, string]> = [
@@ -95,7 +100,20 @@ export function renderVariant(shell: string, variant: Variant): string {
   }
 
   out = replaceInventory(out, variant);
-  out = replaceVariantRoles(out, variant.roles ?? [], variant.slug);
+  out = replaceVariantRoles(out, variant.roles ?? [], variant.slug, variant.params);
+
+  /*
+     A variant that carries no `roles` (and therefore inherits the shell's
+     experience) may still carry `params`. In that case the shell's own stack
+     lines and bullets are kept, but any `{{param}}` placeholder they contain is
+     resolved against the params derived from each role's stack (with the
+     variant's overrides winning). This is what lets a variant vary the cloud
+     without rewriting any role.
+   */
+  if ((variant.roles === undefined || variant.roles.length === 0) && variant.params !== undefined) {
+    out = interpolateShell(out, variant.params);
+  }
+
   out = injectTimeline(out, variant.timeline, variant.slug);
   out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${variant.title}</title>`);
 
@@ -222,4 +240,57 @@ export function renderInventory(groups: ReadonlyArray<readonly [string, string]>
             <div class="fact-list">
 ${paragraphs}
             </div>`;
+}
+
+/**
+ * Resolves `{{param}}` placeholders inside the shell's own role blocks.
+ *
+ * Each role block is processed independently, because the cloud of one role may
+ * differ from the cloud of another. The parameters come from that role's own
+ * stack (via `resolveParamsFromStack`) merged with the variant's overrides.
+ *
+ * Only the stack line and the bullets are touched; the role, the company, the
+ * dates and the tenure are facts and stay as they are.
+ */
+export function interpolateShell(
+  html: string,
+  variantParams?: Partial<Record<TechnologyCategory, string>>,
+): string {
+  const BLOCK_END = "\n        </div>";
+  let out = html;
+
+  for (const marker of [...html.matchAll(/data-role="([a-z-]+)"/g)]) {
+    const key = marker[1];
+    const pos = marker.index ?? 0;
+    const start = html.lastIndexOf("<div", pos);
+    const end = html.indexOf(BLOCK_END, pos);
+    if (start === -1 || end === -1) {
+      continue;
+    }
+    const block = html.slice(start, end + BLOCK_END.length);
+
+    // extract this role's stack line
+    const stackMatch = /<div class="stack-line" data-rule="stack">[\s\S]*?<\/div>/.exec(block);
+    const stackText = stackMatch === null ? "" : stackMatch[0];
+    const stackValue = stackText.replace(/<[^>]+>/g, "").replace(/^Stack:\s*/i, "").trim();
+
+    const params = resolveParamsFromStack(stackValue, variantParams);
+
+    let newBlock = block;
+    // interpolate stack line
+    newBlock = newBlock.replace(
+      /(<div class="stack-line" data-rule="stack">[\s\S]*?<strong>Stack:<\/strong>\s*)([\s\S]*?)(<\/div>)/,
+      (_m, pre, val, post) => pre + interpolate(val, params) + post,
+    );
+    // interpolate bullets
+    newBlock = newBlock.replace(
+      /(<li data-rule="bullet"><strong>)([\s\S]*?)(:<\/strong>\s*)([\s\S]*?)(<\/li>)/g,
+      (_m, pre1, label, pre2, body, post) =>
+        pre1 + interpolate(label, params) + pre2 + interpolate(body, params) + post,
+    );
+
+    out = out.replace(block, newBlock);
+  }
+
+  return out;
 }

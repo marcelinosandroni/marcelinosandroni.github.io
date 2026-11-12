@@ -27,6 +27,7 @@
     "pdf:fixed:en:variants": "npm run resume:build-en:all && tsx scripts/render-english-variant-pdfs.ts",
     "pdf:fixed:all": "npm run pdf:fixed && npm run pdf:fixed:en && npm run pdf:fixed:en:variants",
     "resume:build-variants": "tsx scripts/build-stack-variants.ts",
+    "resume:build:slug": "tsx scripts/build-resume-by-slug.ts",
     "resume:measure": "tsx scripts/measure-resume.ts",
     "resume:check-layout": "tsx scripts/check-layout.ts",
     "resume:prompt": "tsx scripts/write-variant-prompt.ts",

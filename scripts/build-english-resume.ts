@@ -25,7 +25,7 @@ import { resolve } from "node:path";
  * every replacement is asserted: a phrase the script cannot find is an error, not
  * a leftover in Portuguese inside an English résumé.
  */
-type Rule = { readonly from: string; readonly to: string };
+export type Rule = { readonly from: string; readonly to: string };
 
 /**
  * The rules every document carries, whatever it is.
@@ -234,7 +234,7 @@ const TEXT_INVENTORY: ReadonlyArray<Rule> = [
  * reason — reporting a missing translation when the document simply has a different
  * summary, which is what a variant is.
  */
-const GENERAL_ONLY: ReadonlyArray<Rule> = [
+export const GENERAL_ONLY: ReadonlyArray<Rule> = [
   {
     from:
       "<strong>Engenheiro Full Stack de verdade, </strong>unindo visão estratégica e análise de negócio à execução end-to-end em UI/UX, mobile, frontend, backend, DevOps, engenharia de dados e IA, com quase 8 anos em engenharia de software e 15 em governança financeira, criando soluções escaláveis e sistemas críticos que movimentam bilhões de reais.",
