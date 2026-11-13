@@ -741,32 +741,32 @@ export const VARIANTS_EN: ReadonlyArray<Variant> = [
   {
     slug: "java-ia",
     label: "Java + AI",
-    title: "Marcelino Sandroni - Java and Angular Software Engineer",
-    headline: "Senior Software Engineer | Angular + Java + AI",
+    title: "Marcelino Sandroni - Java and AI Software Engineer",
+    headline: "Senior Software Engineer | Java + AI",
     inventory: [
       [
         "Frontend & UI Architecture",
-        "Angular (8 to 22), TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends, State/Reactivity (RxJS, NgRx), SSR, Tailwind CSS, Angular Material, Design Systems.",
+        "Angular, React, RSC, Next, SSG, SSR, ISR, JavaScript, TypeScript, HTML5, CSS3, Micro-frontends, Design Systems.",
       ],
       [
         "Backend & Frameworks",
-        "Java (8 to 25), Spring Boot 3.x (AOT/GraalVM), Spring Cloud, Spring WebFlux, Spring Batch, Spring Security (OAuth2, OIDC, JWT, mTLS), Hibernate/JPA (N+1), JVM tuning (ZGC/G1GC).",
+        "Java, Kotlin, Spring (Boot, MVC, Cloud, WebFlux, Batch, Security, Data), Quarkus, Go, NodeJS, TestContainers, Playwright.",
       ],
       [
-        "Artificial Intelligence & Data",
-        "Corporate LLMs via Spring AI and LangChain4j, Amazon Bedrock (Claude/Titan), RAG, agentic workflows (function calling), vector databases (pgvector, Milvus).",
+        "AI & Data",
+        "LLMs (Anthropic, OpenAI), Spring AI, LangChain4j, Python, LangChain, LangGraph, Amazon Bedrock, Azure AI Studio, RAG, Agentic Workflows (Skills, Hooks, Function Calling), MCPs, SDD.",
       ],
       [
         "Cloud & DevOps",
-        "AWS (EKS/ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, CloudWatch), Docker, Kubernetes (Helm), Terraform, CI/CD (GitHub Actions, Bitbucket, Jenkins), observability (OpenTelemetry, Datadog).",
+        "AWS, Azure, Docker, Kubernetes, Helm, Terraform, CI/CD, GitHub Actions, Jenkins, OpenTelemetry, Prometheus, Datadog, Grafana, Loki.",
       ],
       [
-        "Architecture, APIs & Messaging",
-        "REST Level 3, gRPC, GraphQL, WebSockets, Kafka (partitions, idempotency), RabbitMQ (exchanges, DLQ), circuit breakers, clean, hexagonal, DDD, CQRS, SOLID, EDA, microservices.",
+        "Architecture & Messaging",
+        "REST, gRPC, GraphQL, WebSockets, SSE, EDA, Kafka, RabbitMQ, Microservices, Clean, Hexagonal, Circuit Breakers, Saga, DDD, CQRS, SOLID.",
       ],
       [
         "Analytics Ecosystem & Databases",
-        "Oracle, PostgreSQL, SQL Server, MongoDB, Redis, Cassandra, Neo4j, DynamoDB, DocumentDB, Snowflake, Databricks.",
+        "PostgreSQL, Oracle, MongoDB, Redis, Cassandra, DynamoDB, CosmosDB, Snowflake, Databricks, ETL/ELT, Vector DBs (pgvector, Milvus).",
       ],
     ],
     sections: {
@@ -784,8 +784,7 @@ export const VARIANTS_EN: ReadonlyArray<Variant> = [
     roles: [
       {
         key: "dgt",
-        stack:
-          "Java, Spring Boot, Spring AI, Angular, TypeScript, Micro-frontends, PostgreSQL, Redis, gRPC, K8s, Azure.",
+        stack: "Java, Spring Boot, Spring AI, Angular, TypeScript, Micro-frontends, PostgreSQL, Redis, gRPC, K8s, Azure.",
         bullets: [
           [
             "Technical Leadership & High Concurrency (Java 21)",
@@ -864,6 +863,7 @@ export const VARIANTS_EN: ReadonlyArray<Variant> = [
     ],
     timeline: [],
   },
+
 ];
 
 
