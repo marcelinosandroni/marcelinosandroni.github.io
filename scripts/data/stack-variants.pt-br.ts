@@ -868,32 +868,32 @@ export const variants: ReadonlyArray<Variant> = [
   {
     slug: "java-ia",
     label: "Java + IA",
-    title: "Marcelino Sandroni - Engenheiro Java e Angular",
-    headline: "Engenheiro de Software Sênior | Angular + Java + AI",
+    title: "Marcelino Sandroni - Engenheiro Java e IA",
+    headline: "Engenheiro de Software Sênior | Java + IA",
     inventory: [
       [
         "Frontend &amp; UI Architecture",
-        "Angular (8 ao 22), React (16 ao 19), Next, TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends, Estado/Reatividade, SSR, Tailwind CSS, Angular Material, Design Systems.",
+        "Angular, React, RSC, Next, SSG, SSR, ISR, Javascript, Typescript, HTML5, CSS3, Microfrontends, Design Systems.",
       ],
       [
         "Backend &amp; Frameworks",
-        "Java (8 ao 25), Spring Boot 3.x, Spring Cloud, Spring WebFlux, Spring Batch, Spring Security (OAuth2, OIDC, JWT, mTLS), Hibernate/JPA, Quarkus, Go, NodeJS (NestJS, Express).",
+        "Java, Kotlin, Spring (Boot, MVC, Cloud, WebFlux, Batch, Security, Data), Quarkus, Go, NodeJS, TestContainers, Playwright.",
       ],
       [
-        "Inteligência Artificial &amp; Dados",
-        "LLMs corporativos via Spring AI e LangChain4j, Python, LangChain/LangGraph, Amazon Bedrock, Azure AI Studio, RAG, Agentic Workflows (Function Calling), Vector DBs (pgvector, Milvus).",
+        "IA &amp; Dados",
+        "LLMs (Anthropic, OpenAI), Spring AI, LangChain4j, Python, LangChain, LangGraph, Amazon Bedrock, Azure AI Studio, RAG, Agentic Workflows (Skills, Hooks, Function Calling), MCPs, SDD.",
       ],
       [
         "Cloud &amp; DevOps",
-        "Azure (AKS, Event Hubs, Key Vault), AWS (EKS, S3, RDS, SQS, Lambda), Docker, K8s, CI/CD (GitHub Actions).",
+        "AWS, Azure, Docker, Kubernetes, Helm, Terraform, CI/CD, GitHub Actions, Jenkins, OpenTelemetry, Prometheus, Datadog, Grafana, Loki.",
       ],
       [
-        "Arquitetura, APIs &amp; Mensageria",
-        "REST Nível 3, gRPC, GraphQL, WebSockets, Kafka (partições, idempotência), RabbitMQ (exchanges, DLQ), Circuit Breakers, Saga, Clean, Hexagonal, DDD, CQRS, SOLID, EDA, Microsserviços.",
+        "Arquitetura &amp; Mensageria",
+        "REST, gRPC, GraphQL, WebSockets, SSE, EDA, Kafka, RabbitMQ, Microserviços, Clean, Hexagonal, Circuit Breakers, Saga, DDD, CQRS, SOLID.",
       ],
       [
         "Ecossistema Analítico &amp; Bancos",
-        "Oracle, PostgreSQL, SQL Server, MongoDB, Redis, Cassandra, Neo4j, DynamoDB, CosmosDB, DocumentDB, Snowflake, Databricks.",
+        "PostgreSQL, Oracle, MongoDB, Redis, Cassandra, DynamoDB, CosmosDB, Snowflake, Databricks, ETL/ELT, Vector DBs (pgvector, Milvus).",
       ],
     ],
     sections: {
@@ -911,11 +911,10 @@ export const variants: ReadonlyArray<Variant> = [
     roles: [
       {
         key: "dgt",
-        stack:
-          "Java, Spring Boot, Spring AI, Angular, TypeScript, Micro-frontends, PostgreSQL, Redis, gRPC, K8s, Azure.",
+        stack: "Java, Spring Boot, Spring AI, Angular, TypeScript, Micro-frontends, PostgreSQL, Redis, gRPC, K8s, Azure.",
         bullets: [
           [
-            "Liderança Técnica &amp; Alta Concorrência (Java 21)",
+            "Liderança Técnica & Alta Concorrência (Java 21)",
             "Liderança de squad na reestruturação de ecossistemas críticos processando 100M+ mensagens/dia. Aplicação de Virtual Threads (Loom), gRPC e arquitetura CQRS com Redis/PostgreSQL sharding p/ garantir ultrabaixa latência sob tráfego massivo.",
           ],
           [
@@ -923,7 +922,7 @@ export const variants: ReadonlyArray<Variant> = [
             "Arquitetura orientada a eventos utilizando Azure Event Hubs e Service Bus p/ orquestração assíncrona. Implementação rigorosa de padrões Saga (consistência) e Circuit Breakers, blindando o sistema contra falhas em cascata e sustentando 100% de uptime.",
           ],
           [
-            "IA Corporativa &amp; Automação de Processos",
+            "IA Corporativa & Automação de Processos",
             "Concepção de fluxos agênticos em tempo real integrando Spring AI e Azure AI Studio (LLMs/RAG). Automação de operações críticas que estrangulou gargalos manuais e assegurou a preservação de contrato de R$ 24M/ano.",
           ],
         ],
@@ -991,4 +990,5 @@ export const variants: ReadonlyArray<Variant> = [
     ],
     timeline: TIMELINE,
   },
+
 ];
