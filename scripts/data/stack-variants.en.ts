@@ -31,6 +31,7 @@ import { variant as enterpriseDotnetReact } from "./variants/enterprise-dotnet-r
 import { variant as csharpIa } from "./variants/csharp-ia-en";
 import { variant as modernWeb } from "./variants/modern-web-en";
 import { variant as javaIa } from "./variants/java-ia-en";
+import { variant as pythonIa } from "./variants/python-ia-en";
 
 export const VARIANTS_EN: ReadonlyArray<Variant> = [
   enterpriseJava,
@@ -41,4 +42,5 @@ export const VARIANTS_EN: ReadonlyArray<Variant> = [
   csharpIa,
   modernWeb,
   javaIa,
+  pythonIa,
 ];

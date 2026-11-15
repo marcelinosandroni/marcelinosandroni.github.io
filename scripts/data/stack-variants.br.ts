@@ -30,6 +30,8 @@ import { variant as enterpriseDotnetReact } from "./variants/enterprise-dotnet-r
 import { variant as csharpIa } from "./variants/csharp-ia-br";
 import { variant as modernWeb } from "./variants/modern-web-br";
 import { variant as javaIa } from "./variants/java-ia-br";
+import { variant as nodeIa } from "./variants/node-ia-br";
+import { variant as pythonIa } from "./variants/python-ia-br";
 
 export type { RoleContent, Variant } from "./variants/shared";
 export { TIMELINE } from "./variants/shared";
@@ -43,4 +45,6 @@ export const variants: ReadonlyArray<Variant> = [
   csharpIa,
   modernWeb,
   javaIa,
+  nodeIa,
+  pythonIa,
 ];
