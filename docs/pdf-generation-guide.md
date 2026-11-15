@@ -99,7 +99,7 @@ Exemplo: para mudar a stack da variante Java + React, edite `scripts/data/varian
 **`scripts/data/resume-layout-rules.ts`** — a "fonte da verdade" do contrato. Define:
 - `BODY_PX = 12.5` (tipo fixo para tudo)
 - `CONTACT_PX = 11` e `METRIC_CAPTION_PX = 9` (as duas exceções sancionadas)
-- 18 regras com `maxLines` e `maxChars` para cada parte (resumo 5 linhas/500 chars, habilidade 2 linhas/215 chars, stack 1 linha/112 chars, bullet 3 linhas/300 chars, etc.)
+- 18 regras com `maxLines` e `maxChars` para cada parte (resumo 5 linhas/540 chars, habilidade 3 linhas/310 chars, stack 1 linha/112 chars, bullet 3 linhas/300 chars, etc.)
 
 **Regra de ouro:** a tipografia não se move para caber conteúdo. Se algo estourar, o texto encurta.
 
