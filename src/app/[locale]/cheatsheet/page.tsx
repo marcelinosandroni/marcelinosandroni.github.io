@@ -4,7 +4,7 @@ import { getCheatsheetContent } from "@/infrastructure/content/cheatsheet";
 import { readCheatsheetContent } from "@/infrastructure/repositories/resume-writer";
 import { CheatsheetView } from "@/components/cheatsheet/cheatsheet-view";
 import { DEFAULT_LOCALE, toLocale } from "@/domain/i18n";
-import type { CheatsheetContent } from "@/infrastructure/content/cheatsheet/cheatsheet-content";
+import type { CheatsheetContent, CheatsheetTerm } from "@/infrastructure/content/cheatsheet/cheatsheet-content";
 
 export const metadata: Metadata = {
   title: "Cheatsheet SRE + AI Engineer",
@@ -37,7 +37,7 @@ export default async function CheatsheetPage({
           id: cat.id,
           title: cat.title,
           icon: cat.icon,
-          terms: cat.terms.map((t) => ({ term: t.term, definition: t.definition, example: t.example, level: t.level as any, tags: t.tags })),
+          terms: cat.terms.map((t) => ({ term: t.term, definition: t.definition, example: t.example, level: t.level as CheatsheetTerm["level"], tags: t.tags })),
         })),
       };
     }
