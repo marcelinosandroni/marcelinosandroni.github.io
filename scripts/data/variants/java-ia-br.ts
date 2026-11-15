@@ -14,76 +14,77 @@ export const variant: Variant = {
   headline: "Engenheiro de Software Sênior | Java + IA",
   inventory: [
     [
-      "Frontend &amp; UI Architecture",
-      "Angular, React, RSC, Next, SSG, SSR, ISR, Javascript, Typescript, HTML5, CSS3, Microfrontends, Design Systems.",
-    ],
-    [
       "Backend &amp; Frameworks",
-      "Java, Kotlin, Spring (Boot, MVC, Cloud, WebFlux, Batch, Security, Data), Quarkus, Go, NodeJS, TestContainers, Playwright.",
+      "Java, Virtual Threads, Kotlin, Spring (Boot, MVC, Cloud, WebFlux, Batch, Security, Data), Quarkus, Hibernate/JPA, MapStruct, Go, Node, JUnit 5, Mockito, WireMock, Resilience4j, TestContainers.",
     ],
     [
       "IA &amp; Dados",
-      "LLMs (Anthropic, OpenAI), Spring AI, LangChain4j, Python, LangChain, LangGraph, Amazon Bedrock, Azure AI Studio, RAG, Agentic Workflows (Skills, Hooks, Function Calling), MCPs, SDD.",
+      "LLMs (Anthropic, OpenAI), Spring AI, LangChain4j, Python, LangChain, LangGraph, Bedrock, Azure AI, RAG (Hybrid Search, Reranking), Embeddings, Structured Outputs, Function Calling, MCPs, Multi-Agent, Guardrails, Evals, Semantic Caching, AI Gateway, FinOps (Token Optimization), AI Governance.",
     ],
     [
       "Cloud &amp; DevOps",
-      "AWS, Azure, Docker, Kubernetes, Helm, Terraform, CI/CD, GitHub Actions, Jenkins, OpenTelemetry, Prometheus, Datadog, Grafana, Loki.",
+      "AWS (EKS, ECS, S3, SQS, Lambda), Azure (AKS, Service Bus), GCP, Docker, Kubernetes, Helm, Terraform, ArgoCD, Vault, CI/CD, GitHub Actions, Jenkins, OpenTelemetry, Prometheus, Grafana, Datadog.",
     ],
     [
       "Arquitetura &amp; Mensageria",
-      "REST, gRPC, GraphQL, WebSockets, SSE, EDA, Kafka, RabbitMQ, Microserviços, Clean, Hexagonal, Circuit Breakers, Saga, DDD, CQRS, SOLID.",
+      "REST, gRPC, GraphQL, WebSockets, SSE, EDA, Kafka, RabbitMQ, Microserviços, Clean, Hexagonal, Inbox/Outbox, Circuit Breakers, Saga, DDD, CQRS, SOLID, OAuth2, OIDC, JWT, mTLS.",
     ],
     [
-      "Ecossistema Analítico &amp; Bancos",
-      "PostgreSQL, Oracle, MongoDB, Redis, Cassandra, DynamoDB, CosmosDB, Snowflake, Databricks, ETL/ELT, Vector DBs (pgvector, Milvus).",
+      "Bancos &amp; Dados",
+      "PostgreSQL (pgvector), Oracle, SQL Server, MySQL, MongoDB, Redis, Elasticsearch, ClickHouse, Cassandra, DynamoDB, CosmosDB, Neo4j, Snowflake, Databricks, BigQuery, ETL/ELT, OpenSearch, Qdrant, Milvus.",
+    ],
+    [
+      "Frontend &amp; UI Architecture",
+      "React, RSC, Next, SSG/SSR/ISR, Angular, Vue, React Native, Flutter, JS, Typescript, HTML5, CSS3, Tailwind, RxJS, NgRx, Zustand, TanStack Query, Microfrontends, Design Systems, Playwright.",
     ],
   ],
+  
   sections: {
     summary: summary(
-      "Engenheiro de Software unindo quase 8 anos em arquiteturas distribuídas (Java, Spring, Angular, Kafka) a 15 anos de background corporativo e financeiro. ",
-      "Atuo da concepção de ecossistemas cloud-native do zero ao desacoplamento de sistemas críticos. Foco na construção de microsserviços, micro-frontends e IA corporativa (Agentes/RAG), garantindo alta performance, escalabilidade e resiliência para sistemas de missão crítica, sob extrema cultura de testes e observabilidade.",
+      "Engenheiro de Software Sênior unindo 8 anos em engenharia end-to-end (Java, Spring, Kafka, Cloud) a 15 anos de background corporativo e financeiro. ",
+      "Com forte atuação em bancos e fintechs, traduzo visão de mercado e negócio em software liderando todo o ciclo — do discovery e refinamento à arquitetura e deploy em nuvem — desacoplando legados para microsserviços modernos e distribuídos, IA corporativa (Agentes, RAG, Spring AI) e interfaces web/mobile, com alta escala, resiliência, governança, compliance, testes e observabilidade.",
     ),
     metrics: metrics([
-      ["+R$ 500 Bi", "Gestão de Ativos", "Plataformas B2B de custódia e orquestração de fundos."],
-      ["D+0", "Liquidação Real-Time", "De 24h (D+1) para menos de 1s, via Kafka e Java."],
-      ["100M+ msgs/dia", "Alta Escala", "Orientada a eventos, tolerante a falhas."],
-      ["95%", "Cobertura de Testes", "Cultura de QA e TDD em backend (JUnit) e frontend (Cypress)."],
+      ["+R$ 500 Bi", "Custódia & Liquidação", "Plataformas B2B globais elevando captação e retorno em +28%."],
+      ["100M+ msgs/dia", "Escala & Disponibilidade", "Missão crítica em tempo real com SLA rigoroso de 99,99%."],
+      ["R$ 100M/ano", "IA & Novos Contratos", "Novos contratos via Agentes Autônomos, GraphRAG e Evals."],
+      ["99%", "Qualidade & Confiabilidade", "Validação real de regras de negócio, além da métrica."],
     ]),
   },
   roles: [
     {
       key: "dgt",
-      stack: "Java, Spring Boot, Spring AI, Angular, TypeScript, Micro-frontends, PostgreSQL, Redis, gRPC, K8s, Azure.",
+      stack: "Java 21+, Spring Boot, Spring AI, LangChain4j, Angular, TypeScript, PostgreSQL, Redis, gRPC, K8s, Azure.",
       bullets: [
         [
-          "Liderança Técnica & Alta Concorrência (Java 21)",
-          "Liderança de squad na reestruturação de ecossistemas críticos processando 100M+ mensagens/dia. Aplicação de Virtual Threads (Loom), gRPC e arquitetura CQRS com Redis/PostgreSQL sharding p/ garantir ultrabaixa latência sob tráfego massivo.",
+          "Liderança Técnica, Discovery & Alta Concorrência (Java 21+)",
+          "Condução ponta a ponta — do refinamento com stakeholders à arquitetura — na reestruturação de sistemas críticos com 100M+ mensagens/dia, aplicando Virtual Threads, gRPC e CQRS com Redis/PostgreSQL sharding para ultrabaixa latência.",
         ],
         [
-          "Resiliência Distribuída (Ecossistema Azure)",
-          "Arquitetura orientada a eventos utilizando Azure Event Hubs e Service Bus p/ orquestração assíncrona. Implementação rigorosa de padrões Saga (consistência) e Circuit Breakers, blindando o sistema contra falhas em cascata e sustentando 100% de uptime.",
+          "Resiliência Distribuída & SLA 99,99% (Azure)",
+          "Arquitetura orientada a eventos com Azure Event Hubs e Service Bus para orquestração assíncrona, aplicando padrões Saga, Inbox/Outbox e Circuit Breakers para blindar contra falhas em cascata e sustentar SLA de 99,99%.",
         ],
         [
-          "IA Corporativa & Automação de Processos",
-          "Concepção de fluxos agênticos em tempo real integrando Spring AI e Azure AI Studio (LLMs/RAG). Automação de operações críticas que estrangulou gargalos manuais e assegurou a preservação de contrato de R$ 24M/ano.",
+          "Engenharia de IA Avançada & Receita (R$ 100M/ano)",
+          "Arquitetura de ecossistemas Multi-Agent, GraphRAG, MCPs e Evals com Spring AI, LangChain4j e Azure AI Studio (Structured Outputs, Guardrails e Semantic Caching), automatizando fluxos críticos e viabilizando R$ 100M/ano em novos contratos.",
         ],
       ],
     },
     {
       key: "bnp-paribas",
-      stack: "Java (Spring Boot/Batch), Angular, Micro-frontends, Oracle SQL, Kafka, OAuth2, K8s, Jenkins, Helm.",
+      stack: "Java (Spring Boot/Batch), Angular, Micro-frontends, Oracle SQL, Kafka, OAuth2/OIDC, K8s, Jenkins, Helm.",
       bullets: [
         [
-          "Arquitetura Orientada a Eventos (EDA)",
-          "Estrangulamento de monolitos (Strangler Fig) para microsserviços Java altamente desacoplados. Desenho de malha assíncrona p/ garantir alta disponibilidade em transações críticas, com 95% de cobertura de testes.",
+          "Modernização de Legados, DDD & Qualidade (99%)",
+          "Modernização de monolitos (Strangler Fig) para microsserviços Java desacoplados com Clean Architecture e DDD, atingindo 99% de cobertura de testes com validação rigorosa de regras financeiras e casos de borda.",
         ],
         [
-          "Mensageria & Tolerância a Falhas (Kafka)",
-          "Migração de processamento batch (D+1) p/ streaming (D+0). Engenharia pesada em idempotência transacional, retry patterns e DLQs, garantindo zero perda de mensagens e 100% de uptime na conciliação.",
+          "Liquidação Real-Time & Tolerância a Falhas (Kafka)",
+          "Migração de esteiras batch para streaming em tempo real via Kafka, aplicando idempotência transacional, retry patterns e DLQs para garantir zero perda de mensagens e máxima disponibilidade na conciliação.",
         ],
         [
-          "Orquestração Distribuída & Consistência",
-          "Automação de integrações (B3/bolsas globais) aplicando Circuit Breakers e Fallbacks. Mitigação de instabilidade de redes externas, garantindo consistência e destravando captação de +R$ 50 Milhões.",
+          "Integrações Globais & Crescimento (+28% Captação)",
+          "Orquestração resiliente de integrações com B3 e bolsas globais aplicando Circuit Breakers e Fallbacks, neutralizando instabilidades de redes externas e elevando a captação e o retorno em +28% (+R$ 75 Milhões).",
         ],
       ],
     },
@@ -92,16 +93,16 @@ export const variant: Variant = {
       stack: "Java (Spring WebFlux), Angular, TypeScript, PostgreSQL, Redis, Kafka, AWS, K8s, Terraform.",
       bullets: [
         [
-          "Custódia Institucional Estratégica (+R$ 100 Bi)",
-          "Orquestração conjunta (squad de 15 engenheiros) desenhando e sustentando plataforma B2B conectada à B3, com arquitetura cloud-native (AWS), APIs reativas em Java e painéis Angular.",
+          "Custódia Institucional Estratégica (+R$ 500 Bi)",
+          "Atuação ponta a ponta em squad de 15 engenheiros arquitetando e escalando plataforma B2B conectada à B3, com infraestrutura cloud-native na AWS, APIs reativas em Java (WebFlux) e painéis Angular.",
         ],
         [
-          "Gestão de Crises e Resiliência",
-          "Resolução de gargalos de concorrência no Kafka sob alta volatilidade em menos de 24h, aplicando estrita idempotência transacional.",
+          "Resolução de Crises & Concorrência Distribuída",
+          "Diagnóstico e resolução de gargalos severos de concorrência no Kafka sob alta volatilidade de mercado em menos de 24h, aplicando política estrita de idempotência transacional e locking distribuído em Redis.",
         ],
         [
-          "Aumento de 8x na Qualidade",
-          "Mentoria técnica e automação E2E (CI/CD), blindando o ecossistema contra regressões críticas.",
+          "Engenharia de Qualidade & Automação E2E",
+          "Mentoria e automação de testes de contrato, integração e E2E no CI/CD (JUnit 5, TestContainers, Cypress), blindando regras críticas contra regressões.",
         ],
       ],
     },
@@ -110,12 +111,12 @@ export const variant: Variant = {
       stack: "Java, Angular, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, Kubernetes, CI/CD.",
       bullets: [
         [
-          "Evolução Rápida e Cloud",
-          "Promovido de Júnior a Pleno em 1 ano. Time ágil de 6 devs refatorando monolitos Java para eventos e migração AWS na metade do prazo estipulado.",
+          "Evolução Acelerada & Migração Cloud",
+          "Promovido de Júnior a Pleno em 1 ano. Squad de 6 engenheiros refatorando monolitos Java para eventos e entregando a migração AWS na metade do prazo.",
         ],
         [
-          "Resiliência Transacional",
-          "Correção estrutural em mensageria assíncrona (RabbitMQ) via Circuit Breakers e DLQs, garantindo 100% de assertividade.",
+          "Resiliência Transacional & Mensageria",
+          "Correção estrutural em mensageria assíncrona (RabbitMQ) via Circuit Breakers, retries e DLQs, assegurando 100% de assertividade no processamento.",
         ],
       ],
     },
@@ -124,8 +125,8 @@ export const variant: Variant = {
       stack: null,
       bullets: [
         [
-          "Diferencial em Engenharia Corporativa",
-          "Liderança de equipes e redesenho de processos que reduziu fechamento contábil em 83%. Profunda expertise em finanças e regras tributárias traduzidas diretamente para equipes de software.",
+          "Gestão Financeira & Engenharia de Domínio",
+          "Redução de 83% no fechamento mensal via Python/SQL e R$ 1,2M/ano em economia, traduzindo regras SOX e IFRS/CPC para sistemas e modelagem DDD.",
         ],
       ],
     },

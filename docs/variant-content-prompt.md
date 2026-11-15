@@ -11,13 +11,19 @@ A fonte da verdade é o código: `npm run resume:prompt` reescreve este arquivo.
 
 ## 1. O que este currículo é
 
-6 documentos que compartilham **uma estrutura e uma tipografia**:
+12 documentos que compartilham **uma estrutura e uma tipografia**:
 
 `pt-BR` — o geral
+`pt-BR` — Java + Angular (Azure)
 `pt-BR` — Java + Angular
 `pt-BR` — Java + React
 `pt-BR` — C# + Angular
+`pt-BR` — C# + React
+`pt-BR` — C# + IA
 `pt-BR` — Node + Go + React
+`pt-BR` — + IA
+`pt-BR` — + IA
+`pt-BR` — + IA
 `en-US` — o geral
 
 Dois A4, sempre. **Página 1 vende o perfil; página 2 é a experiência completa.**
@@ -99,14 +105,14 @@ coluna é quanto o documento Java + Angular usa hoje — a folga que sobrou.
 | Cargo (headline) | **1** | **80** | 51 | The line under the name is the only sentence a recruiter is certain to read, and a two-line headline pushes everything below it down a line. |
 | Tagline | **1** | **120** | 77 | One sentence of positioning under the name. |
 | Contacto (cada linha) | **1** | **110** | 110 | Three fixed fields on one line, each field a single div so the label and its value stay together, and the three pairs distributed by space-between. |
-| Resumo Profissional | **5** | **500** | 473 | Five lines is what the summary is allowed to be on the page. |
+| Resumo Profissional | **5** | **540** | 473 | Five lines is what the summary is allowed to be on the page. |
 | Métrica - valor | **1** | **24** | 14 | A number and its unit. |
 | Métrica - destaque | **1** | **26** | 20 | The green label is the name of the achievement, not a sentence. |
 | Métrica - descrição | **2** | **64** | 60 | Two lines, in a card 43mm wide. |
 | Linha do tempo - empresa | **1** | **14** | 11 | A company name over its own segment. |
 | Linha do tempo - nível | **2** | **26** | 23 | The level is what makes the bar a progression and not four rectangles. |
 | Linha do tempo - ano | **1** | **4** | 4 | The year ruler. |
-| Habilidades Técnicas (cada grupo) | **2** | **215** | 207 | Two lines per group is the whole reason this section is readable: six two-line groups are a list a recruiter can scan, and six four-line groups are a paragraph they will skip. |
+| Habilidades Técnicas (cada grupo) | **3** | **310** | 215 | Three lines per group is what keeps the inventory scannable: six three-line groups are still a list a recruiter can scan, and six five-line groups are a paragraph they will skip. |
 | Formação Acadêmica (cada item) | **1** | **80** | 62 | One line: degree, institution, years. |
 | Idiomas (cada item) | **1** | **100** | 80 | One line: language, level, what it is used for. |
 | Experiência - título do cargo | **1** | **60** | 51 | Title and company on the left, dates on the right, one line. |
@@ -188,12 +194,12 @@ Engenheiro de Software Sênior | Angular + Java + AI
 
 ### Inventário de habilidades
 
-- **Frontend & UI Architecture:** Angular (8 ao 22), TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends, Estado/Reatividade (RxJS, NgRx), SSR, Tailwind CSS, Angular Material, Design Systems.
-- **Backend & Frameworks:** Java (8 ao 25), Spring Boot 3.x (AOT/GraalVM), Spring Cloud, Spring WebFlux, Spring Batch, Spring Security (OAuth2, OIDC, JWT, mTLS), Hibernate/JPA (N+1), Tuning de JVM (ZGC/G1GC).
-- **Inteligência Artificial & Dados:** LLMs corporativos via Spring AI e LangChain4j, Amazon Bedrock (Claude/Titan), RAG, Agentic Workflows (Function Calling), Vector Databases (pgvector, Milvus).
+- **Frontend & UI Architecture:** Angular (8 ao 22), React (16 ao 19), Next, TypeScript, JavaScript, HTML5, CSS3, SASS, Micro-frontends, Estado/Reatividade, SSR, Tailwind CSS, Angular Material, Design Systems.
+- **Backend & Frameworks:** Java (8 ao 25), Spring Boot 3.x, Spring Cloud, Spring WebFlux, Spring Batch, Spring Security (OAuth2, OIDC, JWT, mTLS), Hibernate/JPA, Quarkus, Go, NodeJS (NestJS, Express).
+- **Inteligência Artificial & Dados:** LLMs corporativos via Spring AI e LangChain4j, Python, LangChain/LangGraph, Amazon Bedrock, Azure AI Studio, RAG, Agentic Workflows (Function Calling), Vector DBs (pgvector, Milvus).
 - **Cloud & DevOps:** AWS (EKS/ECS, S3, RDS, SQS, SNS, Lambda, API Gateway, CloudWatch), Docker, Kubernetes (Helm), Terraform, CI/CD (GitHub Actions, Bitbucket, Jenkins), Observabilidade (OpenTelemetry, Datadog).
-- **Arquitetura, APIs & Mensageria:** REST Nível 3, gRPC, GraphQL, WebSockets, Kafka (partições, idempotência), RabbitMQ (exchanges, DLQ), Circuit Breakers, Clean, Hexagonal, DDD, CQRS, SOLID, EDA, Microsserviços.
-- **Ecossistema Analítico & Bancos:** Oracle, PostgreSQL, SQL Server, MongoDB, Redis, Cassandra, Neo4j, DynamoDB, DocumentDB, Snowflake, Databricks.
+- **Arquitetura, APIs & Mensageria:** REST Nível 3, gRPC, GraphQL, WebSockets, Kafka (partições, idempotência), RabbitMQ (exchanges, DLQ), Circuit Breakers, Saga, Clean, Hexagonal, DDD, CQRS, SOLID, EDA, Microsserviços.
+- **Ecossistema Analítico & Bancos:** Oracle, PostgreSQL, SQL Server, MongoDB, Redis, Cassandra, Neo4j, DynamoDB, CosmosDB, DocumentDB, Snowflake, Databricks.
 
 Os seis campos de contacto, em duas linhas de três, um `div` por par:
 

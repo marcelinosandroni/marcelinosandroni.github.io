@@ -150,7 +150,7 @@ export const LAYOUT_RULES: ReadonlyArray<LayoutRule> = [
     label: "Resumo Profissional",
     hook: "resumo",
     maxLines: 5,
-    maxChars: 500,
+    maxChars: 540,
     why: "Five lines is what the summary is allowed to be on the page. It is the argument the whole document rests on, and past five lines a reader is reading a paragraph rather than a précis.",
   },
   {
@@ -205,9 +205,9 @@ export const LAYOUT_RULES: ReadonlyArray<LayoutRule> = [
     id: "habilidade",
     label: "Habilidades Técnicas (cada grupo)",
     hook: "habilidade",
-    maxLines: 2,
-    maxChars: 215,
-    why: "Two lines per group is the whole reason this section is readable: six two-line groups are a list a recruiter can scan, and six four-line groups are a paragraph they will skip. The inventory is what answers 'does this person run my stack', so it has to stay scannable to be worth its place.",
+    maxLines: 3,
+    maxChars: 310,
+    why: "Three lines per group is what keeps the inventory scannable: six three-line groups are still a list a recruiter can scan, and six five-line groups are a paragraph they will skip. The inventory is what answers 'does this person run my stack', so it has to stay scannable to be worth its place. Two lines was the budget until a group naming a stack and its testing tools stopped fitting in it, and the trim was cutting the answer rather than the padding.",
   },
   {
     id: "formacao",

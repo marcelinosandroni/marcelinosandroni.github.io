@@ -1,6 +1,6 @@
 # Contrato de Layout dos Currículos de Recrutador
 
-A tabela de limites que os cinco documentos de recrutador respeitam: para cada
+A tabela de limites que os documentos de recrutador respeitam: para cada
 parte, quantas linhas ela ocupa e quantos caracteres pode ter.
 
 **A fonte da verdade é [`scripts/data/resume-layout-rules.ts`](../scripts/data/resume-layout-rules.ts).**
@@ -31,34 +31,33 @@ numa linha.
 ## A tabela
 
 `Linhas` é o orçamento renderizado. `Caracteres` é o orçamento de escrita: dá para
-saber que se está em 185 de 215 sem rodar nada, e continua dentro.
+saber que se está em 285 de 310 sem rodar nada, e continua dentro.
 
 | Parte | Linhas | Caracteres | Tipografia | Usado hoje |
 |---|---:|---:|---|---:|
 | Nome | 1 | 40 | 30px (display) | 23 |
-| Cargo (headline) | 1 | 80 | 16px (display) | 51 |
+| Cargo (headline) | 1 | 80 | 16px (display) | 54 |
 | Tagline | 1 | 120 | 12.5px | 77 |
 | Contacto (cada linha) | 1 | 110 | 11px ⚠ | 110 |
-| Resumo Profissional | 5 | 500 | 12.5px | 468 |
+| Resumo Profissional | 5 | 540 | 12.5px | 532 |
 | Métrica — valor | 1 | 24 | 16px (display) | 16 |
-| Métrica — destaque | 1 | 26 | 9px ⚠ | 23 |
-| Métrica — descrição | 2 | 64 | 9px ⚠ | 60 |
+| Métrica — destaque | 1 | 26 | 9px ⚠ | 26 |
+| Métrica — descrição | 2 | 64 | 9px ⚠ | 61 |
 | Linha do tempo — empresa | 1 | 14 | 12.5px | 11 |
 | Linha do tempo — nível | 2 | 26 | 12.5px | 23 |
 | Linha do tempo — ano | 1 | 4 | 12.5px | 4 |
-| Habilidades Técnicas (cada grupo) | 2 | 215 | 12.5px | 208 |
+| Habilidades Técnicas (cada grupo) | 3 | 310 | 12.5px | 304 |
 | Formação Acadêmica (cada item) | 1 | 80 | 12.5px | 62 |
-| Idiomas (cada item) | 1 | 100 | 12.5px | 80 |
+| Idiomas (cada item) | 1 | 100 | 12.5px | 83 |
 | Experiência — título do cargo | 1 | 60 | 13px | 51 |
 | Experiência — período | 1 | 48 | 12.5px | 45 |
-| Experiência — stack | 1 | 112 | 12.5px | 109 |
-| Experiência — bullet | 3 | 300 | 12.5px | 260 |
+| Experiência — stack | 1 | 112 | 12.5px | 112 |
+| Experiência — bullet | 3 | 300 | 12.5px | 295 |
 
 ⚠ = abaixo do corpo, e são **os dois únicos**. Ver [As duas exceções](#as-duas-exceções).
 
-"Usado hoje" é o pior caso medido entre os cinco documentos — o geral, os três de
-stack e o en-US. O build imprime essa tabela a cada execução, com `OVER` no que
-estourou.
+"Usado hoje" é o pior caso medido entre todos os documentos do conjunto, em pt-BR
+e en-US. O build imprime essa tabela a cada execução, com `OVER` no que estourou.
 
 ---
 
