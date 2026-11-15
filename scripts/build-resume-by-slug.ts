@@ -3,8 +3,8 @@ import { resolve } from "node:path";
 
 import { paginate } from "./paginate-resume";
 import { renderVariant, injectTimeline } from "./data/variant-render";
-import { variants as PT_VARIANTS, TIMELINE as PT_TIMELINE } from "./data/stack-variants.pt-br";
-import { VARIANTS_EN } from "./data/stack-variants.en-us";
+import { variants as PT_VARIANTS, TIMELINE as PT_TIMELINE } from "./data/stack-variants.br";
+import { VARIANTS_EN } from "./data/stack-variants.en";
 import { TIMELINE_EN, GENERAL_ONLY, translateResumeToEnglish } from "./build-english-resume";
 import { convertHtmlToPdf } from "./html-to-pdf";
 
@@ -50,7 +50,8 @@ function printUsage(): void {
       "Generates the HTML for a single resume variant (by slug) and then the PDF from it.",
       "",
       "Slugs (variants): enterprise-java, enterprise-java-react, enterprise-dotnet,",
-      "                  enterprise-dotnet-react, modern-web",
+      "                  enterprise-dotnet-react, modern-web, java-azure, java-ia, node-ia,",
+      "                  python-ia, csharp-ia",
       "Special slug:     document (or 'general') — the general resume",
       "",
       "Examples:",

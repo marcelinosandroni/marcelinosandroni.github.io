@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 
 import { convertHtmlToPdf } from "./html-to-pdf";
-import { VARIANTS_EN } from "./data/stack-variants.en-us";
+import { VARIANTS_EN } from "./data/stack-variants.en";
 
 /**
  * Renders the English stack variants, one PDF each.

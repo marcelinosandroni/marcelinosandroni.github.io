@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import { resolve } from "node:path";
 import { paginate } from "./paginate-resume";
-import { TIMELINE, type Variant } from "./data/stack-variants.pt-br";
+import { TIMELINE, type Variant } from "./data/stack-variants.br";
 // (replaceVariantRoles moved to variant-render)
 import { injectTimeline, renderVariant } from "./data/variant-render";
 import { checkLayout, type LayoutDocument } from "./check-layout";
@@ -120,7 +120,7 @@ async function main(): Promise<void> {
 }
 
 async function loadVariants(): Promise<ReadonlyArray<Variant>> {
-  const data = (await import(`./data/stack-variants.${process.env.VARIANT_LOCALE ?? "pt-br"}.ts`)) as {
+  const data = (await import(`./data/stack-variants.${process.env.VARIANT_LOCALE ?? "br"}.ts`)) as {
     variants: ReadonlyArray<Variant>;
   };
 

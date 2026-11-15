@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { VARIANTS_EN } from "../../../scripts/data/stack-variants.en-us";
-import { variants } from "../../../scripts/data/stack-variants.pt-br";
+import { VARIANTS_EN } from "../../../scripts/data/stack-variants.en";
+import { variants } from "../../../scripts/data/stack-variants.br";
 
 /**
  * The English variants are translations of the Portuguese ones, and the two have to

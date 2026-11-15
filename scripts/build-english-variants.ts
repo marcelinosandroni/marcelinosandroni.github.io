@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 import { TIMELINE_EN, translateResumeToEnglish } from "./build-english-resume";
 import { renderVariant } from "./data/variant-render";
-import { VARIANTS_EN } from "./data/stack-variants.en-us";
+import { VARIANTS_EN } from "./data/stack-variants.en";
 
 /**
  * Builds the English stack variants.

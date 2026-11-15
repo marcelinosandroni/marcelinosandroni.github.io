@@ -10,7 +10,7 @@ import { useAdminWrite } from "@/components/admin/use-admin-write";
  * ## What this unlocks
  *
  * The five stack variants used to be typed TypeScript modules under
- * `scripts/data/stack-variants.pt-br.ts`. That made it impossible to correct
+ * `scripts/data/variants/`. That made it impossible to correct
  * a typo or add a stack without a deploy and a rebuild of all twelve PDFs.
  *
  * This moves variant content into the database so the owner edits it from

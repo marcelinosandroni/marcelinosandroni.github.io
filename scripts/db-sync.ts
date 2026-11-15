@@ -23,7 +23,7 @@
  * - resume_skill_group + resume_skill → resume-data.ts (skillGroups)
  * - resume_education → resume-data.ts (education)
  * - resume_language → resume-data.ts (languages)
- * - resume_variant + children → stack-variants.pt-br.ts / .en-us.ts
+ * - resume_variant + children → stack-variants.br.ts / .en.ts
  * - cheatsheet_category + cheatsheet_term + cheatsheet_tag → cheatsheet-content.ts
  * - home_content → home-pt-br.ts / home-en-us.ts
  */

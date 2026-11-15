@@ -7,7 +7,7 @@ import {
   LAYOUT_RULES,
   type LayoutRule,
 } from "./data/resume-layout-rules";
-import { variants } from "./data/stack-variants.pt-br";
+import { variants } from "./data/stack-variants.br";
 import { REQUIRED_ORDER } from "./paginate-resume";
 
 /**
