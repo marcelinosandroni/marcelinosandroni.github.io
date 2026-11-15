@@ -79,12 +79,14 @@ Mostra quantos mm cada página ocupa (limite: 277 mm por página).
 ## Onde alterar o conteúdo
 
 ### Detalhes de uma stack específica (headline, resumo, métricas, inventário, roles/bullets)
-**`scripts/data/stack-variants.pt-br.ts`** — para português  
-**`scripts/data/stack-variants.en-us.ts`** — para inglês
+**`scripts/data/variants/<slug>-br.ts`** — para português  
+**`scripts/data/variants/<slug>-en.ts`** — para inglês
 
-Cada variante é um objeto com `slug`, `label`, `title`, `headline`, `inventory` (grupos de habilidades), `sections` (resumo + 4 métricas) e opcionalmente `roles` (stack e bullets por vaga).
+Cada variante tem seu próprio arquivo, nomeado pelo slug que o build e o site usam. Cada arquivo exporta `variant` com `slug`, `label`, `title`, `headline`, `inventory` (grupos de habilidades), `sections` (resumo + 4 métricas) e opcionalmente `roles` (stack e bullets por vaga).
 
-Exemplo: para mudar a stack da variante Java + React, edite o objeto com `slug: "enterprise-java-react"` nesse arquivo.
+Os agregadores `scripts/data/stack-variants.br.ts` e `scripts/data/stack-variants.en.ts` só mantêm a lista, na ordem em que o seletor mostra as variantes. O tipo `Variant` e os fragmentos de resumo/métricas ficam em `scripts/data/variants/shared.ts`.
+
+Exemplo: para mudar a stack da variante Java + React, edite `scripts/data/variants/enterprise-java-react-br.ts` (e o par `-en.ts`).
 
 ### Estrutura compartilhada (títulos de seção, contato, educação, idiomas, vagas compartilhadas)
 **`resume-shell.html`** — é o "shell" que todas as variantes herdam. Aqui ficam:
@@ -113,7 +115,7 @@ Exemplo: para mudar a stack da variante Java + React, edite o objeto com `slug: 
 
 ## Fluxo recomendado para editar uma stack
 
-1. Edite `scripts/data/stack-variants.pt-br.ts` (e `.en-us.ts` se quiser o inglês).
+1. Edite `scripts/data/variants/<slug>-br.ts` (e o par `-en.ts` se quiser o inglês).
 2. Rode `npm run resume:build-variants` — se o contrato de layout reclamar, encurte o texto (não reduza a fonte).
 3. Rode `npm run resume:measure -- resume-recruiter-pt-br-<slug>.html` para conferir a altura da página 1.
 4. Rode `npx tsx scripts/html-to-pdf.ts resume-recruiter-pt-br-<slug>.html public/artifacts/fixed/resume-fixed-pt-br-<slug>.pdf` para gerar só aquele PDF.

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { variants } from "../../../scripts/data/stack-variants.pt-br";
+import { variants } from "../../../scripts/data/stack-variants.br";
 import {
   replaceVariantRoles,
   roleKeys,

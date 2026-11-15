@@ -10,8 +10,8 @@
  * the strings being put in.
  *
  * Two scripts need that: `build-stack-variants.ts` builds the Portuguese set from
- * `data/stack-variants.pt-br.ts`, and `build-english-variants.ts` builds the English
- * set from `data/stack-variants.en-us.ts`. A copy of this logic in the second script
+ * `data/stack-variants.br.ts`, and `build-english-variants.ts` builds the English
+ * set from `data/stack-variants.en.ts`. A copy of this logic in the second script
  * would be a second answer to "what does this variant replace", and the two would
  * drift — the English document would start carrying a section the Portuguese one had
  * dropped, with nothing to notice.
@@ -32,7 +32,7 @@ import {
   type TimelineRole,
 } from "./career-timeline";
 import { replaceVariantRoles } from "./variant-roles";
-import type { Variant } from "./stack-variants.pt-br";
+import type { Variant } from "./variants/shared";
 import {
   resolveParamsFromStack,
   interpolate,
