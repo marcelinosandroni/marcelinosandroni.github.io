@@ -53,7 +53,7 @@ export const variant: Variant = {
   roles: [
     {
       key: "dgt",
-      stack: "Node.js, NestJS, TypeScript, Python, LangChain.js, Next.js, PostgreSQL, ClickHouse, Redis, gRPC, K8s, AWS.",
+      stack: "Node.js, NestJS, TypeScript, Python, LangChain.js, PostgreSQL, ClickHouse, Redis, gRPC, K8s, AWS.",
       bullets: [
         [
           "Liderança Técnica & Alta Concorrência (Node.js / Go)",
@@ -71,7 +71,7 @@ export const variant: Variant = {
     },
     {
       key: "bnp-paribas",
-      stack: "Node.js (NestJS), TypeScript, Go, Angular, Micro-frontends, Oracle SQL, Kafka, OAuth2, K8s, Jenkins, Helm.",
+      stack: "Node.js (NestJS), TypeScript, Go, Angular, Micro-frontends, Oracle SQL, Kafka, OAuth2, K8s, Jenkins.",
       bullets: [
         [
           "Arquitetura Orientada a Eventos (EDA)",

@@ -5,12 +5,12 @@
  * every document shares, and `variants/shared.ts` supplies the type and the two
  * section fragments.
  */
-import { metrics, summary, TIMELINE, type Variant } from "./shared";
+import { metrics, summary, type Variant } from "./shared";
 
 export const variant: Variant = {
   slug: "python-ia",
   label: "Python + AI",
-  title: "Marcelino Sandroni - Python and AI Engineer",
+  title: "Marcelino Sandroni - Python and AI Software Engineer",
   headline: "Senior Software Engineer | Python + AI",
   inventory: [
     [
@@ -89,11 +89,11 @@ export const variant: Variant = {
     },
     {
       key: "itau",
-      stack: "Python, FastAPI, Node.js, NestJS, Go, React, PostgreSQL, Redis, Kafka, AWS, SQS), K8s, Terraform.",
+      stack: "Python (FastAPI), Node.js, Go, Angular, PostgreSQL, Redis, Kafka, AWS (EKS, SQS), K8s, Terraform.",
       bullets: [
         [
           "Strategic Institutional Custody (+R$ 100 Bn)",
-          "Worked in a 15-engineer squad designing and maintaining a B2B platform connected to B3, featuring cloud-native AWS architecture, high-availability Python/Node.js APIs, and React dashboards.",
+          "Worked in a 15-engineer squad designing and maintaining a B2B platform connected to B3, featuring cloud-native AWS architecture, high-availability Python/Node.js APIs, and Angular dashboards.",
         ],
         [
           "Crisis Management &amp; Concurrency",
@@ -130,5 +130,5 @@ export const variant: Variant = {
       ],
     },
   ],
-  timeline: TIMELINE,
+  timeline: [],
 };

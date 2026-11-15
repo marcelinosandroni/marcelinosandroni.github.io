@@ -27,7 +27,7 @@ export const variant: Variant = {
     ],
     [
       "Cloud &amp; DevOps",
-      "AWS (EKS, Bedrock, Lambda, SQS), Azure (AKS, AI Studio, Service Bus), GCP (GKE, Vertex AI), Docker, Kubernetes, Helm, Terraform, CI/CD, GitHub Actions, OpenTelemetry, Prometheus, Datadog, Grafana, Loki.",
+      "AWS (EKS, Bedrock, Lambda, SQS), Azure (AKS, AI Studio, Service Bus), GCP (GKE, Vertex AI), Docker, Kubernetes, Helm, Terraform, CI/CD, GitHub Actions, Datadog.",
     ],
     [
       "Arquitetura &amp; Mensageria",
@@ -89,7 +89,7 @@ export const variant: Variant = {
     },
     {
       key: "itau",
-      stack: "Python (FastAPI), Node.js (NestJS), Go, Angular, PostgreSQL, Redis, Kafka, AWS (EKS, SQS), K8s, Terraform.",
+      stack: "Python (FastAPI), Node.js, Go, Angular, PostgreSQL, Redis, Kafka, AWS (EKS, SQS), K8s, Terraform.",
       bullets: [
         [
           "Custódia Institucional Estratégica (+R$ 100 Bi)",
