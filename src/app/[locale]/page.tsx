@@ -79,7 +79,7 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
         testimonials={testimonials}
         testimonialsEnabled={isFeatureEnabled("testimonials")}
       />
-      <AdminEditIndicator section="home" label="Edit Home" />
+      {/* <AdminEditIndicator section="home" label="Edit Home" /> */}
     </>
   );
 }
