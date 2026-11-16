@@ -8,9 +8,17 @@ import { VARIANTS_EN } from "./data/stack-variants.en";
 import { TIMELINE_EN, GENERAL_ONLY, translateResumeToEnglish } from "./build-english-resume";
 import { convertHtmlToPdf } from "./html-to-pdf";
 
-function parseArgs(argv: string[]): { slug: string; locale: "pt-br" | "en-us"; pdfOut?: string } {
+type Locale = "pt-br" | "en-us";
+
+/**
+ * `locale` is `null` when the caller did not ask for one, which means "every
+ * language that has this slug" - see `localesFor`. It used to default to
+ * `en-us`, so the documented `-- <slug>` invocation silently produced only the
+ * English document of a variant that exists in both languages.
+ */
+function parseArgs(argv: string[]): { slug: string; locale: Locale | null; pdfOut?: string } {
   const positional: string[] = [];
-  let locale: "pt-br" | "en-us" = "pt-br";
+  let locale: Locale | null = null;
   let pdfOut: string | undefined;
 
   for (let i = 0; i < argv.length; i++) {
@@ -22,6 +30,8 @@ function parseArgs(argv: string[]): { slug: string; locale: "pt-br" | "en-us"; p
       else throw new Error(`unknown locale: ${value}`);
     } else if (arg === "--en" || arg === "--english") {
       locale = "en-us";
+    } else if (arg === "--pt" || arg === "--portuguese") {
+      locale = "pt-br";
     } else if (arg === "--pdf" || arg === "--out") {
       pdfOut = argv[++i];
     } else if (arg === "--help" || arg === "-h") {
@@ -47,7 +57,9 @@ function printUsage(): void {
     [
       "Usage: npm run resume:build:slug -- <slug> [--locale pt-br|en-us] [--pdf <output.pdf>]",
       "",
-      "Generates the HTML for a single resume variant (by slug) and then the PDF from it.",
+      "Generates the HTML for a resume variant (by slug) and then the PDF from it.",
+      "Without --locale it builds every language that has the slug: a variant that",
+      "exists in both writes the pt-BR and the en-US document, one after the other.",
       "",
       "Slugs (variants): enterprise-java, enterprise-java-react, enterprise-dotnet,",
       "                  enterprise-dotnet-react, modern-web, java-azure, java-ia, node-ia,",
@@ -55,15 +67,39 @@ function printUsage(): void {
       "Special slug:     document (or 'general') — the general resume",
       "",
       "Examples:",
-      "  npm run resume:build:slug -- enterprise-java",
+      "  npm run resume:build:slug -- enterprise-java              # pt-BR + en-US",
       "  npm run resume:build:slug -- modern-web --locale en-us",
-      "  npm run resume:build:slug -- document --pdf out.pdf",
+      "  npm run resume:build:slug -- document --locale pt-br --pdf out.pdf",
     ].join("\n"),
   );
 }
 
 function isGeneral(slug: string): boolean {
   return slug === "document" || slug === "general" || slug === "geral";
+}
+
+/**
+ * The languages this slug exists in, in the order the build writes them.
+ *
+ * A variant is written twice - `variants/<slug>-br.ts` and `<slug>-en.ts` - and
+ * the two are separate documents, so asking for the slug without a language is
+ * asking for both. A slug that only exists in one language is built once.
+ */
+function localesFor(slug: string): Locale[] {
+  const locales: Locale[] = [];
+
+  if (isGeneral(slug) || PT_VARIANTS.some((variant) => variant.slug === slug)) locales.push("pt-br");
+  if (isGeneral(slug) || VARIANTS_EN.some((variant) => variant.slug === slug)) locales.push("en-us");
+
+  return locales;
+}
+
+function pdfTargetFor(locale: Locale, slug: string): string {
+  const localeTag = locale === "pt-br" ? "pt-BR" : "en-US";
+
+  return isGeneral(slug)
+    ? `public/artifacts/fixed/resume-fixed-${localeTag}.pdf`
+    : `public/artifacts/fixed/resume-fixed-${localeTag}-${slug}.pdf`;
 }
 
 async function buildPtBr(slug: string): Promise<{ htmlPath: string; pdfInput: string }> {
@@ -127,27 +163,32 @@ async function buildEnUs(slug: string): Promise<{ htmlPath: string; pdfInput: st
 
 async function main(): Promise<void> {
   const { slug, locale, pdfOut } = parseArgs(process.argv.slice(2));
+  const locales: Locale[] = locale === null ? localesFor(slug) : [locale];
 
-  const built = locale === "pt-br" ? await buildPtBr(slug) : await buildEnUs(slug);
+  if (locales.length === 0) {
+    const available = [...PT_VARIANTS.map((variant) => variant.slug), "document"].join(", ");
+    throw new Error(`unknown slug: ${slug}. Available: ${available}`);
+  }
 
-  const pdfTarget =
-    pdfOut ??
-    (locale === "pt-br"
-      ? isGeneral(slug)
-        ? "public/artifacts/fixed/resume-fixed-pt-BR.pdf"
-        : `public/artifacts/fixed/resume-fixed-pt-BR-${slug}.pdf`
-      : isGeneral(slug)
-        ? "public/artifacts/fixed/resume-fixed-en-US.pdf"
-        : `public/artifacts/fixed/resume-fixed-en-US-${slug}.pdf`);
+  if (pdfOut !== undefined && locales.length > 1) {
+    throw new Error(
+      `--pdf needs --locale: ${slug} exists in ${locales.join(" and ")}, so a single output file is ambiguous.`,
+    );
+  }
 
   await fs.mkdir(resolve("public/artifacts/fixed"), { recursive: true });
 
-  await convertHtmlToPdf({
-    input: resolve(built.pdfInput),
-    output: resolve(pdfTarget),
-  });
+  for (const current of locales) {
+    const built = current === "pt-br" ? await buildPtBr(slug) : await buildEnUs(slug);
+    const pdfTarget = pdfOut ?? pdfTargetFor(current, slug);
 
-  console.log(`done: ${built.htmlPath} -> ${pdfTarget}`);
+    await convertHtmlToPdf({
+      input: resolve(built.pdfInput),
+      output: resolve(pdfTarget),
+    });
+
+    console.log(`done: ${built.htmlPath} -> ${pdfTarget}`);
+  }
 }
 
 main().catch((error: unknown) => {
