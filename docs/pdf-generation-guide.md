@@ -18,9 +18,15 @@ Gera `resume-recruiter-en-us.html` e as variantes `resume-recruiter-en-us-*.html
 ```bash
 npm run resume:build:slug -- enterprise-java
 npm run resume:build:slug -- modern-web --locale en-us
-npm run resume:build:slug -- document
+npm run resume:build:slug -- document --locale pt-br --pdf out.pdf
 ```
 Gera o HTML da variante e, em seguida, o PDF correspondente (o PDF tem base no HTML).
+
+**Sem `--locale`, gera todos os idiomas em que a slug existe.** Uma variante escrita em
+`variants/<slug>-br.ts` e `<slug>-en.ts` produz o documento pt-BR e o en-US, um depois do
+outro. `--locale pt-br` (ou `-l pt`, `--pt`) e `--locale en-us` (ou `--en`) restringem a
+execução a um idioma. `--pdf` só vale para uma saída, então exige `--locale` quando a slug
+existe nos dois idiomas.
 
 ### 4. Renderizar um PDF de UM stack específico (do HTML já construído)
 ```bash
