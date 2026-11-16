@@ -50,7 +50,7 @@ export function HomeHeroSection({ hero, t, locale }: HomeHeroSectionProps) {
        */
       className="relative w-full overflow-x-clip bg-surface-base"
     >
-      <div className="mx-auto w-full max-w-[1320px] px-margin py-space-2xl md:px-margin-tablet lg:px-margin-desktop lg:py-space-3xl">
+      <div className="mx-auto w-full max-w-[1320px] px-margin py-space-2xl md:px-margin-tablet lg:px-margin-desktop lg:py-space-2xl">
         {/* Diffused radial backdrops — atmospheric depth only, never a hard edge. */}
         <div
           aria-hidden="true"
@@ -86,7 +86,7 @@ export function HomeHeroSection({ hero, t, locale }: HomeHeroSectionProps) {
               defensible, resolved from the claims module so the hero cannot quote
               a figure the resume and the PDF contradict.
             */}
-            <ul
+            {/* <ul
               className="grid grid-cols-1 gap-x-space-lg gap-y-space-md border-y border-border-subtle py-space-md sm:grid-cols-3"
               aria-label={t.hero.proofLabel}
             >
@@ -107,7 +107,7 @@ export function HomeHeroSection({ hero, t, locale }: HomeHeroSectionProps) {
                   </li>
                 );
               })}
-            </ul>
+            </ul> */}
 
             <p className="max-w-2xl font-body-lg text-body-lg text-text-secondary">
               {hero.narrative}
