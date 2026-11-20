@@ -1,10 +1,11 @@
 /**
  * The "Java + AI" variant in English.
  *
- * A translation of `variants/java-ia-br.ts`; the structure and the dates come from the shell.
+ * Content only: the shell supplies the structure, the dates and the experience
+ * every document shares, and `variants/shared.ts` supplies the type and the two
+ * section fragments.
  */
 import { metrics, summary, type Variant } from "./shared";
-import { JAVA_SUMMARY_BODY } from "./shared-en";
 
 export const variant: Variant = {
   slug: "java-ia",
@@ -13,76 +14,77 @@ export const variant: Variant = {
   headline: "Senior Software Engineer | Java + AI",
   inventory: [
     [
-      "Frontend & UI Architecture",
-      "Angular, React, RSC, Next, SSG, SSR, ISR, JavaScript, TypeScript, HTML5, CSS3, Micro-frontends, Design Systems.",
+      "Backend &amp; Frameworks",
+      "Java, Virtual Threads, Kotlin, Spring (Boot, MVC, Cloud, WebFlux, Batch, Security, Data), Quarkus, Hibernate/JPA, MapStruct, Go, Node, JUnit 5, Mockito, WireMock, Resilience4j, TestContainers.",
     ],
     [
-      "Backend & Frameworks",
-      "Java, Kotlin, Spring (Boot, MVC, Cloud, WebFlux, Batch, Security, Data), Quarkus, Go, NodeJS, TestContainers, Playwright.",
+      "AI &amp; Data",
+      "LLMs (Anthropic, OpenAI), Spring AI, LangChain4j, Python, LangChain, LangGraph, Bedrock, Azure AI, RAG (Hybrid Search, Reranking), Embeddings, Structured Outputs, Function Calling, MCPs, Multi-Agent, Guardrails, Evals, Semantic Caching, AI Gateway, FinOps (Token Optimization), AI Governance.",
     ],
     [
-      "AI & Data",
-      "LLMs (Anthropic, OpenAI), Spring AI, LangChain4j, Python, LangChain, LangGraph, Amazon Bedrock, Azure AI Studio, RAG, Agentic Workflows (Skills, Hooks, Function Calling), MCPs, SDD.",
+      "Cloud &amp; DevOps",
+      "AWS (EKS, ECS, S3, SQS, Lambda), Azure (AKS, Service Bus), GCP, Docker, Kubernetes, Helm, Terraform, ArgoCD, Vault, CI/CD, GitHub Actions, Jenkins, OpenTelemetry, Prometheus, Grafana, Datadog.",
     ],
     [
-      "Cloud & DevOps",
-      "AWS, Azure, Docker, Kubernetes, Helm, Terraform, CI/CD, GitHub Actions, Jenkins, OpenTelemetry, Prometheus, Datadog, Grafana, Loki.",
+      "Architecture &amp; Messaging",
+      "REST, gRPC, GraphQL, WebSockets, SSE, EDA, Kafka, RabbitMQ, Microservices, Clean, Hexagonal, Inbox/Outbox, Circuit Breakers, Saga, DDD, CQRS, SOLID, OAuth2, OIDC, JWT, mTLS.",
     ],
     [
-      "Architecture & Messaging",
-      "REST, gRPC, GraphQL, WebSockets, SSE, EDA, Kafka, RabbitMQ, Microservices, Clean, Hexagonal, Circuit Breakers, Saga, DDD, CQRS, SOLID.",
+      "Databases &amp; Data",
+      "PostgreSQL (pgvector), Oracle, SQL Server, MySQL, MongoDB, Redis, Elasticsearch, ClickHouse, Cassandra, DynamoDB, CosmosDB, Neo4j, Snowflake, Databricks, BigQuery, ETL/ELT, OpenSearch",
     ],
     [
-      "Analytics Ecosystem & Databases",
-      "PostgreSQL, Oracle, MongoDB, Redis, Cassandra, DynamoDB, CosmosDB, Snowflake, Databricks, ETL/ELT, Vector DBs (pgvector, Milvus).",
+      "Frontend &amp; UI Architecture",
+      "React, RSC, Next, SSG/SSR/ISR, Angular, Vue, React Native, Flutter, JS, Typescript, HTML5, CSS3, Tailwind, RxJS, NgRx, Zustand, TanStack Query, Microfrontends, Design Systems, Playwright.",
     ],
   ],
+
   sections: {
     summary: summary(
-      "A software engineer drawing on almost eight years in distributed architectures (Java, Spring, Angular, Kafka) and fifteen in corporate and financial backgrounds. ",
-      JAVA_SUMMARY_BODY,
+      "Senior Software Engineer combining 8 years in end-to-end engineering (Java, Spring, Kafka, Cloud) with 15 years of corporate and financial background. ",
+      "With strong experience in banks and fintechs, I translate market and business vision into software across the full lifecycle — from discovery to cloud deployment — decoupling legacy systems into distributed microservices, enterprise AI (Agents, RAG, Spring AI), and web/mobile apps with high scale, resilience, governance, compliance, testing, and observability.",
     ),
     metrics: metrics([
-      ["+R$ 500Bn", "Asset Management", "B2B platforms for fund custody and orchestration."],
-      ["D+0", "Real-Time Settlement", "From 24h (D+1) to under 1s, on Kafka and Java."],
-      ["100M+ msgs/day", "High Scale", "Event-driven, fault-tolerant."],
-      ["95%", "Test Coverage", "QA and TDD culture in backend (JUnit) and frontend (Cypress)."],
+      ["+BRL 500B", "Custody & Settlement", "Global B2B platforms boosting fundraising and returns by +28%."],
+      ["100M+ msgs/day", "Scale & Availability", "Real-time mission-critical systems with a strict 99.99% SLA."],
+      ["BRL 100M/year", "AI & New Contracts", "New contracts via Autonomous Agents, GraphRAG, and Evals."],
+      ["99%", "Quality & Reliability", "True business rule validation beyond the metric."],
     ]),
   },
   roles: [
     {
       key: "dgt",
-      stack: "Java, Spring Boot, Spring AI, Angular, TypeScript, Micro-frontends, PostgreSQL, Redis, gRPC, K8s, Azure.",
+      stack: "Java 21+, Spring Boot, Spring AI, LangChain4j, Angular, TypeScript, PostgreSQL, Redis, gRPC, K8s, Azure.",
       bullets: [
         [
-          "Technical Leadership & High Concurrency (Java 21)",
-          "Squad leadership restructuring critical ecosystems processing 100M+ messages/day. Application of Virtual Threads (Loom), gRPC and CQRS architecture with Redis/PostgreSQL sharding to guarantee ultra-low latency under massive traffic.",
+          "Technical Leadership, Discovery & High Concurrency (Java 21+)",
+          "End-to-end leadership — from stakeholder refinement to architecture — in restructuring mission-critical systems handling 100M+ messages/day, applying Virtual Threads, gRPC, and CQRS with Redis/PostgreSQL sharding for ultra-low latency.",
         ],
         [
-          "Distributed Resilience (Azure Ecosystem)",
-          "Event-driven architecture using Azure Event Hubs and Service Bus for asynchronous orchestration. Rigorous implementation of Saga patterns (consistency) and Circuit Breakers, shielding the system against cascading failures and sustaining 100% uptime.",
+          "Distributed Resilience & 99.99% SLA (Azure)",
+          "Event-driven architecture with Azure Event Hubs and Service Bus for asynchronous orchestration, applying Saga, Inbox/Outbox, and Circuit Breaker patterns to prevent cascading failures and sustain a 99.99% SLA.",
         ],
         [
-          "Corporate AI & Process Automation",
-          "Conception of real-time agentic flows integrating Spring AI and Azure AI Studio (LLMs/RAG). Automation of critical operations that strangled manual bottlenecks and ensured preservation of a R$ 24M/year contract.",
+          "Advanced AI Engineering & Revenue (BRL 100M/year)",
+          "Architecture of Multi-Agent ecosystems, GraphRAG, MCPs, and Evals using Spring AI, LangChain4j, and Azure AI Studio (Structured Outputs, Guardrails, and Semantic Caching), automating critical workflows and enabling BRL 100M/year in new contracts.",
         ],
       ],
     },
     {
       key: "bnp-paribas",
-      stack: "Java (Spring Boot/Batch), Angular, Micro-frontends, Oracle SQL, Kafka, OAuth2, K8s, Jenkins, Helm.",
+      stack: "Java (Spring Boot/Batch), Angular, Micro-frontends, Oracle SQL, Kafka, OAuth2/OIDC, K8s, Jenkins, Helm.",
       bullets: [
         [
-          "Event-Driven Architecture (EDA)",
-          "Strangling monoliths (Strangler Fig) into highly decoupled Java microservices. Design of an asynchronous mesh to guarantee high availability in critical transactions, with 95% test coverage.",
+          "Legacy Modernization, DDD & Quality (99%)",
+          "Monolith modernization (Strangler Fig) into decoupled Java microservices using Clean Architecture and DDD, achieving 99% test coverage with rigorous validation of financial rules and edge cases.",
         ],
         [
-          "Messaging & Fault Tolerance (Kafka)",
-          "Migration from batch processing (D+1) to streaming (D+0). Heavy engineering in transactional idempotency, retry patterns and DLQs, guaranteeing zero message loss and 100% uptime in reconciliation.",
+          "Real-Time Settlement & Fault Tolerance (Kafka)",
+          "Migration of batch pipelines to real-time streaming via Kafka, applying transactional idempotency, retry patterns, and DLQs to ensure zero message loss and maximum reconciliation availability.",
         ],
         [
-          "Distributed Orchestration & Consistency",
-          "Automation of integrations (B3/global exchanges) applying Circuit Breakers and Fallbacks. Mitigation of external network instability, guaranteeing consistency and unlocking +R$ 50 million in inflows.",
+          "Global Integrations & Growth (+28% Fundraising)",
+          "Resilient orchestration of integrations with B3 and global stock exchanges applying Circuit Breakers and Fallbacks, neutralizing external network instabilities and increasing fundraising and returns by +28% (+BRL 75 Million).",
         ],
       ],
     },
@@ -91,16 +93,16 @@ export const variant: Variant = {
       stack: "Java (Spring WebFlux), Angular, TypeScript, PostgreSQL, Redis, Kafka, AWS, K8s, Terraform.",
       bullets: [
         [
-          "Strategic Institutional Custody (+R$ 100 Bn)",
-          "Co-led a 15-engineer squad designing and running a B2B platform connected to B3, on cloud-native AWS with reactive Java APIs and Angular dashboards.",
+          "Strategic Institutional Custody (+BRL 500B)",
+          "End-to-end execution within a 15-engineer squad architecting and scaling a B2B platform connected to B3, featuring cloud-native infrastructure on AWS, reactive Java APIs (WebFlux), and Angular dashboards.",
         ],
         [
-          "Crisis Management and Resilience",
-          "Resolved Kafka concurrency bottlenecks under heavy volatility in under 24 hours, enforcing strict transactional idempotency.",
+          "Crisis Resolution & Distributed Concurrency",
+          "Diagnosis and resolution of severe Kafka concurrency bottlenecks under high market volatility in under 24 hours, applying strict transactional idempotency policies and distributed locking in Redis.",
         ],
         [
-          "8x Quality Improvement",
-          "Technical mentoring and E2E automation (CI/CD), shielding the ecosystem from critical regressions.",
+          "Quality Engineering & E2E Automation",
+          "Mentoring and automation of contract, integration, and E2E testing in CI/CD (JUnit 5, TestContainers, Cypress), safeguarding critical business rules against regressions.",
         ],
       ],
     },
@@ -109,12 +111,12 @@ export const variant: Variant = {
       stack: "Java, Angular, TypeScript, PostgreSQL, Redis, RabbitMQ, AWS, Docker, Kubernetes, CI/CD.",
       bullets: [
         [
-          "Rapid Progression and Cloud",
-          "Promoted from Junior to Full within one year. An agile team of six engineers refactoring Java monoliths onto event-driven architecture, and migrated to AWS in half the agreed schedule.",
+          "Accelerated Growth & Cloud Migration",
+          "Promoted from Junior to Mid-level in 1 year. Refactoring Java monoliths into event-driven architectures and delivering AWS migration in half projected timeline.",
         ],
         [
-          "Transactional Resilience",
-          "Rebuilt asynchronous messaging reliability on RabbitMQ with circuit breakers and dead-letter queues, reaching 100% data accuracy.",
+          "Transactional Resilience & Messaging",
+          "Structural remediation of asynchronous messaging (RabbitMQ) via Circuit Breakers, retries, and DLQs, ensuring 100% processing accuracy.",
         ],
       ],
     },
@@ -123,8 +125,8 @@ export const variant: Variant = {
       stack: null,
       bullets: [
         [
-          "Corporate Engineering Edge",
-          "Team leadership and process redesign that cut the accounting close by 83%. Deep expertise in finance and tax rules, translated directly into software teams.",
+          "Financial Management & Domain Engineering",
+          "83% reduction in monthly closing time via Python/SQL and BRL 1.2M/year in cost savings, translating SOX and IFRS/CPC rules into software systems and DDD modeling.",
         ],
       ],
     },
